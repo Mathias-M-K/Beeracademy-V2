@@ -1,5 +1,6 @@
 package dk.mathiaskofod.providers.loggers;
 
+import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -10,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 
 @Slf4j
@@ -30,7 +31,7 @@ public class RestClientLogger implements ContainerRequestFilter, ContainerRespon
         Optional<String> correlationId = Optional.ofNullable(requestContext.getHeaderString(CORRELATION_ID_HEADER));
 
 
-        MDC.put(CORRELATION_ID_HEADER,correlationId.orElse(UUID.randomUUID().toString()));
+        MDC.put(CORRELATION_ID_HEADER,correlationId.orElse(IdGenerator.generateCorrelationId()));
         timer.startTime();
 
         String method = requestContext.getMethod();

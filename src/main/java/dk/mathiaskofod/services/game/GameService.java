@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.services.game.game.id.generator.GameIdGenerator;
+import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.game.models.Game;
 import dk.mathiaskofod.services.player.models.Player;
@@ -26,7 +26,7 @@ public class GameService {
                 .map(Player::create)
                 .toList();
 
-        GameId gameId = GameIdGenerator.generateId();
+        GameId gameId = IdGenerator.generateGameId();
 
         Game game = new Game(name, gameId, players);
         games.put(gameId,game);

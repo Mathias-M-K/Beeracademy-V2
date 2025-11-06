@@ -1,11 +1,13 @@
 package dk.mathiaskofod.services.player.models;
 
+import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.game.models.Stats;
 
-public record Player(String name, Stats stats, ConnectionInfo connectionInfo) {
+public record Player(String name, String id, Stats stats, ConnectionInfo connectionInfo) {
 
     public static Player create(String name){
-        return new Player(name,Stats.create(), new ConnectionInfo());
+        String id = IdGenerator.generatePlayerId();
+        return new Player(name, id, Stats.create(), new ConnectionInfo());
 
     }
 }
