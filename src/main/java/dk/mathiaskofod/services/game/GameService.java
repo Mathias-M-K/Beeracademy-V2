@@ -1,22 +1,42 @@
 package dk.mathiaskofod.services.game;
 
+import dk.mathiaskofod.api.game.models.CreateGameRequest;
+import dk.mathiaskofod.services.game.game.id.generator.GameIdGenerator;
+import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.game.models.Game;
+import dk.mathiaskofod.services.player.models.Player;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class GameService {
 
-    private List<Game> games = new ArrayList<>();
+    private final Map<GameId,Game> games = new HashMap<>();
 
-    public void createGame(String name){
-        games.add(new Game(name));
+    public GameId createGame(CreateGameRequest createGameRequest){
+        return createGame(createGameRequest.name(), createGameRequest.playerNames());
+    }
+
+    public GameId createGame(String name, List<String> playerNames){
+
+        List<Player> players = playerNames.stream()
+                .map(Player::create)
+                .toList();
+
+        GameId gameId = GameIdGenerator.generateId();
+
+        Game game = new Game(name, gameId, players);
+        games.put(gameId,game);
+
+        return gameId;
     }
 
     public List<Game> getGames(){
-        return games;
+        return games.values().stream().toList();
+
     }
 
 }

@@ -10,7 +10,7 @@ import jakarta.ws.rs.QueryParam;
 
 import java.util.List;
 
-@Path("/player")
+@Path("/players")
 public class PlayerApi {
 
     @Inject
