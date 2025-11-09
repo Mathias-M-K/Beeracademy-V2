@@ -1,8 +1,6 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.api.game.models.PlayerDto;
-import dk.mathiaskofod.providers.exeptions.BaseException;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;

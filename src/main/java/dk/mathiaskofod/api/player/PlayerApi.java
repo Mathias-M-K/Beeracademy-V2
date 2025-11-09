@@ -8,7 +8,6 @@ import dk.mathiaskofod.services.player.PlayerConnectionService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +26,6 @@ public class PlayerApi {
 
     @Inject
     PlayerConnectionService playerConnectionService;
-
-    @Inject
-    Validator validator;
 
     @GET
     @Operation(summary = "Get Players in Game", description = "Retrieve a list of players participating in a specific game by providing the game ID.")

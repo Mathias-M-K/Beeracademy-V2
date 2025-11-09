@@ -4,7 +4,6 @@ import dk.mathiaskofod.api.auth.models.Token;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
-import dk.mathiaskofod.services.game.models.Game;
 import dk.mathiaskofod.services.player.exeptions.PlayerAlreadyClaimed;
 import dk.mathiaskofod.services.player.exeptions.PlayerNotFoundException;
 import dk.mathiaskofod.services.player.models.Player;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
@@ -51,7 +49,7 @@ public class PlayerConnectionService {
 
     public void sendText(String playerName, String message){
         String connectionId = connectedPlayers.get(playerName).connectionInfo().getConnectionId().orElseThrow();
-        connections.findByConnectionId(connectionId).ifPresent(conn -> {;
+        connections.findByConnectionId(connectionId).ifPresent(conn -> {
             log.info("Sending message to connectionId {}: {}", connectionId, message);
             conn.sendTextAndAwait(message);
         });
