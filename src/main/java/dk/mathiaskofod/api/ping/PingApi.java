@@ -5,9 +5,11 @@ import io.smallrye.common.annotation.NonBlocking;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/ping")
-@NonBlocking
+@Tag(name = "Ping API", description = "API endpoint for health check and application info")
 public class PingApi {
 
     @ConfigProperty(name = "quarkus.application.name", defaultValue = "unknown")
@@ -17,6 +19,8 @@ public class PingApi {
     String environment;
 
     @GET
+    @NonBlocking
+    @Operation(summary = "Ping the application", description = "Returns application name and environment info")
     public Pong ping() {
         return Pong.create(applicationName, environment);
     }
