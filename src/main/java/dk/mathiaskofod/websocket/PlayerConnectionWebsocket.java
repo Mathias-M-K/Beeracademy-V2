@@ -23,7 +23,7 @@ public class PlayerConnectionWebsocket {
 
         log.info("New connection established for user: {}, Connection-ID: {}", playerName, connectionId);
 
-        playerConnectionService.registerPlayer(playerName, connectionId);
+        //playerConnectionService.registerPlayer(playerName, connectionId);
         return "Welcome " + connection.pathParam("username") + "!";
     }
 
