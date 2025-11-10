@@ -4,7 +4,6 @@ import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
-import dk.mathiaskofod.services.game.models.Game;
 import dk.mathiaskofod.services.player.exeptions.PlayerNotFoundException;
 import dk.mathiaskofod.services.player.models.Player;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -47,7 +46,7 @@ public class GameService {
     }
 
     public Player getPlayer(GameId gameId, String playerId){
-        return getGame(gameId).players().stream()
+        return getGame(gameId).getPlayers().stream()
                 .filter(player -> player.id().equals(playerId))
                 .findFirst()
                 .orElseThrow(() -> new PlayerNotFoundException(playerId, gameId));

@@ -4,5 +4,16 @@ public enum Suit {
     diamond,
     club,
     heart,
-    spade
+    spade,
+    square,
+    hexagon,
+    star,
+    circle,
+    triangle,
+    plus,
+    minus,
+    thumbs_up;
+
+
+
 }

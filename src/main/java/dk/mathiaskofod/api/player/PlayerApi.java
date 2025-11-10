@@ -29,7 +29,7 @@ public class PlayerApi {
     @GET
     @Operation(summary = "Get Players in Game", description = "Retrieve a list of players participating in a specific game by providing the game ID.")
     public List<PlayerDto> getPlayers(@Valid @NotNull @QueryParam("gameId") GameId gameId) {
-        return gameService.getGame(gameId).players().stream()
+        return gameService.getGame(gameId).getPlayers().stream()
                 .map(PlayerDto::fromPlayer)
                 .toList();
     }

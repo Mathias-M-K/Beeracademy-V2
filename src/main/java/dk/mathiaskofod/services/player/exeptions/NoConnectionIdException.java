@@ -2,7 +2,6 @@ package dk.mathiaskofod.services.player.exeptions;
 
 import dk.mathiaskofod.providers.exeptions.BaseException;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
-import dk.mathiaskofod.services.game.models.Game;
 
 public class NoConnectionIdException extends BaseException {
 
