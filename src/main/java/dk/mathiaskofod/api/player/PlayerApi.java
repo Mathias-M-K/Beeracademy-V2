@@ -1,13 +1,12 @@
 package dk.mathiaskofod.api.player;
 
-import dk.mathiaskofod.api.auth.models.Token;
+import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.player.PlayerConnectionService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import lombok.extern.slf4j.Slf4j;

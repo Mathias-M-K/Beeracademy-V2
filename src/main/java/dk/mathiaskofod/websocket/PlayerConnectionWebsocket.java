@@ -1,13 +1,23 @@
 package dk.mathiaskofod.websocket;
 
+import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
+import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.player.PlayerConnectionService;
+import io.quarkus.security.Authenticated;
 import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.slf4j.MDC;
 
 @Slf4j
-@WebSocket(path="/player/{username}")
+@Authenticated
+@WebSocket(path = "/player")
 public class PlayerConnectionWebsocket {
+
+    @Inject
+    JsonWebToken jwt;
 
     @Inject
     WebSocketConnection connection;
@@ -16,26 +26,27 @@ public class PlayerConnectionWebsocket {
     PlayerConnectionService playerConnectionService;
 
     @OnOpen(broadcast = true)
-    public String onOpen() {
+    public void onOpen() {
 
-        String playerName = connection.pathParam("username");
-        String connectionId = connection.id();
+        TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
+        String websocketConnId = connection.id();
 
-        log.info("New connection established for user: {}, Connection-ID: {}", playerName, connectionId);
+        String CORRELATION_ID_HEADER = "X-Correlation-ID";
+        MDC.put(CORRELATION_ID_HEADER, websocketConnId);
+        log.info("Heya");
 
-        //playerConnectionService.registerPlayer(playerName, connectionId);
-        return "Welcome " + connection.pathParam("username") + "!";
+        playerConnectionService.registerConnection(tokenInfo, websocketConnId);
     }
 
     @OnClose
     public void onClose() {
-        log.warn("Connection closed for user: {}", connection.pathParam("username"));
-        connection.broadcast().sendTextAndAwait(connection.pathParam("username"));
+        playerConnectionService.registerDisconnect(TokenInfo.fromToken(jwt));
     }
 
     @OnTextMessage(broadcast = true)
     public void onMessage(String message) {
-        log.info("Received message from {}: {}", connection.pathParam("username"), message);
+        TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
+        log.info("Received message from {}: {}", tokenInfo.playerName(), message);
     }
 
 

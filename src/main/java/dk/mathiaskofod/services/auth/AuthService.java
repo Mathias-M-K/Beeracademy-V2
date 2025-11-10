@@ -1,6 +1,6 @@
 package dk.mathiaskofod.services.auth;
 
-import dk.mathiaskofod.api.auth.models.Token;
+import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.player.models.Player;

@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class PlayerAlreadyClaimed extends BaseException {
+public class PlayerAlreadyClaimedException extends BaseException {
 
-    public PlayerAlreadyClaimed(String playerId, GameId gameId) {
+    public PlayerAlreadyClaimedException(String playerId, GameId gameId) {
         super(createMessage(playerId, gameId), 409);
         log.warn(createMessage(playerId, gameId));
     }
