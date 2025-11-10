@@ -89,7 +89,7 @@ class GameTest {
             game.progressGame();
 
             //Arrange
-            assertThat(game.currentPlayer,is(player1));
+            assertThat(game.currentPlayer,is(expectedForthPlayer));
         }
     }
 

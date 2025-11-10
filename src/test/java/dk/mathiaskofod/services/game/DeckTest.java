@@ -3,8 +3,6 @@ package dk.mathiaskofod.services.game;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class DeckTest {
 
     @Test

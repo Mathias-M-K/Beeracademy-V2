@@ -1,7 +1,6 @@
 package dk.mathiaskofod.providers.loggers;
 
 import jakarta.enterprise.context.RequestScoped;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 

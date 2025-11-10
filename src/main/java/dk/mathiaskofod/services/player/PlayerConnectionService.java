@@ -8,16 +8,12 @@ import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.player.exeptions.NoConnectionIdException;
 import dk.mathiaskofod.services.player.exeptions.PlayerAlreadyClaimedException;
 import dk.mathiaskofod.services.player.exeptions.PlayerNotClaimedException;
-import dk.mathiaskofod.services.player.models.ConnectionInfo;
 import dk.mathiaskofod.services.player.models.Player;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @ApplicationScoped

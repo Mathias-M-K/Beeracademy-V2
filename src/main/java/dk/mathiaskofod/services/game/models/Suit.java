@@ -12,8 +12,5 @@ public enum Suit {
     triangle,
     plus,
     minus,
-    thumbs_up;
-
-
-
+    thumbs_up
 }

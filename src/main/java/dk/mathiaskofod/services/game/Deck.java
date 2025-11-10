@@ -2,7 +2,6 @@ package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.services.game.models.Card;
 import dk.mathiaskofod.services.game.models.Suit;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;

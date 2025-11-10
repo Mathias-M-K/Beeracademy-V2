@@ -1,15 +1,10 @@
 package dk.mathiaskofod.websocket;
 
-import dk.mathiaskofod.providers.exeptions.BaseException;
 import dk.mathiaskofod.providers.exeptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
-import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.player.PlayerConnectionService;
-import dk.mathiaskofod.services.player.exeptions.PlayerNotFoundException;
-import dk.mathiaskofod.services.player.models.ConnectionInfo;
 import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.security.Authenticated;
-import io.quarkus.security.ForbiddenException;
 import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;

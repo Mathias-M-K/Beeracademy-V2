@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.game.exceptions;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import dk.mathiaskofod.providers.exeptions.BaseException;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
 
