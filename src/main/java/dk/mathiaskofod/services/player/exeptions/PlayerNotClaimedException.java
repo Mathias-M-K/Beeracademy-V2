@@ -9,7 +9,6 @@ public class PlayerNotClaimedException extends BaseException {
 
     public PlayerNotClaimedException(String playerId, GameId gameId) {
         super(createMessage(playerId,gameId), 401);
-        log.warn(createMessage(playerId,gameId));
     }
 
     private static String createMessage(String playerId, GameId gameId){

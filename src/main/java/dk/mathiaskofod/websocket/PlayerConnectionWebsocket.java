@@ -1,15 +1,20 @@
 package dk.mathiaskofod.websocket;
 
-import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
+import dk.mathiaskofod.providers.exeptions.BaseException;
+import dk.mathiaskofod.providers.exeptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.player.PlayerConnectionService;
+import dk.mathiaskofod.services.player.exeptions.PlayerNotFoundException;
+import dk.mathiaskofod.services.player.models.ConnectionInfo;
+import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.security.Authenticated;
+import io.quarkus.security.ForbiddenException;
 import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.slf4j.MDC;
+
 
 @Slf4j
 @Authenticated
@@ -31,15 +36,16 @@ public class PlayerConnectionWebsocket {
         TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
         String websocketConnId = connection.id();
 
-        String CORRELATION_ID_HEADER = "X-Correlation-ID";
-        MDC.put(CORRELATION_ID_HEADER, websocketConnId);
-        log.info("Heya");
-
         playerConnectionService.registerConnection(tokenInfo, websocketConnId);
     }
 
     @OnClose
-    public void onClose() {
+    public void onClose(CloseReason reason) {
+
+        if(reason.getCode() == CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()){
+            return;
+        }
+
         playerConnectionService.registerDisconnect(TokenInfo.fromToken(jwt));
     }
 
@@ -47,6 +53,15 @@ public class PlayerConnectionWebsocket {
     public void onMessage(String message) {
         TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
         log.info("Received message from {}: {}", tokenInfo.playerName(), message);
+        playerConnectionService.relinquishPlayer(tokenInfo);
+    }
+
+    @OnError
+    public void onError(RuntimeException e){
+        String cause = e.getCause() == null ? "" : e.getCause().getClass().getSimpleName();
+        ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(),cause,e.getMessage());
+        connection.sendTextAndAwait(response);
+        connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
     }
 
 

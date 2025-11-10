@@ -9,7 +9,6 @@ public class PlayerNotFoundException extends BaseException {
 
     public PlayerNotFoundException(String playerId, GameId gameId) {
         super(createMessage(playerId, gameId), 404);
-        log.warn(createMessage(playerId, gameId));
     }
 
     private static String createMessage(String playerId, GameId gameId) {

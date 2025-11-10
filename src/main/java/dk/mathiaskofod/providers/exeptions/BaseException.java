@@ -10,5 +10,7 @@ public class BaseException extends RuntimeException {
     public BaseException(String message, int httpStatus) {
         super(message);
         this.httpStatus = httpStatus;
+
+        log.warn("{} - Message: {}", this.getClass().getSimpleName(),message);
     }
 }

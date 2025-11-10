@@ -9,7 +9,6 @@ public class GameNotFoundException extends BaseException {
 
     public GameNotFoundException(GameId gameId) {
         super(createMessage(gameId.humanReadableId()), 404);
-        log.warn(createMessage(gameId.humanReadableId()));
     }
 
     private static String createMessage(String gameId) {

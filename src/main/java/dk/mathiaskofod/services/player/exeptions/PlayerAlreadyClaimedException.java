@@ -10,7 +10,6 @@ public class PlayerAlreadyClaimedException extends BaseException {
 
     public PlayerAlreadyClaimedException(String playerId, GameId gameId) {
         super(createMessage(playerId, gameId), 409);
-        log.warn(createMessage(playerId, gameId));
     }
 
     private static String createMessage(String playerId, GameId gameId) {
