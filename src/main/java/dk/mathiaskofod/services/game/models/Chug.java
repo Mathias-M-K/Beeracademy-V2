@@ -1,4 +1,6 @@
 package dk.mathiaskofod.services.game.models;
 
-public record Chug() {
+import java.time.Duration;
+
+public record Chug(Card card, Duration chugTime) {
 }

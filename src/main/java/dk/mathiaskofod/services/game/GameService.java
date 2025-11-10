@@ -4,14 +4,19 @@ import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.player.PlayerConnectionService;
 import dk.mathiaskofod.services.player.exeptions.PlayerNotFoundException;
 import dk.mathiaskofod.services.player.models.Player;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.util.*;
 
 @ApplicationScoped
 public class GameService {
+
+    @Inject
+    PlayerConnectionService playerConnectionService;
 
     private final Map<GameId, Game> games = new HashMap<>();
 

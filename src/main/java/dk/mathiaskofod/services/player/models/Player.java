@@ -7,7 +7,7 @@ public record Player(String name, String id, Stats stats, ConnectionInfo connect
 
     public static Player create(String name){
         String id = IdGenerator.generatePlayerId();
-        return new Player(name, id, Stats.create(), new ConnectionInfo());
+        return new Player(name, id, new Stats(), new ConnectionInfo());
 
     }
 }

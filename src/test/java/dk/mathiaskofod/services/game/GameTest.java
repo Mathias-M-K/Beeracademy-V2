@@ -1,13 +1,14 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.models.Stats;
+import dk.mathiaskofod.services.game.models.Turn;
 import dk.mathiaskofod.services.player.models.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,6 +36,12 @@ class GameTest {
 
     @Nested
     class PlayerOrder{
+
+        @BeforeEach
+        void init(){
+            game.startGame();
+        }
+
         @Test
         @DisplayName("First player is player1")
         void firstPlayerIsPlayerOne(){
@@ -55,7 +62,10 @@ class GameTest {
             Player expectedSecondPlayer = player2;
 
             //Act
-            game.progressGame();
+            for(int turns = 0; turns < 1; turns++){
+                game.endTurn(0);
+            }
+
 
             //Assert
             assertThat(game.currentPlayer, is(expectedSecondPlayer));
@@ -69,8 +79,9 @@ class GameTest {
             Player expectedThirdPlayer = player3;
 
             //Act
-            game.progressGame();
-            game.progressGame();
+            for(int turns = 0; turns < 2; turns++){
+                game.endTurn(0);
+            }
 
             //Assert
             assertThat(game.currentPlayer, is(expectedThirdPlayer));
@@ -84,30 +95,79 @@ class GameTest {
             Player expectedForthPlayer = player1;
 
             //Act
-            game.progressGame();
-            game.progressGame();
-            game.progressGame();
+            for(int turns = 0; turns < 3; turns++){
+                game.endTurn(0);
+            }
+
+            //Arrange
+            assertThat(game.currentPlayer,is(expectedForthPlayer));
+        }
+
+        @Test
+        @DisplayName("Fifth player is player 2")
+        void fifthPlayerIsPlayerOne(){
+
+            //Arrange
+            Player expectedForthPlayer = player2;
+
+            //Act
+            for(int turns = 0; turns < 4; turns++){
+                game.endTurn(0);
+            }
+
+            //Arrange
+            assertThat(game.currentPlayer,is(expectedForthPlayer));
+        }
+
+        @Test
+        @DisplayName("Sixth player is player 3")
+        void sixthPlayerIsPlayerOne(){
+
+            //Arrange
+            Player expectedForthPlayer = player3;
+
+            //Act
+            for(int turns = 0; turns < 5; turns++){
+                game.endTurn(0);
+            }
+
+            //Arrange
+            assertThat(game.currentPlayer,is(expectedForthPlayer));
+        }
+
+        @Test
+        @DisplayName("Seventh player is player 1")
+        void seventhPlayerIsPlayerOne(){
+
+            //Arrange
+            Player expectedForthPlayer = player1;
+
+            //Act
+            for(int turns = 0; turns < 6; turns++){
+                game.endTurn(0);
+            }
 
             //Arrange
             assertThat(game.currentPlayer,is(expectedForthPlayer));
         }
     }
 
-    @Nested
-    class Time{
+    @Test
+    @DisplayName("Exception is thrown ")
+    void test(){
+        game.startGame();;
 
-        @Test
-        @DisplayName("Something about time")
-        void timeTest(){
-
-            Duration server = Duration.ofMinutes(2);
-            Duration client = Duration.ofSeconds(115);
-
-            Duration diff = Duration.ofMillis(client.toMillis()-server.toMillis());
-
-            System.out.println("Diff:" + diff.getSeconds());
+        for(int i = 0; i<3*13; i++){
+            game.endTurn(0);
         }
 
+        for(Player p : game.getPlayers()){
+            System.out.println("");
+            System.out.println(p.name());
+            for(Turn t : p.stats().getTurns()){
+                System.out.println(t);
+            }
+        }
     }
 
 
