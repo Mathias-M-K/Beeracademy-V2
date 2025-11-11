@@ -3,7 +3,7 @@ package dk.mathiaskofod.api.player;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.player.PlayerClientConnectionService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;

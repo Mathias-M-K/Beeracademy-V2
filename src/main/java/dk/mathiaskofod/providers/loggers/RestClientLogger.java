@@ -1,6 +1,6 @@
 package dk.mathiaskofod.providers.loggers;
 
-import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;

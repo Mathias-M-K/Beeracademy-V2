@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.game;
 
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
-import dk.mathiaskofod.services.game.models.Stats;
+import dk.mathiaskofod.services.game.event.GameEventEmitter;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.game.models.Turn;
 import dk.mathiaskofod.services.player.models.Player;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +23,8 @@ class GameTest {
     Player player2;
     Player player3;
 
+    GameEventEmitter uselessGameEventEmitter = new GameEventEmitter();
+
     @BeforeEach
     void init(){
 
@@ -31,7 +33,7 @@ class GameTest {
         player3 = Player.create("Player3");
 
         GameId gameId = new GameId(this.gameId);
-        game = new Game("Game under test",gameId, List.of(player1,player2,player3));
+        game = new Game("Game under test",gameId, List.of(player1,player2,player3),uselessGameEventEmitter);
     }
 
     @Nested
@@ -50,7 +52,7 @@ class GameTest {
             Player expectedFirstPlayer = player1;
 
             //Assert
-            assertThat(game.currentPlayer, is(expectedFirstPlayer));
+            assertThat(game.getCurrentPlayer(), is(expectedFirstPlayer));
 
         }
 
@@ -68,7 +70,7 @@ class GameTest {
 
 
             //Assert
-            assertThat(game.currentPlayer, is(expectedSecondPlayer));
+            assertThat(game.getCurrentPlayer(), is(expectedSecondPlayer));
         }
 
         @Test
@@ -84,7 +86,7 @@ class GameTest {
             }
 
             //Assert
-            assertThat(game.currentPlayer, is(expectedThirdPlayer));
+            assertThat(game.getCurrentPlayer(), is(expectedThirdPlayer));
         }
 
         @Test
@@ -100,7 +102,7 @@ class GameTest {
             }
 
             //Arrange
-            assertThat(game.currentPlayer,is(expectedForthPlayer));
+            assertThat(game.getCurrentPlayer(),is(expectedForthPlayer));
         }
 
         @Test
@@ -116,7 +118,7 @@ class GameTest {
             }
 
             //Arrange
-            assertThat(game.currentPlayer,is(expectedForthPlayer));
+            assertThat(game.getCurrentPlayer(),is(expectedForthPlayer));
         }
 
         @Test
@@ -132,7 +134,7 @@ class GameTest {
             }
 
             //Arrange
-            assertThat(game.currentPlayer,is(expectedForthPlayer));
+            assertThat(game.getCurrentPlayer(),is(expectedForthPlayer));
         }
 
         @Test
@@ -148,7 +150,7 @@ class GameTest {
             }
 
             //Arrange
-            assertThat(game.currentPlayer,is(expectedForthPlayer));
+            assertThat(game.getCurrentPlayer(),is(expectedForthPlayer));
         }
     }
 

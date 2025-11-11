@@ -1,8 +1,10 @@
-package dk.mathiaskofod.services.game.game.id.generator.models;
+package dk.mathiaskofod.services.game.id.generator.models;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.validation.constraints.Pattern;
 
 public record GameId(
+
         @Pattern(regexp = "^(?:[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}|[A-Za-z0-9]{9})$", message = "Invalid game ID format")
         String id
 ) {

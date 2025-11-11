@@ -1,6 +1,6 @@
 package dk.mathiaskofod.services.auth.models;
 
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 public record TokenInfo(String playerName, String playerId, GameId gameId) {

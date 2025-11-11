@@ -6,7 +6,7 @@ import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.game.GameClientConnectionService;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.GET;

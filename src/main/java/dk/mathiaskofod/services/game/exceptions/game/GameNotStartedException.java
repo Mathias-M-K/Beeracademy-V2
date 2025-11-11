@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.game.exceptions.game;
 
 import dk.mathiaskofod.providers.exeptions.BaseException;
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 
 public class GameNotStartedException extends BaseException {
 

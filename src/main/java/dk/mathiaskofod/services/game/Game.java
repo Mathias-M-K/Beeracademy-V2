@@ -1,8 +1,10 @@
 package dk.mathiaskofod.services.game;
 
+import dk.mathiaskofod.services.common.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.common.models.ConnectionInfo;
+import dk.mathiaskofod.services.game.event.GameEventEmitter;
 import dk.mathiaskofod.services.game.exceptions.game.GameNotStartedException;
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.game.models.Card;
 import dk.mathiaskofod.services.game.models.Chug;
 import dk.mathiaskofod.services.game.models.Turn;
@@ -28,18 +30,21 @@ public class Game {
     private final List<Player> players;
 
     @Getter
-    private ConnectionInfo connectionInfo;
+    private final ConnectionInfo connectionInfo;
 
     private boolean isStarted = false;
     private Instant gameStartTime;
     private int round = 1;
     private final Deck deck;
 
+    @Getter
+    private Player currentPlayer;
     private int currentPlayerIndex;
-    Player currentPlayer;
     private Instant currentPlayerStartTime;
 
-    public Game(String name, GameId gameId, List<Player> players) {
+    GameEventEmitter eventEmitter;
+
+    public Game(String name, GameId gameId, List<Player> players, GameEventEmitter eventEmitter) {
         this.name = name;
         this.gameId = gameId;
         this.players = players;
@@ -48,6 +53,8 @@ public class Game {
         this.currentPlayer = players.getFirst();
         this.currentPlayerIndex = 0;
         this.deck = new Deck(players.size());
+
+        this.eventEmitter = eventEmitter;
     }
 
     public void startGame() {
@@ -67,11 +74,11 @@ public class Game {
         return Duration.between(gameStartTime, Instant.now());
     }
 
-    public void endTurn(int clientDurationMillis){
+    public void endTurn(long clientDurationMillis){
         endTurn(clientDurationMillis,null);
     }
 
-    public void endTurn(int clientDurationMillis, Chug chug) {
+    public void endTurn(long clientDurationMillis, Chug chug) {
 
         if (!isStarted) {
             throw new GameNotStartedException(gameId);
@@ -85,7 +92,8 @@ public class Game {
 
         log.info("Client diff from server time: {} millis", clientDiff.toMillis());
 
-        Turn turn = new Turn(round, drawCard(), playerTime);
+        Card card = drawCard();
+        Turn turn = new Turn(round, card, playerTime);
         currentPlayer.stats().addTurn(turn);
 
         if(chug != null){
@@ -93,6 +101,8 @@ public class Game {
         }
 
         progressGame();
+
+        eventEmitter.onEndOfTurn(playerTime,card,currentPlayer, gameId);
     }
 
     private void progressGame() {

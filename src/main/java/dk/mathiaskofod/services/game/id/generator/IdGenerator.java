@@ -1,6 +1,6 @@
-package dk.mathiaskofod.services.game.game.id.generator;
+package dk.mathiaskofod.services.game.id.generator;
 
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 
 import java.security.SecureRandom;
 import java.util.UUID;

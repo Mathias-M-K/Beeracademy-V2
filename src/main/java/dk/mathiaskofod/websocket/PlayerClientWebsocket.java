@@ -4,6 +4,8 @@ import dk.mathiaskofod.providers.exeptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.Roles;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.player.PlayerClientConnectionService;
+import dk.mathiaskofod.services.player.models.action.PlayerAction;
+import dk.mathiaskofod.services.player.models.action.PlayerDataType;
 import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.*;
 import jakarta.annotation.security.RolesAllowed;
@@ -46,10 +48,10 @@ public class PlayerClientWebsocket {
     }
 
     @OnTextMessage(broadcast = true)
-    public void onMessage(String message) {
+    public void onMessage(PlayerAction action) {
         TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
-        log.info("Received message from {}: {}", tokenInfo.playerName(), message);
-        playerClientConnectionService.relinquishPlayer(tokenInfo);
+        log.info("Received action from {}: {}", tokenInfo.playerName(), action.data().get(PlayerDataType.elapsedTime));
+        playerClientConnectionService.onPlayerAction(action,tokenInfo);
     }
 
     @OnError

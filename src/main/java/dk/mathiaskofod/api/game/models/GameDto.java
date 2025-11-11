@@ -4,7 +4,7 @@ import dk.mathiaskofod.services.game.Game;
 
 import java.util.List;
 
-public record GameDto(String name, String id, List<PlayerDto> players) {
+public record GameDto(String name, String id, boolean isConnected, int nrOfPlayers) {
 
     public static GameDto fromGame(Game game){
 
@@ -15,7 +15,8 @@ public record GameDto(String name, String id, List<PlayerDto> players) {
         return new GameDto(
                 game.getName(),
                 game.getGameId().humanReadableId(),
-                players
+                game.getConnectionInfo().isConnected(),
+                players.size()
         );
     }
 }

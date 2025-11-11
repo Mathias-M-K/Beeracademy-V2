@@ -1,14 +1,16 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
+import dk.mathiaskofod.services.game.event.GameEventEmitter;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import dk.mathiaskofod.services.game.game.id.generator.IdGenerator;
-import dk.mathiaskofod.services.game.game.id.generator.models.GameId;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
+import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.player.PlayerClientConnectionService;
 import dk.mathiaskofod.services.player.exeptions.PlayerNotFoundException;
 import dk.mathiaskofod.services.player.models.Player;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jboss.resteasy.reactive.common.NotImplementedYet;
 
 import java.util.*;
 
@@ -17,6 +19,9 @@ public class GameService {
 
     @Inject
     PlayerClientConnectionService playerClientConnectionService;
+
+    @Inject
+    GameEventEmitter gameEventEmitter;
 
     private final Map<GameId, Game> games = new HashMap<>();
 
@@ -32,7 +37,7 @@ public class GameService {
 
         GameId gameId = IdGenerator.generateGameId();
 
-        Game game = new Game(name, gameId, players);
+        Game game = new Game(name, gameId, players, gameEventEmitter);
         games.put(gameId, game);
 
         return gameId;
@@ -55,5 +60,17 @@ public class GameService {
                 .filter(player -> player.id().equals(playerId))
                 .findFirst()
                 .orElseThrow(() -> new PlayerNotFoundException(playerId, gameId));
+    }
+
+    public void endOfTurn(long elapsedTime, GameId gameId, String playerId){
+        Game game = getGame(gameId);
+        game.startGame();
+
+        if(!game.getCurrentPlayer().id().equals(playerId)){
+            //FIXME implement this
+            throw new NotImplementedYet();
+        }
+
+        game.endTurn(elapsedTime);
     }
 }
