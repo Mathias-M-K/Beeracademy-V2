@@ -80,6 +80,12 @@ public class GameClientSessionManager {
 
     }
 
+    public void registerDisconnect(GameId gameId){
+        getGameSessionOrFail(gameId).clearConnectionId();
+
+        log.info("Game client disconnected. GameID:{}", gameId.humanReadableId());
+    }
+
     private WebSocketConnection getWebsocketConnection(GameId gameId) {
 
         String connectionId = getGameSessionOrFail(gameId).getConnectionId()

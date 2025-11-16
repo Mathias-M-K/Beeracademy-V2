@@ -43,22 +43,26 @@ public class LobbyService {
         Optional<GameSession> gameSession = gameClientSessionManager.getGameSession(gameId);
 
         return gameSession.map(
-                        session -> GameDto.create(game, session, getPlayers(game.getPlayers())))
+                        session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
                 .orElseGet(
-                        () -> GameDto.create(game, getPlayers(game.getPlayers())));
+                        () -> GameDto.create(game, createPlayerDtoS(game.getPlayers())));
 
+    }
+
+    public List<PlayerDto> getPlayersInGame(GameId gameId) {
+        Game game = gameService.getGame(gameId);
+        return createPlayerDtoS(game.getPlayers());
     }
 
     public Token claimGame(GameId gameId) {
         return gameClientSessionManager.claimGame(gameId);
     }
 
-    public List<PlayerDto> getPlayersInGame(GameId gameId) {
-        Game game = gameService.getGame(gameId);
-        return getPlayers(game.getPlayers());
+    public Token claimPlayer(GameId gameId, String playerId) {
+        return playerClientSessionManager.claimPlayer(gameId, playerId);
     }
 
-    private List<PlayerDto> getPlayers(List<Player> players) {
+    private List<PlayerDto> createPlayerDtoS(List<Player> players) {
 
         return players.stream()
                 .map(player -> {

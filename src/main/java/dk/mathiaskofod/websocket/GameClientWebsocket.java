@@ -26,19 +26,17 @@ public class GameClientWebsocket {
 
     @OnOpen
     void onOpen(){
-        TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
-
-        gameClientSessionManager.registerConnection(tokenInfo.gameId(), connection.id());
+        gameClientSessionManager.registerConnection(TokenInfo.fromToken(jwt).gameId(), connection.id());
     }
 
     @OnClose
     void onClose(){
-        log.warn("Client disconnected");
+        gameClientSessionManager.registerDisconnect(TokenInfo.fromToken(jwt).gameId());
     }
 
     @OnTextMessage
-    void onMessage(String message){
-        log.info("Client message!");
+    String onMessage(String message){
+        return "Shhh";
     }
 
 }

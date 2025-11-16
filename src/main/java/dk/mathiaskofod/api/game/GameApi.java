@@ -57,5 +57,12 @@ public class GameApi {
         return lobbyService.getPlayersInGame(gameId);
     }
 
+    @GET
+    @Path("{game-id}/players/{player-id}/claim")
+    @Operation(summary = "Claim player", description = "Claims a player session and returns an authentication token")
+    public Token claimPlayer(@Valid @PathParam("game-id") GameId gameId, @PathParam("player-id") String playerId) {
+        return lobbyService.claimPlayer(gameId, playerId);
+    }
+
 
 }
