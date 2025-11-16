@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.models.events;
+package dk.mathiaskofod.services.session.models;
 
 import lombok.Setter;
 

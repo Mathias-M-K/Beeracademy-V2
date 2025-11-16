@@ -7,7 +7,7 @@ import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
-import dk.mathiaskofod.services.session.game.models.PlayerSession;
+import dk.mathiaskofod.services.session.player.models.PlayerSession;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerNotClaimedException;
 import dk.mathiaskofod.domain.game.player.Player;

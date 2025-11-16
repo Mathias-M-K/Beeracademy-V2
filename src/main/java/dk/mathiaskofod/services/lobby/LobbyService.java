@@ -11,7 +11,7 @@ import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;
 import dk.mathiaskofod.services.session.game.models.GameSession;
-import dk.mathiaskofod.services.session.game.models.PlayerSession;
+import dk.mathiaskofod.services.session.player.models.PlayerSession;
 import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

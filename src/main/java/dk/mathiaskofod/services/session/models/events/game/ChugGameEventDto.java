@@ -4,7 +4,7 @@ import dk.mathiaskofod.domain.game.deck.models.Suit;
 import dk.mathiaskofod.domain.game.events.events.ChugEvent;
 import dk.mathiaskofod.services.game.id.generator.models.GameId;
 
-public record ChugGameEventDto(Suit suit, long timeInMillis, String playerId, GameId gameId) {
+public record ChugGameEventDto(Suit suit, long timeInMillis, String playerId, GameId gameId) implements GameEventDto {
 
     public static ChugGameEventDto fromGameEvent(ChugEvent event) {
         return new ChugGameEventDto(
@@ -13,5 +13,10 @@ public record ChugGameEventDto(Suit suit, long timeInMillis, String playerId, Ga
             event.player().id(),
             event.gameId()
         );
+    }
+
+    @Override
+    public GameEventType getType() {
+        return GameEventType.CHUG;
     }
 }

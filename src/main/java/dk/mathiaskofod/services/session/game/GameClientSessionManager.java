@@ -14,6 +14,7 @@ import dk.mathiaskofod.services.game.id.generator.models.GameId;
 import dk.mathiaskofod.services.session.game.exceptions.GameSessionNotFoundException;
 import dk.mathiaskofod.services.session.game.models.GameSession;
 import dk.mathiaskofod.services.session.models.events.game.*;
+import dk.mathiaskofod.services.session.models.wrapper.GameEventWrapper;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -100,7 +101,8 @@ public class GameClientSessionManager {
         GameStartGameEventDto gameStartGameEventDto = GameStartGameEventDto.fromGameEvent(event);
 
         WebSocketConnection connection = getWebsocketConnection(event.gameId());
-        connection.sendTextAndAwait(gameStartGameEventDto);
+
+        connection.sendTextAndAwait(new GameEventWrapper(gameStartGameEventDto));
     }
 
     void onEndGameEvent(@Observes EndGameEvent event) {

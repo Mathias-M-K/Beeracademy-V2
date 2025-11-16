@@ -1,6 +1,6 @@
-package dk.mathiaskofod.services.session.game.models;
+package dk.mathiaskofod.services.session.player.models;
 
-import dk.mathiaskofod.services.session.models.events.AbstractSession;
+import dk.mathiaskofod.services.session.models.AbstractSession;
 import lombok.Getter;
 import lombok.Setter;
 
