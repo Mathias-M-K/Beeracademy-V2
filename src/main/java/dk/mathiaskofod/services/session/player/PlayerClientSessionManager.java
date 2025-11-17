@@ -1,28 +1,17 @@
 package dk.mathiaskofod.services.session.player;
 
 import dk.mathiaskofod.services.auth.models.Token;
-import dk.mathiaskofod.services.auth.AuthService;
-import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
-import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.models.GameId;
-import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.player.models.PlayerSession;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerNotClaimedException;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerSessionNotFoundException;
 import dk.mathiaskofod.services.session.player.models.action.PlayerAction;
-import io.quarkus.websockets.next.OpenConnections;
-import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
@@ -70,9 +59,9 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), "");
     }
 
+    //FIXME
     public void relinquishPlayer(GameId gameId, String playerId) {
 
-        WebSocketConnection connection = getWebsocketConnection(playerId);
 
         PlayerSession playerSession = getSession(playerId)
                 .orElseThrow(() -> new PlayerSessionNotFoundException(playerId));
@@ -80,7 +69,8 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId.humanReadableId(), getConnectionId(playerId));
 
         removeSession(playerId);
-        connection.closeAndAwait();
+        closeConnection(playerId);
+
     }
 
 

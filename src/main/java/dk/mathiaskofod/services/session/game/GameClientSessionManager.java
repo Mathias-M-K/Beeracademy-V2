@@ -2,30 +2,20 @@ package dk.mathiaskofod.services.session.game;
 
 import dk.mathiaskofod.domain.game.events.events.*;
 import dk.mathiaskofod.domain.game.events.events.ResumeGameEvent;
-import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
-import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.game.exceptions.GameAlreadyClaimedException;
 import dk.mathiaskofod.services.session.game.exceptions.GameNotClaimedException;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
-import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.models.GameId;
 
 import dk.mathiaskofod.services.session.game.exceptions.GameSessionNotFoundException;
 import dk.mathiaskofod.services.session.game.models.GameSession;
 import dk.mathiaskofod.services.session.models.events.game.*;
-import dk.mathiaskofod.services.session.models.wrapper.GameEventWrapper;
-import io.quarkus.websockets.next.OpenConnections;
-import io.quarkus.websockets.next.WebSocketConnection;
+import dk.mathiaskofod.services.session.models.wrapper.GameEventEnvelope;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
@@ -62,7 +52,6 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
                 .setConnectionId(websocketConnId);
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId.humanReadableId(), websocketConnId);
-
     }
 
     public void registerDisconnect(GameId gameId) {
@@ -78,50 +67,45 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     void onStartGameEvent(@Observes StartGameEvent event) {
 
         GameStartGameEventDto gameStartGameEventDto = GameStartGameEventDto.fromGameEvent(event);
-
-        WebSocketConnection connection = getWebsocketConnection(event.gameId());
-
-        connection.sendTextAndAwait(new GameEventWrapper(gameStartGameEventDto));
+        GameEventEnvelope envelope = new GameEventEnvelope(gameStartGameEventDto);
+        sendMessage(event.gameId(), envelope);
     }
 
     void onEndGameEvent(@Observes EndGameEvent event) {
 
         GameEndGameEventDto gameEndGameEventDto = GameEndGameEventDto.fromGameEvent(event);
-
-        WebSocketConnection connection = getWebsocketConnection(event.gameId());
-        connection.sendTextAndAwait(gameEndGameEventDto);
+        GameEventEnvelope envelope = new GameEventEnvelope(gameEndGameEventDto);
+        sendMessage(event.gameId(), envelope);
     }
 
     void onEndOfTurnEvent(@Observes EndOfTurnEvent event) {
 
         EndOfTurnGameEventDto endOfTurnGameEventDto = EndOfTurnGameEventDto.fromGameEvent(event);
-
-        WebSocketConnection connection = getWebsocketConnection(event.gameId());
-        connection.sendTextAndAwait(endOfTurnGameEventDto);
+        GameEventEnvelope envelope = new GameEventEnvelope(endOfTurnGameEventDto);
+        sendMessage(event.gameId(), envelope);
     }
 
     void onChugEvent(@Observes ChugEvent event) {
         ChugGameEventDto chugGameEventDto = ChugGameEventDto.fromGameEvent(event);
-
-        WebSocketConnection connection = getWebsocketConnection(event.gameId());
-        connection.sendTextAndAwait(chugGameEventDto);
+        GameEventEnvelope envelope = new GameEventEnvelope(chugGameEventDto);
+        sendMessage(event.gameId(), envelope);
     }
 
     void onPauseEvent(@Observes PauseGameEvent event) {
 
         GamePausedGameEventDto gamePausedGameEventDto = GamePausedGameEventDto.fromGameEvent(event);
-
-        WebSocketConnection connection = getWebsocketConnection(event.gameId());
-        connection.sendTextAndAwait(gamePausedGameEventDto);
+        GameEventEnvelope envelope = new GameEventEnvelope(gamePausedGameEventDto);
+        sendMessage(event.gameId(), envelope);
     }
 
     void onResumeEvent(@Observes ResumeGameEvent event) {
 
         GameResumedGameEventDto resumeEventDto = GameResumedGameEventDto.fromGameEvent(event);
-
-        WebSocketConnection connection = getWebsocketConnection(event.gameId());
-        connection.sendTextAndAwait(resumeEventDto);
+        GameEventEnvelope envelope = new GameEventEnvelope(resumeEventDto);
+        sendMessage(event.gameId(), envelope);
     }
+
+
 
 
 }
