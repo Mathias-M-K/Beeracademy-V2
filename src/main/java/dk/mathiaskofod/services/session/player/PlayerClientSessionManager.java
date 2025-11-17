@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
+@ApplicationScoped
 public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSession, String> {
 
     protected String getConnectionId(String playerId) {

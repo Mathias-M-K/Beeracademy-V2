@@ -5,16 +5,12 @@ import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Slf4j
-@ApplicationScoped
 public abstract class AbstractSessionManager<TSession, Tid> {
 
     private final Map<Tid, TSession> sessions = new HashMap<>();
