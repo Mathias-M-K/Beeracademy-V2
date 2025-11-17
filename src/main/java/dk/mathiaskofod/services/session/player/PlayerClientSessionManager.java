@@ -3,6 +3,7 @@ package dk.mathiaskofod.services.session.player;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.models.GameId;
@@ -24,101 +25,71 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-@ApplicationScoped
-public class PlayerClientSessionManager {
+public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSession, String> {
 
-    private final Map<String, PlayerSession> playerSessions = new HashMap<>();
+    protected String getConnectionId(String playerId) {
 
-    @Inject
-    GameService gameService;
-
-    @Inject
-    AuthService authService;
-
-    @Inject
-    OpenConnections connections;
-
-    private PlayerSession getPlayerSessionOrFail(String playerId) {
-
-        if (!playerSessions.containsKey(playerId)) {
-            throw new PlayerSessionNotFoundException(playerId);
-        }
-
-        return playerSessions.get(playerId);
-    }
-
-    public Optional<PlayerSession> getPlayerSession(String playerId) {
-        return Optional.ofNullable(playerSessions.get(playerId));
-    }
-
-    private String getConnectionId(String playerId, GameId gameId) {
-
-        return getPlayerSessionOrFail(playerId).getConnectionId().orElseThrow(
-                () -> new NoConnectionIdException(playerId, gameId)
-        );
-    }
-
-    private WebSocketConnection getWebsocketConnection(String playerId, GameId gameId) {
-        String connectionId = getConnectionId(playerId, gameId);
-        return connections.findByConnectionId(connectionId).orElseThrow(
-                () -> new WebsocketConnectionNotFoundException(connectionId)
-        );
+        return getSession(playerId)
+                .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
+                .getConnectionId()
+                .orElseThrow(() -> new NoConnectionIdException(playerId));
     }
 
     public Token claimPlayer(GameId gameId, String playerId) {
 
         Player player = gameService.getPlayer(gameId, playerId);
 
-        if (playerSessions.containsKey(player.id())) {
+        if (getSession(playerId).isPresent()) {
             throw new PlayerAlreadyClaimedException(playerId, gameId);
         }
 
-        playerSessions.put(playerId, new PlayerSession(playerId));
+        addSession(playerId, new PlayerSession(playerId));
 
         log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId.humanReadableId());
         return authService.createPlayerClientToken(player, gameId);
     }
 
-    public void registerConnection(TokenInfo tokenInfo, String websocketConnId) {
+    public void registerConnection(GameId gameId, String playerId, String websocketConnId) {
 
-        if (!playerSessions.containsKey(tokenInfo.playerId())) {
-            throw new PlayerNotClaimedException(tokenInfo.playerId(), tokenInfo.gameId());
-        }
+        getSession(playerId)
+                .orElseThrow(() -> new PlayerNotClaimedException(playerId, gameId))
+                .setConnectionId(websocketConnId);
 
-        getPlayerSessionOrFail(tokenInfo.playerId()).setConnectionId(websocketConnId);
-        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", tokenInfo.playerId(), tokenInfo.gameId().humanReadableId(), websocketConnId);
+        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), websocketConnId);
 
     }
 
-    public void registerDisconnect(TokenInfo tokenInfo) {
+    public void registerDisconnect(GameId gameId, String playerId) {
 
-        String connectionId = getConnectionId(tokenInfo.playerId(), tokenInfo.gameId());
+        getSession(playerId)
+                .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
+                .clearConnectionId();
 
-        log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", tokenInfo.playerId(), tokenInfo.gameId().humanReadableId(), connectionId);
 
-        getPlayerSessionOrFail(tokenInfo.playerId()).clearConnectionId();
+        log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), "");
     }
 
-    public void relinquishPlayer(String playerId, GameId gameId) {
+    public void relinquishPlayer(GameId gameId, String playerId) {
 
-        WebSocketConnection connection = getWebsocketConnection(playerId, gameId);
+        WebSocketConnection connection = getWebsocketConnection(playerId);
 
-        PlayerSession playerSession = getPlayerSessionOrFail(playerId);
-        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId.humanReadableId(), getConnectionId(playerId,gameId));
+        PlayerSession playerSession = getSession(playerId)
+                .orElseThrow(() -> new PlayerSessionNotFoundException(playerId));
 
-        playerSessions.remove(playerId);
+        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId.humanReadableId(), getConnectionId(playerId));
+
+        removeSession(playerId);
         connection.closeAndAwait();
     }
 
 
     //TODO should this be another pattern?
-    public void onPlayerAction(PlayerAction action, TokenInfo tokenInfo) {
+    public void onPlayerAction(PlayerAction action, GameId gameId, String playerId) {
 
         switch (action.type()) {
-            case startGame -> gameService.startGame(tokenInfo.gameId());
-            case endOfTurn -> gameService.endOfTurn(123, tokenInfo.gameId(), tokenInfo.playerId());
-            case chug ->
-                    log.info("Player {} in game {} is chugging!", tokenInfo.playerId(), tokenInfo.gameId().humanReadableId());
+            case startGame -> gameService.startGame(gameId);
+            case endOfTurn -> gameService.endOfTurn(123, gameId, playerId);
+            case chug -> log.info("Player {} in game {} is chugging!", playerId, gameId.humanReadableId());
             default -> log.error("Action type not supported by PlayerClient: {}", action.type());
         }
 

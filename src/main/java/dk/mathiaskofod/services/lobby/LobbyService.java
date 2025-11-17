@@ -40,7 +40,7 @@ public class LobbyService {
 
         Game game = gameService.getGame(gameId);
 
-        Optional<GameSession> gameSession = gameClientSessionManager.getGameSession(gameId);
+        Optional<GameSession> gameSession = gameClientSessionManager.getSession(gameId);
 
         return gameSession.map(
                         session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
@@ -66,7 +66,7 @@ public class LobbyService {
 
         return players.stream()
                 .map(player -> {
-                    Optional<PlayerSession> playerSessionOpt = playerClientSessionManager.getPlayerSession(player.id());
+                    Optional<PlayerSession> playerSessionOpt = playerClientSessionManager.getSession(player.id());
                     return playerSessionOpt.map(
                             session -> PlayerDto.create(player, session))
                             .orElseGet(

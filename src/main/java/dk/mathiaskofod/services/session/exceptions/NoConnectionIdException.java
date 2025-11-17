@@ -5,11 +5,11 @@ import dk.mathiaskofod.services.game.id.generator.models.GameId;
 
 public class NoConnectionIdException extends BaseException {
 
-    public NoConnectionIdException(String playerId, GameId gameId) {
-        super("No connection ID exist for player " + playerId + " in game " + gameId.humanReadableId(), 404);
+    public NoConnectionIdException(String playerId) {
+        super(String.format("No connection ID exist for player %s", playerId), 404);
     }
 
     public NoConnectionIdException(GameId gameId){
-        super("No connection ID exist for game " + gameId.humanReadableId(),404);
+        super(String.format("No connection ID exist for game %s", gameId.humanReadableId()),404);
     }
 }

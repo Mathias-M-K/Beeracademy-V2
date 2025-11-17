@@ -4,6 +4,7 @@ import dk.mathiaskofod.domain.game.events.events.*;
 import dk.mathiaskofod.domain.game.events.events.ResumeGameEvent;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.auth.models.Token;
+import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.game.exceptions.GameAlreadyClaimedException;
 import dk.mathiaskofod.services.session.game.exceptions.GameNotClaimedException;
@@ -28,73 +29,51 @@ import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
-public class GameClientSessionManager {
-
-    private final Map<GameId, GameSession> gameSessions = new HashMap<>();
-
-    @Inject
-    GameService gameService;
-
-    @Inject
-    AuthService authService;
-
-    @Inject
-    OpenConnections connections;
+public class GameClientSessionManager extends AbstractSessionManager<GameSession, GameId> {
 
 
-    private GameSession getGameSessionOrFail(GameId gameId) {
-        if (!gameSessions.containsKey(gameId)) {
-            throw new GameSessionNotFoundException(gameId);
-        }
-        return gameSessions.get(gameId);
+    @Override
+    protected String getConnectionId(GameId id) {
+        return getSession(id).
+                orElseThrow(() -> new GameSessionNotFoundException(id))
+                .getConnectionId()
+                .orElseThrow(() -> new NoConnectionIdException(id));
     }
 
-    public Optional<GameSession> getGameSession(GameId gameId) {
-        return Optional.ofNullable(gameSessions.get(gameId));
-    }
-
+    //TODO seems weird to be calling getGame without using it
     public Token claimGame(GameId gameId) {
 
         //Checks whether the game exists
         gameService.getGame(gameId);
 
-        if (gameSessions.containsKey(gameId)) {
+        if (getSession(gameId).isPresent()) {
             throw new GameAlreadyClaimedException(gameId);
         }
 
-        gameSessions.put(gameId, new GameSession(gameId));
+        addSession(gameId, new GameSession(gameId));
 
         return authService.createGameClientToken(gameId);
     }
 
     public void registerConnection(GameId gameId, String websocketConnId) {
 
-        gameService.getGame(gameId);
-
-        if (!gameSessions.containsKey(gameId)) {
-            throw new GameNotClaimedException(gameId);
-        }
-
-        getGameSessionOrFail(gameId).setConnectionId(websocketConnId);
+        getSession(gameId)
+                .orElseThrow(() -> new GameNotClaimedException(gameId))
+                .setConnectionId(websocketConnId);
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId.humanReadableId(), websocketConnId);
 
     }
 
-    public void registerDisconnect(GameId gameId){
-        getGameSessionOrFail(gameId).clearConnectionId();
+    public void registerDisconnect(GameId gameId) {
+
+        getSession(gameId)
+                .orElseThrow(() -> new GameSessionNotFoundException(gameId))
+                .clearConnectionId();
 
         log.info("Game client disconnected. GameID:{}", gameId.humanReadableId());
     }
 
-    private WebSocketConnection getWebsocketConnection(GameId gameId) {
-
-        String connectionId = getGameSessionOrFail(gameId).getConnectionId()
-                .orElseThrow(() -> new NoConnectionIdException(gameId));
-
-        return connections.findByConnectionId(connectionId)
-                .orElseThrow(() -> new WebsocketConnectionNotFoundException(connectionId));
-    }
 
     void onStartGameEvent(@Observes StartGameEvent event) {
 

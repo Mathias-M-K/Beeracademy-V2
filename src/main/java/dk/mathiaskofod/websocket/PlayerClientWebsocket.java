@@ -34,7 +34,7 @@ public class PlayerClientWebsocket {
         TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
         String websocketConnId = connection.id();
 
-        playerClientSessionManager.registerConnection(tokenInfo, websocketConnId);
+        playerClientSessionManager.registerConnection(tokenInfo.gameId(),tokenInfo.playerId(), websocketConnId);
     }
 
     @OnClose
@@ -44,14 +44,15 @@ public class PlayerClientWebsocket {
             return;
         }
 
-        playerClientSessionManager.registerDisconnect(TokenInfo.fromToken(jwt));
+        TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
+        playerClientSessionManager.registerDisconnect(tokenInfo.gameId(),tokenInfo.playerId());
     }
 
     @OnTextMessage()
     public void onMessage(PlayerAction action) {
         TokenInfo tokenInfo = TokenInfo.fromToken(jwt);
         log.info("Received action from {}: {}", tokenInfo.playerName(), action);
-        playerClientSessionManager.onPlayerAction(action,tokenInfo);
+        playerClientSessionManager.onPlayerAction(action,tokenInfo.gameId(), tokenInfo.playerId());
     }
 
     @OnError
