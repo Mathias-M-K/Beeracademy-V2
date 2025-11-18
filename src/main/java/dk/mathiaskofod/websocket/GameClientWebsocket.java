@@ -1,8 +1,13 @@
 package dk.mathiaskofod.websocket;
 
+import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
+import dk.mathiaskofod.services.auth.models.GameTokenInfo;
 import dk.mathiaskofod.services.auth.models.Roles;
-import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
-import dk.mathiaskofod.services.session.events.game.dto.GameClientSessionManager;
+
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
+import dk.mathiaskofod.services.session.game.GameClientSessionManager;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.*;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -26,17 +31,36 @@ public class GameClientWebsocket {
 
     @OnOpen
     void onOpen(){
-        gameClientSessionManager.registerConnection(PlayerTokenInfo.fromToken(jwt).gameId(), connection.id());
+        gameClientSessionManager.registerConnection(GameTokenInfo.fromToken(jwt).gameId(), connection.id());
     }
 
     @OnClose
-    void onClose(){
-        gameClientSessionManager.registerDisconnect(PlayerTokenInfo.fromToken(jwt).gameId());
+    void onClose(CloseReason reason){
+
+        if(reason.getCode() == CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()){
+            return;
+        }
+
+        gameClientSessionManager.registerDisconnect(GameTokenInfo.fromToken(jwt).gameId());
     }
 
     @OnTextMessage
-    String onMessage(String message){
-        return "Shhh";
+    void onMessage(WebsocketEnvelope envelope){
+        gameClientSessionManager.onMessageReceived(GameTokenInfo.fromToken(jwt).gameId(), envelope);
     }
+
+    @OnError
+    void onError(RuntimeException e){
+        String cause = e.getCause() == null ? "" : e.getCause().getClass().getSimpleName();
+        ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(),cause,e.getMessage());
+        log.warn("Websocket error for connection {}: {}", connection.id(), response);
+        connection.sendTextAndAwait(response);
+
+        if(e instanceof GameNotFoundException){
+            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
+        }
+    }
+
+
 
 }

@@ -21,7 +21,6 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     @Override
     public void onStartGame(GameId gameId) {
         eventBus.fire(new StartGameEvent(gameId));
-
     }
 
     @Override

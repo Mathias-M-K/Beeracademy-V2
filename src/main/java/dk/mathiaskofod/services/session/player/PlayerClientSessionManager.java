@@ -4,13 +4,17 @@ import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
+import dk.mathiaskofod.services.session.actions.player.client.RelinquishPlayerAction;
+import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
+import dk.mathiaskofod.services.session.events.client.player.PlayerConnectedEvent;
+import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedEvent;
+import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.domain.game.models.GameId;
-import dk.mathiaskofod.services.session.actions.player.client.GameStartAction;
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.shared.EndOfTurnAction;
-import dk.mathiaskofod.services.session.wrapper.PlayerClientActionEnvelope;
-import dk.mathiaskofod.services.session.wrapper.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerNotClaimedException;
 import dk.mathiaskofod.domain.game.player.Player;
@@ -20,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSession, String> {
+public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSession, String, PlayerClientEvent> {
 
     protected String getConnectionId(String playerId) {
 
@@ -50,8 +54,8 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
                 .orElseThrow(() -> new PlayerNotClaimedException(playerId, gameId))
                 .setConnectionId(websocketConnId);
 
+        eventBus.fire(new PlayerConnectedEvent(playerId,gameId));
         log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), websocketConnId);
-
     }
 
     public void registerDisconnect(GameId gameId, String playerId) {
@@ -60,37 +64,34 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
                 .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
                 .clearConnectionId();
 
-
+        eventBus.fire(new PlayerDisconnectedEvent(playerId,gameId));
         log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), "");
     }
 
-    //FIXME
     public void relinquishPlayer(GameId gameId, String playerId) {
-
 
         PlayerSession playerSession = getSession(playerId)
                 .orElseThrow(() -> new PlayerSessionNotFoundException(playerId));
 
         log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId.humanReadableId(), getConnectionId(playerId));
 
-        removeSession(playerId);
         closeConnection(playerId);
+        removeSession(playerId);
 
+        eventBus.fire(new PlayerRelinquishedEvent(playerId,gameId));
     }
-
 
     //TODO should this be another pattern?
     public void onMessageReceived(WebsocketEnvelope envelope, PlayerTokenInfo tokenInfo) {
 
-        PlayerClientAction action = switch (envelope) {
-            case PlayerClientActionEnvelope playerActionEnvelope -> playerActionEnvelope.payload();
-            default -> throw new BaseException("Only player actions allowed from player clients", 400);
-        };
+        if(!(envelope instanceof PlayerClientActionEnvelope(PlayerClientAction payload))){
+            throw new BaseException("Only player actions allowed from player clients", 400);
+        }
 
-        switch (action) {
+        switch (payload) {
             case EndOfTurnAction endOfTurnAction -> handleEndOfTurnAction(endOfTurnAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
-            case GameStartAction () -> gameService.startGame(tokenInfo.gameId());
-            default -> throw new BaseException(String.format("Action type %s not yet supported",action.getClass().getSimpleName()), 400);
+            case RelinquishPlayerAction () -> relinquishPlayer(tokenInfo.gameId(), tokenInfo.playerId());
+            default -> throw new BaseException(String.format("Action type %s not yet supported",payload.getClass().getSimpleName()), 400);
         }
     }
 

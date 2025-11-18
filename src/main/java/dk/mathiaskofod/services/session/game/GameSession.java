@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.events.game.dto;
+package dk.mathiaskofod.services.session.game;
 
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.models.AbstractSession;

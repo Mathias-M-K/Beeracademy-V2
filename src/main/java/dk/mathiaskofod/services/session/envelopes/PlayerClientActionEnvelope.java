@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.wrapper;
+package dk.mathiaskofod.services.session.envelopes;
 
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
 import dk.mathiaskofod.services.session.models.annotations.Category;

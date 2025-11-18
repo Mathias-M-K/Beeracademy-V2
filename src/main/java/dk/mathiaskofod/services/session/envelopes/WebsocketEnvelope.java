@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.wrapper;
+package dk.mathiaskofod.services.session.envelopes;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

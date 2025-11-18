@@ -1,22 +1,34 @@
-package dk.mathiaskofod.services.session.events.game.dto;
+package dk.mathiaskofod.services.session.game;
 
 import dk.mathiaskofod.domain.game.events.*;
+import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
-import dk.mathiaskofod.services.session.events.game.dto.exceptions.GameAlreadyClaimedException;
-import dk.mathiaskofod.services.session.events.game.dto.exceptions.GameNotClaimedException;
+import dk.mathiaskofod.services.session.actions.game.client.GameClientAction;
+import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
+import dk.mathiaskofod.services.session.actions.shared.EndOfTurnAction;
+import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
+import dk.mathiaskofod.services.session.events.client.player.PlayerConnectedEvent;
+import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedEvent;
+import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
+import dk.mathiaskofod.services.session.events.domain.game.*;
+import dk.mathiaskofod.services.session.game.exceptions.GameAlreadyClaimedException;
+import dk.mathiaskofod.services.session.game.exceptions.GameNotClaimedException;
+import dk.mathiaskofod.services.session.events.client.game.GameClientEvent;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.domain.game.models.GameId;
 
-import dk.mathiaskofod.services.session.events.game.dto.exceptions.GameSessionNotFoundException;
-import dk.mathiaskofod.services.session.wrapper.GameEventEnvelope;
+import dk.mathiaskofod.services.session.game.exceptions.GameSessionNotFoundException;
+import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
+import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class GameClientSessionManager extends AbstractSessionManager<GameSession, GameId> {
+public class GameClientSessionManager extends AbstractSessionManager<GameSession, GameId, GameClientEvent> {
 
 
     @Override
@@ -60,6 +72,32 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
         log.info("Game client disconnected. GameID:{}", gameId.humanReadableId());
     }
 
+    public void onMessageReceived(GameId gameId, WebsocketEnvelope envelope) {
+
+        if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
+            throw new BaseException("Invalid envelope type for game client action", 400);
+        }
+
+        switch (action) {
+            case StartGameAction () -> gameService.startGame(gameId);
+            case EndOfTurnAction endOfTurnAction -> gameService.endOfTurn(endOfTurnAction.duration(), gameId);
+            default -> throw new BaseException("Unknown game client action type: " + action.getClass().getSimpleName(), 400);
+
+        }
+    }
+
+
+    void onPlayerConnectedEvent(@Observes PlayerConnectedEvent playerConnectedEvent){
+        sendMessage(playerConnectedEvent.gameId(), new PlayerClientEventEnvelope(playerConnectedEvent));
+    }
+
+    void onPlayerDisconnectedEvent(@Observes PlayerDisconnectedEvent playerDisconnectedEvent){
+        sendMessage(playerDisconnectedEvent.gameId(), new PlayerClientEventEnvelope(playerDisconnectedEvent));
+    }
+
+    void onPlayerRelinquishedEvent(@Observes PlayerRelinquishedEvent playerRelinquishEvent){
+        sendMessage(playerRelinquishEvent.gameId(), new PlayerClientEventEnvelope(playerRelinquishEvent));
+    }
 
     void onStartGameEvent(@Observes StartGameEvent event) {
 
@@ -101,8 +139,6 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
         GameEventEnvelope envelope = new GameEventEnvelope(resumeEventDto);
         sendMessage(event.gameId(), envelope);
     }
-
-
 
 
 }

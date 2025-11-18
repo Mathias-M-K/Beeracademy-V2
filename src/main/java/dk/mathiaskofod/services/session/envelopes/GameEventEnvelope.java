@@ -1,8 +1,8 @@
-package dk.mathiaskofod.services.session.wrapper;
+package dk.mathiaskofod.services.session.envelopes;
 
 
 import dk.mathiaskofod.services.session.models.annotations.Category;
-import dk.mathiaskofod.services.session.events.game.dto.GameEventDto;
+import dk.mathiaskofod.services.session.events.domain.game.GameEventDto;
 
 
 @Category("GAME_EVENT")

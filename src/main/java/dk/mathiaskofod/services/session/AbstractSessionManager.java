@@ -3,18 +3,22 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
-import dk.mathiaskofod.services.session.wrapper.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class AbstractSessionManager<TSession, Tid> {
+public abstract class AbstractSessionManager<TSession, Tid, TEvent> {
 
     private final Map<Tid, TSession> sessions = new HashMap<>();
+
+    @Inject
+    protected Event<TEvent> eventBus;
 
     @Inject
     protected GameService gameService;

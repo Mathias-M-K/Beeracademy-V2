@@ -4,7 +4,7 @@ import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.Roles;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import dk.mathiaskofod.services.session.wrapper.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
 import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.*;
@@ -50,7 +50,6 @@ public class PlayerClientWebsocket {
 
     @OnTextMessage()
     public void onMessage(WebsocketEnvelope websocketEnvelope) {
-        log.info("Received message from connection {}: {}", connection.id(), websocketEnvelope);
         PlayerTokenInfo tokenInfo = PlayerTokenInfo.fromToken(jwt);
         playerClientSessionManager.onMessageReceived(websocketEnvelope, tokenInfo);
     }
@@ -65,7 +64,6 @@ public class PlayerClientWebsocket {
         if(e instanceof GameNotFoundException){
             connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
         }
-
     }
 
 
