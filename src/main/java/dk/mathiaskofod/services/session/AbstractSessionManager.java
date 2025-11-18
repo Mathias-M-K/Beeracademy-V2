@@ -3,7 +3,7 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
-import dk.mathiaskofod.services.session.models.wrapper.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.wrapper.WebsocketEnvelope;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;

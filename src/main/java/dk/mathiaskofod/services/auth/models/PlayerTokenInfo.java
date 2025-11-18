@@ -1,6 +1,6 @@
 package dk.mathiaskofod.services.auth.models;
 
-import dk.mathiaskofod.services.game.id.generator.models.GameId;
+import dk.mathiaskofod.domain.game.models.GameId;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 //FIXME create GameTokenInfo

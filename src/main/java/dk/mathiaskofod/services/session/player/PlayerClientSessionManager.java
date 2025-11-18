@@ -5,12 +5,12 @@ import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
-import dk.mathiaskofod.services.game.id.generator.models.GameId;
-import dk.mathiaskofod.services.session.models.actions.player.client.GameStartAction;
-import dk.mathiaskofod.services.session.models.actions.player.client.PlayerClientAction;
-import dk.mathiaskofod.services.session.models.actions.shared.EndOfTurnAction;
-import dk.mathiaskofod.services.session.models.wrapper.PlayerClientActionEnvelope;
-import dk.mathiaskofod.services.session.models.wrapper.WebsocketEnvelope;
+import dk.mathiaskofod.domain.game.models.GameId;
+import dk.mathiaskofod.services.session.actions.player.client.GameStartAction;
+import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
+import dk.mathiaskofod.services.session.actions.shared.EndOfTurnAction;
+import dk.mathiaskofod.services.session.wrapper.PlayerClientActionEnvelope;
+import dk.mathiaskofod.services.session.wrapper.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerNotClaimedException;
 import dk.mathiaskofod.domain.game.player.Player;
@@ -100,7 +100,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         if (!playerId.equals(currentPlayerId)) {
             throw new BaseException("It's not your turn!", 400); //FIXME custom exception
         }
-        gameService.endOfTurn(durationInMillis, gameId, playerId);
+        gameService.endOfTurn(durationInMillis, gameId);
     }
 
 }

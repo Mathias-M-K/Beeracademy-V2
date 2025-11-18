@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.game.exceptions;
 
 import dk.mathiaskofod.providers.exceptions.BaseException;
-import dk.mathiaskofod.services.game.id.generator.models.GameId;
+import dk.mathiaskofod.domain.game.models.GameId;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

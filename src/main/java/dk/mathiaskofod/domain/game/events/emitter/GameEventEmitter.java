@@ -2,7 +2,7 @@ package dk.mathiaskofod.domain.game.events.emitter;
 
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
-import dk.mathiaskofod.services.game.id.generator.models.GameId;
+import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.player.Player;
 
 import java.time.Duration;

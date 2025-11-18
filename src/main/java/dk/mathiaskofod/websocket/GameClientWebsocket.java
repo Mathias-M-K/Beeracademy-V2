@@ -2,7 +2,7 @@ package dk.mathiaskofod.websocket;
 
 import dk.mathiaskofod.services.auth.models.Roles;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
-import dk.mathiaskofod.services.session.game.GameClientSessionManager;
+import dk.mathiaskofod.services.session.events.game.dto.GameClientSessionManager;
 import io.quarkus.websockets.next.*;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;

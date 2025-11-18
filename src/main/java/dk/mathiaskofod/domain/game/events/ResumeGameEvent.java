@@ -1,6 +1,6 @@
 package dk.mathiaskofod.domain.game.events;
 
-import dk.mathiaskofod.services.game.id.generator.models.GameId;
+import dk.mathiaskofod.domain.game.models.GameId;
 
 public record ResumeGameEvent(GameId gameId) implements GameEvent {
 }

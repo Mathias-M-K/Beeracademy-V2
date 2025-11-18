@@ -1,6 +1,6 @@
 package dk.mathiaskofod.api.game.models;
 
-import dk.mathiaskofod.services.game.id.generator.models.GameId;
+import dk.mathiaskofod.domain.game.models.GameId;
 
 public record GameIdDto(String gameId) {
 
