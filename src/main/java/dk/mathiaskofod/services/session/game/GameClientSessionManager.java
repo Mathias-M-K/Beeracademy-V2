@@ -8,13 +8,10 @@ import dk.mathiaskofod.services.session.actions.game.client.GameClientAction;
 import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
 import dk.mathiaskofod.services.session.actions.shared.EndOfTurnAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
-import dk.mathiaskofod.services.session.events.client.player.PlayerConnectedEvent;
-import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedEvent;
-import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
+import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.domain.game.*;
 import dk.mathiaskofod.services.session.game.exceptions.GameAlreadyClaimedException;
 import dk.mathiaskofod.services.session.game.exceptions.GameNotClaimedException;
-import dk.mathiaskofod.services.session.events.client.game.GameClientEvent;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.domain.game.models.GameId;
 
@@ -87,20 +84,13 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     }
 
 
-    void onPlayerConnectedEvent(@Observes PlayerConnectedEvent playerConnectedEvent){
-        sendMessage(playerConnectedEvent.gameId(), new PlayerClientEventEnvelope(playerConnectedEvent));
+    /** Player Events **/
+    void onPlayerConnectedEvent(@Observes PlayerClientEvent playerClientEvent){
+        sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
-    void onPlayerDisconnectedEvent(@Observes PlayerDisconnectedEvent playerDisconnectedEvent){
-        sendMessage(playerDisconnectedEvent.gameId(), new PlayerClientEventEnvelope(playerDisconnectedEvent));
-    }
-
-    void onPlayerRelinquishedEvent(@Observes PlayerRelinquishedEvent playerRelinquishEvent){
-        sendMessage(playerRelinquishEvent.gameId(), new PlayerClientEventEnvelope(playerRelinquishEvent));
-    }
-
+    /** Game Events **/
     void onStartGameEvent(@Observes StartGameEvent event) {
-
         GameStartGameEventDto gameStartGameEventDto = GameStartGameEventDto.fromGameEvent(event);
         GameEventEnvelope envelope = new GameEventEnvelope(gameStartGameEventDto);
         sendMessage(event.gameId(), envelope);

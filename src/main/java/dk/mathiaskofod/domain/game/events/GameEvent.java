@@ -1,3 +1,7 @@
 package dk.mathiaskofod.domain.game.events;
 
-public interface GameEvent {}
+import dk.mathiaskofod.domain.game.models.GameId;
+
+public interface GameEvent {
+    GameId gameId();
+}

@@ -6,7 +6,6 @@ import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitterImpl;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.domain.game.models.GameId;
-import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
 import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import dk.mathiaskofod.domain.game.player.Player;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,9 +15,6 @@ import java.util.*;
 
 @ApplicationScoped
 public class GameService {
-
-    @Inject
-    PlayerClientSessionManager playerClientSessionManager;
 
     @Inject
     GameEventEmitterImpl gameEventEmitterImpl;
@@ -40,11 +36,12 @@ public class GameService {
     }
 
     public Game getGame(GameId gameId) {
-        if (games.containsKey(gameId)) {
-            return games.get(gameId);
-        } else {
+
+        if (!games.containsKey(gameId)) {
             throw new GameNotFoundException(gameId);
         }
+
+        return games.get(gameId);
     }
 
     public Player getPlayer(GameId gameId, String playerId) {

@@ -1,15 +1,18 @@
 package dk.mathiaskofod.services.session.player;
 
+import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.player.client.RelinquishPlayerAction;
+import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
 import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.client.player.PlayerConnectedEvent;
 import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedEvent;
 import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
+import dk.mathiaskofod.services.session.events.domain.game.*;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
@@ -22,6 +25,7 @@ import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerSessionNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,19 +46,18 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
                 .orElseThrow(() -> new NoConnectionIdException(playerId));
     }
 
-    private void broadcastPlayerEvent(PlayerClientEvent event){
+    private void broadcastPlayerEvent(PlayerClientEvent event) {
         eventBus.fire(event);
     }
 
-    private void relayPlayerEventToAllPlayers(GameId gameId, String playerId, PlayerClientEvent playerClientEvent) {
-
+    private void sendMessageToAllPlayersInAGame(WebsocketEnvelope envelope, GameId gameId) {
         gameService.getGame(gameId).getPlayers().stream()
                 .map(Player::id)
                 .map(this::getSession)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(session -> !session.getPlayerId().equals(playerId))
-                .forEach(session -> sendMessage(session.getPlayerId(), new PlayerClientEventEnvelope(playerClientEvent)));
+                .flatMap(Optional::stream)
+                .filter(session -> session.getConnectionId().isPresent())
+                .forEach(session -> sendMessage(session.getPlayerId(), envelope));
+
     }
 
     public Token claimPlayer(GameId gameId, String playerId) {
@@ -77,9 +80,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
                 .orElseThrow(() -> new PlayerNotClaimedException(playerId, gameId))
                 .setConnectionId(websocketConnId);
 
-        PlayerConnectedEvent event = new PlayerConnectedEvent(playerId, gameId);
-        broadcastPlayerEvent(event);
-        relayPlayerEventToAllPlayers(gameId, playerId, event);
+        broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
         log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), websocketConnId);
     }
@@ -90,9 +91,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
                 .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
                 .clearConnectionId();
 
-        PlayerDisconnectedEvent event = new PlayerDisconnectedEvent(playerId, gameId);
-        broadcastPlayerEvent(event);
-        relayPlayerEventToAllPlayers(gameId, playerId, event);
+        broadcastPlayerEvent(new PlayerDisconnectedEvent(playerId, gameId));
 
         log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), "");
     }
@@ -107,13 +106,9 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         closeConnection(playerId);
         removeSession(playerId);
 
-        PlayerRelinquishedEvent event = new PlayerRelinquishedEvent(playerId, gameId);
-
-        eventBus.fire(event);
-        relayPlayerEventToAllPlayers(gameId, playerId, event);
+        broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }
 
-    //TODO should this be another pattern?
     public void onMessageReceived(WebsocketEnvelope envelope, PlayerTokenInfo tokenInfo) {
 
         if (!(envelope instanceof PlayerClientActionEnvelope(PlayerClientAction payload))) {
@@ -121,19 +116,65 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         }
 
         switch (payload) {
-            case EndOfTurnAction endOfTurnAction -> handleEndOfTurnAction(endOfTurnAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
+            case EndOfTurnAction endOfTurnAction -> onEndOfTurnAction(endOfTurnAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
             case RelinquishPlayerAction() -> relinquishPlayer(tokenInfo.gameId(), tokenInfo.playerId());
-            default -> throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
+            default ->
+                    throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
         }
     }
 
-    private void handleEndOfTurnAction(long durationInMillis, GameId gameId, String playerId) {
+    private void onEndOfTurnAction(long durationInMillis, GameId gameId, String playerId) {
 
         String currentPlayerId = gameService.getCurrentPlayer(gameId).id();
         if (!playerId.equals(currentPlayerId)) {
             throw new BaseException("It's not your turn!", 400); //FIXME custom exception
         }
         gameService.endOfTurn(durationInMillis, gameId);
+    }
+
+    void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent){
+        sendMessageToAllPlayersInAGame(new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
+    }
+
+    void onStartGameEvent(@Observes StartGameEvent event) {
+
+        GameStartGameEventDto gameStartGameEventDto = GameStartGameEventDto.fromGameEvent(event);
+        GameEventEnvelope envelope = new GameEventEnvelope(gameStartGameEventDto);
+        sendMessageToAllPlayersInAGame(envelope, event.gameId());
+    }
+
+    void onEndGameEvent(@Observes EndGameEvent event) {
+
+        GameEndGameEventDto gameEndGameEventDto = GameEndGameEventDto.fromGameEvent(event);
+        GameEventEnvelope envelope = new GameEventEnvelope(gameEndGameEventDto);
+        sendMessageToAllPlayersInAGame(envelope,event.gameId());
+    }
+
+    void onEndOfTurnEvent(@Observes EndOfTurnEvent event) {
+
+        EndOfTurnGameEventDto endOfTurnGameEventDto = EndOfTurnGameEventDto.fromGameEvent(event);
+        GameEventEnvelope envelope = new GameEventEnvelope(endOfTurnGameEventDto);
+        sendMessageToAllPlayersInAGame(envelope, event.gameId());
+    }
+
+    void onChugEvent(@Observes ChugEvent event) {
+        ChugGameEventDto chugGameEventDto = ChugGameEventDto.fromGameEvent(event);
+        GameEventEnvelope envelope = new GameEventEnvelope(chugGameEventDto);
+        sendMessageToAllPlayersInAGame(envelope, event.gameId());
+    }
+
+    void onPauseEvent(@Observes PauseGameEvent event) {
+
+        GamePausedGameEventDto gamePausedGameEventDto = GamePausedGameEventDto.fromGameEvent(event);
+        GameEventEnvelope envelope = new GameEventEnvelope(gamePausedGameEventDto);
+        sendMessageToAllPlayersInAGame(envelope, event.gameId());
+    }
+
+    void onResumeEvent(@Observes ResumeGameEvent event) {
+
+        GameResumedGameEventDto resumeEventDto = GameResumedGameEventDto.fromGameEvent(event);
+        GameEventEnvelope envelope = new GameEventEnvelope(resumeEventDto);
+        sendMessageToAllPlayersInAGame(envelope, event.gameId());
     }
 
 }
