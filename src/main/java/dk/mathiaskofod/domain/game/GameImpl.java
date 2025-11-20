@@ -4,7 +4,6 @@ import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
 import dk.mathiaskofod.domain.game.models.GameId;
-import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -29,6 +28,8 @@ public class GameImpl implements Game {
 
     @Getter
     private Player currentPlayer;
+    private Player previousPlayer;
+    private Player nextPlayer;
 
     private int currentPlayerIndex;
     private Instant currentPlayerStartTime;
@@ -61,20 +62,9 @@ public class GameImpl implements Game {
     }
 
     public void endGame() {
-
         eventEmitter.onEndGame(gameId, getElapsedGameTime());
     }
 
-    private Card drawCard() {
-        return deck.drawCard();
-    }
-
-    private Duration getElapsedGameTime() {
-        if (!isStarted) {
-            throw new GameNotStartedException(gameId);
-        }
-        return Duration.between(gameStartTime, Instant.now());
-    }
 
     public void drawCard(long clientDurationMillis) {
 
@@ -87,33 +77,37 @@ public class GameImpl implements Game {
         Duration clientTime = Duration.ofMillis(clientDurationMillis);
         Duration clientDiff = Duration.ofMillis(clientDurationMillis - serverTime.toMillis());
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
-
         log.info("Client diff from server duration: {} millis", clientDiff.toMillis());
 
-        Turn turn = new Turn(round, drawCard(), playerTime);
+        Turn turn = new Turn(round, deck.drawCard(), playerTime);
         currentPlayer.stats().addTurn(turn);
 
-        Player previousPlayer = currentPlayer;
-        currentPlayer = getNextPlayer();
-        Player nextPlayer = peakNextPlayer();
+        switchToNextPlayer();
 
-        currentPlayerStartTime = Instant.now();
-
-        eventEmitter.onEndOfTurn(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
+        eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
 
         if (deck.isEmpty()) {
             endGame();
         }
     }
 
-    private Player getNextPlayer() {
+    /**
+     * Advances to the next player and updates the current player index.
+     */
+    private void switchToNextPlayer() {
+
+        previousPlayer = currentPlayer;
+
         currentPlayerIndex++;
         if (currentPlayerIndex > players.size() - 1) {
             round++;
             currentPlayerIndex = 0;
         }
 
-        return players.get(currentPlayerIndex);
+        currentPlayer = players.get(currentPlayerIndex);
+        currentPlayerStartTime = Instant.now();
+
+        nextPlayer = peakNextPlayer();
     }
 
     /**
@@ -128,5 +122,17 @@ public class GameImpl implements Game {
         }
 
         return players.get(nextPlayerIndex);
+    }
+
+    /**
+     * Gets the elapsed game time since the game started.
+     *
+     * @return The elapsed game time as a Duration.
+     */
+    private Duration getElapsedGameTime() {
+        if (!isStarted) {
+            throw new GameNotStartedException(gameId);
+        }
+        return Duration.between(gameStartTime, Instant.now());
     }
 }

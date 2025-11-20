@@ -6,7 +6,7 @@ import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.game.client.GameClientAction;
 import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
-import dk.mathiaskofod.services.session.actions.shared.EndOfTurnAction;
+import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
 import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.domain.game.*;
@@ -77,7 +77,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
 
         switch (action) {
             case StartGameAction () -> gameService.startGame(gameId);
-            case EndOfTurnAction endOfTurnAction -> gameService.endOfTurn(endOfTurnAction.duration(), gameId);
+            case DrawCardAction drawCardAction -> gameService.drawCard(drawCardAction.duration(), gameId);
             default -> throw new BaseException("Unknown game client action type: " + action.getClass().getSimpleName(), 400);
 
         }
@@ -96,7 +96,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
         GameEventDto dto = switch (gameEvent) {
             case StartGameEvent e -> GameStartGameEventDto.fromGameEvent(e);
             case EndGameEvent e   -> GameEndGameEventDto.fromGameEvent(e);
-            case EndOfTurnEvent e -> EndOfTurnGameEventDto.fromGameEvent(e);
+            case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
             case ChugEvent e      -> ChugGameEventDto.fromGameEvent(e);
             case PauseGameEvent e -> GamePausedGameEventDto.fromGameEvent(e);
             case ResumeGameEvent e-> GameResumedGameEventDto.fromGameEvent(e);

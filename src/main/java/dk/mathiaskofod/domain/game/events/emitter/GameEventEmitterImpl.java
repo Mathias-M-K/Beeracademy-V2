@@ -29,8 +29,8 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     }
 
     @Override
-    public void onEndOfTurn(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
-        eventBus.fire(new EndOfTurnEvent(turn, previousPlayer, newPlayer, nextPlayer, gameId));
+    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
+        eventBus.fire(new DrawCardEvent(turn, previousPlayer, newPlayer, nextPlayer, gameId));
     }
 
     @Override

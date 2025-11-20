@@ -25,7 +25,7 @@ public class TestGameEventEmitter implements GameEventEmitter {
     }
 
     @Override
-    public void onEndOfTurn(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
+    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
 
     }
 

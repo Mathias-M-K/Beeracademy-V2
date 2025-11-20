@@ -16,7 +16,7 @@ import dk.mathiaskofod.services.session.events.domain.game.*;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
-import dk.mathiaskofod.services.session.actions.shared.EndOfTurnAction;
+import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
@@ -116,20 +116,20 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         }
 
         switch (payload) {
-            case EndOfTurnAction endOfTurnAction -> onEndOfTurnAction(endOfTurnAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
+            case DrawCardAction drawCardAction -> onDrawCardAction(drawCardAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
             case RelinquishPlayerAction() -> relinquishPlayer(tokenInfo.gameId(), tokenInfo.playerId());
             default ->
                     throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
         }
     }
 
-    private void onEndOfTurnAction(long durationInMillis, GameId gameId, String playerId) {
+    private void onDrawCardAction(long durationInMillis, GameId gameId, String playerId) {
 
         String currentPlayerId = gameService.getCurrentPlayer(gameId).id();
         if (!playerId.equals(currentPlayerId)) {
             throw new BaseException("It's not your turn!", 400); //FIXME custom exception
         }
-        gameService.endOfTurn(durationInMillis, gameId);
+        gameService.drawCard(durationInMillis, gameId);
     }
 
     void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent){
@@ -141,7 +141,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         GameEventDto dto = switch (gameEvent) {
             case StartGameEvent e -> GameStartGameEventDto.fromGameEvent(e);
             case EndGameEvent e   -> GameEndGameEventDto.fromGameEvent(e);
-            case EndOfTurnEvent e -> EndOfTurnGameEventDto.fromGameEvent(e);
+            case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
             case ChugEvent e      -> ChugGameEventDto.fromGameEvent(e);
             case PauseGameEvent e -> GamePausedGameEventDto.fromGameEvent(e);
             case ResumeGameEvent e-> GameResumedGameEventDto.fromGameEvent(e);
