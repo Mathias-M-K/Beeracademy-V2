@@ -90,45 +90,25 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     }
 
     /** Game Events **/
-    void onStartGameEvent(@Observes StartGameEvent event) {
-        GameStartGameEventDto gameStartGameEventDto = GameStartGameEventDto.fromGameEvent(event);
-        GameEventEnvelope envelope = new GameEventEnvelope(gameStartGameEventDto);
-        sendMessage(event.gameId(), envelope);
+
+    void onGameEvent(@Observes GameEvent gameEvent){
+
+        GameEventDto dto = switch (gameEvent) {
+            case StartGameEvent e -> GameStartGameEventDto.fromGameEvent(e);
+            case EndGameEvent e   -> GameEndGameEventDto.fromGameEvent(e);
+            case EndOfTurnEvent e -> EndOfTurnGameEventDto.fromGameEvent(e);
+            case ChugEvent e      -> ChugGameEventDto.fromGameEvent(e);
+            case PauseGameEvent e -> GamePausedGameEventDto.fromGameEvent(e);
+            case ResumeGameEvent e-> GameResumedGameEventDto.fromGameEvent(e);
+
+            //FIXME: Real exception
+            default -> throw new IllegalArgumentException("No DTO mapping for event: " + gameEvent.getClass());
+        };
+
+        // 2. Wrap (if you are still using the envelope)
+        GameEventEnvelope envelope = new GameEventEnvelope(dto);
+
+        // 3. Send (Shared logic)
+        sendMessage(gameEvent.gameId(), envelope);
     }
-
-    void onEndGameEvent(@Observes EndGameEvent event) {
-
-        GameEndGameEventDto gameEndGameEventDto = GameEndGameEventDto.fromGameEvent(event);
-        GameEventEnvelope envelope = new GameEventEnvelope(gameEndGameEventDto);
-        sendMessage(event.gameId(), envelope);
-    }
-
-    void onEndOfTurnEvent(@Observes EndOfTurnEvent event) {
-
-        EndOfTurnGameEventDto endOfTurnGameEventDto = EndOfTurnGameEventDto.fromGameEvent(event);
-        GameEventEnvelope envelope = new GameEventEnvelope(endOfTurnGameEventDto);
-        sendMessage(event.gameId(), envelope);
-    }
-
-    void onChugEvent(@Observes ChugEvent event) {
-        ChugGameEventDto chugGameEventDto = ChugGameEventDto.fromGameEvent(event);
-        GameEventEnvelope envelope = new GameEventEnvelope(chugGameEventDto);
-        sendMessage(event.gameId(), envelope);
-    }
-
-    void onPauseEvent(@Observes PauseGameEvent event) {
-
-        GamePausedGameEventDto gamePausedGameEventDto = GamePausedGameEventDto.fromGameEvent(event);
-        GameEventEnvelope envelope = new GameEventEnvelope(gamePausedGameEventDto);
-        sendMessage(event.gameId(), envelope);
-    }
-
-    void onResumeEvent(@Observes ResumeGameEvent event) {
-
-        GameResumedGameEventDto resumeEventDto = GameResumedGameEventDto.fromGameEvent(event);
-        GameEventEnvelope envelope = new GameEventEnvelope(resumeEventDto);
-        sendMessage(event.gameId(), envelope);
-    }
-
-
 }
