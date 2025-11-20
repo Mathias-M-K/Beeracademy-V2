@@ -1,12 +1,15 @@
 package dk.mathiaskofod.domain.game;
 
+import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
+import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
+import dk.mathiaskofod.providers.exceptions.BaseException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +38,7 @@ public class GameImpl implements Game {
     private Instant currentPlayerStartTime;
 
     private boolean isStarted = false;
+    private boolean awaitingChug = false;
     private Instant gameStartTime;
     private int round = 1;
     private final Deck deck;
@@ -72,6 +76,10 @@ public class GameImpl implements Game {
             throw new GameNotStartedException(gameId);
         }
 
+        if(awaitingChug){
+            throw new BaseException("Cannot draw a card while awaiting chug response",400); //FIXME correct exception
+        }
+
         //TODO research this. Like what do we do with duration and sync
         Duration serverTime = Duration.between(currentPlayerStartTime, Instant.now());
         Duration clientTime = Duration.ofMillis(clientDurationMillis);
@@ -86,9 +94,26 @@ public class GameImpl implements Game {
 
         eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
 
+        if (isChugCard(turn.card())) {
+            awaitingChug = true;
+            return;
+        }
+
         if (deck.isEmpty()) {
             endGame();
         }
+    }
+
+    public void registerChug(Chug chug) {
+
+        if (!awaitingChug) {
+            throw new BaseException("No chug expected at this time", 400); //FIXME correct exception
+        }
+
+        currentPlayer.stats().addChug(chug);
+        awaitingChug = false;
+
+        eventEmitter.onNewChug(chug, currentPlayer, gameId);
     }
 
     /**
@@ -122,6 +147,10 @@ public class GameImpl implements Game {
         }
 
         return players.get(nextPlayerIndex);
+    }
+
+    private boolean isChugCard(Card card) {
+        return card.rank() == 14;
     }
 
     /**

@@ -10,7 +10,7 @@ public record ChugGameEventDto(Suit suit, long timeInMillis, String playerId, Ga
 
     public static ChugGameEventDto fromGameEvent(ChugEvent event) {
         return new ChugGameEventDto(
-            event.chug().card().suit(),
+            event.chug().suit(),
             event.chug().chugTime().toMillis(),
             event.player().id(),
             event.gameId()

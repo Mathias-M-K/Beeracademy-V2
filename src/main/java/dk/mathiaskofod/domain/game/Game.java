@@ -1,5 +1,6 @@
 package dk.mathiaskofod.domain.game;
 
+import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -7,8 +8,16 @@ import java.util.List;
 
 public interface Game {
 
+    /**
+     * Gets the user chosen name for the game
+     * @return the game name
+     */
     String getName();
 
+    /**
+     * Gets the unique identifier for the game
+     * @return the game ID
+     */
     GameId getGameId();
 
     /**
@@ -27,6 +36,11 @@ public interface Game {
      */
     void drawCard(long duration);
 
+    /**
+     * Registers a chug event in the game
+     * @param chug the chug event to register
+     */
+    void registerChug(Chug chug);
 
     /**
      * Gets the list of players in the game

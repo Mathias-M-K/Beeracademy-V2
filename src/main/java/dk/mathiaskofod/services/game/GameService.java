@@ -3,6 +3,7 @@ package dk.mathiaskofod.services.game;
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.GameImpl;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitterImpl;
+import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.domain.game.models.GameId;
@@ -57,6 +58,10 @@ public class GameService {
 
     public void drawCard(long elapsedTime, GameId gameId) {
         getGame(gameId).drawCard(elapsedTime);
+    }
+
+    public void registerChug(Chug chug, GameId gameId) {
+        getGame(gameId).registerChug(chug);
     }
 
     public void startGame(GameId gameId) {
