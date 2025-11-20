@@ -65,7 +65,7 @@ class GameTest {
 
             //Act
             for(int turns = 0; turns < 1; turns++){
-                game.endTurn(0);
+                game.drawCard(0);
             }
 
 
@@ -82,7 +82,7 @@ class GameTest {
 
             //Act
             for(int turns = 0; turns < 2; turns++){
-                game.endTurn(0);
+                game.drawCard(0);
             }
 
             //Assert
@@ -98,7 +98,7 @@ class GameTest {
 
             //Act
             for(int turns = 0; turns < 3; turns++){
-                game.endTurn(0);
+                game.drawCard(0);
             }
 
             //Arrange
@@ -114,7 +114,7 @@ class GameTest {
 
             //Act
             for(int turns = 0; turns < 4; turns++){
-                game.endTurn(0);
+                game.drawCard(0);
             }
 
             //Arrange
@@ -130,7 +130,7 @@ class GameTest {
 
             //Act
             for(int turns = 0; turns < 5; turns++){
-                game.endTurn(0);
+                game.drawCard(0);
             }
 
             //Arrange
@@ -146,7 +146,7 @@ class GameTest {
 
             //Act
             for(int turns = 0; turns < 6; turns++){
-                game.endTurn(0);
+                game.drawCard(0);
             }
 
             //Arrange

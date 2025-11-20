@@ -78,4 +78,51 @@ class DeckTest {
 
     }
 
+    @Test
+    @DisplayName("A deck with one suit has 13 cards")
+    void deckWithOneSuitHasThirteenCards(){
+
+        //Arrange
+        Deck deck = new Deck(1);
+
+        //Act
+        int remainingCards = deck.getRemainingCards();
+
+        //Assert
+        assertThat(remainingCards,is(13));
+    }
+
+    @Test
+    @DisplayName("Deck has one card less after drawing a card")
+    void deckHasOneCardLessAfterDrawingACard(){
+
+        //Arrange
+        Deck deck = new Deck(1);
+        int initialNumberOfCards = deck.getRemainingCards();
+
+        //Act
+        deck.drawCard();
+        int remainingCards = deck.getRemainingCards();
+
+        //Assert
+        assertThat(remainingCards,is(initialNumberOfCards-1));
+    }
+
+    @Test
+    @DisplayName("Deck is empty after drawing all cards")
+    void deckIsEmptyAfterDrawingAllCards(){
+        //Arrange
+        int nrOfSuits = 1;
+        Deck deck = new Deck(nrOfSuits);
+        int totalNumberOfCards = NR_OF_CARDS_IN_A_SUIT * nrOfSuits;
+
+        //Act
+        for(int card = 0; card < totalNumberOfCards; card++){
+            deck.drawCard();
+        }
+
+        //Assert
+        assertThat(deck.isEmpty(),is(true));
+    }
+
 }

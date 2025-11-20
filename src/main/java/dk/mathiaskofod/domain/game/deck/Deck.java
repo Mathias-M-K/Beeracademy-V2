@@ -38,6 +38,14 @@ public class Deck {
         return card;
     }
 
+    public int getRemainingCards(){
+        return unusedCards.size();
+    }
+
+    public boolean isEmpty(){
+        return unusedCards.isEmpty();
+    }
+
     private static List<Card> generateDeck(int nrOfSuits){
 
         List<Card> cards = new ArrayList<>();

@@ -57,7 +57,7 @@ public class GameService {
 
     public void endOfTurn(long elapsedTime, GameId gameId) {
         Game game = getGame(gameId);
-        game.endTurn(elapsedTime);
+        game.drawCard(elapsedTime);
     }
 
     public void startGame(GameId gameId) {

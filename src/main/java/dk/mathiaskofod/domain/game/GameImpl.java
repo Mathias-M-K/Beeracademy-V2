@@ -5,7 +5,6 @@ import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.deck.models.Card;
-import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -17,7 +16,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Slf4j
-public class GameImpl implements Game{
+public class GameImpl implements Game {
 
     @Getter
     private final String name;
@@ -61,12 +60,12 @@ public class GameImpl implements Game{
         eventEmitter.onStartGame(gameId);
     }
 
-    public void endGame(){
+    public void endGame() {
 
         eventEmitter.onEndGame(gameId, getElapsedGameTime());
     }
 
-    private Card drawCard(){
+    private Card drawCard() {
         return deck.drawCard();
     }
 
@@ -77,19 +76,10 @@ public class GameImpl implements Game{
         return Duration.between(gameStartTime, Instant.now());
     }
 
-    public void endTurn(long clientDurationMillis){
-        endTurn(clientDurationMillis,null);
-    }
-
-    public void endTurn(long clientDurationMillis, Chug chug) {
+    public void drawCard(long clientDurationMillis) {
 
         if (!isStarted) {
             throw new GameNotStartedException(gameId);
-        }
-
-        if(chug != null){
-            currentPlayer.stats().addChug(chug);
-            eventEmitter.onNewChug(chug, currentPlayer, gameId);
         }
 
         //TODO research this. Like what do we do with duration and sync
@@ -100,8 +90,8 @@ public class GameImpl implements Game{
 
         log.info("Client diff from server duration: {} millis", clientDiff.toMillis());
 
-        Turn endedTurn = new Turn(round, drawCard(), playerTime);
-        currentPlayer.stats().addTurn(endedTurn);
+        Turn turn = new Turn(round, drawCard(), playerTime);
+        currentPlayer.stats().addTurn(turn);
 
         Player previousPlayer = currentPlayer;
         currentPlayer = getNextPlayer();
@@ -109,7 +99,11 @@ public class GameImpl implements Game{
 
         currentPlayerStartTime = Instant.now();
 
-        eventEmitter.onEndOfTurn(endedTurn, previousPlayer, currentPlayer, nextPlayer, gameId);
+        eventEmitter.onEndOfTurn(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
+
+        if (deck.isEmpty()) {
+            endGame();
+        }
     }
 
     private Player getNextPlayer() {
@@ -124,6 +118,7 @@ public class GameImpl implements Game{
 
     /**
      * Peaks the next player without changing the current player index.
+     *
      * @return The next player.
      */
     private Player peakNextPlayer() {

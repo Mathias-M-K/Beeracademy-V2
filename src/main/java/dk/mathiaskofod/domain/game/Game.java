@@ -1,6 +1,5 @@
 package dk.mathiaskofod.domain.game;
 
-import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -26,14 +25,8 @@ public interface Game {
      * Ends the current turn for a specific player and starts the next player's turn
      * @param duration the duration of the turn in milliseconds
      */
-    void endTurn(long duration);
+    void drawCard(long duration);
 
-    /**
-     * Ends the current turn for a specific player with a chug and starts the next player's turn
-     * @param duration the duration of the turn in milliseconds
-     * @param chug the chug by the player
-     */
-    void endTurn(long duration, Chug chug);
 
     /**
      * Gets the list of players in the game
