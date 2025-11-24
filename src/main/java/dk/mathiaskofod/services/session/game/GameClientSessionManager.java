@@ -98,7 +98,12 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
      * Player Events
      **/
     void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
-        sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
+        try {
+            sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
+        }catch (NoConnectionIdException noConnectionIdException){
+            log.info("No game client connected to receive player event: {}", playerClientEvent);
+        }
+
     }
 
     /**
@@ -118,10 +123,13 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
             default -> throw new IllegalArgumentException("No DTO mapping for event: " + gameEvent.getClass());
         };
 
-        // 2. Wrap (if you are still using the envelope)
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        // 3. Send (Shared logic)
-        sendMessage(gameEvent.gameId(), envelope);
+        try{
+            sendMessage(gameEvent.gameId(), envelope);
+        }catch (NoConnectionIdException noConnectionIdException){
+            log.info("No game client connected to receive game event: {}", gameEvent);
+        }
+
     }
 }
