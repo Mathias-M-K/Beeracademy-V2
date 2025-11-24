@@ -2,7 +2,6 @@ package dk.mathiaskofod.services.session.game;
 
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.game.client.*;
@@ -10,12 +9,13 @@ import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
 import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.domain.game.*;
-import dk.mathiaskofod.services.session.game.exceptions.GameAlreadyClaimedException;
-import dk.mathiaskofod.services.session.game.exceptions.GameNotClaimedException;
+import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
+import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
+import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
+import dk.mathiaskofod.services.session.game.exceptions.*;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.domain.game.models.GameId;
 
-import dk.mathiaskofod.services.session.game.exceptions.GameSessionNotFoundException;
 import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
@@ -38,10 +38,8 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
                 .orElseThrow(() -> new NoConnectionIdException(id));
     }
 
-    //TODO seems weird to be calling getGame without using it
     public Token claimGame(GameId gameId) {
 
-        //Checks whether the game exists
         gameService.getGame(gameId);
 
         if (getSession(gameId).isPresent()) {
@@ -74,7 +72,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     public void onMessageReceived(GameId gameId, WebsocketEnvelope envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
-            throw new BaseException("Invalid envelope type for game client action", 400);
+            throw new UnknownCategoryException("Invalid envelope type for game client action", 400);
         }
 
         switch (action) {
@@ -84,8 +82,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
             case ResumeGameAction() -> gameService.resumeGame(gameId);
             case DrawCardAction drawCardAction -> gameService.drawCard(drawCardAction.duration(), gameId);
             case RegisterChugAction registerChugAction -> onRegisterChug(registerChugAction, gameId);
-            default ->
-                    throw new BaseException("Unknown game client action type: " + action.getClass().getSimpleName(), 400); //FIXME: Real exception
+            default -> throw new UnknownActionException(action.getClass().getSimpleName(), 500);
         }
     }
 
@@ -100,7 +97,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
         try {
             sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
-        }catch (NoConnectionIdException noConnectionIdException){
+        } catch (NoConnectionIdException noConnectionIdException) {
             log.info("No game client connected to receive player event: {}", playerClientEvent);
         }
 
@@ -119,15 +116,14 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
             case PauseGameEvent ignored -> new GamePausedGameEventDto();
             case ResumeGameEvent ignored -> new GameResumedGameEventDto();
 
-            //FIXME: Real exception
-            default -> throw new IllegalArgumentException("No DTO mapping for event: " + gameEvent.getClass());
+            default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
         };
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        try{
+        try {
             sendMessage(gameEvent.gameId(), envelope);
-        }catch (NoConnectionIdException noConnectionIdException){
+        } catch (NoConnectionIdException noConnectionIdException) {
             log.info("No game client connected to receive game event: {}", gameEvent);
         }
 

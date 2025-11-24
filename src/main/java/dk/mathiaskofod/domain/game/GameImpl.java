@@ -3,6 +3,7 @@ package dk.mathiaskofod.domain.game;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.deck.Deck;
+import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameId;
@@ -10,7 +11,6 @@ import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
 import dk.mathiaskofod.domain.game.timer.GameTimer;
-import dk.mathiaskofod.providers.exceptions.BaseException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -97,15 +97,12 @@ public class GameImpl implements Game {
         }
 
         if(awaitingChug){
-            throw new BaseException("Cannot draw a card while awaiting chug response",400); //FIXME correct exception
+            throw new GameException("Cannot draw a card while awaiting chug response",400);
         }
 
-        //TODO research this. Like what do we do with duration and sync
-        Duration serverTime = playerTimer.getTime();
+        //TODO implement client-side check for time
         Duration clientTime = Duration.ofMillis(clientDurationMillis);
-        Duration clientDiff = Duration.ofMillis(clientDurationMillis - serverTime.toMillis());
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
-        log.info("Client diff from server duration: {} millis", clientDiff.toMillis());
 
         Turn turn = new Turn(round, deck.drawCard(), playerTime);
         currentPlayer.stats().addTurn(turn);
@@ -128,7 +125,7 @@ public class GameImpl implements Game {
     public void registerChug(Chug chug) {
 
         if (!awaitingChug) {
-            throw new BaseException("No chug expected at this time", 400); //FIXME correct exception
+            throw new GameException("No chug expected at this time", 400);
         }
 
         currentPlayer.stats().addChug(chug);

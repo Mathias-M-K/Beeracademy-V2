@@ -3,7 +3,6 @@ package dk.mathiaskofod.services.auth.models;
 import dk.mathiaskofod.domain.game.models.GameId;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
-//FIXME create GameTokenInfo
 public record PlayerTokenInfo(String playerName, String playerId, GameId gameId) {
 
     public static PlayerTokenInfo fromToken(JsonWebToken token){

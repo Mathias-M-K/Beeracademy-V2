@@ -19,6 +19,8 @@ import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
+import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
 import dk.mathiaskofod.services.session.player.exeptions.PlayerNotClaimedException;
 import dk.mathiaskofod.domain.game.player.Player;
@@ -112,7 +114,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
     public void onMessageReceived(WebsocketEnvelope envelope, PlayerTokenInfo tokenInfo) {
 
         if (!(envelope instanceof PlayerClientActionEnvelope(PlayerClientAction payload))) {
-            throw new BaseException("Only player actions allowed from player clients", 400);
+            throw new UnknownCategoryException("Only player actions allowed from player clients", 400);
         }
 
         switch (payload) {
@@ -147,8 +149,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
             case PauseGameEvent ignored -> new GamePausedGameEventDto();
             case ResumeGameEvent ignored -> new GameResumedGameEventDto();
 
-            //FIXME: Real exception
-            default -> throw new IllegalArgumentException("No DTO mapping for event: " + gameEvent.getClass());
+            default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
         };
 
         // 2. Wrap (if you are still using the envelope)
