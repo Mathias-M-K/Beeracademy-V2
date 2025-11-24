@@ -6,14 +6,13 @@ import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.models.annotations.EventType;
 
 @EventType("CHUG")
-public record ChugGameEventDto(Suit suit, long timeInMillis, String playerId, GameId gameId) implements GameEventDto {
+public record ChugGameEventDto(Suit suit, long timeInMillis, String playerId) implements GameEventDto {
 
     public static ChugGameEventDto fromGameEvent(ChugEvent event) {
         return new ChugGameEventDto(
             event.chug().suit(),
             event.chug().chugTime().toMillis(),
-            event.player().id(),
-            event.gameId()
+            event.player().id()
         );
     }
 }

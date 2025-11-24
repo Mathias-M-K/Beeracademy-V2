@@ -78,36 +78,41 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
         }
 
         switch (action) {
-            case StartGameAction () -> gameService.startGame(gameId);
-            case EndGameAction () -> gameService.endGame(gameId);
-            case PauseGameAction () -> gameService.pauseGame(gameId);
-            case ResumeGameAction () -> gameService.resumeGame(gameId);
+            case StartGameAction() -> gameService.startGame(gameId);
+            case EndGameAction() -> gameService.endGame(gameId);
+            case PauseGameAction() -> gameService.pauseGame(gameId);
+            case ResumeGameAction() -> gameService.resumeGame(gameId);
             case DrawCardAction drawCardAction -> gameService.drawCard(drawCardAction.duration(), gameId);
             case RegisterChugAction registerChugAction -> onRegisterChug(registerChugAction, gameId);
-            default -> throw new BaseException("Unknown game client action type: " + action.getClass().getSimpleName(), 400); //FIXME: Real exception
+            default ->
+                    throw new BaseException("Unknown game client action type: " + action.getClass().getSimpleName(), 400); //FIXME: Real exception
         }
     }
 
     private void onRegisterChug(RegisterChugAction action, GameId gameId) {
         Chug chug = new Chug(action.suit(), Duration.ofMillis(action.duration()));
-        gameService.registerChug(chug,gameId);
+        gameService.registerChug(chug, gameId);
     }
 
-    /** Player Events **/
-    void onPlayerConnectedEvent(@Observes PlayerClientEvent playerClientEvent){
+    /**
+     * Player Events
+     **/
+    void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
         sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
-    /** Game Events **/
-    void onGameEvent(@Observes GameEvent gameEvent){
+    /**
+     * Game Events
+     **/
+    void onGameEvent(@Observes GameEvent gameEvent) {
 
         GameEventDto dto = switch (gameEvent) {
-            case StartGameEvent e -> GameStartGameEventDto.fromGameEvent(e);
-            case EndGameEvent e   -> GameEndGameEventDto.fromGameEvent(e);
+            case StartGameEvent ignored -> new GameStartGameEventDto();
+            case EndGameEvent ignored -> new GameEndGameEventDto();
             case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
-            case ChugEvent e      -> ChugGameEventDto.fromGameEvent(e);
-            case PauseGameEvent e -> GamePausedGameEventDto.fromGameEvent(e);
-            case ResumeGameEvent e-> GameResumedGameEventDto.fromGameEvent(e);
+            case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
+            case PauseGameEvent ignored -> new GamePausedGameEventDto();
+            case ResumeGameEvent ignored -> new GameResumedGameEventDto();
 
             //FIXME: Real exception
             default -> throw new IllegalArgumentException("No DTO mapping for event: " + gameEvent.getClass());

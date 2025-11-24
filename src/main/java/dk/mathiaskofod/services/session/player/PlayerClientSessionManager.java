@@ -116,7 +116,8 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         }
 
         switch (payload) {
-            case DrawCardAction drawCardAction -> onDrawCardAction(drawCardAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
+            case DrawCardAction drawCardAction ->
+                    onDrawCardAction(drawCardAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
             case RelinquishPlayerAction() -> relinquishPlayer(tokenInfo.gameId(), tokenInfo.playerId());
             default ->
                     throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
@@ -132,19 +133,19 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         gameService.drawCard(durationInMillis, gameId);
     }
 
-    void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent){
+    void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
         sendMessageToAllPlayersInAGame(new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
     }
 
-    void onGameEvent(@Observes GameEvent gameEvent){
+    void onGameEvent(@Observes GameEvent gameEvent) {
 
         GameEventDto dto = switch (gameEvent) {
-            case StartGameEvent e -> GameStartGameEventDto.fromGameEvent(e);
-            case EndGameEvent e   -> GameEndGameEventDto.fromGameEvent(e);
+            case StartGameEvent ignored -> new GameStartGameEventDto();
+            case EndGameEvent ignored -> new GameEndGameEventDto();
             case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
-            case ChugEvent e      -> ChugGameEventDto.fromGameEvent(e);
-            case PauseGameEvent e -> GamePausedGameEventDto.fromGameEvent(e);
-            case ResumeGameEvent e-> GameResumedGameEventDto.fromGameEvent(e);
+            case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
+            case PauseGameEvent ignored -> new GamePausedGameEventDto();
+            case ResumeGameEvent ignored -> new GameResumedGameEventDto();
 
             //FIXME: Real exception
             default -> throw new IllegalArgumentException("No DTO mapping for event: " + gameEvent.getClass());

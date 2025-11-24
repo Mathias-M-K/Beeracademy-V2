@@ -15,7 +15,7 @@ public class TestApi {
 
     @GET
     public WebsocketEnvelope test() {
-        GameEventDto dto = new GameStartGameEventDto(new GameId("123123123"));
+        GameEventDto dto = new GameStartGameEventDto();
         return new GameEventEnvelope(dto);
     }
 }
