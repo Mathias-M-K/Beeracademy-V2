@@ -29,16 +29,6 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     }
 
     @Override
-    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
-        eventBus.fire(new DrawCardEvent(turn, previousPlayer, newPlayer, nextPlayer, gameId));
-    }
-
-    @Override
-    public void onNewChug(Chug chug, Player player, GameId gameId) {
-        eventBus.fire(new ChugEvent(chug,player,gameId));
-    }
-
-    @Override
     public void onPauseGame(GameId gameId) {
         eventBus.fire(new PauseGameEvent(gameId));
     }
@@ -46,5 +36,15 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     @Override
     public void onResumeGame(GameId gameId) {
         eventBus.fire(new ResumeGameEvent(gameId));
+    }
+
+    @Override
+    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
+        eventBus.fire(new DrawCardEvent(turn, previousPlayer, newPlayer, nextPlayer, gameId));
+    }
+
+    @Override
+    public void onNewChug(Chug chug, Player player, GameId gameId) {
+        eventBus.fire(new ChugEvent(chug,player,gameId));
     }
 }

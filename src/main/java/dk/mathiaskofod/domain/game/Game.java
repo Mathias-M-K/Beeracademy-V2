@@ -31,6 +31,16 @@ public interface Game {
     void endGame();
 
     /**
+     * Pauses the game, stopping all timers temporarily
+     */
+    void pauseGame();
+
+    /**
+     * Resumes the game from a paused state, restarting all timers
+     */
+    void resumeGame();
+
+    /**
      * Ends the current turn for a specific player and starts the next player's turn
      * @param duration the duration of the turn in milliseconds
      */

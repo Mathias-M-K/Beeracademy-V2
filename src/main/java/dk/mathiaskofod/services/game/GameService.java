@@ -67,4 +67,16 @@ public class GameService {
     public void startGame(GameId gameId) {
         getGame(gameId).startGame();
     }
+
+    public void endGame(GameId gameId){
+        getGame(gameId).endGame();
+    }
+
+    public void pauseGame(GameId gameId) {
+        getGame(gameId).pauseGame();
+    }
+
+    public void resumeGame(GameId gameId){
+        getGame(gameId).resumeGame();
+    }
 }

@@ -5,9 +5,7 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
-import dk.mathiaskofod.services.session.actions.game.client.GameClientAction;
-import dk.mathiaskofod.services.session.actions.game.client.RegisterChugAction;
-import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
+import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
 import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
@@ -81,6 +79,9 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
 
         switch (action) {
             case StartGameAction () -> gameService.startGame(gameId);
+            case EndGameAction () -> gameService.endGame(gameId);
+            case PauseGameAction () -> gameService.pauseGame(gameId);
+            case ResumeGameAction () -> gameService.resumeGame(gameId);
             case DrawCardAction drawCardAction -> gameService.drawCard(drawCardAction.duration(), gameId);
             case RegisterChugAction registerChugAction -> onRegisterChug(registerChugAction, gameId);
             default -> throw new BaseException("Unknown game client action type: " + action.getClass().getSimpleName(), 400); //FIXME: Real exception
@@ -90,9 +91,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     private void onRegisterChug(RegisterChugAction action, GameId gameId) {
         Chug chug = new Chug(action.suit(), Duration.ofMillis(action.duration()));
         gameService.registerChug(chug,gameId);
-
     }
-
 
     /** Player Events **/
     void onPlayerConnectedEvent(@Observes PlayerClientEvent playerClientEvent){
@@ -100,7 +99,6 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     }
 
     /** Game Events **/
-
     void onGameEvent(@Observes GameEvent gameEvent){
 
         GameEventDto dto = switch (gameEvent) {

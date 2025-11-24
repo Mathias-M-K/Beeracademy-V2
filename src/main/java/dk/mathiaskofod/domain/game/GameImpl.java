@@ -67,8 +67,20 @@ public class GameImpl implements Game {
 
     public void endGame() {
         eventEmitter.onEndGame(gameId, getElapsedGameTime());
+        //TODO implement end logic
     }
 
+    public void pauseGame() {
+        log.info("Pausing game: {}", gameId);
+        eventEmitter.onPauseGame(gameId);
+        //TODO implement pause logic
+    }
+
+    public void resumeGame() {
+        log.info("Resuming game: {}", gameId);
+        eventEmitter.onResumeGame(gameId);
+        //TODO implement resume logic
+    }
 
     public void drawCard(long clientDurationMillis) {
 

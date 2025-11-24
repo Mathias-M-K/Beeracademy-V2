@@ -13,12 +13,14 @@ public interface GameEventEmitter {
 
     void onEndGame(GameId gameId, Duration gameDuration);
 
+    void onPauseGame(GameId gameId);
+
+    void onResumeGame(GameId gameId);
+
     void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId);
 
     void onNewChug(Chug chug, Player player, GameId gameId);
 
-    void onPauseGame(GameId gameId);
 
-    void onResumeGame(GameId gameId);
 
 }
