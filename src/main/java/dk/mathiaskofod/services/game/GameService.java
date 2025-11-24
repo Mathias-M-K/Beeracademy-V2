@@ -11,10 +11,12 @@ import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import dk.mathiaskofod.domain.game.player.Player;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
 @ApplicationScoped
+@Slf4j
 public class GameService {
 
     @Inject
@@ -70,6 +72,7 @@ public class GameService {
 
     public void endGame(GameId gameId){
         getGame(gameId).endGame();
+        games.remove(gameId);
     }
 
     public void pauseGame(GameId gameId) {

@@ -9,12 +9,12 @@ import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
+import dk.mathiaskofod.domain.game.timer.GameTimer;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -35,11 +35,11 @@ public class GameImpl implements Game {
     private Player nextPlayer;
 
     private int currentPlayerIndex;
-    private Instant currentPlayerStartTime;
+    private final GameTimer playerTimer;
 
     private boolean isStarted = false;
     private boolean awaitingChug = false;
-    private Instant gameStartTime;
+    private final GameTimer gameTimer;
     private int round = 1;
     private final Deck deck;
 
@@ -55,31 +55,39 @@ public class GameImpl implements Game {
         this.deck = new Deck(players.size());
 
         this.eventEmitter = eventEmitter;
+
+        gameTimer = new GameTimer();
+        playerTimer = new GameTimer();
     }
 
     public void startGame() {
         isStarted = true;
-        gameStartTime = Instant.now();
-        currentPlayerStartTime = Instant.now();
+
+        gameTimer.start();
+        playerTimer.start();
 
         eventEmitter.onStartGame(gameId);
     }
 
     public void endGame() {
-        eventEmitter.onEndGame(gameId, getElapsedGameTime());
+        eventEmitter.onEndGame(gameId, gameTimer.getTime());
         //TODO implement end logic
     }
 
     public void pauseGame() {
         log.info("Pausing game: {}", gameId);
         eventEmitter.onPauseGame(gameId);
-        //TODO implement pause logic
+
+        gameTimer.pause();
+        playerTimer.pause();
     }
 
     public void resumeGame() {
         log.info("Resuming game: {}", gameId);
         eventEmitter.onResumeGame(gameId);
-        //TODO implement resume logic
+
+        gameTimer.resume();
+        playerTimer.resume();
     }
 
     public void drawCard(long clientDurationMillis) {
@@ -93,7 +101,7 @@ public class GameImpl implements Game {
         }
 
         //TODO research this. Like what do we do with duration and sync
-        Duration serverTime = Duration.between(currentPlayerStartTime, Instant.now());
+        Duration serverTime = playerTimer.getTime();
         Duration clientTime = Duration.ofMillis(clientDurationMillis);
         Duration clientDiff = Duration.ofMillis(clientDurationMillis - serverTime.toMillis());
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
@@ -108,6 +116,7 @@ public class GameImpl implements Game {
 
         if (isChugCard(turn.card())) {
             awaitingChug = true;
+            playerTimer.pause();
             return;
         }
 
@@ -126,6 +135,8 @@ public class GameImpl implements Game {
         awaitingChug = false;
 
         eventEmitter.onNewChug(chug, currentPlayer, gameId);
+
+        playerTimer.resume();
     }
 
     /**
@@ -142,7 +153,7 @@ public class GameImpl implements Game {
         }
 
         currentPlayer = players.get(currentPlayerIndex);
-        currentPlayerStartTime = Instant.now();
+        playerTimer.reset();
 
         nextPlayer = peakNextPlayer();
     }
@@ -165,15 +176,4 @@ public class GameImpl implements Game {
         return card.rank() == 14;
     }
 
-    /**
-     * Gets the elapsed game time since the game started.
-     *
-     * @return The elapsed game time as a Duration.
-     */
-    private Duration getElapsedGameTime() {
-        if (!isStarted) {
-            throw new GameNotStartedException(gameId);
-        }
-        return Duration.between(gameStartTime, Instant.now());
-    }
 }

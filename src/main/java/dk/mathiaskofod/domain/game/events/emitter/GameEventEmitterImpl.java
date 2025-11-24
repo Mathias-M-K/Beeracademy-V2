@@ -25,7 +25,7 @@ public class GameEventEmitterImpl implements GameEventEmitter {
 
     @Override
     public void onEndGame(GameId gameId, Duration gameDuration) {
-        eventBus.fire(new EndGameEvent(gameId));
+        eventBus.fire(new EndGameEvent(gameId, gameDuration));
     }
 
     @Override

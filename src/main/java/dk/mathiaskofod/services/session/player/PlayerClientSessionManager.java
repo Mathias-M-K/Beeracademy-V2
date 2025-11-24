@@ -141,7 +141,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
         GameEventDto dto = switch (gameEvent) {
             case StartGameEvent ignored -> new GameStartGameEventDto();
-            case EndGameEvent ignored -> new GameEndGameEventDto();
+            case EndGameEvent endGameEvent -> GameEndGameEventDto.fromGameEvent(endGameEvent);
             case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
             case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
             case PauseGameEvent ignored -> new GamePausedGameEventDto();
