@@ -4,8 +4,6 @@ import dk.mathiaskofod.services.session.models.AbstractSession;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Optional;
-
 @Getter
 @Setter
 public class PlayerSession extends AbstractSession {

@@ -1,6 +1,5 @@
 package dk.mathiaskofod.api;
 
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.events.domain.game.GameEventDto;
 import dk.mathiaskofod.services.session.events.domain.game.GameStartGameEventDto;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
