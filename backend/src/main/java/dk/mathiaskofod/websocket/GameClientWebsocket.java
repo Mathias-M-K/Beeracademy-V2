@@ -7,6 +7,7 @@ import dk.mathiaskofod.services.auth.models.Roles;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.game.exceptions.GameNotClaimedException;
 import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.*;
 import jakarta.annotation.security.RolesAllowed;
@@ -56,7 +57,7 @@ public class GameClientWebsocket {
         log.warn("Websocket error for connection {}: {}", connection.id(), response);
         connection.sendTextAndAwait(response);
 
-        if(e instanceof GameNotFoundException){
+        if(e instanceof GameNotFoundException || e instanceof GameNotClaimedException){
             connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
         }
     }

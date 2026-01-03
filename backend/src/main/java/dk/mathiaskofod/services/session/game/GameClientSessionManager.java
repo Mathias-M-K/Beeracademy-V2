@@ -2,7 +2,6 @@ package dk.mathiaskofod.services.session.game;
 
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
@@ -38,7 +37,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
                 .orElseThrow(() -> new NoConnectionIdException(id));
     }
 
-    public Token claimGame(GameId gameId) {
+    public String claimGame(GameId gameId) {
 
         gameService.getGame(gameId);
 

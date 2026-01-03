@@ -6,7 +6,6 @@ import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;
@@ -54,11 +53,11 @@ public class LobbyService {
         return createPlayerDtoS(game.getPlayers());
     }
 
-    public Token claimGame(GameId gameId) {
+    public String claimGame(GameId gameId) {
         return gameClientSessionManager.claimGame(gameId);
     }
 
-    public Token claimPlayer(GameId gameId, String playerId) {
+    public String claimPlayer(GameId gameId, String playerId) {
         return playerClientSessionManager.claimPlayer(gameId, playerId);
     }
 

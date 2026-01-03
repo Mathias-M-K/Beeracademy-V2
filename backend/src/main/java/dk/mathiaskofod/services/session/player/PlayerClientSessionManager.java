@@ -3,7 +3,6 @@ package dk.mathiaskofod.services.session.player;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
-import dk.mathiaskofod.services.auth.models.Token;
 import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.player.client.RelinquishPlayerAction;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
@@ -62,7 +61,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
     }
 
-    public Token claimPlayer(GameId gameId, String playerId) {
+    public String claimPlayer(GameId gameId, String playerId) {
 
         Player player = gameService.getPlayer(gameId, playerId);
 
