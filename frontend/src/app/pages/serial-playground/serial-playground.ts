@@ -1,4 +1,11 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  signal,
+  ViewChild
+} from '@angular/core';
 
 interface SerialInput {
   state: string;
@@ -16,11 +23,11 @@ export class SerialPlayground {
   @ViewChild('scrollMe')
   private myScrollContainer!: ElementRef;
 
-  public currentPotValue: string = '0';
-  public currentLightState: string = 'off';
-  public messages: string[] = [];
+  protected currentPotValue = signal('0');
+  protected currentLightState = signal('off');
+  protected messages: string[] = [];
 
-  serialSupported: boolean;
+  protected serialSupported: boolean;
 
   private reader!: ReadableStreamDefaultReader;
   private writer!: WritableStreamDefaultWriter;
@@ -28,19 +35,11 @@ export class SerialPlayground {
   private decoder = new TextDecoder();
 
   private writerClosePromise!: Promise<void>;
-
   private keepReading: boolean = true;
-
   private port!: any;
 
   constructor(private cdr: ChangeDetectorRef) {
-
-
     this.serialSupported = "serial" in window.navigator;
-
-    console.log("Navigator", window.navigator);
-
-
   }
 
   async connectSerial() {
@@ -126,11 +125,11 @@ export class SerialPlayground {
     console.log(valueAsJson);
 
     if (valueAsJson.state === 'pot'){
-      this.currentPotValue = valueAsJson.val;
+      this.currentPotValue.set(valueAsJson.val);
     }
 
     if(valueAsJson.state === 'light'){
-      this.currentLightState = valueAsJson.val;
+      this.currentLightState.set(valueAsJson.val);
     }
 
     this.messages.push(value);

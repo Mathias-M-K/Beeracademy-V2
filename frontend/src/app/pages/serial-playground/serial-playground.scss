@@ -1,8 +1,10 @@
 :host{
+  justify-self: center;
+  display: grid;
+  flex-direction: column;
   color: white;
   padding: 15px;
-  display: flex;
-  flex-direction: column;
+
 
   background-color: rebeccapurple;
 
