@@ -1,9 +1,16 @@
 :host{
   position: absolute;
   display:flex;
+  flex-direction:column;
 
   background-color: cadetblue;
 
   height: 100%;
   width: 100%;
+}
+
+#header{
+  color: white;
+  font-size: 55px;
+  text-align: center;
 }
