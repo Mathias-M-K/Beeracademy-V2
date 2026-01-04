@@ -126,18 +126,16 @@ export class SerialPlayground {
     console.log(valueAsJson);
 
     if (valueAsJson.state === 'pot'){
-      console.log("Pot value changed:", valueAsJson.val);
       this.currentPotValue = valueAsJson.val;
     }
 
     if(valueAsJson.state === 'light'){
-      console.log("Light value changed:", valueAsJson.val);
       this.currentLightState = valueAsJson.val;
     }
 
     this.messages.push(value);
-    this.cdr.detectChanges();
     this.scrollToBottom();
+    this.cdr.detectChanges();
   }
 
   private scrollToBottom(): void {
