@@ -1,0 +1,6 @@
+<div id="header">Angiv spillere</div>
+<input #playerInputField id="player-input-field">
+
+@for (player of players(); track $index){
+  <div>{{player}}</div>
+}

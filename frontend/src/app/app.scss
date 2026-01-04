@@ -1,6 +1,7 @@
 :host{
   position: absolute;
-  display:flex;
+  display:grid;
+  align-content: flex-start;
   flex-direction:column;
 
   background-color: cadetblue;
@@ -13,4 +14,7 @@
   color: white;
   font-size: 55px;
   text-align: center;
+
+  cursor: pointer;
+  user-select: none;
 }
