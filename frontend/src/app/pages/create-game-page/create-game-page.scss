@@ -22,3 +22,31 @@
   border-width: 0;
   text-align: center;
 }
+
+#create_game_btn{
+  width: fit-content;
+  height: fit-content;
+  justify-self: center;
+
+  cursor: pointer;
+  user-select: none;
+
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+  background-color: burlywood;
+
+  box-shadow: 2px 2px 8px 0 #676767;
+
+  transition: all 0.10s ease-in-out;
+}
+
+#create_game_btn:hover{
+  background-color: #c8954f;
+  box-shadow: 5px 5px 8px 0 #676767;
+}
+
+#create_game_btn:active{
+  background-color: #805925;
+  box-shadow: 1px 1px 8px 0 #303030;
+}
