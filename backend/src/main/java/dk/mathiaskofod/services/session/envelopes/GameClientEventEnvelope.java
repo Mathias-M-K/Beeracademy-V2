@@ -1,0 +1,8 @@
+package dk.mathiaskofod.services.session.envelopes;
+
+import dk.mathiaskofod.services.session.events.client.game.GameClientEvent;
+import dk.mathiaskofod.services.session.models.annotations.Category;
+
+@Category("GAME_CLIENT_EVENT")
+public record GameClientEventEnvelope(GameClientEvent payload) implements WebsocketEnvelope {
+}

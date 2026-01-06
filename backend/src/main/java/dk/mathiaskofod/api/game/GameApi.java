@@ -98,7 +98,7 @@ public class GameApi {
         NewCookie cookie = new NewCookie.Builder("session_jwt")
                 .httpOnly(!isDev)
                 .secure(!isDev)
-                .sameSite(isDev ? NewCookie.SameSite.NONE : NewCookie.SameSite.STRICT)
+                .sameSite(isDev ? NewCookie.SameSite.LAX : NewCookie.SameSite.STRICT)
                 .path("/")
                 .value(jwt)
                 .build();
