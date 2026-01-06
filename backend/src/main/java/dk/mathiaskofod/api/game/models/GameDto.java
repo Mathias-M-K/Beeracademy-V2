@@ -15,7 +15,7 @@ public record GameDto(String name, String id, boolean isClaimed, boolean isConne
 
         return new GameDto(
                 game.getName(),
-                game.getGameId().humanReadableId(),
+                game.getGameId(),
                 gameSession != null,
                 gameSession != null && gameSession.isConnected(),
                 players

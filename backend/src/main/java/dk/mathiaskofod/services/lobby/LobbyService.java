@@ -2,12 +2,11 @@ package dk.mathiaskofod.services.lobby;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.api.game.models.GameDto;
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.domain.game.Game;
+import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;
 import dk.mathiaskofod.services.session.game.GameSession;
 import dk.mathiaskofod.services.session.player.PlayerSession;
@@ -30,34 +29,33 @@ public class LobbyService {
     @Inject
     PlayerClientSessionManager playerClientSessionManager;
 
-    public GameIdDto createGame(CreateGameRequest createGameRequest) {
-        GameId gameId = gameService.createGame(createGameRequest.name(), createGameRequest.playerNames());
-        return GameIdDto.fromGameId(gameId);
+    public String createGame(CreateGameRequest createGameRequest) {
+        return gameService.createGame(createGameRequest.name(), createGameRequest.playerNames());
+
     }
 
-    public GameDto getGame(GameId gameId) {
+    public GameDto getGame(String gameId) {
 
         Game game = gameService.getGame(gameId);
 
         Optional<GameSession> gameSession = gameClientSessionManager.getSession(gameId);
 
-        return gameSession.map(
-                        session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
-                .orElseGet(
-                        () -> GameDto.create(game, createPlayerDtoS(game.getPlayers())));
+        return gameSession
+                .map(session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
+                .orElseGet(() -> GameDto.create(game, createPlayerDtoS(game.getPlayers())));
 
     }
 
-    public List<PlayerDto> getPlayersInGame(GameId gameId) {
+    public List<PlayerDto> getPlayersInGame(String gameId) {
         Game game = gameService.getGame(gameId);
         return createPlayerDtoS(game.getPlayers());
     }
 
-    public String claimGame(GameId gameId) {
+    public String claimGame(String gameId) {
         return gameClientSessionManager.claimGame(gameId);
     }
 
-    public String claimPlayer(GameId gameId, String playerId) {
+    public String claimPlayer(String gameId, String playerId) {
         return playerClientSessionManager.claimPlayer(gameId, playerId);
     }
 
@@ -67,7 +65,7 @@ public class LobbyService {
                 .map(player -> {
                     Optional<PlayerSession> playerSessionOpt = playerClientSessionManager.getSession(player.id());
                     return playerSessionOpt.map(
-                            session -> PlayerDto.create(player, session))
+                                    session -> PlayerDto.create(player, session))
                             .orElseGet(
                                     () -> PlayerDto.create(player, null));
                 })

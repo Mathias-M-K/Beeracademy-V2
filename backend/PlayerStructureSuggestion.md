@@ -89,7 +89,7 @@ connectionInfo (e.g., the WebSocket session object)
 
 playerId (the ID of the domain.game.Player this session controls)
 
-gameId (the ID of the Game this session is in)
+gameIdDto (the ID of the Game this session is in)
 
 Responsibility: Manages the connection, sends messages to the client, and receives messages from the client.
 

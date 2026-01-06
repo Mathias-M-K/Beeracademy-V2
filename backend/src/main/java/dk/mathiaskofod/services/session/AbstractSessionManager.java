@@ -46,7 +46,7 @@ public abstract class AbstractSessionManager<TSession, Tid> {
     private WebSocketConnection getWebsocketConnection(Tid id) {
         String connectionId = getConnectionId(id);
         return connections.findByConnectionId(connectionId)
-                .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for id: " + connectionId));
+                .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for gameId: " + connectionId));
     }
 
     protected void sendMessage(Tid sessionId, WebsocketEnvelope message){

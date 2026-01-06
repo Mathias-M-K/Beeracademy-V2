@@ -6,7 +6,6 @@ import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitterImpl;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import dk.mathiaskofod.domain.game.player.Player;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,15 +21,15 @@ public class GameService {
     @Inject
     GameEventEmitterImpl gameEventEmitterImpl;
 
-    private final Map<GameId, Game> games = new HashMap<>();
+    private final Map<String, Game> games = new HashMap<>();
 
-    public GameId createGame(String name, List<String> playerNames) {
+    public String createGame(String name, List<String> playerNames) {
 
         List<Player> players = playerNames.stream()
                 .map(Player::create)
                 .toList();
 
-        GameId gameId = IdGenerator.generateGameId();
+        String gameId = IdGenerator.generateGameId();
 
         GameImpl game = new GameImpl(name, gameId, players, gameEventEmitterImpl);
         games.put(gameId, game);
@@ -38,7 +37,7 @@ public class GameService {
         return gameId;
     }
 
-    public Game getGame(GameId gameId) {
+    public Game getGame(String gameId) {
 
         if (!games.containsKey(gameId)) {
             throw new GameNotFoundException(gameId);
@@ -47,39 +46,39 @@ public class GameService {
         return games.get(gameId);
     }
 
-    public Player getPlayer(GameId gameId, String playerId) {
+    public Player getPlayer(String gameId, String playerId) {
         return getGame(gameId).getPlayers().stream()
                 .filter(player -> player.id().equals(playerId))
                 .findFirst()
                 .orElseThrow(() -> new PlayerNotFoundException(playerId, gameId));
     }
 
-    public Player getCurrentPlayer(GameId gameId) {
+    public Player getCurrentPlayer(String gameId) {
         return getGame(gameId).getCurrentPlayer();
     }
 
-    public void drawCard(long elapsedTime, GameId gameId) {
+    public void drawCard(long elapsedTime, String gameId) {
         getGame(gameId).drawCard(elapsedTime);
     }
 
-    public void registerChug(Chug chug, GameId gameId) {
+    public void registerChug(Chug chug, String gameId) {
         getGame(gameId).registerChug(chug);
     }
 
-    public void startGame(GameId gameId) {
+    public void startGame(String gameId) {
         getGame(gameId).startGame();
     }
 
-    public void endGame(GameId gameId){
+    public void endGame(String gameId){
         getGame(gameId).endGame();
         games.remove(gameId);
     }
 
-    public void pauseGame(GameId gameId) {
+    public void pauseGame(String gameId) {
         getGame(gameId).pauseGame();
     }
 
-    public void resumeGame(GameId gameId){
+    public void resumeGame(String gameId){
         getGame(gameId).resumeGame();
     }
 }

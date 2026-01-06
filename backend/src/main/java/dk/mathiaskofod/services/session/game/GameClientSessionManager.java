@@ -13,7 +13,6 @@ import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import dk.mathiaskofod.services.session.game.exceptions.*;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
-import dk.mathiaskofod.domain.game.models.GameId;
 
 import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
@@ -26,18 +25,18 @@ import java.time.Duration;
 
 @Slf4j
 @ApplicationScoped
-public class GameClientSessionManager extends AbstractSessionManager<GameSession, GameId> {
+public class GameClientSessionManager extends AbstractSessionManager<GameSession, String> {
 
 
     @Override
-    protected String getConnectionId(GameId id) {
+    protected String getConnectionId(String id) {
         return getSession(id).
                 orElseThrow(() -> new GameSessionNotFoundException(id))
                 .getConnectionId()
                 .orElseThrow(() -> new NoConnectionIdException(id));
     }
 
-    public String claimGame(GameId gameId) {
+    public String claimGame(String gameId) {
 
         gameService.getGame(gameId);
 
@@ -50,25 +49,25 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
         return authService.createGameClientToken(gameId);
     }
 
-    public void registerConnection(GameId gameId, String websocketConnId) {
+    public void registerConnection(String gameId, String websocketConnId) {
 
         getSession(gameId)
                 .orElseThrow(() -> new GameNotClaimedException(gameId))
                 .setConnectionId(websocketConnId);
 
-        log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId.humanReadableId(), websocketConnId);
+        log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnId);
     }
 
-    public void registerDisconnect(GameId gameId) {
+    public void registerDisconnect(String gameIdDto) {
 
-        getSession(gameId)
-                .orElseThrow(() -> new GameSessionNotFoundException(gameId))
+        getSession(gameIdDto)
+                .orElseThrow(() -> new GameSessionNotFoundException(gameIdDto))
                 .clearConnectionId();
 
-        log.info("Game client disconnected. GameID:{}", gameId.humanReadableId());
+        log.info("Game client disconnected. GameID:{}", gameIdDto);
     }
 
-    public void onMessageReceived(GameId gameId, WebsocketEnvelope envelope) {
+    public void onMessageReceived(String gameId, WebsocketEnvelope envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for game client action", 400);
@@ -85,7 +84,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
         }
     }
 
-    private void onRegisterChug(RegisterChugAction action, GameId gameId) {
+    private void onRegisterChug(RegisterChugAction action, String gameId) {
         Chug chug = new Chug(action.suit(), Duration.ofMillis(action.duration()));
         gameService.registerChug(chug, gameId);
     }

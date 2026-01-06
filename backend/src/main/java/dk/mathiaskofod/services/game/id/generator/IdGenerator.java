@@ -1,6 +1,6 @@
 package dk.mathiaskofod.services.game.id.generator;
 
-import dk.mathiaskofod.domain.game.models.GameId;
+import dk.mathiaskofod.api.game.models.GameIdDto;
 
 import java.security.SecureRandom;
 import java.util.UUID;
@@ -32,8 +32,9 @@ public class IdGenerator {
         return generateUUID();
     }
 
-    public static GameId generateGameId() {
-        return new GameId(generateId(GAME_ID_LENGTH));
+    //TODO can we do some refactoring?
+    public static String generateGameId() {
+        return generateId(GAME_ID_LENGTH);
     }
 
 

@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import dk.mathiaskofod.domain.game.models.GameId;
+import dk.mathiaskofod.api.game.models.GameIdDto;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,10 +27,10 @@ class GameServiceTest {
         void getNonExistingGame() {
 
             //Arrange
-            GameId gameId = new GameId("123abc123");
+            GameIdDto gameIdDto = new GameIdDto("123abc123");
 
             //Act - Assert
-            assertThrows(GameNotFoundException.class, () -> gameServiceMock.getGame(gameId));
+            assertThrows(GameNotFoundException.class, () -> gameServiceMock.getGame(gameIdDto));
 
         }
 

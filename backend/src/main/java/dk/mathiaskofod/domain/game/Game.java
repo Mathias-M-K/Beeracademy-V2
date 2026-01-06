@@ -1,7 +1,7 @@
 package dk.mathiaskofod.domain.game;
 
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.domain.game.models.GameId;
+import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.player.Player;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public interface Game {
      * Gets the unique identifier for the game
      * @return the game ID
      */
-    GameId getGameId();
+    String getGameId();
 
     /**
      * Starts the game by starting the timer for both the game and the first player

@@ -6,7 +6,6 @@ import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -24,7 +23,7 @@ public class GameImpl implements Game {
     private final String name;
 
     @Getter
-    private final GameId gameId;
+    private final String gameId;
 
     @Getter
     private final List<Player> players;
@@ -45,7 +44,7 @@ public class GameImpl implements Game {
 
     GameEventEmitter eventEmitter;
 
-    public GameImpl(String name, GameId gameId, List<Player> players, GameEventEmitter eventEmitter) {
+    public GameImpl(String name, String gameId, List<Player> players, GameEventEmitter eventEmitter) {
         this.name = name;
         this.gameId = gameId;
         this.players = players;

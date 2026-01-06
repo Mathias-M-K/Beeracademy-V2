@@ -13,7 +13,6 @@ import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedE
 import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.events.domain.game.*;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
@@ -51,7 +50,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         eventBus.fire(event);
     }
 
-    private void sendMessageToAllPlayersInAGame(WebsocketEnvelope envelope, GameId gameId) {
+    private void sendMessageToAllPlayersInAGame(WebsocketEnvelope envelope, String gameId) {
         gameService.getGame(gameId).getPlayers().stream()
                 .map(Player::id)
                 .map(this::getSession)
@@ -61,7 +60,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
     }
 
-    public String claimPlayer(GameId gameId, String playerId) {
+    public String claimPlayer(String gameId, String playerId) {
 
         Player player = gameService.getPlayer(gameId, playerId);
 
@@ -71,11 +70,11 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
         addSession(playerId, new PlayerSession(playerId));
 
-        log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId.humanReadableId());
+        log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId);
         return authService.createPlayerClientToken(player, gameId);
     }
 
-    public void registerConnection(GameId gameId, String playerId, String websocketConnId) {
+    public void registerConnection(String gameId, String playerId, String websocketConnId) {
 
         getSession(playerId)
                 .orElseThrow(() -> new PlayerNotClaimedException(playerId, gameId))
@@ -83,10 +82,10 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
-        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), websocketConnId);
+        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId, websocketConnId);
     }
 
-    public void registerDisconnect(GameId gameId, String playerId) {
+    public void registerDisconnect(String gameId, String playerId) {
 
         getSession(playerId)
                 .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
@@ -94,15 +93,15 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
         broadcastPlayerEvent(new PlayerDisconnectedEvent(playerId, gameId));
 
-        log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId.humanReadableId(), "");
+        log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId, "");
     }
 
-    public void relinquishPlayer(GameId gameId, String playerId) {
+    public void relinquishPlayer(String gameId, String playerId) {
 
         PlayerSession playerSession = getSession(playerId)
                 .orElseThrow(() -> new PlayerSessionNotFoundException(playerId));
 
-        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId.humanReadableId(), getConnectionId(playerId));
+        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId, getConnectionId(playerId));
 
         closeConnection(playerId);
         removeSession(playerId);
@@ -125,7 +124,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
         }
     }
 
-    private void onDrawCardAction(long durationInMillis, GameId gameId, String playerId) {
+    private void onDrawCardAction(long durationInMillis, String gameId, String playerId) {
 
         String currentPlayerId = gameService.getCurrentPlayer(gameId).id();
         if (!playerId.equals(currentPlayerId)) {

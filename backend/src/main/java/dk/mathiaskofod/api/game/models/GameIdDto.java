@@ -1,10 +1,12 @@
 package dk.mathiaskofod.api.game.models;
 
-import dk.mathiaskofod.domain.game.models.GameId;
+import jakarta.validation.constraints.Pattern;
 
-public record GameIdDto(String gameId) {
+public record GameIdDto(
+        @Pattern(regexp = "^(?:[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}|[A-Za-z0-9]{9})$", message = "Invalid game ID format")
+        String gameId) {
 
-    public static GameIdDto fromGameId(GameId gameId){
-        return new GameIdDto(gameId.humanReadableId());
+    public GameIdDto(String gameId) {
+        this.gameId = gameId.replaceAll("-", "");
     }
 }

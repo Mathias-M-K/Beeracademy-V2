@@ -2,7 +2,7 @@ package dk.mathiaskofod.domain.game;
 
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.events.TestGameEventEmitter;
-import dk.mathiaskofod.domain.game.models.GameId;
+import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.player.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,8 +32,7 @@ class GameTest {
         player2 = Player.create("Player2");
         player3 = Player.create("Player3");
 
-        GameId gameId = new GameId(this.gameId);
-        game = new GameImpl("Game under test",gameId, List.of(player1,player2,player3), emitter);
+        game = new GameImpl("Game under test", gameId, List.of(player1,player2,player3), emitter);
     }
 
     @Nested

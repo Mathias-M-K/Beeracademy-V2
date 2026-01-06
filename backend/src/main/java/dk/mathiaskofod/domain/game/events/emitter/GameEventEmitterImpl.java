@@ -3,7 +3,6 @@ package dk.mathiaskofod.domain.game.events.emitter;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.player.Player;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -19,32 +18,32 @@ public class GameEventEmitterImpl implements GameEventEmitter {
 
 
     @Override
-    public void onStartGame(GameId gameId) {
+    public void onStartGame(String gameId) {
         eventBus.fire(new StartGameEvent(gameId));
     }
 
     @Override
-    public void onEndGame(GameId gameId, Duration gameDuration) {
+    public void onEndGame(String gameId, Duration gameDuration) {
         eventBus.fire(new EndGameEvent(gameId, gameDuration));
     }
 
     @Override
-    public void onPauseGame(GameId gameId) {
+    public void onPauseGame(String gameId) {
         eventBus.fire(new PauseGameEvent(gameId));
     }
 
     @Override
-    public void onResumeGame(GameId gameId) {
+    public void onResumeGame(String gameId) {
         eventBus.fire(new ResumeGameEvent(gameId));
     }
 
     @Override
-    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
+    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, String gameId) {
         eventBus.fire(new DrawCardEvent(turn, previousPlayer, newPlayer, nextPlayer, gameId));
     }
 
     @Override
-    public void onNewChug(Chug chug, Player player, GameId gameId) {
-        eventBus.fire(new ChugEvent(chug,player,gameId));
+    public void onNewChug(Chug chug, Player player, String gameId) {
+        eventBus.fire(new ChugEvent(chug,player, gameId));
     }
 }

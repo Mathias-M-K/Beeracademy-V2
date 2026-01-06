@@ -2,8 +2,8 @@ package dk.mathiaskofod.domain.game.events;
 
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.models.Chug;
+import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.models.Turn;
-import dk.mathiaskofod.domain.game.models.GameId;
 import dk.mathiaskofod.domain.game.player.Player;
 
 import java.time.Duration;
@@ -15,33 +15,33 @@ import java.time.Duration;
 public class TestGameEventEmitter implements GameEventEmitter {
 
     @Override
-    public void onStartGame(GameId gameId) {
+    public void onStartGame(String gameIdDto) {
 
     }
 
     @Override
-    public void onEndGame(GameId gameId, Duration gameDuration) {
+    public void onEndGame(String gameIdDto, Duration gameDuration) {
 
     }
 
     @Override
-    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, GameId gameId) {
+    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, String gameIdDto) {
 
     }
 
 
     @Override
-    public void onNewChug(Chug chug, Player player, GameId gameId) {
+    public void onNewChug(Chug chug, Player player, String gameIdDto) {
 
     }
 
     @Override
-    public void onPauseGame(GameId gameId) {
+    public void onPauseGame(String gameIdDto) {
         // no-op for tests
     }
 
     @Override
-    public void onResumeGame(GameId gameId) {
+    public void onResumeGame(String gameIdDto) {
         // no-op for tests
     }
 }
