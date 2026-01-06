@@ -1,13 +1,10 @@
 package dk.mathiaskofod.services.lobby;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.api.game.models.GameDto;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.domain.game.Game;
-import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;
-import dk.mathiaskofod.services.session.game.GameSession;
 import dk.mathiaskofod.services.session.player.PlayerSession;
 import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
 import jakarta.enterprise.context.ApplicationScoped;

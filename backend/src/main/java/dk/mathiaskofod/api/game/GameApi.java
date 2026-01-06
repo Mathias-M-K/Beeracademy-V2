@@ -1,7 +1,6 @@
 package dk.mathiaskofod.api.game;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.api.game.models.GameDto;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.services.lobby.LobbyService;

@@ -1,7 +1,6 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
