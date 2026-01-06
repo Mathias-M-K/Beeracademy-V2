@@ -3,9 +3,11 @@ package dk.mathiaskofod.services.lobby;
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.domain.game.Game;
+import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;
-import dk.mathiaskofod.services.session.player.PlayerSession;
+import dk.mathiaskofod.services.session.models.Session;
 import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,6 +20,9 @@ public class LobbyService {
 
     @Inject
     GameService gameService;
+
+    @Inject
+    AuthService authService;
 
     @Inject
     GameClientSessionManager gameClientSessionManager;
@@ -46,7 +51,7 @@ public class LobbyService {
 
         return game.getPlayers().stream()
                 .map(player -> {
-                    Optional<PlayerSession> playerSessionOpt = playerClientSessionManager.getSession(player.id());
+                    Optional<Session> playerSessionOpt = playerClientSessionManager.getSession(player.id());
                     return playerSessionOpt.map(
                                     session -> PlayerDto.create(player, session))
                             .orElseGet(
@@ -56,11 +61,16 @@ public class LobbyService {
     }
 
     public String claimGame(String gameId) {
-        return gameClientSessionManager.claimGame(gameId);
+        gameClientSessionManager.claimGame(gameId);
+        return authService.createGameClientToken(gameId);
     }
 
     public String claimPlayer(String gameId, String playerId) {
-        return playerClientSessionManager.claimPlayer(gameId, playerId);
+        playerClientSessionManager.claimPlayer(gameId, playerId);
+
+        Player player = gameService.getPlayer(gameId, playerId);
+
+        return authService.createPlayerClientToken(player, gameId);
     }
 
 

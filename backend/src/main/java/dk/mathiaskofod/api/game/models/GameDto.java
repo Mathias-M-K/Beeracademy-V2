@@ -1,7 +1,6 @@
 package dk.mathiaskofod.api.game.models;
 
 import dk.mathiaskofod.domain.game.Game;
-import dk.mathiaskofod.services.session.game.GameSession;
 
 import java.util.List;
 

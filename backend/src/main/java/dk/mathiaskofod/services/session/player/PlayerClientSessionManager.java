@@ -12,72 +12,63 @@ import dk.mathiaskofod.services.session.events.client.player.PlayerConnectedEven
 import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedEvent;
 import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.events.domain.game.*;
-import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
+import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
-import dk.mathiaskofod.services.session.player.exeptions.PlayerAlreadyClaimedException;
-import dk.mathiaskofod.services.session.player.exeptions.PlayerNotClaimedException;
+import dk.mathiaskofod.services.session.models.Session;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.services.session.player.exeptions.PlayerSessionNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-
 import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
-public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSession, String> {
+public class PlayerClientSessionManager extends AbstractSessionManager {
 
     @Inject
     Event<PlayerClientEvent> eventBus;
-
-    protected String getConnectionId(String playerId) {
-
-        return getSession(playerId)
-                .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
-                .getConnectionId()
-                .orElseThrow(() -> new NoConnectionIdException(playerId));
-    }
 
     private void broadcastPlayerEvent(PlayerClientEvent event) {
         eventBus.fire(event);
     }
 
-    private void sendMessageToAllPlayersInAGame(WebsocketEnvelope envelope, String gameId) {
+    private void broadcastMessageToAllPlayersInGame(WebsocketEnvelope message, String gameId) {
         gameService.getGame(gameId).getPlayers().stream()
                 .map(Player::id)
                 .map(this::getSession)
                 .flatMap(Optional::stream)
                 .filter(session -> session.getConnectionId().isPresent())
-                .forEach(session -> sendMessage(session.getPlayerId(), envelope));
+                .forEach(session -> sendMessage(session.getSessionId(), message));
 
     }
 
-    public String claimPlayer(String gameId, String playerId) {
-
-        Player player = gameService.getPlayer(gameId, playerId);
+    public void claimPlayer(String gameId, String playerId) {
 
         if (getSession(playerId).isPresent()) {
-            throw new PlayerAlreadyClaimedException(playerId, gameId);
+            String msg = String.format("Player with ID: %s, from game: %s, has already been claimed.",playerId, gameId);
+            throw new ResourceClaimException(msg);
         }
 
-        addSession(playerId, new PlayerSession(playerId));
+        addSession(playerId, new Session(playerId));
 
         log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId);
-        return authService.createPlayerClientToken(player, gameId);
     }
 
     public void registerConnection(String gameId, String playerId, String websocketConnId) {
 
         getSession(playerId)
-                .orElseThrow(() -> new PlayerNotClaimedException(playerId, gameId))
+                .orElseThrow(() -> {
+                    String msg = String.format("Player: %s, in game: %s, either doesn't exist or have not been claimed", playerId,gameId);
+                    return new ResourceClaimException(msg);
+                })
                 .setConnectionId(websocketConnId);
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
@@ -88,7 +79,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
     public void registerDisconnect(String gameId, String playerId) {
 
         getSession(playerId)
-                .orElseThrow(() -> new PlayerSessionNotFoundException(playerId))
+                .orElseThrow(() -> new SessionNotFoundException(playerId))
                 .clearConnectionId();
 
         broadcastPlayerEvent(new PlayerDisconnectedEvent(playerId, gameId));
@@ -98,13 +89,14 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
 
     public void relinquishPlayer(String gameId, String playerId) {
 
-        PlayerSession playerSession = getSession(playerId)
-                .orElseThrow(() -> new PlayerSessionNotFoundException(playerId));
+        String sessionId = getSession(playerId)
+                .orElseThrow(() -> new SessionNotFoundException(playerId))
+                        .getSessionId();
 
-        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerSession.getPlayerId(), gameId, getConnectionId(playerId));
+        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", sessionId, gameId, getConnectionId(playerId));
 
-        closeConnection(playerId);
-        removeSession(playerId);
+        closeConnection(sessionId);
+        removeSession(sessionId);
 
         broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }
@@ -134,7 +126,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
     }
 
     void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
-        sendMessageToAllPlayersInAGame(new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
+        broadcastMessageToAllPlayersInGame(new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
     }
 
     void onGameEvent(@Observes GameEvent gameEvent) {
@@ -150,10 +142,8 @@ public class PlayerClientSessionManager extends AbstractSessionManager<PlayerSes
             default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
         };
 
-        // 2. Wrap (if you are still using the envelope)
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        // 3. Send (Shared logic)
-        sendMessageToAllPlayersInAGame(envelope, gameEvent.gameId());
+        broadcastMessageToAllPlayersInGame(envelope, gameEvent.gameId());
     }
 }

@@ -8,15 +8,12 @@ import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
 import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.domain.game.*;
-import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
-import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
-import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
-import dk.mathiaskofod.services.session.game.exceptions.*;
-import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
+import dk.mathiaskofod.services.session.exceptions.*;
 
 import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
@@ -25,34 +22,29 @@ import java.time.Duration;
 
 @Slf4j
 @ApplicationScoped
-public class GameClientSessionManager extends AbstractSessionManager<GameSession, String> {
+public class GameClientSessionManager extends AbstractSessionManager {
 
 
-    @Override
-    protected String getConnectionId(String id) {
-        return getSession(id).
-                orElseThrow(() -> new GameSessionNotFoundException(id))
-                .getConnectionId()
-                .orElseThrow(() -> new NoConnectionIdException(id));
-    }
+    public void claimGame(String gameId) {
 
-    public String claimGame(String gameId) {
-
+        //Checks whether the game exist
         gameService.getGame(gameId);
 
         if (getSession(gameId).isPresent()) {
-            throw new GameAlreadyClaimedException(gameId);
+            String msg = String.format("The game with id %s is already claimed.", gameId);
+            throw new ResourceClaimException(msg);
         }
 
-        addSession(gameId, new GameSession(gameId));
-
-        return authService.createGameClientToken(gameId);
+        addSession(gameId, new Session(gameId));
     }
 
     public void registerConnection(String gameId, String websocketConnId) {
 
         getSession(gameId)
-                .orElseThrow(() -> new GameNotClaimedException(gameId))
+                .orElseThrow(() -> {
+                    String msg = String.format("The game with id %s either doesn't exist or haven't been claimed.", gameId);
+                    return new ResourceClaimException(msg);
+                })
                 .setConnectionId(websocketConnId);
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnId);
@@ -61,7 +53,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     public void registerDisconnect(String gameIdDto) {
 
         getSession(gameIdDto)
-                .orElseThrow(() -> new GameSessionNotFoundException(gameIdDto))
+                .orElseThrow(() -> new SessionNotFoundException(gameIdDto))
                 .clearConnectionId();
 
         log.info("Game client disconnected. GameID:{}", gameIdDto);
@@ -92,7 +84,7 @@ public class GameClientSessionManager extends AbstractSessionManager<GameSession
     /**
      * Player Events
      **/
-    void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
+    void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
         try {
             sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
         } catch (NoConnectionIdException noConnectionIdException) {
