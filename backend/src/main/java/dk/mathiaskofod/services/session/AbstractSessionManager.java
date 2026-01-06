@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session;
 
-import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
