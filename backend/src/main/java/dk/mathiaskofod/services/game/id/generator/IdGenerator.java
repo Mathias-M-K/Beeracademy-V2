@@ -1,7 +1,5 @@
 package dk.mathiaskofod.services.game.id.generator;
 
-import dk.mathiaskofod.api.game.models.GameIdDto;
-
 import java.security.SecureRandom;
 import java.util.UUID;
 import java.util.stream.Collectors;

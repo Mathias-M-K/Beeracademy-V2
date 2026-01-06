@@ -2,7 +2,6 @@ package dk.mathiaskofod.domain.game.events;
 
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 

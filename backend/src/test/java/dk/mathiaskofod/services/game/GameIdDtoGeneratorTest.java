@@ -11,21 +11,6 @@ import static org.hamcrest.Matchers.is;
 class GameIdDtoGeneratorTest {
 
     @Test
-    @DisplayName("123abc123 is 123-abc-123 an human readable gameId")
-    void testHumanReadableId() {
-
-        //Arrange
-        String gameId = "123abc123";
-        String expectedHumanReadableId = "123-abc-123";
-
-        //Act
-        String humanReadableId = new GameIdDto(gameId).humanReadableId();
-
-        //Arrange
-        assertThat(humanReadableId, is(expectedHumanReadableId));
-    }
-
-    @Test
     @DisplayName("GameId's with same gameId are equal")
     void testGameIdEquality() {
         //Arrange

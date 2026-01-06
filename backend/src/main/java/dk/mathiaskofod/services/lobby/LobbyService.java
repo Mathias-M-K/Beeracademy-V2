@@ -4,7 +4,6 @@ import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.api.game.models.GameDto;
 import dk.mathiaskofod.api.game.models.PlayerDto;
 import dk.mathiaskofod.domain.game.Game;
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.game.GameClientSessionManager;

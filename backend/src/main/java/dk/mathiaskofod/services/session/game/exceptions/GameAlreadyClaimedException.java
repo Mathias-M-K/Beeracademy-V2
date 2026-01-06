@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session.game.exceptions;
 
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 
 public class GameAlreadyClaimedException extends BaseException {

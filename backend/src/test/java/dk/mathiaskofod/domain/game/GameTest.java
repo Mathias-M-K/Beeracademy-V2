@@ -2,7 +2,6 @@ package dk.mathiaskofod.domain.game;
 
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.events.TestGameEventEmitter;
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.player.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

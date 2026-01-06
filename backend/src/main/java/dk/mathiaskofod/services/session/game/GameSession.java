@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session.game;
 
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.services.session.models.AbstractSession;
 import lombok.Getter;
 import lombok.Setter;

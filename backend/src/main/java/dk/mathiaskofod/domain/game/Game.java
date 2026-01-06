@@ -1,7 +1,6 @@
 package dk.mathiaskofod.domain.game;
 
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.api.game.models.GameIdDto;
 import dk.mathiaskofod.domain.game.player.Player;
 
 import java.util.List;
