@@ -11,16 +11,23 @@
 #header{
   height: fit-content;
   color: white;
-
 }
 
-#player-input-field{
+.input-field{
   width: 300px;
   height: 40px;
 
   border-radius: 5px;
   border-width: 0;
   text-align: center;
+}
+
+#player-list{
+  border-radius: 5px;
+  padding: 10px;
+  background-color: burlywood;
+  color: white;
+  width: 290px;
 }
 
 #create_game_btn{
@@ -50,3 +57,4 @@
   background-color: #805925;
   box-shadow: 1px 1px 8px 0 #303030;
 }
+

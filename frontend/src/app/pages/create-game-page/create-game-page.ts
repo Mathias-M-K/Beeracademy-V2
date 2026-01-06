@@ -12,13 +12,17 @@ export class CreateGamePage {
   @ViewChild('playerInputField')
   private playerInputFieldElement!: ElementRef;
 
+  @ViewChild('gameNameInput')
+  private gameNameInputFieldElement!: ElementRef;
+
   protected players = signal<string[]>([]);
 
   constructor(private beerAcademyService: BeerAcademyService) {
   }
 
   protected createGame(){
-    this.beerAcademyService.createGame(this.players(),"test")
+    const gameName = this.fetchGameNameFieldValue();
+    this.beerAcademyService.createGame(this.players(),gameName);
   }
 
   protected addPlayer(playerName: string) : void{
@@ -26,20 +30,24 @@ export class CreateGamePage {
       this.playerInputFieldElement.nativeElement.value = '';
   }
 
-  private fetchInputFieldValue(): string {
+  private fetchGameNameFieldValue(): string {
     return this.playerInputFieldElement.nativeElement.value;
   }
 
-  private resetInputField(): void {
+  private fetchNewPlayerFieldValue(): string {
+    return this.playerInputFieldElement.nativeElement.value;
+  }
+
+  private resetPlayerFieldInputField(): void {
     this.playerInputFieldElement.nativeElement.value = '';
   }
 
   @HostListener('keydown.enter', ['$event'])
   onEnterClick(event: Event) {
-      const inputFieldVal = this.fetchInputFieldValue();
+      const inputFieldVal = this.fetchNewPlayerFieldValue();
       this.addPlayer(inputFieldVal);
 
-      this.resetInputField();
+      this.resetPlayerFieldInputField();
   }
 
 

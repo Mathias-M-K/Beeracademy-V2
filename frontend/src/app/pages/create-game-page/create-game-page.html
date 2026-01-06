@@ -1,8 +1,28 @@
 <div id="header">Angiv spillere</div>
-<input #playerInputField id="player-input-field">
 
-@for (player of players(); track $index){
-  <div>{{player}}</div>
-}
+<div>
+  <p>Spil navn</p>
+  <input #gameNameInput class="input-field" value="test" name="game-name-input">
+</div>
+
+<div>
+  <p>Tilføj spiller +</p>
+  <input #playerInputField class="input-field" name="player-name-input">
+</div>
+
+<div>
+  <h4>Spillere:</h4>
+
+  <div id="player-list">
+    @for (player of players(); track $index){
+      <div>{{player}}</div>
+    }
+  </div>
+</div>
+
+
+
+
+
 
 <div id="create_game_btn" (click)="createGame()">Create</div>
