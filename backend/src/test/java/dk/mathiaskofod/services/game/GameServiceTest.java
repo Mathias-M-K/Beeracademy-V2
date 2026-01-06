@@ -27,7 +27,7 @@ class GameServiceTest {
         void getNonExistingGame() {
 
             //Arrange
-            String gameId = new GameIdDto("123abc123");
+            String gameId = "123abc123";
 
             //Act - Assert
             assertThrows(GameNotFoundException.class, () -> gameServiceMock.getGame(gameId));

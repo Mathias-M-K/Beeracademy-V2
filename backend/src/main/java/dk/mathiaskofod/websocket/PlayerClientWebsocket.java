@@ -49,9 +49,9 @@ public class PlayerClientWebsocket {
     }
 
     @OnTextMessage()
-    public void onMessage(WebsocketEnvelope websocketEnvelope) {
+    public void onMessage(WebsocketEnvelope message) {
         PlayerTokenInfo tokenInfo = PlayerTokenInfo.fromToken(jwt);
-        playerClientSessionManager.onMessageReceived(websocketEnvelope, tokenInfo);
+        playerClientSessionManager.onMessageReceived(message, tokenInfo);
     }
 
     @OnError

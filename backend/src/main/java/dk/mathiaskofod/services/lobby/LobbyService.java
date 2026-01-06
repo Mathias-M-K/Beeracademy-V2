@@ -30,24 +30,32 @@ public class LobbyService {
 
     public String createGame(CreateGameRequest createGameRequest) {
         return gameService.createGame(createGameRequest.name(), createGameRequest.playerNames());
-
     }
 
-    public GameDto getGame(String gameId) {
-
-        Game game = gameService.getGame(gameId);
-
-        Optional<GameSession> gameSession = gameClientSessionManager.getSession(gameId);
-
-        return gameSession
-                .map(session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
-                .orElseGet(() -> GameDto.create(game, createPlayerDtoS(game.getPlayers())));
-
-    }
+//    public GameDto getGame(String gameId) {
+//
+//        Game game = gameService.getGame(gameId);
+//
+//        Optional<GameSession> gameSession = gameClientSessionManager.getSession(gameId);
+//
+//        return gameSession
+//                .map(session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
+//                .orElseGet(() -> GameDto.create(game, createPlayerDtoS(game.getPlayers())));
+//
+//    }
 
     public List<PlayerDto> getPlayersInGame(String gameId) {
         Game game = gameService.getGame(gameId);
-        return createPlayerDtoS(game.getPlayers());
+
+        return game.getPlayers().stream()
+                .map(player -> {
+                    Optional<PlayerSession> playerSessionOpt = playerClientSessionManager.getSession(player.id());
+                    return playerSessionOpt.map(
+                                    session -> PlayerDto.create(player, session))
+                            .orElseGet(
+                                    () -> PlayerDto.create(player, null));
+                })
+                .toList();
     }
 
     public String claimGame(String gameId) {
@@ -58,18 +66,6 @@ public class LobbyService {
         return playerClientSessionManager.claimPlayer(gameId, playerId);
     }
 
-    private List<PlayerDto> createPlayerDtoS(List<Player> players) {
-
-        return players.stream()
-                .map(player -> {
-                    Optional<PlayerSession> playerSessionOpt = playerClientSessionManager.getSession(player.id());
-                    return playerSessionOpt.map(
-                                    session -> PlayerDto.create(player, session))
-                            .orElseGet(
-                                    () -> PlayerDto.create(player, null));
-                })
-                .toList();
-    }
 
 
 }

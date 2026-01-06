@@ -43,12 +43,12 @@ public class GameApi {
         return new GameIdDto(lobbyService.createGame(request));
     }
 
-    @GET
-    @Path("/{game-gameId}")
-    @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
-    public GameDto getGame(@Valid @PathParam("game-gameId") GameIdDto gameIdDto) {
-        return lobbyService.getGame(gameIdDto.gameId());
-    }
+//    @GET
+//    @Path("/{game-gameId}")
+//    @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
+//    public GameDto getGame(@Valid @PathParam("game-gameId") GameIdDto gameIdDto) {
+//        return lobbyService.getGame(gameIdDto.gameId());
+//    }
 
     @GET
     @Path("{game-gameId}/claim")

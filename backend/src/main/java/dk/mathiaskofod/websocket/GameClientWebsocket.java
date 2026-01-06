@@ -46,8 +46,8 @@ public class GameClientWebsocket {
     }
 
     @OnTextMessage
-    void onMessage(WebsocketEnvelope envelope){
-        gameClientSessionManager.onMessageReceived(GameTokenInfo.fromToken(jwt).gameId(), envelope);
+    void onMessage(WebsocketEnvelope message){
+        gameClientSessionManager.onMessageReceived(GameTokenInfo.fromToken(jwt).gameId(), message);
     }
 
     @OnError
