@@ -5,7 +5,7 @@ import dk.mathiaskofod.services.auth.models.GameTokenInfo;
 import dk.mathiaskofod.services.auth.models.Roles;
 
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import dk.mathiaskofod.services.session.game.GameClientSessionManager;
+import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;

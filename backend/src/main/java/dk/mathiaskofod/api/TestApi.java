@@ -1,7 +1,7 @@
 package dk.mathiaskofod.api;
 
-import dk.mathiaskofod.services.session.events.domain.game.GameEventDto;
-import dk.mathiaskofod.services.session.events.domain.game.GameStartGameEventDto;
+import dk.mathiaskofod.services.session.events.game.GameEventDto;
+import dk.mathiaskofod.services.session.events.game.GameStartGameEventDto;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import jakarta.ws.rs.GET;

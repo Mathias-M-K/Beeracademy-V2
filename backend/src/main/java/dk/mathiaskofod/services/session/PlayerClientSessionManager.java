@@ -1,21 +1,20 @@
-package dk.mathiaskofod.services.session.player;
+package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
-import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.player.client.RelinquishPlayerAction;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
-import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
-import dk.mathiaskofod.services.session.events.client.player.PlayerConnectedEvent;
-import dk.mathiaskofod.services.session.events.client.player.PlayerDisconnectedEvent;
-import dk.mathiaskofod.services.session.events.client.player.PlayerRelinquishedEvent;
-import dk.mathiaskofod.services.session.events.domain.game.*;
+import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
+import dk.mathiaskofod.services.session.events.playerclient.PlayerConnectedEvent;
+import dk.mathiaskofod.services.session.events.playerclient.PlayerDisconnectedEvent;
+import dk.mathiaskofod.services.session.events.playerclient.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;

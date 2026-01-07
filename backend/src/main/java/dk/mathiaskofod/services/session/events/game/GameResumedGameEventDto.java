@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.events.domain.game;
+package dk.mathiaskofod.services.session.events.game;
 
 import dk.mathiaskofod.services.session.models.annotations.EventType;
 

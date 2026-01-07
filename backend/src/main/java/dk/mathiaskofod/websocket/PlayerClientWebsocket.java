@@ -5,7 +5,7 @@ import dk.mathiaskofod.services.auth.models.Roles;
 import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
+import dk.mathiaskofod.services.session.PlayerClientSessionManager;
 import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.*;
 import jakarta.annotation.security.RolesAllowed;

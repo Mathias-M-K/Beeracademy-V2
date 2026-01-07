@@ -1,18 +1,16 @@
-package dk.mathiaskofod.services.session.game;
+package dk.mathiaskofod.services.session;
 
+import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.services.session.AbstractSessionManager;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
-import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
-import dk.mathiaskofod.services.session.events.client.player.PlayerClientEvent;
-import dk.mathiaskofod.services.session.events.domain.game.*;
+import dk.mathiaskofod.services.session.envelopes.*;
+import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
+import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
+import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.exceptions.*;
 
-import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
-import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
-import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -48,6 +46,11 @@ public class GameClientSessionManager extends AbstractSessionManager {
                 .setConnectionId(websocketConnId);
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnId);
+
+        Game game = gameService.getGame(gameId);
+        GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
+        broadcastToGameClient(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
+
     }
 
     public void registerDisconnect(String gameIdDto) {
@@ -81,16 +84,15 @@ public class GameClientSessionManager extends AbstractSessionManager {
         gameService.registerChug(chug, gameId);
     }
 
+    private void broadcastToGameClient(String gameId, WebsocketEnvelope message) {
+        sendMessage(gameId, message);
+    }
+
     /**
      * Player Events
      **/
     void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
-        try {
-            sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
-        } catch (NoConnectionIdException noConnectionIdException) {
-            log.info("No game client connected to receive player event: {}", playerClientEvent);
-        }
-
+        broadcastToGameClient(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
     /**

@@ -6,9 +6,9 @@ import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.services.session.game.GameClientSessionManager;
+import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.models.Session;
-import dk.mathiaskofod.services.session.player.PlayerClientSessionManager;
+import dk.mathiaskofod.services.session.PlayerClientSessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

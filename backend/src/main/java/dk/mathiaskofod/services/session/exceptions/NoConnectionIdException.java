@@ -4,7 +4,7 @@ import dk.mathiaskofod.providers.exceptions.BaseException;
 
 public class NoConnectionIdException extends BaseException {
 
-    public NoConnectionIdException(String playerId) {
-        super(String.format("No connection ID exist for game or player with id %s", playerId), 404);
+    public NoConnectionIdException(String resourceId) {
+        super(String.format("Game or player with id:%s, is not connected", resourceId), 404);
     }
 }
