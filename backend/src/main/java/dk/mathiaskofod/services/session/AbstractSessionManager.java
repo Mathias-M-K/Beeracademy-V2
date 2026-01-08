@@ -6,6 +6,7 @@ import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundEx
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.websocket.WebsocketSessionManager;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class AbstractSessionManager {
+public abstract class AbstractSessionManager implements WebsocketSessionManager {
 
     private final Map<String, Session> sessions = new HashMap<>();
 

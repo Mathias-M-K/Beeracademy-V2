@@ -2,7 +2,7 @@ package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.providers.exceptions.BaseException;
-import dk.mathiaskofod.services.auth.models.PlayerTokenInfo;
+import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.session.actions.player.client.RelinquishPlayerAction;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
@@ -61,21 +61,27 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId);
     }
 
-    public void registerConnection(String gameId, String playerId, String websocketConnId) {
+    public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
+
+        String gameId = tokenInfo.getGameId();
+        String playerId = tokenInfo.getPlayerId();
 
         getSession(playerId)
                 .orElseThrow(() -> {
                     String msg = String.format("Player: %s, in game: %s, either doesn't exist or have not been claimed", playerId,gameId);
                     return new ResourceClaimException(msg);
                 })
-                .setConnectionId(websocketConnId);
+                .setConnectionId(websocketConnectionId);
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
-        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId, websocketConnId);
+        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId, websocketConnectionId);
     }
 
-    public void registerDisconnect(String gameId, String playerId) {
+    public void onConnectionClosed(TokenInfo tokenInfo) {
+
+        String gameId = tokenInfo.getGameId();
+        String playerId = tokenInfo.getPlayerId();
 
         getSession(playerId)
                 .orElseThrow(() -> new SessionNotFoundException(playerId))
@@ -100,16 +106,19 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }
 
-    public void onMessageReceived(WebsocketEnvelope envelope, PlayerTokenInfo tokenInfo) {
+    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope envelope) {
 
         if (!(envelope instanceof PlayerClientActionEnvelope(PlayerClientAction payload))) {
             throw new UnknownCategoryException("Only player actions allowed from player clients", 400);
         }
 
+        String gameId = tokenInfo.getGameId();
+        String playerId = tokenInfo.getPlayerId();
+
         switch (payload) {
             case DrawCardAction drawCardAction ->
-                    onDrawCardAction(drawCardAction.duration(), tokenInfo.gameId(), tokenInfo.playerId());
-            case RelinquishPlayerAction() -> relinquishPlayer(tokenInfo.gameId(), tokenInfo.playerId());
+                    onDrawCardAction(drawCardAction.duration(), gameId, playerId);
+            case RelinquishPlayerAction() -> relinquishPlayer(gameId, playerId);
             default ->
                     throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
         }

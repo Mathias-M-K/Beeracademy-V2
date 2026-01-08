@@ -3,6 +3,7 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
+import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
@@ -36,16 +37,18 @@ public class GameClientSessionManager extends AbstractSessionManager {
         addSession(gameId, new Session(gameId));
     }
 
-    public void registerConnection(String gameId, String websocketConnId) {
+    public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
+
+        String gameId = tokenInfo.getGameId();
 
         getSession(gameId)
                 .orElseThrow(() -> {
                     String msg = String.format("The game with id %s either doesn't exist or haven't been claimed.", gameId);
                     return new ResourceClaimException(msg);
                 })
-                .setConnectionId(websocketConnId);
+                .setConnectionId(websocketConnectionId);
 
-        log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnId);
+        log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnectionId);
 
         Game game = gameService.getGame(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
@@ -53,21 +56,24 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
     }
 
-    public void registerDisconnect(String gameIdDto) {
+    public void onConnectionClosed(TokenInfo tokenInfo) {
 
-        getSession(gameIdDto)
-                .orElseThrow(() -> new SessionNotFoundException(gameIdDto))
+        String gameId = tokenInfo.getGameId();
+
+        getSession(gameId)
+                .orElseThrow(() -> new SessionNotFoundException(gameId))
                 .clearConnectionId();
 
-        log.info("Game client disconnected. GameID:{}", gameIdDto);
+        log.info("Game client disconnected. GameID:{}", gameId);
     }
 
-    public void onMessageReceived(String gameId, WebsocketEnvelope envelope) {
+    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for game client action", 400);
         }
 
+        String gameId = tokenInfo.getGameId();
         switch (action) {
             case StartGameAction() -> gameService.startGame(gameId);
             case EndGameAction() -> gameService.endGame(gameId);
