@@ -1,5 +1,5 @@
 import {Component, ElementRef, HostListener, signal, ViewChild} from '@angular/core';
-import {BeerAcademyService} from '../../services/beer-academy.service';
+import {LobbyService} from '../../services/lobby.service';
 
 @Component({
   selector: 'app-create-game-page',
@@ -17,7 +17,7 @@ export class CreateGamePage {
 
   protected players = signal<string[]>([]);
 
-  constructor(private beerAcademyService: BeerAcademyService) {
+  constructor(private beerAcademyService: LobbyService) {
   }
 
   protected createGame(){

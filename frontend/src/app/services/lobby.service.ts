@@ -17,7 +17,7 @@ interface CreateGameResponse {
 @Injectable({
   providedIn: 'root',
 })
-export class BeerAcademyService {
+export class LobbyService {
 
   private socket!: WebSocketSubject<any>;
 
@@ -39,7 +39,7 @@ export class BeerAcademyService {
       error: error => {
         console.error(error);
       }
-    })
+    });
   }
 
   private claimGame(gameId: string): void {
