@@ -1,12 +1,13 @@
-import {computed, Injectable, signal} from '@angular/core';
-import {WebsocketEnvelope} from './models/websocket-envelope';
-import {GameClientEvenEnvelope} from './models/categories/game-client-event/game-client-even-envelope';
-import {GameClientConnectedEvent} from './models/categories/game-client-event/game-client-connected.event';
-import {WebsocketService} from './websocket.service';
-import {GameDto} from '../../api-models/model/gameDto';
-import {Chug} from '../../api-models/model/chug';
-import {PlayerDto} from '../../api-models/model/playerDto';
-import {Turn} from '../../api-models/model/turn';
+import {computed, Injectable, Signal, signal} from '@angular/core';
+import {WebsocketEnvelope} from '../models/websocket-envelope';
+import {GameClientEvenEnvelope} from '../models/categories/game-client-event/game-client-even-envelope';
+import {GameClientConnectedEvent} from '../models/categories/game-client-event/game-client-connected.event';
+import {WebsocketService} from '../websocket.service';
+import {GameDto} from '../../../api-models/model/gameDto';
+import {Chug} from '../../../api-models/model/chug';
+import {PlayerDto} from '../../../api-models/model/playerDto';
+import {Turn} from '../../../api-models/model/turn';
+import {GameInfo} from './models/game-info';
 
 @Injectable({
   providedIn: 'root',
@@ -15,11 +16,20 @@ export class GameService {
 
   private gameState = signal<GameDto | undefined>(undefined);
   public players = computed(() => this.gameState()?.players ?? []);
+  public gameInfo: Signal<GameInfo | undefined>;
 
 
   constructor(private websocketService: WebsocketService) {
     this.websocketService.messages$.subscribe(message => {
       this.handleEvent(message);
+    });
+
+    this.gameInfo = computed<GameInfo | undefined>(() => {
+      const state = this.gameState();
+      if (!state?.id || !state?.name) {
+        return undefined;
+      }
+      return { id: state.id, name: state.name };
     });
   }
 

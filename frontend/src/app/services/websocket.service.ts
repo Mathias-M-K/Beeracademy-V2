@@ -30,6 +30,11 @@ export class WebsocketService {
     });
   }
 
+  private closeConnection(): void {
+    this.connectionStatus.set("Disconnected");
+    this.socket.complete();
+  }
+
   private connect(): Observable<any> {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket({

@@ -1,30 +1,37 @@
-import {ChangeDetectionStrategy, Component, computed, OnInit, Signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, OnDestroy, OnInit, Signal} from '@angular/core';
 import {WebsocketService} from '../../services/websocket.service';
-import {GameService} from '../../services/game.service';
+import {GameService} from '../../services/game-service/game.service';
 import {PlayerDto} from '../../../api-models/model/playerDto';
 import {Chug} from '../../../api-models/model/chug';
 import {Suit} from '../../../api-models/model/suit';
 import {Turn} from '../../../api-models/model/turn';
 import {Card} from '../../../api-models/model/card';
+import {GameInfo} from '../../services/game-service/models/game-info';
+import {GameIdPipe} from '../../pipes/game-id-pipe';
 
 @Component({
   selector: 'app-game-page',
-  imports: [],
+  imports: [
+    GameIdPipe
+  ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GamePage implements OnInit {
+export class GamePage implements OnInit, OnDestroy {
 
   protected connectionStatus = computed(()=>this.websocketService.connectionStatus());
   protected players: Signal<PlayerDto[]>;
+  protected gameInfo: Signal<GameInfo | undefined>;
 
-  constructor(
-    private websocketService: WebsocketService,
-    private gameService: GameService // Injecting it to ensure it's instantiated
-  ) {
-    this.players = computed(()=>this.gameService.players());
+  constructor(private websocketService: WebsocketService, private gameService: GameService){ // Injecting it to ensure it's instantiated) {
+    this.players = this.gameService.players;
+    this.gameInfo = this.gameService.gameInfo;
   }
+
+  ngOnDestroy(): void {
+
+    }
 
   ngOnInit(): void {
     this.websocketService.connectToWebSocket();

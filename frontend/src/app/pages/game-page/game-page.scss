@@ -9,6 +9,35 @@
 }
 
 .players{
+  width: fit-content;
   display: flex;
-  gap: 10px;
+  gap: 20px;
+}
+
+.player{
+  background-color: burlywood;
+
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.draw_card_area{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  background-color: burlywood;
+  height: 300px;
+  width: 400px;
+}
+.card{
+  display: flex;
+  background-color: grey;
+  width: 150px;
+  height: 200px;
+
+  align-items: center;
+  justify-content: center;
 }
