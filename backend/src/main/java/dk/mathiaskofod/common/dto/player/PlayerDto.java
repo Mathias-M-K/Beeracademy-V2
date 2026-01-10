@@ -1,4 +1,4 @@
-package dk.mathiaskofod.api.game.models;
+package dk.mathiaskofod.common.dto.player;
 
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.session.models.Session;

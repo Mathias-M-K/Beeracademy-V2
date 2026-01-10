@@ -52,14 +52,26 @@ public interface Game {
     void registerChug(Chug chug);
 
     /**
-     * Gets the list of players in the game
-     * @return the list of players
+     * Returns a list of players in the game
+     * @return a list of players
      */
     List<Player> getPlayers();
 
     /**
-     * Gets the current player whose turn it is
+     * Returns the current player in turn
      * @return the current player
      */
     Player getCurrentPlayer();
+
+    /**
+     * Returns the next player
+     * @return next player
+     */
+    Player getNextPlayer();
+
+    /**
+     * Returns the previous player
+     * @return previous player
+     */
+    Player getPreviousPlayer();
 }

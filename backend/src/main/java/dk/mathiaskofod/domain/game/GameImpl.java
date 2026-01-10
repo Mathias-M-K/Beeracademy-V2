@@ -30,7 +30,11 @@ public class GameImpl implements Game {
 
     @Getter
     private Player currentPlayer;
+
+    @Getter
     private Player previousPlayer;
+
+    @Getter
     private Player nextPlayer;
 
     private int currentPlayerIndex;
@@ -51,6 +55,7 @@ public class GameImpl implements Game {
 
         this.currentPlayer = players.getFirst();
         this.currentPlayerIndex = 0;
+        this.nextPlayer = peakNextPlayer();
         this.deck = new Deck(players.size());
 
         this.eventEmitter = eventEmitter;

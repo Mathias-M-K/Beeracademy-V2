@@ -1,6 +1,7 @@
 package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.services.game.GameService;
+import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
@@ -21,6 +22,9 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
 
     @Inject
     protected GameService gameService;
+
+    @Inject
+    protected LobbyService lobbyService;
 
     @Inject
     OpenConnections connections;

@@ -1,6 +1,6 @@
 package dk.mathiaskofod.services.session;
 
-import dk.mathiaskofod.domain.game.Game;
+import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
@@ -50,7 +50,7 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnectionId);
 
-        Game game = gameService.getGame(gameId);
+        GameDto game = lobbyService.getGame(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
         broadcastToGameClient(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
 

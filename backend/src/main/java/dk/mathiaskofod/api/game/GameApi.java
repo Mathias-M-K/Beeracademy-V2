@@ -1,8 +1,9 @@
 package dk.mathiaskofod.api.game;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.api.game.models.PlayerDto;
-import dk.mathiaskofod.api.game.models.GameIdDto;
+import dk.mathiaskofod.common.dto.game.GameDto;
+import dk.mathiaskofod.common.dto.player.PlayerDto;
+import dk.mathiaskofod.common.dto.game.GameIdDto;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -34,7 +35,6 @@ public class GameApi {
     @ConfigProperty(name = "env")
     String environment;
 
-
     @POST
     @ResponseStatus(200)
     @Operation(summary = "Create a new game", description = "Creates a new game with the provided details")
@@ -42,15 +42,15 @@ public class GameApi {
         return new GameIdDto(lobbyService.createGame(request));
     }
 
-//    @GET
-//    @Path("/{game-gameId}")
-//    @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
-//    public GameDto getGame(@Valid @PathParam("game-gameId") GameIdDto gameIdDto) {
-//        return lobbyService.getGame(gameIdDto.gameId());
-//    }
+    @GET
+    @Path("/{gameId}")
+    @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
+    public GameDto getGame(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+        return lobbyService.getGame(gameIdDto.gameId());
+    }
 
     @GET
-    @Path("{game-gameId}/claim")
+    @Path("/{gameId}/claim")
     @Operation(summary = "Claim game", description = "Claims a game session and returns an authentication token as cookie")
     @APIResponse(
             responseCode = "200",
@@ -64,7 +64,7 @@ public class GameApi {
             },
             content = @Content(schema = @Schema(hidden = true))
     )
-    public Response claimGame(@Valid @PathParam("game-gameId") GameIdDto gameIdDto) {
+    public Response claimGame(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
 
         String sessionJwt = lobbyService.claimGame(gameIdDto.gameId());
 
@@ -72,16 +72,16 @@ public class GameApi {
     }
 
     @GET
-    @Path("{game-gameId}/players")
+    @Path("/{gameId}/players")
     @Operation(summary = "Get players in game", description = "Retrieves the list of players in a specific game")
-    public List<PlayerDto> getPlayersInGame(@Valid @PathParam("game-gameId") GameIdDto gameIdDto) {
+    public List<PlayerDto> getPlayersInGame(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
         return lobbyService.getPlayersInGame(gameIdDto.gameId());
     }
 
     @GET
-    @Path("{game-gameId}/players/{player-gameId}/claim")
+    @Path("/{gameId}/players/{playerId}/claim")
     @Operation(summary = "Claim player", description = "Claims a player session and returns an cookie with jwt")
-    public Response claimPlayer(@Valid @PathParam("game-gameId") GameIdDto gameIdDto, @PathParam("player-gameId") String playerId) {
+    public Response claimPlayer(@Valid @PathParam("gameId") GameIdDto gameIdDto, @PathParam("playerId") String playerId) {
 
         String sessionJwt = lobbyService.claimPlayer(gameIdDto.gameId(), playerId);
 
@@ -89,7 +89,7 @@ public class GameApi {
 
     }
 
-    private Response generateJwtCookieResponse(String jwt){
+    private Response generateJwtCookieResponse(String jwt) {
 
         boolean isDev = environment.equals("dev");
 

@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.game;
 
 
-import dk.mathiaskofod.api.game.models.GameIdDto;
+import dk.mathiaskofod.common.dto.game.GameIdDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

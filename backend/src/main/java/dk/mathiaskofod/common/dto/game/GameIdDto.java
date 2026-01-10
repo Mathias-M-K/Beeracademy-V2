@@ -1,4 +1,4 @@
-package dk.mathiaskofod.api.game.models;
+package dk.mathiaskofod.common.dto.game;
 
 import jakarta.validation.constraints.Pattern;
 

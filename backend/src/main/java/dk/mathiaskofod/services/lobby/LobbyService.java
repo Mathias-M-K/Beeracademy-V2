@@ -1,7 +1,9 @@
 package dk.mathiaskofod.services.lobby;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.api.game.models.PlayerDto;
+import dk.mathiaskofod.common.dto.game.GameDto;
+import dk.mathiaskofod.common.dto.player.PlayerDto;
+import dk.mathiaskofod.common.dto.session.SessionDto;
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.AuthService;
@@ -34,17 +36,20 @@ public class LobbyService {
         return gameService.createGame(createGameRequest.name(), createGameRequest.playerNames());
     }
 
-//    public GameDto getGame(String gameId) {
-//
-//        Game game = gameService.getGame(gameId);
-//
-//        Optional<GameSession> gameSession = gameClientSessionManager.getSession(gameId);
-//
-//        return gameSession
-//                .map(session -> GameDto.create(game, session, createPlayerDtoS(game.getPlayers())))
-//                .orElseGet(() -> GameDto.create(game, createPlayerDtoS(game.getPlayers())));
-//
-//    }
+    public GameDto getGame(String gameId) {
+
+        Game game = gameService.getGame(gameId);
+
+        SessionDto gameSession = gameClientSessionManager.getSession(gameId)
+                .map(SessionDto::create)
+                .orElseGet(SessionDto::createEmpty);
+
+        List<PlayerDto> playerDtos = getPlayersInGame(gameId);
+
+        return GameDto.create(game, gameSession, playerDtos);
+
+    }
+
 
     public List<PlayerDto> getPlayersInGame(String gameId) {
         Game game = gameService.getGame(gameId);
@@ -72,7 +77,6 @@ public class LobbyService {
 
         return authService.createPlayerClientToken(player, gameId);
     }
-
 
 
 }
