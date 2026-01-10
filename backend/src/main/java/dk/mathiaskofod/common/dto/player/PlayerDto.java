@@ -1,20 +1,17 @@
 package dk.mathiaskofod.common.dto.player;
 
+import dk.mathiaskofod.common.dto.session.SessionDto;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.domain.game.player.models.Stats;
 
-public record PlayerDto(String name, String id, boolean isClaimed, boolean isConnected) {
+public record PlayerDto(String name, String id, Stats stats, SessionDto session) {
 
-    public static PlayerDto create(Player player){
-        return create(player, null);
-    }
-
-    public static PlayerDto create(Player player, Session playerSession){
+    public static PlayerDto create(Player player, SessionDto playerSession){
         return new PlayerDto(
                 player.name(),
                 player.id(),
-                playerSession != null,
-                playerSession != null && playerSession.isConnected()
+                player.stats(),
+                playerSession
 
         );
     }

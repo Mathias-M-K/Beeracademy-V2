@@ -56,11 +56,11 @@ public class LobbyService {
 
         return game.getPlayers().stream()
                 .map(player -> {
-                    Optional<Session> playerSessionOpt = playerClientSessionManager.getSession(player.id());
-                    return playerSessionOpt.map(
-                                    session -> PlayerDto.create(player, session))
-                            .orElseGet(
-                                    () -> PlayerDto.create(player, null));
+                    SessionDto playerSessionDto = playerClientSessionManager.getSession(player.id())
+                            .map(SessionDto::create)
+                            .orElseGet(SessionDto::createEmpty);
+
+                    return PlayerDto.create(player, playerSessionDto);
                 })
                 .toList();
     }
