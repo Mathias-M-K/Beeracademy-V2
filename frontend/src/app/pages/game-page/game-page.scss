@@ -1,0 +1,14 @@
+:host{
+  display: grid;
+  height: 100%;
+  width: 100%;
+
+  justify-items: center;
+  align-content: flex-start;
+  gap: 25px;
+}
+
+.players{
+  display: flex;
+  gap: 10px;
+}

@@ -1,1 +1,21 @@
-<p>game-page works!</p>
+<div>Connection Status: {{connectionStatus()}}</div>
+
+<div class="players">
+  @for (player of players(); track player.id) {
+    <div style="border-width: 1px; border-style: solid">
+      <div>Name: {{player.name}}</div>
+      <div>ID: {{player.id}}</div>
+      <div style="margin-top: 20px">Chugs</div>
+      @for (chug of player.stats?.chugs; track $index){
+        <div>{{chug.suit}}-{{chug.chugTime}}</div>
+      }
+      <div style="margin-top: 20px">Turns</div>
+      @for (turn of player.stats?.turns; track $index){
+        <div>({{turn.card?.rank}}-{{turn.card?.suit}})-{{turn.round}}-{{turn.duration}}</div>
+      }
+    </div>
+  }
+</div>
+
+
+
