@@ -15,7 +15,7 @@ export class CreateGamePage {
   @ViewChild('gameNameInput')
   private gameNameInputFieldElement!: ElementRef;
 
-  protected players = signal<string[]>([]);
+  protected players = signal<string[]>(['Mathias','Frederik','Lasse','Steffen']);
 
   constructor(private beerAcademyService: LobbyService) {
   }

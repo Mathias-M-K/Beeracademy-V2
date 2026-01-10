@@ -1,59 +1,185 @@
-# BeeracademyFrontend
+# @
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+Backend API for Beeracademy application
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
+The version of the OpenAPI document: 1.0.0
 
 ## Building
 
-To build the project run:
+To install the required dependencies and to build the typescript sources run:
 
-```bash
-ng build
+```console
+npm install
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Publishing
 
-## Running unit tests
+First build the package then run `npm publish dist` (don't forget to specify the `dist` folder!)
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Consuming
 
-```bash
-ng test
+Navigate to the folder of your consuming project and run one of next commands.
+
+_published:_
+
+```console
+npm install @ --save
 ```
 
-## Running end-to-end tests
+_without publishing (not recommended):_
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+```console
+npm install PATH_TO_GENERATED_PACKAGE/dist.tgz --save
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+_It's important to take the tgz file, otherwise you'll get trouble with links on windows_
 
-## Additional Resources
+_using `npm link`:_
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+In PATH_TO_GENERATED_PACKAGE/dist:
+
+```console
+npm link
+```
+
+In your project:
+
+```console
+npm link 
+```
+
+__Note for Windows users:__ The Angular CLI has troubles to use linked npm packages.
+Please refer to this issue <https://github.com/angular/angular-cli/issues/8284> for a solution / workaround.
+Published packages are not effected by this issue.
+
+### General usage
+
+In your Angular project:
+
+```typescript
+
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideApi } from '';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        // ...
+        provideHttpClient(),
+        provideApi()
+    ],
+};
+```
+
+**NOTE**
+If you're still using `AppModule` and haven't [migrated](https://angular.dev/reference/migrations/standalone) yet, you can still import an Angular module:
+```typescript
+import { ApiModule } from '';
+```
+
+If different from the generated base path, during app bootstrap, you can provide the base path to your service.
+
+```typescript
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideApi } from '';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        // ...
+        provideHttpClient(),
+        provideApi('http://localhost:9999')
+    ],
+};
+```
+
+```typescript
+// with a custom configuration
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideApi } from '';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        // ...
+        provideHttpClient(),
+        provideApi({
+            withCredentials: true,
+            username: 'user',
+            password: 'password'
+        })
+    ],
+};
+```
+
+```typescript
+// with factory building a custom configuration
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideApi, Configuration } from '';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        // ...
+        provideHttpClient(),
+        {
+            provide: Configuration,
+            useFactory: (authService: AuthService) => new Configuration({
+                    basePath: 'http://localhost:9999',
+                    withCredentials: true,
+                    username: authService.getUsername(),
+                    password: authService.getPassword(),
+            }),
+            deps: [AuthService],
+            multi: false
+        }
+    ],
+};
+```
+
+### Using multiple OpenAPI files / APIs
+
+In order to use multiple APIs generated from different OpenAPI files,
+you can create an alias name when importing the modules
+in order to avoid naming conflicts:
+
+```typescript
+import { provideApi as provideUserApi } from 'my-user-api-path';
+import { provideApi as provideAdminApi } from 'my-admin-api-path';
+import { HttpClientModule } from '@angular/common/http';
+import { environment } from '../environments/environment';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        // ...
+        provideHttpClient(),
+        provideUserApi(environment.basePath),
+        provideAdminApi(environment.basePath),
+    ],
+};
+```
+
+### Customizing path parameter encoding
+
+Without further customization, only [path-parameters][parameter-locations-url] of [style][style-values-url] 'simple'
+and Dates for format 'date-time' are encoded correctly.
+
+Other styles (e.g. "matrix") are not that easy to encode
+and thus are best delegated to other libraries (e.g.: [@honoluluhenk/http-param-expander]).
+
+To implement your own parameter encoding (or call another library),
+pass an arrow-function or method-reference to the `encodeParam` property of the Configuration-object
+(see [General Usage](#general-usage) above).
+
+Example value for use in your Configuration-Provider:
+
+```typescript
+new Configuration({
+    encodeParam: (param: Param) => myFancyParamEncoder(param),
+})
+```
+
+[parameter-locations-url]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#parameter-locations
+[style-values-url]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#style-values
+[@honoluluhenk/http-param-expander]: https://www.npmjs.com/package/@honoluluhenk/http-param-expander
