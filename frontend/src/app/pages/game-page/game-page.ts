@@ -30,10 +30,7 @@ export class GamePage implements OnInit, OnDestroy {
     this.players = this.gameService.players;
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;
-    this.startTime = Date.now();
-    this.tick.subscribe({
-      next: () => this.onTick()
-    });
+
   }
 
   ngOnDestroy(): void {
