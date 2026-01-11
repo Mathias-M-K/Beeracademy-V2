@@ -10,6 +10,7 @@ import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
 import dk.mathiaskofod.domain.game.timer.GameTimer;
+import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -103,8 +104,8 @@ public class GameImpl implements Game {
             throw new GameNotStartedException(gameId);
         }
 
-        if(awaitingChug){
-            throw new GameException("Cannot draw a card while awaiting chug response",400);
+        if (awaitingChug) {
+            throw new GameException("Cannot draw a card while awaiting chug response", 400);
         }
 
         //TODO implement client-side check for time
@@ -179,6 +180,10 @@ public class GameImpl implements Game {
 
     private boolean isChugCard(Card card) {
         return card.rank() == 14;
+    }
+
+    public TimeReport getTimeReport() {
+        return gameTimer.getReport();
     }
 
 }
