@@ -11,10 +11,9 @@ import {GameInfo} from './models/game-info';
 import {DrawCardAction} from '../models/categories/game-client-action/draw-card-action';
 import {StartGameAction} from '../models/categories/game-client-action/start-game-action';
 import {GameClientActionEnvelope} from '../models/categories/game-client-action/game-client-action-envelope';
-import {GameEvent} from '../models/categories/game-event/game-event';
 import {GameEventEnvelope} from '../models/categories/game-event/game-event-envelope';
 import {DrawCardEvent} from '../models/categories/game-event/draw-card-event';
-import {Card} from '../../../api-models/model/card';
+import {Observable, Subject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +21,16 @@ import {Card} from '../../../api-models/model/card';
 export class GameService {
 
   private gameState = signal<GameDto | undefined>(undefined);
+
   public players = computed(() => this.gameState()?.players ?? []);
   public gameInfo: Signal<GameInfo | undefined>;
+
   public currentCard = linkedSignal(() => this.gameState()?.lastCard);
+
+  public timeReport = computed(()=>this.gameState()?.timeReport);
+
+  private onGameStarted= new Subject<void>();
+  public onGameStarted$: Observable<void> = this.onGameStarted.asObservable();
 
 
   constructor(private websocketService: WebsocketService) {
@@ -43,19 +49,15 @@ export class GameService {
   }
 
   public startGame() {
-
     const startGameAction: StartGameAction = {type: 'START_GAME'};
     const clientActionEnvelope: GameClientActionEnvelope = {payload: startGameAction, category: 'GAME_CLIENT_ACTION'};
     this.websocketService.sendMessage(clientActionEnvelope);
   }
 
   public drawCard() {
-
     const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: 123}
     const clientActionEnvelope: GameClientEvenEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
-
     this.websocketService.sendMessage(clientActionEnvelope);
-
   }
 
   public handleEvent(message: WebsocketEnvelope) {
@@ -75,9 +77,12 @@ export class GameService {
 
         switch (gameEvent.payload.type) {
           case 'DRAW_CARD':
-            const payload: DrawCardEvent = gameEvent.payload as DrawCardEvent;
-            this.currentCard.set(payload.newCard);
-            console.log("DRAW_CARD_EVENT", payload);
+            const drawCardEvent: DrawCardEvent = gameEvent.payload as DrawCardEvent;
+            this.currentCard.set(drawCardEvent.newCard);
+            break;
+          case 'GAME_START':
+            this.onGameStarted.next();
+            break
         }
     }
   }

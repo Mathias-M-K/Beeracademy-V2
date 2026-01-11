@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, computed, OnDestroy, OnInit, Signal, WritableSignal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  OnDestroy,
+  OnInit,
+  Signal,
+  signal,
+  WritableSignal
+} from '@angular/core';
 import {WebsocketService} from '../../services/websocket.service';
 import {GameService} from '../../services/game-service/game.service';
 import {PlayerDto} from '../../../api-models/model/playerDto';
@@ -9,11 +18,14 @@ import {Card} from '../../../api-models/model/card';
 import {GameInfo} from '../../services/game-service/models/game-info';
 import {GameIdPipe} from '../../pipes/game-id-pipe';
 import {interval} from 'rxjs';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
 
 @Component({
   selector: 'app-game-page',
   imports: [
-    GameIdPipe
+    GameIdPipe,
+    GameTimeFormatPipe
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
@@ -26,11 +38,19 @@ export class GamePage implements OnInit, OnDestroy {
   protected gameInfo: Signal<GameInfo | undefined>;
   protected currentCard: WritableSignal<Card | undefined>;
 
+  private tick = toSignal(interval(30));
+  private startTime = signal(Date.now());
+
+  protected formattedTime = computed(() => {
+    this.tick();
+    return Date.now() - this.startTime()
+  });
+
+
   constructor(private websocketService: WebsocketService, private gameService: GameService) { // Injecting it to ensure it's instantiated) {
     this.players = this.gameService.players;
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;
-
   }
 
   ngOnDestroy(): void {
@@ -40,17 +60,13 @@ export class GamePage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.websocketService.connectToWebSocket();
-
-    // setTimeout(() => {
-    //   this.addChug();
-    //   this.addTurn();
-    //   console.log("Adding chug");
-    // }, 5000);
   }
 
-  protected startGame(){
+  protected startGame() {
+    this.startTime.set(Date.now());
     this.gameService.startGame();
   }
+
   protected drawCard() {
     this.gameService.drawCard();
   }

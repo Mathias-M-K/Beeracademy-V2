@@ -1,4 +1,5 @@
 <div>Connection Status: {{connectionStatus()}}</div>
+<div>Timer: {{formattedTime() | gameTimeFormat}}</div>
 @if (gameInfo(); as game) {
   <div>{{game.name}} - {{game.id | gameId}}</div>
   <button (click)="startGame()">Start game</button>
