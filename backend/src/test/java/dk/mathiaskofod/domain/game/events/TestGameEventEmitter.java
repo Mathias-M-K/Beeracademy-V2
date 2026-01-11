@@ -4,8 +4,7 @@ import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-
-import java.time.Duration;
+import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 
 /**
  * Test helper: a no-op implementation of {@link GameEventEmitter} that does nothing.
@@ -19,7 +18,17 @@ public class TestGameEventEmitter implements GameEventEmitter {
     }
 
     @Override
-    public void onEndGame(String gameIdDto, Duration gameDuration) {
+    public void onEndGame(String gameIdDto, TimeReport gameDuration) {
+
+    }
+
+    @Override
+    public void onPauseGame(String gameId, TimeReport timeReport) {
+
+    }
+
+    @Override
+    public void onResumeGame(String gameId, TimeReport timeReport) {
 
     }
 
@@ -34,14 +43,5 @@ public class TestGameEventEmitter implements GameEventEmitter {
 
     }
 
-    @Override
-    public void onPauseGame(String gameIdDto) {
-        // no-op for tests
-    }
-
-    @Override
-    public void onResumeGame(String gameIdDto) {
-        // no-op for tests
-    }
 }
 

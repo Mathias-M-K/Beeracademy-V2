@@ -144,8 +144,8 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
             case EndGameEvent endGameEvent -> GameEndGameEventDto.fromGameEvent(endGameEvent);
             case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
             case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
-            case PauseGameEvent ignored -> new GamePausedGameEventDto();
-            case ResumeGameEvent ignored -> new GameResumedGameEventDto();
+            case PauseGameEvent pausedGameEvent -> GamePausedGameEventDto.fromGameEvent(pausedGameEvent);
+            case ResumeGameEvent resumeGameEvent -> GameResumedGameEventDto.fromGameEvent(resumeGameEvent);
 
             default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
         };

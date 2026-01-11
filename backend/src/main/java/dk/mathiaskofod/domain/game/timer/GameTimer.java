@@ -33,14 +33,17 @@ public class GameTimer {
     }
 
     public void resume() {
-
-        if (pauseStartTime == null) {
-            return;
-        }
         state = TimerState.RUNNING;
-        Duration pauseDuration = Duration.between(pauseStartTime, Instant.now());
+        Duration pauseDuration = getCurrentPauseDuration();
         pauses.add(pauseDuration);
         pauseStartTime = null;
+    }
+
+    private Duration getCurrentPauseDuration() {
+        if (pauseStartTime == null) {
+            return Duration.ZERO;
+        }
+        return Duration.between(pauseStartTime, Instant.now());
     }
 
     /**
@@ -81,11 +84,11 @@ public class GameTimer {
      * @throws TimerNotStartedException if the timer has not been started
      */
     Duration getPausedTime(){
-        if (startTime == null || pauseStartTime == null) {
+        if (startTime == null) {
             return Duration.ZERO;
         }
 
-        return pauses.stream().reduce(Duration::plus).orElse(Duration.ZERO);
+        return pauses.stream().reduce(Duration::plus).orElse(Duration.ZERO).plus(getCurrentPauseDuration());
     }
 
     public void reset(){

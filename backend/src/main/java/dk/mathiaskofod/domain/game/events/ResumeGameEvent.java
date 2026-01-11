@@ -1,4 +1,6 @@
 package dk.mathiaskofod.domain.game.events;
 
-public record ResumeGameEvent(String gameId) implements GameEvent {
+import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+
+public record ResumeGameEvent(String gameId, TimeReport timeReport) implements GameEvent {
 }

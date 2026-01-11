@@ -4,11 +4,10 @@ import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-
-import java.time.Duration;
 
 @ApplicationScoped
 public class GameEventEmitterImpl implements GameEventEmitter {
@@ -23,18 +22,18 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     }
 
     @Override
-    public void onEndGame(String gameId, Duration gameDuration) {
-        eventBus.fire(new EndGameEvent(gameId, gameDuration));
+    public void onEndGame(String gameId, TimeReport timeReport) {
+        eventBus.fire(new EndGameEvent(gameId, timeReport));
     }
 
     @Override
-    public void onPauseGame(String gameId) {
-        eventBus.fire(new PauseGameEvent(gameId));
+    public void onPauseGame(String gameId, TimeReport timeReport) {
+        eventBus.fire(new PauseGameEvent(gameId, timeReport));
     }
 
     @Override
-    public void onResumeGame(String gameId) {
-        eventBus.fire(new ResumeGameEvent(gameId));
+    public void onResumeGame(String gameId, TimeReport timeReport) {
+        eventBus.fire(new ResumeGameEvent(gameId, timeReport));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package dk.mathiaskofod.domain.game.events;
 
-import java.time.Duration;
+import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 
-public record EndGameEvent(String gameId, Duration gameTime) implements GameEvent{
+public record EndGameEvent(String gameId, TimeReport timeReport) implements GameEvent{
 }

@@ -69,6 +69,11 @@ public class GameImpl implements Game {
     }
 
     public void startGame() {
+
+        if(isStarted) {
+            return;
+        }
+
         isStarted = true;
 
         gameTimer.start();
@@ -78,24 +83,24 @@ public class GameImpl implements Game {
     }
 
     public void endGame() {
-        eventEmitter.onEndGame(gameId, gameTimer.getTime());
+        eventEmitter.onEndGame(gameId, gameTimer.getReport());
         //TODO implement end logic
     }
 
     public void pauseGame() {
         log.info("Pausing game: {}", gameId);
-        eventEmitter.onPauseGame(gameId);
 
         gameTimer.pause();
         playerTimer.pause();
+
+        eventEmitter.onPauseGame(gameId, gameTimer.getReport());
     }
 
     public void resumeGame() {
-        log.info("Resuming game: {}", gameId);
-        eventEmitter.onResumeGame(gameId);
-
         gameTimer.resume();
         playerTimer.resume();
+
+        eventEmitter.onResumeGame(gameId, gameTimer.getReport());
     }
 
     public void drawCard(long clientDurationMillis) {
@@ -109,11 +114,11 @@ public class GameImpl implements Game {
         }
 
         //TODO implement client-side check for time
-        Duration clientTime = Duration.ofMillis(clientDurationMillis);
+        Duration clientTime = playerTimer.getTime();
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
 
         lastCard = deck.drawCard();
-        Turn turn = new Turn(round, lastCard, playerTime);
+        Turn turn = new Turn(round, lastCard, playerTime.toMillis());
         currentPlayer.stats().addTurn(turn);
 
         switchToNextPlayer();
