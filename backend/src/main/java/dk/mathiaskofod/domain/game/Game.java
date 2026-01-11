@@ -1,5 +1,6 @@
 package dk.mathiaskofod.domain.game;
 
+import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -50,6 +51,8 @@ public interface Game {
      * @param chug the chug event to register
      */
     void registerChug(Chug chug);
+
+    Card getLastCard();
 
     /**
      * Returns a list of players in the game

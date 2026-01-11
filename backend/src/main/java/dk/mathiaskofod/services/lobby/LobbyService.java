@@ -9,13 +9,11 @@ import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.session.GameClientSessionManager;
-import dk.mathiaskofod.services.session.models.Session;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class LobbyService {

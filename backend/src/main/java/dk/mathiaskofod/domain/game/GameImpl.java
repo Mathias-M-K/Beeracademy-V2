@@ -37,6 +37,9 @@ public class GameImpl implements Game {
     @Getter
     private Player nextPlayer;
 
+    @Getter
+    private Card lastCard;
+
     private int currentPlayerIndex;
     private final GameTimer playerTimer;
 
@@ -108,7 +111,8 @@ public class GameImpl implements Game {
         Duration clientTime = Duration.ofMillis(clientDurationMillis);
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
 
-        Turn turn = new Turn(round, deck.drawCard(), playerTime);
+        lastCard = deck.drawCard();
+        Turn turn = new Turn(round, lastCard, playerTime);
         currentPlayer.stats().addTurn(turn);
 
         switchToNextPlayer();
