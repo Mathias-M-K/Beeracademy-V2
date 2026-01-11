@@ -3,6 +3,12 @@
 @if (gameInfo(); as game) {
   <div>{{game.name}} - {{game.id | gameId}}</div>
   <button (click)="startGame()">Start game</button>
+  <button (click)="pauseGame()">Pause</button>
+  <button (click)="resumeGame()">Resume</button>
+  <div>Current Player: {{currentPlayer()?.name}}</div>
+  @if (awaitingChug()) {
+    <div>AWAITING CHUG</div>
+  }
 }
 
 <div class="players">
@@ -18,7 +24,7 @@
 
       <div style="margin-top: 20px">Turns</div>
       @for (turn of player.stats?.turns; track $index){
-        <div>({{turn.card?.rank}}-{{turn.card?.suit}})-{{turn.round}}-{{turn.duration}}</div>
+        <div>({{turn.card?.rank}}-{{turn.card?.suit}})-{{turn.round}}-{{turn.durationInMillis}}</div>
       }
     </div>
   }
@@ -27,6 +33,12 @@
 <div class="draw_card_area">
   <div class="card deck" (click)="drawCard()">Deck</div>
   <div class="card">{{currentCard()?.suit}} - {{currentCard()?.rank}}</div>
+</div>
+
+<div>
+  <div>Angiv bunde-tid i millisekunder (1000 = 1 sekund)</div>
+  <input type="number" #chugTime>
+  <button (click)="registerChug()">Send bundetid</button>
 </div>
 
 

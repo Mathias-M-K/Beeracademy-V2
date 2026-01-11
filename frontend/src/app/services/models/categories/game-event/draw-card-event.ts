@@ -1,10 +1,8 @@
 import {GameEvent} from './game-event';
-import {Card} from '../../../../../api-models/model/card';
+import {Turn} from '../../../../../api-models/model/turn';
 
 export interface DrawCardEvent extends GameEvent {
-  turn: number;
-  durationInMillis: number;
-  newCard: Card;
+  turn: Turn;
   previousPlayerId: string;
   newPlayerId: string;
   nextPlayerId: string;

@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  computed, ElementRef,
+  inject,
   OnDestroy,
   OnInit,
   Signal,
-  signal,
+  signal, ViewChild,
   WritableSignal
 } from '@angular/core';
 import {WebsocketService} from '../../services/websocket.service';
@@ -17,9 +18,8 @@ import {Turn} from '../../../api-models/model/turn';
 import {Card} from '../../../api-models/model/card';
 import {GameInfo} from '../../services/game-service/models/game-info';
 import {GameIdPipe} from '../../pipes/game-id-pipe';
-import {interval} from 'rxjs';
-import {toSignal} from '@angular/core/rxjs-interop';
 import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
+import {TimerService} from '../../services/timer.service';
 
 @Component({
   selector: 'app-game-page',
@@ -33,24 +33,26 @@ import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
 })
 export class GamePage implements OnInit, OnDestroy {
 
+  @ViewChild("chugTime")
+  private chugTimeField!: ElementRef;
+
   protected connectionStatus = computed(() => this.websocketService.connectionStatus());
   protected players: Signal<PlayerDto[]>;
   protected gameInfo: Signal<GameInfo | undefined>;
   protected currentCard: WritableSignal<Card | undefined>;
+  protected currentPlayer: WritableSignal<PlayerDto | undefined>;
+  protected awaitingChug: Signal<boolean>;
 
-  private tick = toSignal(interval(30));
-  private startTime = signal(Date.now());
-
-  protected formattedTime = computed(() => {
-    this.tick();
-    return Date.now() - this.startTime()
-  });
+  private timerService = inject(TimerService);
+  protected formattedTime = this.timerService.currentTime;
 
 
   constructor(private websocketService: WebsocketService, private gameService: GameService) { // Injecting it to ensure it's instantiated) {
     this.players = this.gameService.players;
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;
+    this.currentPlayer = this.gameService.currenPlayer;
+    this.awaitingChug = this.gameService.awaitingChug;
   }
 
   ngOnDestroy(): void {
@@ -63,12 +65,19 @@ export class GamePage implements OnInit, OnDestroy {
   }
 
   protected startGame() {
-    this.startTime.set(Date.now());
-    this.gameService.startGame();
+    this.gameService.dispatchStartGameAction();
+  }
+
+  protected pauseGame(){
+    this.gameService.dispatchPauseGameAction();
+  }
+
+  protected resumeGame(){
+    this.gameService.dispatchResumeGameAction();
   }
 
   protected drawCard() {
-    this.gameService.drawCard();
+    this.gameService.dispatchDrawCardAction();
   }
 
   protected addChug() {
@@ -107,7 +116,7 @@ export class GamePage implements OnInit, OnDestroy {
     const turn: Turn = {
       round: 1,
       card: card,
-      duration: '00:05:35'
+      durationInMillis: 1500
     }
     const id: string | undefined = players[0].id;
 
@@ -118,5 +127,9 @@ export class GamePage implements OnInit, OnDestroy {
 
     this.gameService.addTurnToPlayer(turn, id);
 
+  }
+
+  protected registerChug() {
+    this.gameService.dispatchChugAction(this.chugTimeField.nativeElement.value);
   }
 }
