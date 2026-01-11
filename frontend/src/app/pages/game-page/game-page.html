@@ -1,6 +1,7 @@
 <div>Connection Status: {{connectionStatus()}}</div>
 @if (gameInfo(); as game) {
   <div>{{game.name}} - {{game.id | gameId}}</div>
+  <button (click)="startGame()">Start game</button>
 }
 
 <div class="players">
@@ -23,8 +24,8 @@
 </div>
 
 <div class="draw_card_area">
-  <div class="card">Deck</div>
-  <div class="card">{{gameInfo()?.id}}</div>
+  <div class="card deck" (click)="drawCard()">Deck</div>
+  <div class="card">{{currentCard()?.suit}} - {{currentCard()?.rank}}</div>
 </div>
 
 

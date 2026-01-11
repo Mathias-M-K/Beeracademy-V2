@@ -1,4 +1,4 @@
-import {computed, Injectable, Signal, signal} from '@angular/core';
+import {computed, Injectable, linkedSignal, Signal, signal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientEvenEnvelope} from '../models/categories/game-client-event/game-client-even-envelope';
 import {GameClientConnectedEvent} from '../models/categories/game-client-event/game-client-connected.event';
@@ -8,6 +8,13 @@ import {Chug} from '../../../api-models/model/chug';
 import {PlayerDto} from '../../../api-models/model/playerDto';
 import {Turn} from '../../../api-models/model/turn';
 import {GameInfo} from './models/game-info';
+import {DrawCardAction} from '../models/categories/game-client-action/draw-card-action';
+import {StartGameAction} from '../models/categories/game-client-action/start-game-action';
+import {GameClientActionEnvelope} from '../models/categories/game-client-action/game-client-action-envelope';
+import {GameEvent} from '../models/categories/game-event/game-event';
+import {GameEventEnvelope} from '../models/categories/game-event/game-event-envelope';
+import {DrawCardEvent} from '../models/categories/game-event/draw-card-event';
+import {Card} from '../../../api-models/model/card';
 
 @Injectable({
   providedIn: 'root',
@@ -17,9 +24,11 @@ export class GameService {
   private gameState = signal<GameDto | undefined>(undefined);
   public players = computed(() => this.gameState()?.players ?? []);
   public gameInfo: Signal<GameInfo | undefined>;
+  public currentCard = linkedSignal(() => this.gameState()?.lastCard);
 
 
   constructor(private websocketService: WebsocketService) {
+
     this.websocketService.messages$.subscribe(message => {
       this.handleEvent(message);
     });
@@ -29,16 +38,24 @@ export class GameService {
       if (!state?.id || !state?.name) {
         return undefined;
       }
-      return { id: state.id, name: state.name };
+      return {id: state.id, name: state.name};
     });
   }
 
-  public printState() {
-    console.log("State", this.gameState());
+  public startGame() {
+
+    const startGameAction: StartGameAction = {type: 'START_GAME'};
+    const clientActionEnvelope: GameClientActionEnvelope = {payload: startGameAction, category: 'GAME_CLIENT_ACTION'};
+    this.websocketService.sendMessage(clientActionEnvelope);
   }
 
-  private getPlayer(playerId: string): PlayerDto | undefined {
-    return this.gameState()?.players?.find(p => p.id === playerId);
+  public drawCard() {
+
+    const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: 123}
+    const clientActionEnvelope: GameClientEvenEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
+
+    this.websocketService.sendMessage(clientActionEnvelope);
+
   }
 
   public handleEvent(message: WebsocketEnvelope) {
@@ -49,10 +66,18 @@ export class GameService {
 
         switch (gameClientEvent.payload.type) {
           case 'CLIENT_CONNECTED':
-            console.log("Client connected!");
             const payload: GameClientConnectedEvent = gameClientEvent.payload as GameClientConnectedEvent;
-            console.log("Payload", payload.game);
             this.gameState.set(payload.game);
+        }
+        break;
+      case 'GAME_EVENT':
+        const gameEvent: GameEventEnvelope = message as GameEventEnvelope;
+
+        switch (gameEvent.payload.type) {
+          case 'DRAW_CARD':
+            const payload: DrawCardEvent = gameEvent.payload as DrawCardEvent;
+            this.currentCard.set(payload.newCard);
+            console.log("DRAW_CARD_EVENT", payload);
         }
     }
   }
@@ -94,6 +119,10 @@ export class GameService {
       }
     }));
     console.log(`Added turn to player ${playerId}.`);
+  }
+
+  public resetGameData() {
+    this.gameState.set(undefined);
   }
 
 

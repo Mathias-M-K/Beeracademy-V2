@@ -31,7 +31,7 @@ export class CreateGamePage {
   }
 
   private fetchGameNameFieldValue(): string {
-    return this.playerInputFieldElement.nativeElement.value;
+    return this.gameNameInputFieldElement.nativeElement.value;
   }
 
   private fetchNewPlayerFieldValue(): string {

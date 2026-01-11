@@ -17,6 +17,9 @@ export class WebsocketService {
 
   constructor() {
   }
+  public sendMessage(websocket: WebsocketEnvelope) {
+    this.socket.next(websocket);
+  }
 
   public connectToWebSocket(): void {
     this.connectionStatus.set("Connecting...");
@@ -30,7 +33,7 @@ export class WebsocketService {
     });
   }
 
-  private closeConnection(): void {
+  public closeConnection(): void {
     this.connectionStatus.set("Disconnected");
     this.socket.complete();
   }

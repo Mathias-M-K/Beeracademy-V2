@@ -21,6 +21,8 @@ export class LobbyService {
       playerNames: players
     }
 
+    console.log(requestBody)
+
     this.httpClient.post<GameIdDto>('http://localhost:8080/api/games', requestBody).subscribe({
       next: response => {
         console.log("Create game response", response);
