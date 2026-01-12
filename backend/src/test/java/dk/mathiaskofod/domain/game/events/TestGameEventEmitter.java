@@ -39,7 +39,7 @@ public class TestGameEventEmitter implements GameEventEmitter {
 
 
     @Override
-    public void onNewChug(Chug chug, Player player, String gameIdDto) {
+    public void onNewChug(Chug chug, Player chugger, Player newPlayer, String gameIdDto) {
 
     }
 

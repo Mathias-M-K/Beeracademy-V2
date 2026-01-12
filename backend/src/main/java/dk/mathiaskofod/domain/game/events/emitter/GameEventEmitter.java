@@ -19,5 +19,5 @@ public interface GameEventEmitter {
 
     void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, String gameId);
 
-    void onNewChug(Chug chug, Player player, String gameId);
+    void onNewChug(Chug chug, Player chugger, Player newPlayer, String gameId);
 }

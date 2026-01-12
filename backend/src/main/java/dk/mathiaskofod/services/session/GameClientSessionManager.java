@@ -80,14 +80,9 @@ public class GameClientSessionManager extends AbstractSessionManager {
             case PauseGameAction() -> gameService.pauseGame(gameId);
             case ResumeGameAction() -> gameService.resumeGame(gameId);
             case DrawCardAction drawCardAction -> gameService.drawCard(drawCardAction.duration(), gameId);
-            case RegisterChugAction registerChugAction -> onRegisterChug(registerChugAction, gameId);
+            case RegisterChugAction registerChugAction -> gameService.registerChug(registerChugAction.chug(), gameId);
             default -> throw new UnknownActionException(action.getClass().getSimpleName(), 500);
         }
-    }
-
-    private void onRegisterChug(RegisterChugAction action, String gameId) {
-        Chug chug = new Chug(action.suit(), Duration.ofMillis(action.duration()));
-        gameService.registerChug(chug, gameId);
     }
 
     private void broadcastToGameClient(String gameId, WebsocketEnvelope message) {

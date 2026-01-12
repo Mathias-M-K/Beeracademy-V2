@@ -42,7 +42,7 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     }
 
     @Override
-    public void onNewChug(Chug chug, Player player, String gameId) {
-        eventBus.fire(new ChugEvent(chug,player, gameId));
+    public void onNewChug(Chug chug, Player chugger, Player newPlayer, String gameId) {
+        eventBus.fire(new ChugEvent(chug, chugger, newPlayer, gameId));
     }
 }

@@ -11,6 +11,7 @@ import dk.mathiaskofod.domain.game.player.Player;
 
 import dk.mathiaskofod.domain.game.timer.GameTimer;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.domain.game.timer.models.TimerState;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,7 +71,7 @@ public class GameImpl implements Game {
 
     public void startGame() {
 
-        if(isStarted) {
+        if (isStarted) {
             return;
         }
 
@@ -109,11 +110,16 @@ public class GameImpl implements Game {
             throw new GameNotStartedException(gameId);
         }
 
+        if (gameTimer.getState() == TimerState.PAUSED) {
+            throw new GameException("Can't draw card while game is paused", 400);
+        }
+
         if (awaitingChug) {
             throw new GameException("Cannot draw a card while awaiting chug response", 400);
         }
 
         //TODO implement client-side check for time
+        log.info("PlayerTime: {}", playerTimer.getReport());
         Duration clientTime = playerTimer.getTime();
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
 
@@ -121,7 +127,11 @@ public class GameImpl implements Game {
         Turn turn = new Turn(round, lastCard, playerTime.toMillis());
         currentPlayer.stats().addTurn(turn);
 
-        switchToNextPlayer();
+        if (!isChugCard(lastCard)) {
+            switchToNextPlayer();
+        } else {
+            previousPlayer = currentPlayer;
+        }
 
         eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
 
@@ -142,12 +152,19 @@ public class GameImpl implements Game {
             throw new GameException("No chug expected at this time", 400);
         }
 
+        if (gameTimer.getState() == TimerState.PAUSED) {
+            throw new GameException("Can't register a chug while game is paused", 400);
+        }
+
         currentPlayer.stats().addChug(chug);
         awaitingChug = false;
 
-        eventEmitter.onNewChug(chug, currentPlayer, gameId);
 
         playerTimer.resume();
+
+        eventEmitter.onNewChug(chug, currentPlayer, nextPlayer, gameId);
+
+        switchToNextPlayer();
     }
 
     /**
@@ -155,6 +172,7 @@ public class GameImpl implements Game {
      */
     private void switchToNextPlayer() {
 
+        playerTimer.reset();
         previousPlayer = currentPlayer;
 
         currentPlayerIndex++;
