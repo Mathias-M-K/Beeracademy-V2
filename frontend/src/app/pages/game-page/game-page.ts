@@ -41,7 +41,7 @@ export class GamePage implements OnInit, OnDestroy {
   protected gameInfo: Signal<GameInfo | undefined>;
   protected currentCard: WritableSignal<Card | undefined>;
   protected currentPlayer: WritableSignal<PlayerDto | undefined>;
-  protected awaitingChug: Signal<boolean>;
+  protected awaitingChug: Signal<PlayerDto | undefined>;
 
   private timerService = inject(TimerService);
   protected formattedTime = this.timerService.currentTime;
@@ -52,7 +52,7 @@ export class GamePage implements OnInit, OnDestroy {
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;
     this.currentPlayer = this.gameService.currenPlayer;
-    this.awaitingChug = this.gameService.awaitingChug;
+    this.awaitingChug = this.gameService.awaitingChugFromPlayer;
   }
 
   ngOnDestroy(): void {
@@ -80,26 +80,7 @@ export class GamePage implements OnInit, OnDestroy {
     this.gameService.dispatchDrawCardAction();
   }
 
-  protected addChug() {
-    const players = this.players();
-    if (players.length === 0) {
-      console.warn("Cannot add chug: No players found in state.");
-      return;
-    }
 
-    const chug: Chug = {
-      suit: Suit.Circle,
-      chugTime: '00.02.64'
-    }
-    const id: string | undefined = players[0].id;
-
-    if (!id) {
-      console.warn("Cannot add chug: Player ID is missing.");
-      return;
-    }
-
-    this.gameService.addChugToPlayer(chug, id);
-  }
 
   protected addTurn() {
     const players = this.players();
@@ -132,4 +113,6 @@ export class GamePage implements OnInit, OnDestroy {
   protected registerChug() {
     this.gameService.dispatchChugAction(this.chugTimeField.nativeElement.value);
   }
+
+  protected readonly JSON = JSON;
 }

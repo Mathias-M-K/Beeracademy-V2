@@ -1,11 +1,24 @@
-<div>Connection Status: {{connectionStatus()}}</div>
-<div>Timer: {{formattedTime() | gameTimeFormat}}</div>
+<div>Connection Status: {{ connectionStatus() }}</div>
+<div>Timer: {{ formattedTime() | gameTimeFormat }}</div>
 @if (gameInfo(); as game) {
-  <div>{{game.name}} - {{game.id | gameId}}</div>
-  <button (click)="startGame()">Start game</button>
-  <button (click)="pauseGame()">Pause</button>
-  <button (click)="resumeGame()">Resume</button>
-  <div>Current Player: {{currentPlayer()?.name}}</div>
+  <div>{{ game.name }} - {{ game.id | gameId }}</div>
+
+  <div class="action_buttons">
+    @if (!gameInfo()?.isStarted) {
+      <button (click)="startGame()">Start game</button>
+    }
+
+    @if (!gameInfo()?.isPaused && gameInfo()?.isStarted) {
+      <button (click)="pauseGame()">Pause</button>
+    }
+
+    @if (gameInfo()?.isPaused) {
+      <button (click)="resumeGame()">Resume</button>
+    }
+
+  </div>
+
+  <div>Current Player: {{ currentPlayer()?.name }}</div>
   @if (awaitingChug()) {
     <div>AWAITING CHUG</div>
   }
@@ -13,18 +26,18 @@
 
 <div class="players">
   @for (player of players(); track player.id) {
-    <div class="player">
-      <div>Name: {{player.name}}</div>
-      <div>ID: {{player.id}}</div>
+    <div class="player" [class.active]="player.id === currentPlayer()?.id && gameInfo()?.isStarted">
+      <div>Name: {{ player.name }}</div>
+      <div>ID: {{ player.id }}</div>
 
       <div style="margin-top: 20px">Chugs</div>
-      @for (chug of player.stats?.chugs; track $index){
-        <div>{{chug.suit}}-{{chug.chugTime}}</div>
+      @for (chug of player.stats?.chugs; track $index) {
+        <div>{{ chug.suit }}-{{ chug.chugTimeMillis }}</div>
       }
 
       <div style="margin-top: 20px">Turns</div>
-      @for (turn of player.stats?.turns; track $index){
-        <div>({{turn.card?.rank}}-{{turn.card?.suit}})-{{turn.round}}-{{turn.durationInMillis}}</div>
+      @for (turn of player.stats?.turns; track $index) {
+        <div>({{ turn.card?.rank }}-{{ turn.card?.suit }})-{{ turn.round }}-{{ turn.durationInMillis }}</div>
       }
     </div>
   }
@@ -32,7 +45,7 @@
 
 <div class="draw_card_area">
   <div class="card deck" (click)="drawCard()">Deck</div>
-  <div class="card">{{currentCard()?.suit}} - {{currentCard()?.rank}}</div>
+  <div class="card">{{ currentCard()?.suit }} - {{ currentCard()?.rank }}</div>
 </div>
 
 <div>

@@ -1,8 +1,6 @@
 import {GameClientAction} from './game-client-action';
-import {Suit} from '../../../../../api-models/model/suit';
+import {Chug} from '../../../../../api-models/model/chug';
 
 export interface ChugAction extends GameClientAction {
-  duration: number;
-  suit: Suit;
-  playerId: string;
+  chug: Chug;
 }

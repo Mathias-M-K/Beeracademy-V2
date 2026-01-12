@@ -8,6 +8,10 @@
   gap: 25px;
 }
 
+.action_buttons{
+  display: flex;
+}
+
 .players{
   width: fit-content;
   display: flex;
@@ -21,6 +25,10 @@
   padding: 10px;
   border-radius: 5px;
 }
+.active{
+  background-color: #9c7d52;
+}
+
 
 .draw_card_area{
   display: flex;

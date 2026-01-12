@@ -20,6 +20,8 @@ import {GamePausedEvent} from '../models/categories/game-event/game-paused-event
 import {GameResumedEvent} from '../models/categories/game-event/game-resumed-event';
 import {Observable, Subject} from 'rxjs';
 import {ChugAction} from '../models/categories/game-client-action/chug-action';
+import {ChugEvent} from '../models/categories/game-event/chug-event';
+import {Suit} from '../../../api-models/model/suit';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +48,7 @@ export class GameService {
 
   public timeReport = linkedSignal(() => this.gameState()?.timeReport);
 
-  public awaitingChug = computed(()=>this.currentCard()?.rank === 14);
+  public awaitingChugFromPlayer = signal<PlayerDto | undefined>(undefined)
 
   constructor(private websocketService: WebsocketService) {
 
@@ -56,11 +58,17 @@ export class GameService {
 
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
       const state = this.gameState();
+      const timeReport = this.timeReport();
       if (!state?.id || !state?.name) {
         return undefined;
       }
 
-      return {id: state.id, name: state.name, isStarted: state.timeReport?.state !== TimerState.NotStarted};
+      return {
+        id: state.id,
+        name: state.name,
+        isStarted: timeReport?.state !== TimerState.NotStarted,
+        isPaused: this.timeReport()?.state === TimerState.Paused
+      };
     });
   }
 
@@ -88,11 +96,11 @@ export class GameService {
     this.websocketService.sendMessage(clientActionEnvelope);
   }
 
-  public dispatchChugAction(chugTimeInMillis: number){
-    const chugAction: ChugAction = {duration: chugTimeInMillis, playerId: this.currenPlayer()?.id!, suit: this.currentCard()?.suit!, type: 'REGISTER_CHUG'}
+  public dispatchChugAction(chugTimeInMillis: number) {
+    const chug: Chug = {suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis};
+    const chugAction: ChugAction = {type: 'REGISTER_CHUG', chug}
     const gameClientActionEnvelope: GameClientActionEnvelope = {category: "GAME_CLIENT_ACTION", payload: chugAction};
     this.websocketService.sendMessage(gameClientActionEnvelope);
-    this.dispatchDrawCardAction();
   }
 
   public handleEvent(message: WebsocketEnvelope) {
@@ -116,9 +124,22 @@ export class GameService {
             this.currentCard.set(drawCardEvent.turn.card);
             this.currenPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
             this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.previousPlayerId);
+
+            if (this.currentCard()?.rank === 14) {
+              this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
+            }
+            break
+          case 'CHUG' :
+            const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
+            this.addChugToPlayer(chugEvent.chug, chugEvent.playerId);
+            this.currenPlayer.set(this.getPlayer(chugEvent.newPlayer));
             break
           case 'GAME_START':
             this.onGameStarted.next();
+            this.gameInfo.update(gameInfo => {
+              if (!gameInfo) return gameInfo;
+              return {...gameInfo, isStarted: true};
+            })
             break;
           case 'GAME_PAUSED' :
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
