@@ -8,7 +8,9 @@ import {TimerState} from '../../api-models/model/timerState';
 @Injectable({
   providedIn: 'root',
 })
-export class TimerService {
+export class GameTimerService {
+
+  //TODO this service is a mess
 
   private tick = toSignal(interval(30));
   private localTimerStartedAt = signal(0);

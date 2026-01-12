@@ -19,7 +19,7 @@ import {Card} from '../../../api-models/model/card';
 import {GameInfo} from '../../services/game-service/models/game-info';
 import {GameIdPipe} from '../../pipes/game-id-pipe';
 import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
-import {TimerService} from '../../services/timer.service';
+import {GameTimerService} from '../../services/game-timer.service';
 
 @Component({
   selector: 'app-game-page',
@@ -43,8 +43,8 @@ export class GamePage implements OnInit, OnDestroy {
   protected currentPlayer: WritableSignal<PlayerDto | undefined>;
   protected awaitingChug: Signal<PlayerDto | undefined>;
 
-  private timerService = inject(TimerService);
-  protected formattedTime = this.timerService.currentTime;
+  private gameTimer = inject(GameTimerService);
+  protected formattedTime = this.gameTimer.currentTime;
 
 
   constructor(private websocketService: WebsocketService, private gameService: GameService) { // Injecting it to ensure it's instantiated) {
