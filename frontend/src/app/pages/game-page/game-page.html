@@ -1,18 +1,21 @@
 <div>Connection Status: {{ connectionStatus() }}</div>
-<div>Timer: {{ formattedTime() | gameTimeFormat }}</div>
+
+@if (formattedTime()) {
+  <div>Timer: {{ formattedTime()! | gameTimeFormat }}</div>
+}
+
 @if (gameInfo(); as game) {
   <div>{{ game.name }} - {{ game.id | gameId }}</div>
-
   <div class="action_buttons">
-    @if (!gameInfo()?.isStarted) {
+    @if (gameState() !== GameState.InProgress) {
       <button (click)="startGame()">Start game</button>
     }
 
-    @if (!gameInfo()?.isPaused && gameInfo()?.isStarted) {
+    @if (timerState() === TimerState.Running && gameState() === GameState.InProgress) {
       <button (click)="pauseGame()">Pause</button>
     }
 
-    @if (gameInfo()?.isPaused) {
+    @if (timerState() == TimerState.Paused && gameState() === GameState.InProgress) {
       <button (click)="resumeGame()">Resume</button>
     }
 
@@ -26,7 +29,7 @@
 
 <div class="players">
   @for (player of players(); track player.id) {
-    <div class="player" [class.active]="player.id === currentPlayer()?.id && gameInfo()?.isStarted">
+    <div class="player" [class.active]="player.id === currentPlayer()?.id && gameState() === GameState.InProgress">
       <div>Name: {{ player.name }}</div>
       <div>ID: {{ player.id }}</div>
 
@@ -43,16 +46,19 @@
   }
 </div>
 
-<div class="draw_card_area">
-  <div class="card deck" (click)="drawCard()">Deck</div>
-  <div class="card">{{ currentCard()?.suit }} - {{ currentCard()?.rank }}</div>
-</div>
+@if (gameState()){
+  <div class="draw_card_area">
+    <div class="card deck" (click)="drawCard()">Deck</div>
+    <div class="card">{{ currentCard()?.suit }} - {{ currentCard()?.rank }}</div>
+  </div>
 
-<div>
-  <div>Angiv bunde-tid i millisekunder (1000 = 1 sekund)</div>
-  <input type="number" #chugTime>
-  <button (click)="registerChug()">Send bundetid</button>
-</div>
+  <div>
+    <div>Angiv bunde-tid i millisekunder (1000 = 1 sekund)</div>
+    <input type="number" #chugTime>
+    <button (click)="registerChug()">Send bundetid</button>
+  </div>
+}
+
 
 
 

@@ -96,8 +96,6 @@ public class GameImpl implements Game {
     }
 
     public void pauseGame() {
-        log.info("Pausing game: {}", gameId);
-
         gameTimer.pause();
         playerTimer.pause();
 

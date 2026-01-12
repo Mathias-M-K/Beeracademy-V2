@@ -1,4 +1,4 @@
-import {computed, Injectable, linkedSignal, signal} from '@angular/core';
+import {Injectable, linkedSignal, signal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientEvenEnvelope} from '../models/categories/game-client-event/game-client-even-envelope';
 import {GameClientConnectedEvent} from '../models/categories/game-client-event/game-client-connected.event';
@@ -18,37 +18,37 @@ import {PauseGameAction} from '../models/categories/game-client-action/pause-gam
 import {ResumeGameAction} from '../models/categories/game-client-action/resume-game-action';
 import {GamePausedEvent} from '../models/categories/game-event/game-paused-event';
 import {GameResumedEvent} from '../models/categories/game-event/game-resumed-event';
-import {Observable, Subject} from 'rxjs';
 import {ChugAction} from '../models/categories/game-client-action/chug-action';
 import {ChugEvent} from '../models/categories/game-event/chug-event';
-import {Suit} from '../../../api-models/model/suit';
+import {GameState} from '../../../api-models/model/gameState';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
 
-  private onGameStarted: Subject<void> = new Subject<void>();
-  public onGameStarted$: Observable<void> = this.onGameStarted.asObservable();
+  private gameStateObj = signal<GameDto | undefined>(undefined);
+  public timeReport = linkedSignal(() => this.gameStateObj()?.timeReport);
 
-  private gameState = signal<GameDto | undefined>(undefined);
-
-  public players = linkedSignal(() => this.gameState()?.players ?? []);
+  public players = linkedSignal(() => this.gameStateObj()?.players ?? []);
   public gameInfo
+  public gameState = linkedSignal(()=>this.gameStateObj()?.gameState);
 
-  public currentCard = linkedSignal(() => this.gameState()?.lastCard);
+  public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
   public currenPlayer = linkedSignal(() => {
-    const players = this.gameState()?.players;
-    const currentPlayerId = this.gameState()?.currentPlayerId;
+    const players = this.gameStateObj()?.players;
+    const currentPlayerId = this.gameStateObj()?.currentPlayerId;
 
     if (!players || !currentPlayerId) return;
 
     return players.find((player) => player.id === currentPlayerId);
   })
 
-  public timeReport = linkedSignal(() => this.gameState()?.timeReport);
+
 
   public awaitingChugFromPlayer = signal<PlayerDto | undefined>(undefined)
+
+
 
   constructor(private websocketService: WebsocketService) {
 
@@ -57,18 +57,17 @@ export class GameService {
     });
 
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
-      const state = this.gameState();
-      const timeReport = this.timeReport();
+      const state = this.gameStateObj();
       if (!state?.id || !state?.name) {
         return undefined;
       }
 
-      return {
+      const gameInfo: GameInfo = {
         id: state.id,
-        name: state.name,
-        isStarted: timeReport?.state !== TimerState.NotStarted,
-        isPaused: this.timeReport()?.state === TimerState.Paused
+        name: state.name
       };
+
+      return gameInfo;
     });
   }
 
@@ -112,7 +111,7 @@ export class GameService {
         switch (gameClientEvent.payload.type) {
           case 'CLIENT_CONNECTED':
             const payload: GameClientConnectedEvent = gameClientEvent.payload as GameClientConnectedEvent;
-            this.gameState.set(payload.game);
+            this.gameStateObj.set(payload.game);
         }
         break;
       case 'GAME_EVENT':
@@ -135,11 +134,10 @@ export class GameService {
             this.currenPlayer.set(this.getPlayer(chugEvent.newPlayer));
             break
           case 'GAME_START':
-            this.onGameStarted.next();
-            this.gameInfo.update(gameInfo => {
-              if (!gameInfo) return gameInfo;
-              return {...gameInfo, isStarted: true};
+            this.timeReport.update((timer)=>{
+              return {...timer, state: TimerState.Running}
             })
+            this.gameState.set(GameState.InProgress);
             break;
           case 'GAME_PAUSED' :
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
@@ -184,7 +182,7 @@ export class GameService {
   }
 
   public resetGameData() {
-    this.gameState.set(undefined);
+    this.gameStateObj.set(undefined);
   }
 
 

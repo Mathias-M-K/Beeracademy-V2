@@ -6,20 +6,21 @@ import {
   OnDestroy,
   OnInit,
   Signal,
-  signal, ViewChild,
+  ViewChild,
   WritableSignal
 } from '@angular/core';
 import {WebsocketService} from '../../services/websocket.service';
 import {GameService} from '../../services/game-service/game.service';
 import {PlayerDto} from '../../../api-models/model/playerDto';
-import {Chug} from '../../../api-models/model/chug';
 import {Suit} from '../../../api-models/model/suit';
 import {Turn} from '../../../api-models/model/turn';
 import {Card} from '../../../api-models/model/card';
 import {GameInfo} from '../../services/game-service/models/game-info';
 import {GameIdPipe} from '../../pipes/game-id-pipe';
 import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
-import {GameTimerService} from '../../services/game-timer.service';
+import {TimerService} from '../../services/timer.service';
+import {GameState} from '../../../api-models/model/gameState';
+import {TimerState} from '../../../api-models/model/timerState';
 
 @Component({
   selector: 'app-game-page',
@@ -42,8 +43,10 @@ export class GamePage implements OnInit, OnDestroy {
   protected currentCard: WritableSignal<Card | undefined>;
   protected currentPlayer: WritableSignal<PlayerDto | undefined>;
   protected awaitingChug: Signal<PlayerDto | undefined>;
+  protected gameState: Signal<GameState | undefined>;
+  protected timerState: Signal<TimerState | undefined>
 
-  private gameTimer = inject(GameTimerService);
+  private gameTimer = inject(TimerService);
   protected formattedTime = this.gameTimer.currentTime;
 
 
@@ -53,6 +56,8 @@ export class GamePage implements OnInit, OnDestroy {
     this.currentCard = this.gameService.currentCard;
     this.currentPlayer = this.gameService.currenPlayer;
     this.awaitingChug = this.gameService.awaitingChugFromPlayer;
+    this.gameState = this.gameService.gameState;
+    this.timerState = computed(()=>this.gameService.timeReport()?.state);
   }
 
   ngOnDestroy(): void {
@@ -114,5 +119,6 @@ export class GamePage implements OnInit, OnDestroy {
     this.gameService.dispatchChugAction(this.chugTimeField.nativeElement.value);
   }
 
-  protected readonly JSON = JSON;
+  protected readonly GameState = GameState;
+  protected readonly TimerState = TimerState;
 }
