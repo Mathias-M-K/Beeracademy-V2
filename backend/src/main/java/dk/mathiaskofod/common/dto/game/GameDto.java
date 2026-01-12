@@ -4,6 +4,7 @@ import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.common.dto.session.SessionDto;
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.deck.models.Card;
+import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 public record GameDto(
         String name,
         String id,
+        GameState gameState,
         Card lastCard,
         String currentPlayerId,
         String nextPlayerId,
@@ -27,6 +29,7 @@ public record GameDto(
         return new GameDto(
                 game.getName(),
                 game.getGameId(),
+                game.getGameState(),
                 game.getLastCard(),
                 game.getCurrentPlayer().id(),
                 game.getNextPlayer().id(),

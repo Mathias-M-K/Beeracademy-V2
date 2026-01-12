@@ -2,6 +2,7 @@ package dk.mathiaskofod.domain.game;
 
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.models.Chug;
+import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 
@@ -20,6 +21,8 @@ public interface Game {
      * @return the game ID
      */
     String getGameId();
+
+    GameState getGameState();
 
     /**
      * Starts the game by starting the timer for both the game and the first player

@@ -2,7 +2,6 @@ package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
-import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
@@ -16,8 +15,6 @@ import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.Duration;
 
 @Slf4j
 @ApplicationScoped

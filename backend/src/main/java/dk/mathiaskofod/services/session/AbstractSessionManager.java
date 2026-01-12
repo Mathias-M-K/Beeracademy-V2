@@ -29,26 +29,26 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
     @Inject
     OpenConnections connections;
 
-    public Optional<Session> getSession(String id){
+    public final Optional<Session> getSession(String id){
         return Optional.ofNullable(sessions.get(id));
     }
 
-    protected void addSession(String id, Session session){
+    protected final void addSession(String id, Session session){
         sessions.put(id, session);
     }
 
-    protected void removeSession(String id){
+    protected final void removeSession(String id){
         sessions.remove(id);
     }
 
-    protected String getConnectionId(String sessionId){
+    protected final String getConnectionId(String sessionId){
         return getSession(sessionId).
                 orElseThrow(() -> new SessionNotFoundException(sessionId))
                 .getConnectionId()
                 .orElseThrow(() -> new NoConnectionIdException(sessionId));
     }
 
-    protected void closeConnection(String sessionId){
+    protected final void closeConnection(String sessionId){
         getWebsocketConnection(sessionId).closeAndAwait();
     }
 
@@ -58,7 +58,7 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
                 .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for gameId: " + connectionId));
     }
 
-    protected void sendMessage(String sessionId, WebsocketEnvelope message){
+    protected final void sendMessage(String sessionId, WebsocketEnvelope message){
         WebSocketConnection connection = getWebsocketConnection(sessionId);
         connection.sendTextAndAwait(message);
     }

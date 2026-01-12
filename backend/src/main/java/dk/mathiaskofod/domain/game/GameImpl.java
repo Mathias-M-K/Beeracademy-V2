@@ -4,8 +4,8 @@ import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
-import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
 import dk.mathiaskofod.domain.game.models.Chug;
+import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
@@ -28,6 +28,9 @@ public class GameImpl implements Game {
     private final String gameId;
 
     @Getter
+    private GameState gameState = GameState.AWAITING_START;
+
+    @Getter
     private final List<Player> players;
 
     @Getter
@@ -45,7 +48,6 @@ public class GameImpl implements Game {
     private int currentPlayerIndex;
     private final GameTimer playerTimer;
 
-    private boolean isStarted = false;
     private boolean awaitingChug = false;
     private final GameTimer gameTimer;
     private int round = 1;
@@ -71,11 +73,11 @@ public class GameImpl implements Game {
 
     public void startGame() {
 
-        if (isStarted) {
+        if (gameState == GameState.IN_PROGRESS) {
             return;
         }
 
-        isStarted = true;
+        gameState = GameState.IN_PROGRESS;
 
         gameTimer.start();
         playerTimer.start();
@@ -84,6 +86,11 @@ public class GameImpl implements Game {
     }
 
     public void endGame() {
+        if(gameState == GameState.FINISHED){
+            return;
+        }
+
+        gameState = GameState.FINISHED;
         eventEmitter.onEndGame(gameId, gameTimer.getReport());
         //TODO implement end logic
     }
@@ -106,8 +113,8 @@ public class GameImpl implements Game {
 
     public void drawCard(long clientDurationMillis) {
 
-        if (!isStarted) {
-            throw new GameNotStartedException(gameId);
+        if (gameState != GameState.IN_PROGRESS) {
+            throw new GameException(String.format("Draw card not avaiable when game is not in state: %s",GameState.IN_PROGRESS),400);
         }
 
         if (gameTimer.getState() == TimerState.PAUSED) {
