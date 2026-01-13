@@ -41,7 +41,7 @@ export class WebsocketService {
   private connect(): Observable<any> {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket({
-        url: 'ws://localhost:8080/game',
+        url: 'ws://localhost:8080/api/game',
         openObserver: {
           next: () => {
             this.connectionStatus.set("Connected!");

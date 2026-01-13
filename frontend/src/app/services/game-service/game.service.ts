@@ -44,8 +44,6 @@ export class GameService {
     return players.find((player) => player.id === currentPlayerId);
   })
 
-
-
   public awaitingChugFromPlayer = signal<PlayerDto | undefined>(undefined)
 
 
