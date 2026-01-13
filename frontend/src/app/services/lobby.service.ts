@@ -1,15 +1,17 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {CreateGameRequest} from '../../api-models/model/createGameRequest';
 import {GameIdDto} from '../../api-models/model/gameIdDto';
-import {WebsocketService} from './websocket.service';
+import {environment} from '../../environments/environment';
 
 
 @Injectable({
   providedIn: 'root',
 })
 export class LobbyService {
+
+  private apiUrl = environment.backend + '/api';
 
   constructor(private httpClient: HttpClient, private router: Router) {
   }
@@ -23,7 +25,7 @@ export class LobbyService {
 
     console.log(requestBody)
 
-    this.httpClient.post<GameIdDto>('http://localhost:8080/api/games', requestBody).subscribe({
+    this.httpClient.post<GameIdDto>(this.apiUrl + '/games', requestBody).subscribe({
       next: response => {
         console.log("Create game response", response);
         this.claimGame(response.gameId!);
@@ -35,7 +37,7 @@ export class LobbyService {
   }
 
   private claimGame(gameId: string): void {
-    this.httpClient.get<void>(`http://localhost:8080/api/games/${gameId}/claim`, {withCredentials: true}).subscribe({
+    this.httpClient.get<void>(this.apiUrl + `/games/${gameId}/claim`, {withCredentials: true}).subscribe({
       next: () => {
         console.log("Game claimed!");
         this.testAuth();
@@ -47,7 +49,7 @@ export class LobbyService {
   }
 
   private testAuth() {
-    this.httpClient.get<any>('http://localhost:8080/api/auth/test', {withCredentials: true}).subscribe({
+    this.httpClient.get<any>(this.apiUrl + '/auth/test', {withCredentials: true}).subscribe({
       next: response => {
         console.log("Test auth", response);
         this.router.navigate(['/game']);
@@ -57,7 +59,6 @@ export class LobbyService {
       }
     })
   }
-
 
 
 }

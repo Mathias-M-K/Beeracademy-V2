@@ -49,7 +49,6 @@ export class GameService {
 
 
   constructor(private websocketService: WebsocketService) {
-
     this.websocketService.messages$.subscribe(message => {
       this.handleEvent(message);
     });
