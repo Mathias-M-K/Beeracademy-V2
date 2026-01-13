@@ -2,12 +2,15 @@ package dk.mathiaskofod.api.game;
 
 import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.common.dto.game.GameDto;
-import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.common.dto.game.GameIdDto;
+import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -96,7 +99,7 @@ public class GameApi {
         NewCookie cookie = new NewCookie.Builder("session_jwt")
                 .httpOnly(!isDev)
                 .secure(!isDev)
-                .sameSite(isDev ? NewCookie.SameSite.LAX : NewCookie.SameSite.STRICT)
+                .sameSite(isDev ? NewCookie.SameSite.LAX : NewCookie.SameSite.NONE)
                 .path("/")
                 .value(jwt)
                 .build();
