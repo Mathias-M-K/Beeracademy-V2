@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beer-academy-backend-deployment # A name for your deployment
+  namespace: beer-academy
+  labels:
+    app: beer-academy-backend # Labels to identify this deployment and its pods
+spec:
+  replicas: 1 # How many instances (pods) of your application you want to run
+  selector:
+    matchLabels:
+      app: beer-academy-backend # This must match the labels in the pod template below
+  template:
+    metadata:
+      labels:
+        app: beer-academy-backend # Labels for the pods created by this deployment
+    spec:
+      containers:
+        - name: beer-academy-backend-container
+          image: ghcr.io/mathias-m-k/beer-academy-backend:latest
+          ports:
+            - containerPort: 8080 # The port your Quarkus app listens on inside the container
+              name: http # Name for the container port
+          env:
+            - name: TZ
+              value: Europe/Copenhagen
+      imagePullSecrets:
+        - name: ghcr-secret # <--- This MUST match the name you used when creating the secret

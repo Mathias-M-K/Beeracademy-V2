@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: beer-academy-frontend-service # Unique name for Angular service
+  namespace: beer-academy
+  labels:
+    app: beer-academy-frontend
+spec:
+  selector:
+    app: beer-academy-frontend # Matches the Deployment's labels
+  ports:
+    - protocol: TCP
+      port: 80 # Internal service port
+      targetPort: 80 # Container port where Nginx listens
+      name: http
+  type: ClusterIP # Expose internally

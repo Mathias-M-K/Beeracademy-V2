@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beer-academy-frontend-deployment # Unique name for Angular deployment
+  namespace: beer-academy
+  labels:
+    app: beer-academy-frontend # Unique label for Angular app
+spec:
+  replicas: 1 # Start with one replica
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: beer-academy-frontend
+  template:
+    metadata:
+      labels:
+        app: beer-academy-frontend
+    spec:
+      containers:
+        - name: beer-academy-frontend-container
+          image: ghcr.io/mathias-m-k/beer-academy-frontend:latest # Your Angular image
+          ports:
+            - containerPort: 80 # Nginx default HTTP port inside container
+              name: http
+          env:
+            - name: TZ
+              value: Europe/Copenhagen
+      imagePullSecrets:
+        - name: ghcr-secret # Use your existing GHCR secret
+
+
