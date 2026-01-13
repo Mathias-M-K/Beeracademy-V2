@@ -32,7 +32,7 @@ export class WebsocketService {
       websocketUrl = backendUrl.replace('http', 'ws');
     }
 
-    return websocketUrl + "/api";
+    return websocketUrl + "/ws";
 
   }
 

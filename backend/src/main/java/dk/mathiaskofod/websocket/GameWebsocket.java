@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @Slf4j
-@WebSocket(path = "/api/game")
+@WebSocket(path = "/ws/game")
 @Authenticated
 public class GameWebsocket {
 
