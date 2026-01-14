@@ -1,6 +1,5 @@
 package dk.mathiaskofod.domain.game.timer;
 
-import dk.mathiaskofod.domain.game.timer.exception.TimerNotStartedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,7 +11,6 @@ import java.time.Instant;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class GameTimerTest {
@@ -33,7 +31,7 @@ class GameTimerTest {
         void getTimeBeforeStartThrowsException() {
 
             //Arrange-Act-Assert
-            assertThrows(TimerNotStartedException.class, () -> timer.getTime());
+            assertThat(timer.getTime(), is(Duration.ZERO));
         }
 
         @Test

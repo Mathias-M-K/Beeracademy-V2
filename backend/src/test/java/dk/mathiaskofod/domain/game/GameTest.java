@@ -1,7 +1,9 @@
 package dk.mathiaskofod.domain.game;
 
-import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
+import dk.mathiaskofod.domain.game.deck.models.Suit;
 import dk.mathiaskofod.domain.game.events.TestGameEventEmitter;
+import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
+import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.player.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -64,6 +66,11 @@ class GameTest {
             //Act
             for(int turns = 0; turns < 1; turns++){
                 game.drawCard(0);
+
+                if (game.getLastCard().rank() == 14) {
+                    // If the last drawn card is a chug card, we need to simulate a chug to continue
+                    game.registerChug(new Chug(Suit.circle,2000)); // Simulate a chug of 5 seconds
+                }
             }
 
 
@@ -81,6 +88,11 @@ class GameTest {
             //Act
             for(int turns = 0; turns < 2; turns++){
                 game.drawCard(0);
+
+                if (game.getLastCard().rank() == 14) {
+                    // If the last drawn card is a chug card, we need to simulate a chug to continue
+                    game.registerChug(new Chug(Suit.circle,2000)); // Simulate a chug of 5 seconds
+                }
             }
 
             //Assert
@@ -129,6 +141,11 @@ class GameTest {
             //Act
             for(int turns = 0; turns < 5; turns++){
                 game.drawCard(0);
+
+                if (game.getLastCard().rank() == 14) {
+                    // If the last drawn card is a chug card, we need to simulate a chug to continue
+                    game.registerChug(new Chug(Suit.circle,2000)); // Simulate a chug of 5 seconds
+                }
             }
 
             //Arrange
@@ -145,6 +162,11 @@ class GameTest {
             //Act
             for(int turns = 0; turns < 6; turns++){
                 game.drawCard(0);
+
+                if (game.getLastCard().rank() == 14) {
+                    // If the last drawn card is a chug card, we need to simulate a chug to continue
+                    game.registerChug(new Chug(Suit.circle,2000)); // Simulate a chug of 5 seconds
+                }
             }
 
             //Arrange

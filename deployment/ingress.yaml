@@ -1,11 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: beer-academy-frontend-ingress # Unique name for Angular Ingress
+  name: beer-academy-ingress # Unique name for Angular Ingress
   namespace: beer-academy
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod # Use staging for testing
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '3600'
 spec:
   ingressClassName: nginx
   rules:
@@ -18,7 +21,14 @@ spec:
               service:
                 name: beer-academy-backend-service # <--- Points to your new Angular Service
                 port:
-                  number: 8080
+                  number: 80
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: beer-academy-backend-service # <--- Points to your new Angular Service
+                port:
+                  number: 80
           - path: /
             pathType: Prefix
             backend:

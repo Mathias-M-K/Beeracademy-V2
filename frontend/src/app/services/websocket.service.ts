@@ -24,15 +24,15 @@ export class WebsocketService {
 
   private createWebsocketUrl(backendUrl: string) {
 
-    let websocketUrl: string
+    // let websocketUrl: string
 
-    if (backendUrl.startsWith('https')) {
-      websocketUrl = backendUrl.replace('https', 'ws');
-    } else {
-      websocketUrl = backendUrl.replace('http', 'ws');
-    }
+    // if (backendUrl.startsWith('https')) {
+    //   websocketUrl = backendUrl.replace('https', 'ws');
+    // } else {
+    //   websocketUrl = backendUrl.replace('http', 'ws');
+    // }
 
-    return websocketUrl + "/ws";
+    return backendUrl + "/ws";
 
   }
 
