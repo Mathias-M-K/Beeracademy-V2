@@ -19,14 +19,21 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: beer-academy-backend-service # <--- Points to your new Angular Service
+                name: beer-academy-backend-service
                 port:
                   number: 80
           - path: /ws
             pathType: Prefix
             backend:
               service:
-                name: beer-academy-backend-service # <--- Points to your new Angular Service
+                name: beer-academy-backend-service
+                port:
+                  number: 80
+          - path: /q
+            pathType: Prefix
+            backend:
+              service:
+                name: beer-academy-backend-service
                 port:
                   number: 80
           - path: /
@@ -38,6 +45,6 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - beeracademy.mathiaskofod.dk # <--- Your NEW Angular subdomain
-        - www.beeracademy.mathiaskofod.dk # <--- Your NEW Angular subdomain
-      secretName: beer-academy-tls-secret # Unique secret name for this certificate
+        - beeracademy.mathiaskofod.dk
+        - www.beeracademy.mathiaskofod.dk
+      secretName: beer-academy-tls-secret
