@@ -109,6 +109,11 @@ class GameTest {
             //Act
             for(int turns = 0; turns < 3; turns++){
                 game.drawCard(0);
+
+                if (game.getLastCard().rank() == 14) {
+                    // If the last drawn card is a chug card, we need to simulate a chug to continue
+                    game.registerChug(new Chug(Suit.circle,2000)); // Simulate a chug of 5 seconds
+                }
             }
 
             //Arrange
@@ -125,6 +130,11 @@ class GameTest {
             //Act
             for(int turns = 0; turns < 4; turns++){
                 game.drawCard(0);
+
+                if (game.getLastCard().rank() == 14) {
+                    // If the last drawn card is a chug card, we need to simulate a chug to continue
+                    game.registerChug(new Chug(Suit.circle,2000)); // Simulate a chug of 5 seconds
+                }
             }
 
             //Arrange
