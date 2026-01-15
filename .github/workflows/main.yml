@@ -46,7 +46,9 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
+          tags: | 
+            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
+            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
 #
       - name: Deploy to Microk8s
         if: true
