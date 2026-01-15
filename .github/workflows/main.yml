@@ -2,8 +2,8 @@ name: Build and Deploy to Microk8s
 
 on:
   push:
-#    tags:
-#      - 'v*.*.*'
+    tags:
+      - 'v*.*.*'
 
 env:
   REGISTRY: ghcr.io
@@ -48,9 +48,9 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
 #
-#      - name: Deploy to Microk8s
-#        if: true
-#        run: |
-#          # Use the kubectl provided by MicroK8s
-#          microk8s.kubectl set image deployment/online-cv-deployment online-cv-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n online-cv
-#          microk8s.kubectl rollout status deployment/online-cv-deployment -n online-cv
+      - name: Deploy to Microk8s
+        if: true
+        run: |
+          # Use the kubectl provided by MicroK8s
+          microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n beer-academy
+          microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
