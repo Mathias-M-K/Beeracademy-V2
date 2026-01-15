@@ -1,23 +1,27 @@
 # Stage 1: Build the Angular application
 FROM node:20-alpine AS build
 
+# Install Java (required for openapi-generator-cli)
+RUN apk add --no-cache openjdk17-jre
+
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
 
-# Install Angular CLI globally and then project dependencies
-RUN npm install -g @angular/cli
+# Install project dependencies
 RUN npm install
-RUN openapi-generator-cli generate -g typescript-angular -i https://beeracademy.mathiaskofod.dk/q/openapi -o ./src/api-models --global-property=models
 
 # Copy the rest of the application code
 COPY . .
 
+# Generate API models
+RUN npm run openApi
+
 # Build the Angular application for production
-# 'dist' is the default output folder for 'ng build'
-RUN ng build --configuration production
+RUN npm run build
+
 
 # Stage 2: Serve the Angular application with Nginx
 FROM nginx:alpine
