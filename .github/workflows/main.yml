@@ -10,13 +10,17 @@ env:
   IMAGE_NAME: ${{github.repository}}
 
 jobs:
-  build-deploy:
+  build-frontend:
     runs-on: self-hosted
 
     steps:
       - name: Log semantic version
         run: |
           echo "Semantic version: ${{ github.ref_name }}"
+
+      - name: Log image name
+        run: |
+          echo "Image name: ${{ env.IMAGE_NAME }}"
 
 #      - name: Checkout repository
 #        uses: actions/checkout@v4
