@@ -52,5 +52,5 @@ jobs:
         if: true
         run: |
           # Use the kubectl provided by MicroK8s
-          microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n beer-academy
-          microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
+          microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n beer-academy
+          microk8s.kubectl rollout status deployment/beer-academy-frontend-deployment -n beer-academy
