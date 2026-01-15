@@ -6,6 +6,7 @@ on:
 #      - 'v*.*.*'
 
 env:
+  USER: ${{ github.actor }}
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{github.repository}}
   VERSION: ${{ github.ref_name }}
@@ -17,6 +18,7 @@ jobs:
     steps:
       - name: Log
         run: |
+          echo "User: ${{ env.USER }}"
           echo "Registry: ${{ env.REGISTRY }}"
           echo "Image Name: ${{ env.IMAGE_NAME }}"
           echo "Semantic version: ${{ env.VERSION }}"
