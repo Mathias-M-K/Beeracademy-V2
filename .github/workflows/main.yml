@@ -33,20 +33,20 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
-#
-#      - name: Convert image name to lowercase
-#        id: IMAGE_NAME
-#        uses: ASzc/change-string-case-action@v6
-#        with:
-#          string: ${{env.IMAGE_NAME}}
-#
-#      - name: Build and push Docker image
-#        if: true
-#        uses: docker/build-push-action@v6
-#        with:
-#          context: .
-#          push: true
-#          tags: ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
+
+      - name: Convert image name to lowercase
+        id: IMAGE_NAME
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{env.FRONTEND_IMAGE_NAME}}
+
+      - name: Build and push Docker image
+        if: true
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
 #
 #      - name: Deploy to Microk8s
 #        if: true
