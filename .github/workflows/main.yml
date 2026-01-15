@@ -8,19 +8,18 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{github.repository}}
+  VERSION: ${{ github.ref_name }}
 
 jobs:
   build-frontend:
     runs-on: self-hosted
 
     steps:
-      - name: Log semantic version
+      - name: Log
         run: |
-          echo "Semantic version: ${{ github.ref_name }}"
-
-      - name: Log image name
-        run: |
-          echo "Image name: ${{ env.IMAGE_NAME }}"
+          echo "Registry: ${{ env.REGISTRY }}"
+          echo "Image Name: ${{ env.IMAGE_NAME }}"
+          echo "Semantic version: ${{ env.VERSION }}"
 
 #      - name: Checkout repository
 #        uses: actions/checkout@v4
