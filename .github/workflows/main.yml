@@ -8,8 +8,8 @@ on:
 env:
   USER: ${{ github.actor }}
   REGISTRY: ghcr.io
-  FRONTEND_IMAGE_NAME: ${{USER}}/beer-academy-frontend
-  BACKEND_IMAGE_NAME: ${{USER}}/beer-academy-backend
+  FRONTEND_IMAGE_NAME: ${{ github.actor }}/beer-academy-frontend
+  BACKEND_IMAGE_NAME: ${{ github.actor }}/beer-academy-backend
   VERSION: ${{ github.ref_name }}
 
 jobs:
