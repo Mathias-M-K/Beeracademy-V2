@@ -46,8 +46,8 @@ jobs:
         if: true
         uses: docker/build-push-action@v6
         with:
-          context: ./backend/src/main/docker
-          file: Dockerfile.jvm
+          context: ./backend
+          file: ./backend/src/main/docker/Dockerfile.jvm
           push: true
           tags: | 
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
