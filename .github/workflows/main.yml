@@ -47,6 +47,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backend/src/main/docker
+          file: Dockerfile.jvm
           push: true
           tags: | 
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
@@ -71,7 +72,6 @@ jobs:
           echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
           echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
           echo "Semantic Version: ${{ env.VERSION }}"
-
 
       - name: Checkout repository
         uses: actions/checkout@v4
