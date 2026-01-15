@@ -62,6 +62,7 @@ jobs:
 
 
   build-frontend:
+    needs: build-backend
     runs-on: self-hosted
 
     steps:
