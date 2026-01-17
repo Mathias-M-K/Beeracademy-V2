@@ -1,9 +1,9 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {CreateGameRequest} from '../../api-models/model/createGameRequest';
 import {GameIdDto} from '../../api-models/model/gameIdDto';
-import {environment} from '../../environments/environment';
+import {ConfigService} from '../../config.service';
 
 
 @Injectable({
@@ -11,7 +11,9 @@ import {environment} from '../../environments/environment';
 })
 export class LobbyService {
 
-  private apiUrl = environment.backend + '/api';
+  private applicationConfig = inject(ConfigService);
+
+  private apiUrl = this.applicationConfig.apiUrl + "/api";
 
   constructor(private httpClient: HttpClient, private router: Router) {
   }
@@ -22,8 +24,6 @@ export class LobbyService {
       name: gameName,
       playerNames: players
     }
-
-    console.log(requestBody)
 
     this.httpClient.post<GameIdDto>(this.apiUrl + '/games', requestBody).subscribe({
       next: response => {

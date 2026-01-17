@@ -1,16 +1,16 @@
-import {Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {WebsocketEnvelope} from './models/websocket-envelope';
 import {catchError, EMPTY, Observable, Subject, tap} from 'rxjs';
 import {webSocket} from 'rxjs/webSocket';
 import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
-import {environment} from '../../environments/environment';
+import {ConfigService} from '../../config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketService {
-
-  private websocketUrl = this.createWebsocketUrl(environment.backend);
+  private applicationConfig = inject(ConfigService);
+  private websocketUrl = this.applicationConfig.apiUrl + "/ws"
 
   public connectionStatus = signal<string>("Connecting...");
   private messageSubject = new Subject<WebsocketEnvelope>();
@@ -20,20 +20,6 @@ export class WebsocketService {
 
   constructor() {
     console.log("WebsocketUrl", this.websocketUrl);
-  }
-
-  private createWebsocketUrl(backendUrl: string) {
-
-    // let websocketUrl: string
-
-    // if (backendUrl.startsWith('https')) {
-    //   websocketUrl = backendUrl.replace('https', 'ws');
-    // } else {
-    //   websocketUrl = backendUrl.replace('http', 'ws');
-    // }
-
-    return backendUrl + "/ws";
-
   }
 
   public sendMessage(websocket: WebsocketEnvelope) {
