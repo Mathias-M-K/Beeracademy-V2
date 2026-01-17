@@ -23,6 +23,10 @@ spec:
             - containerPort: 80 # Nginx default HTTP port inside container
               name: http
           env:
+            - name: API_URL
+              value: "https://beeracademy.mathiaskofod.dk"
+            - name: ENVIRONMENT
+              value: "production"
             - name: TZ
               value: Europe/Copenhagen
       imagePullSecrets:
