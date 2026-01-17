@@ -18,9 +18,6 @@ export class WebsocketService {
 
   private socket!: WebSocketSubject<any>;
 
-  constructor() {
-    console.log("WebsocketUrl", this.websocketUrl);
-  }
 
   public sendMessage(websocket: WebsocketEnvelope) {
     this.socket.next(websocket);
