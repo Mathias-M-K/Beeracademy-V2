@@ -52,6 +52,14 @@ dependencies {
 group = 'dk.mathiaskofod'
 version = '1.0.0'
 
+sonar {
+    properties {
+        property "sonar.projectKey", "beeracademy-backend"
+        property "sonar.organization", "mathias"
+        property "sonar.branch.name", "main"
+    }
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
@@ -73,20 +81,17 @@ tasks.withType(Test).configureEach {
     jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }.absolutePath}"
 }
 test {
-    finalizedBy jacocoTestReport // report is always generated after tests run
+    finalizedBy jacocoTestReport
 }
 jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-    xml.enabled true
+    dependsOn test
+    reports {
+        xml.required = true
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
 }
 jacoco {
     toolVersion = "0.8.13"
 }
 
-sonar {
-    properties {
-        property "sonar.projectKey", "beeracademy-backend"
-        property "sonar.organization", "mathias"
-        property "sonar.branch.name", "main"
-    }
-}
+
