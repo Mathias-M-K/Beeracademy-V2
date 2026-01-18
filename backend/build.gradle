@@ -77,6 +77,7 @@ test {
 }
 jacocoTestReport {
     dependsOn test // tests are required to run before generating the report
+    xml.enabled true
 }
 jacoco {
     toolVersion = "0.8.13"
