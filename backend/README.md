@@ -1,5 +1,7 @@
 # beeracademy-backend
 
+
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
@@ -73,3 +75,5 @@ If you want to learn more about building native executables, please consult <htt
 Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=beeracademy-backend)](https://sonarcloud.io/summary/new_code?id=beeracademy-backend)
