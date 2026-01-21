@@ -1,14 +1,13 @@
 package dk.mathiaskofod.domain.game;
 
+import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
-import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-
 import dk.mathiaskofod.domain.game.timer.GameTimer;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
@@ -86,7 +85,7 @@ public class GameImpl implements Game {
     }
 
     public void endGame() {
-        if(gameState == GameState.FINISHED){
+        if (gameState == GameState.FINISHED) {
             return;
         }
 
@@ -112,7 +111,7 @@ public class GameImpl implements Game {
     public void drawCard(long clientDurationMillis) {
 
         if (gameState != GameState.IN_PROGRESS) {
-            throw new GameException(String.format("Draw card not avaiable when game is not in state: %s",GameState.IN_PROGRESS),400);
+            throw new GameException(String.format("Draw card not available when game is not in state: %s", GameState.IN_PROGRESS), 400);
         }
 
         if (gameTimer.getState() == TimerState.PAUSED) {
@@ -124,7 +123,6 @@ public class GameImpl implements Game {
         }
 
         //TODO implement client-side check for time
-        log.info("PlayerTime: {}", playerTimer.getReport());
         Duration clientTime = playerTimer.getTime();
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
 
