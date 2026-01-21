@@ -1,10 +1,36 @@
-# beeracademy-backend
-
+# Beeracademy Backend
 
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+
+## Deploy from local
+Changes to the application can be deployed from your local machine, and it's pretty easy!
+
+1. Make sure docker is running on your machine. 
+
+2. Make sure that you're logged in
+     ```bash
+     docker login ghcr.io
+     ```
+   Use GitHub name as username and a personal access token as password with at least `read:packages` and 
+`write:packages` scopes.
+   It should remember your login for a long time, so it's more or less a one-time+occasionally thing. <br><br>
+
+3. Run the Gradle task `manual_deploy`. 
+    ```shell
+    ./gradlew manual_deploy
+    ```
+   This task does the following:
+    - runs a clean to remove old artifacts
+    - builds the application
+    - builds a Docker image
+    - pushes the Docker image to GitHub Container Registry
+    - updates the Kubernetes deployment to use the new image
+   
+And this should be it. Your application should be deployed with your latest changes :) 
+
 
 ## Generating private and public keys
 openssl genrsa -out rsaPrivateKey.pem 2048

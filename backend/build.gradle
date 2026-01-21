@@ -96,4 +96,40 @@ jacoco {
     toolVersion = "0.8.13"
 }
 
+//Deploy tasks
+tasks.register('dockerBuild', Exec) {
+    group = 'deployment'
+    description = 'Build Docker image'
+
+    commandLine 'docker', 'build',
+            '-f', 'src/main/docker/Dockerfile.jvm',
+            '-t', 'ghcr.io/mathias-m-k/beer-academy-backend',
+            '.'
+}
+
+tasks.register('dockerPush', Exec) {
+    group = 'deployment'
+    description = 'Push Docker image'
+    dependsOn dockerBuild
+
+    commandLine 'docker', 'push', 'ghcr.io/mathias-m-k/beer-academy-backend:latest'
+}
+
+tasks.register('k8sDeploy', Exec) {
+    group = 'deployment'
+    description = 'Deploy to Kubernetes'
+    dependsOn dockerPush
+
+    commandLine 'kubectl', 'apply', '-f', '../deployment/backend'
+}
+
+tasks.register('manual_deploy') {
+    group = 'deployment'
+    description = 'Full deployment: clean, build, docker build/push, k8s deploy'
+    dependsOn clean, build, k8sDeploy
+
+    build.mustRunAfter clean
+    dockerBuild.mustRunAfter build
+}
+
 
