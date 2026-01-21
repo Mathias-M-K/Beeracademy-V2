@@ -12,6 +12,10 @@ spec:
       app: beer-academy-backend # This must match the labels in the pod template below
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"      # Your app's port
+        prometheus.io/path: "/q/metrics"  # Quarkus metrics endpoint
       labels:
         app: beer-academy-backend # Labels for the pods created by this deployment
     spec:
