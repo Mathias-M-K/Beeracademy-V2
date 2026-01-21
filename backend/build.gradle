@@ -23,6 +23,8 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.20.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 
+    // JSON Logging
+    implementation("io.quarkus:quarkus-logging-json")
 
     //JSON and serialization + deserialization
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
