@@ -22,7 +22,7 @@ public class RestClientLogger implements ContainerRequestFilter, ContainerRespon
     RequestTimer timer;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final String CORRELATION_ID_HEADER = "X-Correlation-ID";
+    private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
 
 
     @Override

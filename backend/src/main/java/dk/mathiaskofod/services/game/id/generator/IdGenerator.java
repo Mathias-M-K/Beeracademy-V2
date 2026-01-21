@@ -6,6 +6,10 @@ import java.util.stream.Collectors;
 
 public class IdGenerator {
 
+    private IdGenerator() {
+        throw new IllegalStateException("IdGenerator can't be instantiated");
+    }
+
     private static final String ALPHANUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom random = new SecureRandom();
     private static final int GAME_ID_LENGTH = 9;

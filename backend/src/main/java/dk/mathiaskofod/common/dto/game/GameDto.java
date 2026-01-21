@@ -9,7 +9,6 @@ import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 
 import java.util.List;
 
-//TODO remove this if not used
 public record GameDto(
         String name,
         String id,

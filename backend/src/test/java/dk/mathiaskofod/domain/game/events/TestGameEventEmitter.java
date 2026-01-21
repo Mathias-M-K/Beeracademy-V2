@@ -14,33 +14,33 @@ public class TestGameEventEmitter implements GameEventEmitter {
 
     @Override
     public void onStartGame(String gameIdDto) {
-
+        //Right now, only exist as a "Mock"
     }
 
     @Override
     public void onEndGame(String gameIdDto, TimeReport gameDuration) {
-
+        //Right now, only exist as a "Mock"
     }
 
     @Override
     public void onPauseGame(String gameId, TimeReport timeReport) {
-
+        //Right now, only exist as a "Mock"
     }
 
     @Override
     public void onResumeGame(String gameId, TimeReport timeReport) {
-
+        //Right now, only exist as a "Mock"
     }
 
     @Override
     public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, String gameIdDto) {
-
+        //Right now, only exist as a "Mock"
     }
 
 
     @Override
     public void onNewChug(Chug chug, Player chugger, Player newPlayer, String gameIdDto) {
-
+        //Right now, only exist as a "Mock"
     }
 
 }

@@ -7,6 +7,6 @@ public record GameIdDto(
         String gameId) {
 
     public GameIdDto(String gameId) {
-        this.gameId = gameId.replaceAll("-", "");
+        this.gameId = gameId.replace("-", "");
     }
 }

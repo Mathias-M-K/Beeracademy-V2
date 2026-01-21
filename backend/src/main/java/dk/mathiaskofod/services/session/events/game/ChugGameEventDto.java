@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session.events.game;
 
-import dk.mathiaskofod.domain.game.deck.models.Suit;
 import dk.mathiaskofod.domain.game.events.ChugEvent;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.session.models.annotations.EventType;

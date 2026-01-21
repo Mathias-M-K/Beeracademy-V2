@@ -17,8 +17,6 @@ public class AuthService {
     @ConfigProperty(name = "mp.jwt.verify.issuer")
     private String issuer;
 
-    //private static final String ISSUER = "https://beeracademy.mathiaskofod.dk";
-
     public String createPlayerClientToken(Player player, String gameId) {
         return Jwt.issuer(issuer)
                 .subject(player.name())

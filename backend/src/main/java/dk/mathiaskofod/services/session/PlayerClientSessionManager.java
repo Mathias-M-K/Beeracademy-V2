@@ -1,31 +1,33 @@
 package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.domain.game.events.*;
+import dk.mathiaskofod.domain.game.exceptions.GameException;
+import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.player.client.RelinquishPlayerAction;
+import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.GameEventEnvelope;
+import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerDisconnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerRelinquishedEvent;
-import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
-import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
-import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
-import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import dk.mathiaskofod.services.session.models.Session;
-import dk.mathiaskofod.domain.game.player.Player;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+
 import java.util.Optional;
 
 @Slf4j
@@ -75,7 +77,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
-        log.info("Websocket Connection: Type:New player connection, PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId, websocketConnectionId);
+        log.info("Websocket Connection: Type:New player connection, PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, websocketConnectionId);
     }
 
     public void onConnectionClosed(TokenInfo tokenInfo) {
@@ -89,7 +91,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
         broadcastPlayerEvent(new PlayerDisconnectedEvent(playerId, gameId));
 
-        log.info("Player disconnected! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", playerId, gameId, "");
+        log.info("Player disconnected! PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, "");
     }
 
     public void relinquishPlayer(String gameId, String playerId) {
@@ -98,7 +100,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
                 .orElseThrow(() -> new SessionNotFoundException(playerId))
                         .getSessionId();
 
-        log.info("Player relinquished! PlayerName:{}, PlayerID:{}, GameID:{}, WebsocketConnID:{}", "Unknown", sessionId, gameId, getConnectionId(playerId));
+        log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", sessionId, gameId, getConnectionId(playerId));
 
         closeConnection(sessionId);
         removeSession(sessionId);
@@ -116,8 +118,8 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         String playerId = tokenInfo.getPlayerId();
 
         switch (payload) {
-            case DrawCardAction drawCardAction ->
-                    onDrawCardAction(drawCardAction.duration(), gameId, playerId);
+            case DrawCardAction(long duration) ->
+                    onDrawCardAction(duration, gameId, playerId);
             case RelinquishPlayerAction() -> relinquishPlayer(gameId, playerId);
             default ->
                     throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
@@ -128,7 +130,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
         String currentPlayerId = gameService.getCurrentPlayer(gameId).id();
         if (!playerId.equals(currentPlayerId)) {
-            throw new BaseException("It's not your turn!", 400); //FIXME custom exception
+            throw new GameException("It's not your turn!", 400);
         }
         gameService.drawCard(durationInMillis, gameId);
     }

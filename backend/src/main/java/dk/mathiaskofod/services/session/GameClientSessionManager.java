@@ -2,15 +2,15 @@ package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
+import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
+import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
-import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.exceptions.*;
-
 import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -76,8 +76,8 @@ public class GameClientSessionManager extends AbstractSessionManager {
             case EndGameAction() -> gameService.endGame(gameId);
             case PauseGameAction() -> gameService.pauseGame(gameId);
             case ResumeGameAction() -> gameService.resumeGame(gameId);
-            case DrawCardAction drawCardAction -> gameService.drawCard(drawCardAction.duration(), gameId);
-            case RegisterChugAction registerChugAction -> gameService.registerChug(registerChugAction.chug(), gameId);
+            case DrawCardAction(long duration) -> gameService.drawCard(duration, gameId);
+            case RegisterChugAction(Chug chug) -> gameService.registerChug(chug, gameId);
             default -> throw new UnknownActionException(action.getClass().getSimpleName(), 500);
         }
     }

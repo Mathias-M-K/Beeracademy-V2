@@ -1,7 +1,9 @@
 package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,9 +16,6 @@ class GameServiceTest {
 
     @InjectMocks
     private GameService gameServiceMock;
-
-    @BeforeEach
-    void setUp() {}
 
     @Nested
     class GetGame {

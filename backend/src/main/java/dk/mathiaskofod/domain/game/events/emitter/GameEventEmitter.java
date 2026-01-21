@@ -5,8 +5,6 @@ import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 
-import java.time.Duration;
-
 public interface GameEventEmitter {
 
     void onStartGame(String gameId);

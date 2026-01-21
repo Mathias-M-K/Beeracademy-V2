@@ -1,16 +1,16 @@
 package dk.mathiaskofod.domain.game.deck.models;
 
 public enum Suit {
-    diamond,
-    club,
-    heart,
-    spade,
-    square,
-    hexagon,
-    star,
-    circle,
-    triangle,
-    plus,
-    minus,
-    thumbs_up
+    DIAMOND,
+    CLUB,
+    HEART,
+    SPADE,
+    SQUARE,
+    HEXAGON,
+    STAR,
+    CIRCLE,
+    TRIANGLE,
+    PLUS,
+    MINUS,
+    THUMBS_UP
 }

@@ -10,7 +10,7 @@ class CustomJwtClaimsTest {
 
     @Test
     @DisplayName("CustomJwtClaims.GAME_ID is equal to 'GAME_ID'")
-    public void test(){
+    void test(){
 
         //Arrange
         String claimName = CustomJwtClaims.GAME_ID.getName();

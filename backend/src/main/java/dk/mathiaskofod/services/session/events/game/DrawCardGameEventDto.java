@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session.events.game;
 
-import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.events.DrawCardEvent;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.services.session.models.annotations.EventType;

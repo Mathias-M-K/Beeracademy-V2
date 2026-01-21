@@ -10,7 +10,6 @@ import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
-
 import java.util.Set;
 
 @Singleton
@@ -18,7 +17,7 @@ import java.util.Set;
 public class PolymorphicCustomizer implements ObjectMapperCustomizer {
 
         // Base package to scan for classes annotated with EventCategory and EventType
-    private final String BASE_PACKAGE_TO_SCAN = "dk.mathiaskofod";
+    private static final String BASE_PACKAGE_TO_SCAN = "dk.mathiaskofod";
 
     /**
      * This is mostly a mix of copy-paste from different guides and blogs found online. But this class makes the code
