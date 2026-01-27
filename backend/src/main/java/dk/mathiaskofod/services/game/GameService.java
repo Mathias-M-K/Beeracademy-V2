@@ -4,15 +4,17 @@ import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.GameImpl;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitterImpl;
 import dk.mathiaskofod.domain.game.models.Chug;
-import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
-import dk.mathiaskofod.services.game.id.generator.IdGenerator;
-import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
+import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 @Slf4j
@@ -23,11 +25,7 @@ public class GameService {
 
     private final Map<String, Game> games = new HashMap<>();
 
-    public String createGame(String name, List<String> playerNames) {
-
-        List<Player> players = playerNames.stream()
-                .map(Player::create)
-                .toList();
+    public String createGame(String name, List<Player> players) {
 
         String gameId = IdGenerator.generateGameId();
 

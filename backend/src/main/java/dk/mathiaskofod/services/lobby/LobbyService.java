@@ -31,7 +31,16 @@ public class LobbyService {
     PlayerClientSessionManager playerClientSessionManager;
 
     public String createGame(CreateGameRequest createGameRequest) {
-        return gameService.createGame(createGameRequest.name(), createGameRequest.playerNames());
+
+        List<Player> newPlayers = createGameRequest.players().stream()
+                .map(createPlayerDto -> Player.create(
+                        createPlayerDto.playerName(),
+                        createPlayerDto.sipsInABeer(),
+                        createPlayerDto.canDrawChugCard()
+                ))
+                .toList();
+
+        return gameService.createGame(createGameRequest.name(), newPlayers);
     }
 
     public GameDto getGame(String gameId) {
