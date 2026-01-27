@@ -82,6 +82,14 @@ FROM registry.access.redhat.com/ubi9/openjdk-21:1.24
 
 ENV LANGUAGE='en_US:en'
 
+# --- PATCH START ---
+USER root
+# We are now patching GnuPG, Java, AND glib2
+RUN microdnf update -y gnupg2 java-21-openjdk-headless glib2 && \
+    microdnf clean all
+USER 185
+# --- PATCH END ---
+
 
 # We make four distinct layers so if there are application changes the library layers can be re-used
 COPY --chown=185 build/quarkus-app/lib/ /deployments/lib/
