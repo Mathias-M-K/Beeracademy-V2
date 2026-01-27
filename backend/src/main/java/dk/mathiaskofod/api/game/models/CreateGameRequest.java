@@ -11,8 +11,7 @@ public record CreateGameRequest(
                 examples = {"My awesome game"})
         String name,
 
-        @Schema(title = "Player Names",
-                description = "List of player names to join the game",
-                examples = {"[\"Alice\", \"Bob\", \"Charlie\"]"})
-        List<String> playerNames) {
+        @Schema(title = "Players",
+                description = "List of players and their specifications")
+        List<CreatePlayerDto> players) {
 }

@@ -29,9 +29,9 @@ class GameTest {
     @BeforeEach
     void init(){
 
-        player1 = Player.create("Player1");
-        player2 = Player.create("Player2");
-        player3 = Player.create("Player3");
+        player1 = Player.create("Player1",14, true);
+        player2 = Player.create("Player2",14, true);
+        player3 = Player.create("Player3",14, true);
 
         game = new GameImpl("Game under test", gameId, List.of(player1,player2,player3), emitter);
     }
