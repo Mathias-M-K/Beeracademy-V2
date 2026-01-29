@@ -85,7 +85,7 @@ ENV LANGUAGE='en_US:en'
 # --- PATCH START ---
 USER root
 # We are now patching GnuPG, Java, AND glib2
-RUN microdnf update -y gnupg2 java-21-openjdk-headless glib2 && \
+RUN microdnf update -y gnupg2 java-21-openjdk-headless glib2 openssl-libs openssl && \
     microdnf clean all
 USER 185
 # --- PATCH END ---
