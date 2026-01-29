@@ -94,14 +94,16 @@ public class GameApi {
 
     private Response generateJwtCookieResponse(String jwt) {
 
-        boolean isDev = environment.equals("dev");
+        String sanitizedJwt = (jwt == null) ? "" : jwt.replaceAll("[\\r\\n]", "");
+
+        boolean isDev = environment.equalsIgnoreCase("dev");
 
         NewCookie cookie = new NewCookie.Builder("session_jwt")
                 .httpOnly(!isDev)
                 .secure(!isDev)
                 .sameSite(isDev ? NewCookie.SameSite.LAX : NewCookie.SameSite.NONE)
                 .path("/")
-                .value(jwt)
+                .value(sanitizedJwt)
                 .build();
 
         return Response.ok()
