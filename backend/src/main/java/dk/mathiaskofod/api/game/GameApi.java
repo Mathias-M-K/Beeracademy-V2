@@ -4,6 +4,10 @@ import dk.mathiaskofod.api.game.models.CreateGameRequest;
 import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.common.dto.game.GameIdDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
+import dk.mathiaskofod.domain.game.reports.GameReport;
+import dk.mathiaskofod.domain.game.reports.PlayerReport;
+import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -34,6 +38,9 @@ public class GameApi {
 
     @Inject
     LobbyService lobbyService;
+
+    @Inject
+    GameService gameService;
 
     @ConfigProperty(name = "env")
     String environment;
@@ -89,7 +96,27 @@ public class GameApi {
         String sessionJwt = lobbyService.claimPlayer(gameIdDto.gameId(), playerId);
 
         return generateJwtCookieResponse(sessionJwt);
+    }
 
+    @GET
+    @Path("/{gameId}/reports/game")
+    @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
+    public GameReport getGameReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+        return gameService.getGameReport(gameIdDto.gameId());
+    }
+
+    @GET
+    @Path("/{gameId}/reports/players")
+    @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
+    public List<PlayerReport> getPlayerReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+        return gameService.getPlayerReports(gameIdDto.gameId());
+    }
+
+    @GET
+    @Path("/{gameId}/reports/time")
+    @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
+    public TimeReport getTimeReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+        return gameService.getTimeReport(gameIdDto.gameId());
     }
 
     private Response generateJwtCookieResponse(String jwt) {

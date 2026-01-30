@@ -4,7 +4,11 @@ import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.reports.GameReport;
+import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+
+import java.util.List;
 
 /**
  * Test helper: a no-op implementation of {@link GameEventEmitter} that does nothing.
@@ -18,7 +22,7 @@ public class TestGameEventEmitter implements GameEventEmitter {
     }
 
     @Override
-    public void onEndGame(String gameIdDto, TimeReport gameDuration) {
+    public void onEndGame(String gameId, GameReport gameReport, List<PlayerReport> playerReports, TimeReport timeReport) {
         //Right now, only exist as a "Mock"
     }
 

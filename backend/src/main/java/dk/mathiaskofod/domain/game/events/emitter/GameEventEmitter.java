@@ -3,13 +3,17 @@ package dk.mathiaskofod.domain.game.events.emitter;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.reports.GameReport;
+import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+
+import java.util.List;
 
 public interface GameEventEmitter {
 
     void onStartGame(String gameId);
 
-    void onEndGame(String gameId, TimeReport timeReport);
+    void onEndGame(String gameId, GameReport gameReport, List<PlayerReport> playerReports, TimeReport timeReport);
 
     void onPauseGame(String gameId, TimeReport timeReport);
 

@@ -4,10 +4,14 @@ import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.reports.GameReport;
+import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+
+import java.util.List;
 
 @ApplicationScoped
 public class GameEventEmitterImpl implements GameEventEmitter {
@@ -22,8 +26,8 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     }
 
     @Override
-    public void onEndGame(String gameId, TimeReport timeReport) {
-        eventBus.fire(new EndGameEvent(gameId, timeReport));
+    public void onEndGame(String gameId, GameReport gameReport, List<PlayerReport> playerReports, TimeReport timeReport) {
+        eventBus.fire(new EndGameEvent(gameId, gameReport, playerReports, timeReport));
     }
 
     @Override

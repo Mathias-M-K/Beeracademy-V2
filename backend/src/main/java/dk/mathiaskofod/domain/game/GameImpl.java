@@ -8,6 +8,8 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.reports.GameReport;
+import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.GameTimer;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
@@ -85,16 +87,21 @@ public class GameImpl implements Game {
     }
 
     public void endGame() {
+
         if (gameState == GameState.FINISHED) {
             return;
         }
 
+        gameTimer.pause();
+        playerTimer.pause();
+
         gameState = GameState.FINISHED;
-        eventEmitter.onEndGame(gameId, gameTimer.getReport());
-        //TODO implement end logic
+
+        eventEmitter.onEndGame(gameId, GameReport.create(players), PlayerReport.create(players), gameTimer.getReport());
     }
 
     public void pauseGame() {
+
         gameTimer.pause();
         playerTimer.pause();
 
