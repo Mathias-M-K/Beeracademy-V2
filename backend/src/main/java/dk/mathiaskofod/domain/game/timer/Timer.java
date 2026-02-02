@@ -9,14 +9,14 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameTimer {
+public class Timer {
 
     TimerState state = TimerState.NOT_STARTED;
 
-    Instant startTime;
+    private Instant startTime;
 
-    List<Duration> pauses = new ArrayList<>();
-    Instant pauseStartTime;
+    private List<Duration> pauses = new ArrayList<>();
+    private Instant pauseStartTime;
 
     public void start() {
         this.startTime = Instant.now();
@@ -24,7 +24,7 @@ public class GameTimer {
     }
 
     public void pause() {
-        if (startTime == null || pauseStartTime != null) {
+        if (startTime == null || pauseStartTime != null || state != TimerState.RUNNING) {
             return;
         }
         state = TimerState.PAUSED;
@@ -50,10 +50,10 @@ public class GameTimer {
      * If the timer has not been started, a {@code TimerNotStartedException} is thrown.
      *
      * @return the elapsed time as a {@code Duration} object since the timer was started,
-     *         minus any time during which the timer was paused
+     * minus any time during which the timer was paused
      * @throws TimerNotStartedException if the timer has not been started
      */
-    public Duration getTime(){
+    public Duration getTime() {
         if (startTime == null) {
             return Duration.ZERO;
         }
@@ -68,7 +68,7 @@ public class GameTimer {
      * @return the total time as a {@code Duration} object since the timer was started
      * @throws TimerNotStartedException if the timer has not been started
      */
-    Duration getTotalTime(){
+    Duration getTotalTime() {
         if (startTime == null) {
             return Duration.ZERO;
         }
@@ -82,7 +82,7 @@ public class GameTimer {
      * @return the total paused time as a {@code Duration} object, or {@code Duration.ZERO} if there were no pauses
      * @throws TimerNotStartedException if the timer has not been started
      */
-    Duration getPausedTime(){
+    Duration getPausedTime() {
         if (startTime == null) {
             return Duration.ZERO;
         }
@@ -90,15 +90,25 @@ public class GameTimer {
         return pauses.stream().reduce(Duration::plus).orElse(Duration.ZERO).plus(getCurrentPauseDuration());
     }
 
-    public void reset(){
+    public void reset() {
+
+        if(state == TimerState.PAUSED) {
+            Duration pauseDuration = getCurrentPauseDuration();
+            pauses.add(pauseDuration);
+        }
+
+        this.state = TimerState.RUNNING;
         this.startTime = Instant.now();
+        this.pauseStartTime = null;
+        pauses = new ArrayList<>();
     }
 
     public TimerState getState() {
         return state;
     }
 
-    public TimeReport getReport(){
-        return new TimeReport(state, getTotalTime().toMillis(),getTime().toMillis(),getPausedTime().toMillis());
+    public TimeReport getReport() {
+        List<Long> pausesAsLong = pauses.stream().map(Duration::toMillis).toList();
+        return new TimeReport(state, getTotalTime().toMillis(), getTime().toMillis(), getPausedTime().toMillis(), pausesAsLong);
     }
 }

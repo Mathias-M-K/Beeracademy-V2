@@ -10,7 +10,7 @@ import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.reports.GameReport;
 import dk.mathiaskofod.domain.game.reports.PlayerReport;
-import dk.mathiaskofod.domain.game.timer.GameTimer;
+import dk.mathiaskofod.domain.game.timer.Timer;
 import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
 import lombok.Getter;
@@ -47,10 +47,10 @@ public class GameImpl implements Game {
     private Card lastCard;
 
     private int currentPlayerIndex;
-    private final GameTimer playerTimer;
+    private final Timer playerTimer;
 
     private boolean awaitingChug = false;
-    private final GameTimer gameTimer;
+    private final Timer gameTimer;
     private int round = 1;
     private final Deck deck;
 
@@ -68,8 +68,8 @@ public class GameImpl implements Game {
 
         this.eventEmitter = eventEmitter;
 
-        gameTimer = new GameTimer();
-        playerTimer = new GameTimer();
+        gameTimer = new Timer();
+        playerTimer = new Timer();
     }
 
     public void startGame() {
@@ -192,7 +192,6 @@ public class GameImpl implements Game {
         }
 
         currentPlayer = players.get(currentPlayerIndex);
-        playerTimer.reset();
 
         nextPlayer = peakNextPlayer();
     }

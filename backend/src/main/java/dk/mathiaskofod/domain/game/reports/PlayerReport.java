@@ -5,7 +5,8 @@ import dk.mathiaskofod.domain.game.player.Player;
 
 import java.util.List;
 
-public record PlayerReport(int totalSips, double avgSips, double nrOfBeers, long totalTime, long avgRoundTime) {
+public record PlayerReport(String playerId, int totalSips, double avgSips, double nrOfBeers, long totalTime,
+                           long avgRoundTime) {
 
     public static List<PlayerReport> create(List<Player> players) {
         return players.stream()
@@ -30,7 +31,7 @@ public record PlayerReport(int totalSips, double avgSips, double nrOfBeers, long
                             .average()
                             .orElse(0.0);
 
-                    return new PlayerReport(totalSips, avgSips, nrOfBeers, totalTime, avgRoundTime);
+                    return new PlayerReport(player.id(), totalSips, avgSips, nrOfBeers, totalTime, avgRoundTime);
                 })
                 .toList();
     }

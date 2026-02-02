@@ -26,7 +26,7 @@ export class LobbyService {
 
       const createPlayerObj: CreatePlayerDto = {
         playerName: player,
-        sipsInABeer: 14,
+        sipsInABeer: 13,
         canDrawChugCard: true,
       }
 

@@ -19,8 +19,8 @@ export class WebsocketService {
   private socket!: WebSocketSubject<any>;
 
 
-  public sendMessage(websocket: WebsocketEnvelope) {
-    this.socket.next(websocket);
+  public sendMessage(envelope: WebsocketEnvelope) {
+    this.socket.next(envelope);
   }
 
   public connectToWebSocket(): void {
