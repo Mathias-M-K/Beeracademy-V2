@@ -1,25 +1,21 @@
 package dk.mathiaskofod.domain.game.events.emitter;
 
+import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.domain.game.reports.GameReport;
-import dk.mathiaskofod.domain.game.reports.PlayerReport;
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
-
-import java.util.List;
 
 public interface GameEventEmitter {
 
-    void onStartGame(String gameId);
+    void onStartGame(Game game);
 
-    void onEndGame(String gameId, GameReport gameReport, List<PlayerReport> playerReports, TimeReport timeReport);
+    void onEndGame(Game game);
 
-    void onPauseGame(String gameId, TimeReport timeReport);
+    void onPauseGame(Game game);
 
-    void onResumeGame(String gameId, TimeReport timeReport);
+    void onResumeGame(Game game);
 
-    void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, String gameId);
+    void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, Game game);
 
-    void onNewChug(Chug chug, Player chugger, Player newPlayer, String gameId);
+    void onNewChug(Chug chug, Player chugger, Player nextPlayer, Game game);
 }

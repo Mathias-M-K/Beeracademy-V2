@@ -6,7 +6,7 @@ import dk.mathiaskofod.common.dto.game.GameIdDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.domain.game.reports.GameReport;
 import dk.mathiaskofod.domain.game.reports.PlayerReport;
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
@@ -115,7 +115,7 @@ public class GameApi {
     @GET
     @Path("/{gameId}/reports/time")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
-    public TimeReport getTimeReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public TimerReports getTimeReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
         return gameService.getTimeReport(gameIdDto.gameId());
     }
 

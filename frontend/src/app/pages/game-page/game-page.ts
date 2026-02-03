@@ -57,7 +57,11 @@ export class GamePage implements OnInit, OnDestroy {
     this.currentPlayer = this.gameService.currenPlayer;
     this.awaitingChug = this.gameService.awaitingChugFromPlayer;
     this.gameState = this.gameService.gameState;
-    this.timerState = computed(()=>this.gameService.timeReport()?.state);
+    // @ts-ignore
+    this.timerState = computed((state: TimerState | undefined) => {
+      console.log("State",state, "report", this.gameService.gameTimeReport())
+      return this.gameService.gameTimeReport()?.state
+    });
   }
 
   ngOnDestroy(): void {

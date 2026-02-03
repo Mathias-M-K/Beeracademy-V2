@@ -7,7 +7,8 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.reports.GameReport;
 import dk.mathiaskofod.domain.game.reports.PlayerReport;
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.domain.game.timer.TimeReport;
+import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
@@ -93,8 +94,11 @@ public class GameService {
         return PlayerReport.create(game.getPlayers());
     }
 
-    public TimeReport getTimeReport(String gameId) {
+    public TimerReports getTimeReport(String gameId) {
         Game game = getGame(gameId);
-        return game.getTimeReport();
+        return new TimerReports(
+                TimeReport.createReport(game.getGameTimer()),
+                TimeReport.createReport(game.getPlayerTimer())
+        );
     }
 }

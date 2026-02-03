@@ -14,22 +14,24 @@ export class TimerService {
 
   private tick = toSignal(interval(30));
 
-  private latestConfirmedTimeFromServer = computed(()=>this.gameService.timeReport()?.activeTime)
+  private lastestServerTime = computed(()=>this.gameService.gameTimeReport()?.activeTime);
+
   private clientAnchorTime = computed(()=>{
     this.isRunning();
     return Date.now();
   });
-  private isRunning = computed(() => this.gameService.timeReport()?.state === TimerState.Running);
+
+  private isRunning = computed(() => this.gameService.gameTimeReport()?.state === TimerState.Running);
 
   private gameToClientDiff = computed(() => {
-    return Math.abs((Date.now() - this.clientAnchorTime()) - this.gameService.timeReport()?.activeTime!);
+    return Math.abs((Date.now() - this.clientAnchorTime()) - this.gameService.gameTimeReport()?.activeTime!);
   });
 
   public currentTime = computed(() => {
     this.tick();
 
     if (!this.isRunning()) {
-      return this.latestConfirmedTimeFromServer();
+      return this.lastestServerTime();
     }
 
     return this.gameToClientDiff() + (Date.now() - this.clientAnchorTime())

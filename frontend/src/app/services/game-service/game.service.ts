@@ -28,7 +28,7 @@ import {GameState} from '../../../api-models/model/gameState';
 export class GameService {
 
   private gameStateObj = signal<GameDto | undefined>(undefined);
-  public timeReport = linkedSignal(() => this.gameStateObj()?.timeReport);
+  public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
 
   public players = linkedSignal(() => this.gameStateObj()?.players ?? []);
   public gameInfo
@@ -131,18 +131,18 @@ export class GameService {
             this.currenPlayer.set(this.getPlayer(chugEvent.newPlayer));
             break
           case 'GAME_START':
-            this.timeReport.update((timer)=>{
+            this.gameTimeReport.update((timer)=>{
               return {...timer, state: TimerState.Running}
             })
             this.gameState.set(GameState.InProgress);
             break;
           case 'GAME_PAUSED' :
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
-            this.timeReport.set(gamePausedEvent.timeReport);
+            this.gameTimeReport.set(gamePausedEvent.timerReports.gameTimeReport);
             break
           case 'GAME_RESUMED' :
             const gameResumedEvent: GamePausedEvent = gameEvent.payload as GameResumedEvent;
-            this.timeReport.set(gameResumedEvent.timeReport);
+            this.gameTimeReport.set(gameResumedEvent.timerReports.gameTimeReport);
             break
         }
     }

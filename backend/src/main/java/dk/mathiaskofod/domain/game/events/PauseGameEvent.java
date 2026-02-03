@@ -1,6 +1,6 @@
 package dk.mathiaskofod.domain.game.events;
 
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.domain.game.timer.TimerReports;
 
-public record PauseGameEvent(String gameId, TimeReport timeReport) implements GameEvent {
+public record PauseGameEvent(String gameId, TimerReports timerReports) implements GameEvent {
 }

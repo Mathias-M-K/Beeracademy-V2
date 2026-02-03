@@ -8,10 +8,7 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.domain.game.reports.GameReport;
-import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.Timer;
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +80,7 @@ public class GameImpl implements Game {
         gameTimer.start();
         playerTimer.start();
 
-        eventEmitter.onStartGame(gameId);
+        eventEmitter.onStartGame(this);
     }
 
     public void endGame() {
@@ -97,7 +94,7 @@ public class GameImpl implements Game {
 
         gameState = GameState.FINISHED;
 
-        eventEmitter.onEndGame(gameId, GameReport.create(players), PlayerReport.create(players), gameTimer.getReport());
+        eventEmitter.onEndGame(this);
     }
 
     public void pauseGame() {
@@ -105,14 +102,14 @@ public class GameImpl implements Game {
         gameTimer.pause();
         playerTimer.pause();
 
-        eventEmitter.onPauseGame(gameId, gameTimer.getReport());
+        eventEmitter.onPauseGame(this);
     }
 
     public void resumeGame() {
         gameTimer.resume();
         playerTimer.resume();
 
-        eventEmitter.onResumeGame(gameId, gameTimer.getReport());
+        eventEmitter.onResumeGame(this);
     }
 
     public void drawCard(long clientDurationMillis) {
@@ -130,7 +127,7 @@ public class GameImpl implements Game {
         }
 
         //TODO implement client-side check for time
-        Duration clientTime = playerTimer.getTime();
+        Duration clientTime = playerTimer.getActiveDuration();
         Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
 
         lastCard = deck.drawCard();
@@ -143,7 +140,7 @@ public class GameImpl implements Game {
             previousPlayer = currentPlayer;
         }
 
-        eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
+        eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, this);
 
         if (isChugCard(turn.card())) {
             awaitingChug = true;
@@ -172,7 +169,7 @@ public class GameImpl implements Game {
 
         playerTimer.resume();
 
-        eventEmitter.onNewChug(chug, currentPlayer, nextPlayer, gameId);
+        eventEmitter.onNewChug(chug, currentPlayer, nextPlayer, this);
 
         switchToNextPlayer();
     }
@@ -214,8 +211,12 @@ public class GameImpl implements Game {
         return card.rank() == 14;
     }
 
-    public TimeReport getTimeReport() {
-        return gameTimer.getReport();
+    public Timer getGameTimer() {
+        return gameTimer;
+    }
+
+    public Timer getPlayerTimer() {
+        return playerTimer;
     }
 
 }
