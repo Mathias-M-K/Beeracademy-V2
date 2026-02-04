@@ -18,9 +18,11 @@ public record GameReport(List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat
 
         List<PlayerPodiumStat> beersConsumed = players.stream()
                 .map(player -> {
-                    double totalBeers = player.stats().getTurns().stream()
+                    double totalSips = player.stats().getTurns().stream()
                             .mapToDouble(turn -> turn.card().rank())
-                            .sum() / player.sipsInABeer();
+                            .sum();
+
+                    double totalBeers = player.sipsInABeer() <= 0 ? 0.0 : totalSips / player.sipsInABeer();
                     return new PlayerPodiumStat(player.id(), totalBeers);
                 })
                 .sorted(Comparator.reverseOrder())
