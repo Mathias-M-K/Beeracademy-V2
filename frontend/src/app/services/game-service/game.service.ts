@@ -90,7 +90,7 @@ export class GameService {
 
   public dispatchDrawCardAction(duration: number) {
     const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: duration}
-    const clientActionEnvelope: GameClientEvenEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
+    const clientActionEnvelope: GameClientActionEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
     this.websocketService.sendMessage(clientActionEnvelope);
   }
 
