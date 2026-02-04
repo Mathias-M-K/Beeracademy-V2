@@ -73,7 +73,6 @@ public class GameService {
 
     public void endGame(String gameId){
         getGame(gameId).endGame();
-        games.remove(gameId);
     }
 
     public void pauseGame(String gameId) {
