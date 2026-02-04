@@ -88,6 +88,13 @@ public class GameApi {
         return lobbyService.getPlayersInGame(gameIdDto.gameId());
     }
 
+    /**
+     * Claim a player session and set a session cookie containing a JWT.
+     *
+     * @param gameIdDto DTO containing the game identifier to claim the player in
+     * @param playerId  the identifier of the player to claim
+     * @return          an HTTP response with a `session_jwt` cookie containing the session JWT
+     */
     @GET
     @Path("/{gameId}/players/{playerId}/claim")
     @Operation(summary = "Claim player", description = "Claims a player session and returns an cookie with jwt")
@@ -98,6 +105,12 @@ public class GameApi {
         return generateJwtCookieResponse(sessionJwt);
     }
 
+    /**
+     * Retrieve the end-of-game report for the specified game.
+     *
+     * @param gameIdDto wrapper containing the game identifier
+     * @return the game's end-of-game report
+     */
     @GET
     @Path("/{gameId}/reports/game")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
@@ -105,6 +118,12 @@ public class GameApi {
         return gameService.getGameReport(gameIdDto.gameId());
     }
 
+    /**
+     * Retrieve per-player end-of-game reports for the specified game.
+     *
+     * @param gameIdDto wrapper containing the game id to fetch player reports for
+     * @return a list of PlayerReport objects, one entry per player in the game
+     */
     @GET
     @Path("/{gameId}/reports/players")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
@@ -112,6 +131,12 @@ public class GameApi {
         return gameService.getPlayerReports(gameIdDto.gameId());
     }
 
+    /**
+     * Retrieve time-based end-of-game reports for the specified game.
+     *
+     * @param gameIdDto DTO containing the game ID path parameter to query
+     * @return Time-based end-of-game reports for the specified game
+     */
     @GET
     @Path("/{gameId}/reports/time")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
@@ -119,6 +144,12 @@ public class GameApi {
         return gameService.getTimeReport(gameIdDto.gameId());
     }
 
+    /**
+     * Builds an HTTP response containing a session_jwt cookie derived from the provided JWT
+     * and configured according to the current environment.
+     *
+     * @param jwt the JWT to store in the cookie; if `null` an empty value is used and any line breaks are removed
+     * @return a 200 OK response with a `session_jwt` cookie that expires in one day. In the "dev" environment the cookie is not `HttpOnly`, not `Secure`, and uses `SameSite=LAX`; otherwise it is `HttpOnly`, `Secure`, and uses `SameSite=NONE`.
     private Response generateJwtCookieResponse(String jwt) {
 
         String sanitizedJwt = (jwt == null) ? "" : jwt.replaceAll("[\\r\\n]", "");

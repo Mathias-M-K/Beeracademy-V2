@@ -22,6 +22,16 @@ public record GameDto(
         TimerReports timerReports,
         SessionDto session) {
 
+    /**
+     * Create a GameDto representing the given game's current state, players, session, and timers.
+     *
+     * If the domain game has no previous player, the resulting DTO's previousPlayerId will be an empty string.
+     *
+     * @param game the domain Game to convert
+     * @param gameSession the session data associated with the game
+     * @param players the list of player DTOs for the game
+     * @return the constructed GameDto reflecting the provided game, session, players, and timer reports
+     */
     public static GameDto create(Game game, SessionDto gameSession, List<PlayerDto> players) {
 
         String previousPlayerId = game.getPreviousPlayer() == null ? "" : game.getPreviousPlayer().id();

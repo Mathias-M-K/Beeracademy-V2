@@ -77,21 +77,23 @@ public interface Game {
     Player getNextPlayer();
 
     /**
-     * Returns the previous player
-     * @return previous player
-     */
+ * Gets the player who acted immediately before the current player in turn order.
+ *
+ * @return the previous player in turn order
+ */
     Player getPreviousPlayer();
 
     /**
-     * Provides Timer for the overall game.
-     *
-     * @return Timer
-     */
+ * Provides the timer tracking the overall game's elapsed and remaining time.
+ *
+ * @return the Timer for the overall game context
+ */
     Timer getGameTimer();
 
     /**
-     * Provides Timer for the current player.
-     * @return Timer
-     */
+ * Provides the timer scoped to the current player's turn.
+ *
+ * @return the Timer tracking the remaining time for the current player's turn
+ */
     Timer getPlayerTimer();
 }

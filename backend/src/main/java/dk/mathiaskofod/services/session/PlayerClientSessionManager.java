@@ -139,6 +139,13 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         broadcastMessageToAllPlayersInGame(new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
     }
 
+    /**
+     * Converts an incoming GameEvent into the corresponding DTO, wraps it in a GameEventEnvelope,
+     * and broadcasts that envelope to all players in the event's game.
+     *
+     * @param gameEvent the event to convert and broadcast
+     * @throws UnknownEventException if the event type is not recognized
+     */
     void onGameEvent(@Observes GameEvent gameEvent) {
 
         GameEventDto dto = switch (gameEvent) {

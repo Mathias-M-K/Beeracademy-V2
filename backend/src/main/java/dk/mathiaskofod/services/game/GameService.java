@@ -80,20 +80,45 @@ public class GameService {
         getGame(gameId).pauseGame();
     }
 
+    /**
+     * Resumes the game identified by the given gameId.
+     *
+     * @param gameId the id of the game to resume
+     * @throws GameNotFoundException if no game exists with the given id
+     */
     public void resumeGame(String gameId){
         getGame(gameId).resumeGame();
     }
 
+    /**
+     * Create a summary report for the specified game.
+     *
+     * @param gameId the identifier of the game to report on
+     * @return a GameReport constructed from the game's players
+     */
     public GameReport getGameReport(String gameId) {
         Game game = getGame(gameId);
         return GameReport.create(game.getPlayers());
     }
 
+    /**
+     * Produce a collection of player performance reports for the specified game.
+     *
+     * @param gameId the identifier of the game whose players will be reported
+     * @return a list of PlayerReport objects, one for each player in the game
+     */
     public List<PlayerReport> getPlayerReports(String gameId) {
         Game game = getGame(gameId);
         return PlayerReport.create(game.getPlayers());
     }
 
+    /**
+     * Create a TimerReports aggregating the game's overall timer report and the player timer report.
+     *
+     * @param gameId the identifier of the game to generate reports for
+     * @return a TimerReports containing the game's time report and the player time report
+     * @throws GameNotFoundException if no game exists for the provided `gameId`
+     */
     public TimerReports getTimeReport(String gameId) {
         Game game = getGame(gameId);
         return new TimerReports(

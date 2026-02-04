@@ -8,6 +8,13 @@ import java.util.List;
 public record PlayerReport(String playerId, int totalSips, double avgSips, double nrOfBeers, long totalTime,
                            long avgRoundTime) {
 
+    /**
+     * Builds a PlayerReport for each player by aggregating sip and timing metrics from their turns.
+     *
+     * @param players the players to generate reports for
+     * @return a list of PlayerReport objects, one per input player, containing total sips, average sips per turn,
+     *         estimated number of beers (total sips / sipsInABeer), total time spent, and average round time
+     */
     public static List<PlayerReport> create(List<Player> players) {
         return players.stream()
                 .map(player -> {

@@ -53,6 +53,14 @@ public class GameImpl implements Game {
 
     GameEventEmitter eventEmitter;
 
+    /**
+     * Create a new GameImpl and initialize core game state, turn order, deck, and timers.
+     *
+     * @param name         the game name
+     * @param gameId       the unique identifier for this game
+     * @param players      the ordered list of players; the first player becomes the starting/current player
+     * @param eventEmitter the event emitter used to publish game lifecycle and action events
+     */
     public GameImpl(String name, String gameId, List<Player> players, GameEventEmitter eventEmitter) {
         this.name = name;
         this.gameId = gameId;
@@ -69,6 +77,12 @@ public class GameImpl implements Game {
         playerTimer = new Timer();
     }
 
+    /**
+     * Transitions the game into the IN_PROGRESS state, starts the game and player timers,
+     * and notifies listeners that the game has started.
+     *
+     * If the game is already in progress this method has no effect.
+     */
     public void startGame() {
 
         if (gameState == GameState.IN_PROGRESS) {
@@ -83,6 +97,11 @@ public class GameImpl implements Game {
         eventEmitter.onStartGame(this);
     }
 
+    /**
+     * End the game and finalize its state.
+     *
+     * Pauses both game and player timers, sets the game state to FINISHED, and emits the end-game event.
+     */
     public void endGame() {
 
         if (gameState == GameState.FINISHED) {
@@ -97,6 +116,11 @@ public class GameImpl implements Game {
         eventEmitter.onEndGame(this);
     }
 
+    /**
+     * Pause the game, stopping both the overall game timer and the active player's timer.
+     *
+     * Pauses the game and player timers and emits an onPauseGame event for this game instance.
+     */
     public void pauseGame() {
 
         gameTimer.pause();
@@ -105,6 +129,12 @@ public class GameImpl implements Game {
         eventEmitter.onPauseGame(this);
     }
 
+    /**
+     * Resume the game's timers and notify listeners that the game has resumed.
+     *
+     * Resumes the overall game timer, conditionally resumes the active player's timer when a chug response is not pending,
+     * and emits an onResumeGame event for this game instance.
+     */
     public void resumeGame() {
         gameTimer.resume();
 
@@ -116,6 +146,12 @@ public class GameImpl implements Game {
         eventEmitter.onResumeGame(this);
     }
 
+    /**
+     * Processes the current player's card draw: records the drawn card and turn time, advances or changes turn order, initiates chug handling when required, and ends the game if the deck is exhausted.
+     *
+     * @param clientDurationMillis the client's measured active player duration in milliseconds; used to compare against the server timer and determine the turn's registered time (registered time is 0 for round 1)
+     * @throws GameException if the game is not in progress, the game timer is paused, or a chug response is currently awaited
+     */
     public void drawCard(long clientDurationMillis) {
 
         if (gameState != GameState.IN_PROGRESS) {
@@ -159,6 +195,16 @@ public class GameImpl implements Game {
         }
     }
 
+    /**
+     * Register the given chug for the active player, resume play, and advance to the next player.
+     *
+     * Records the chug in the current player's statistics, resumes the player timer, emits a
+     * new-chug event, and advances turn order.
+     *
+     * @param chug the chug response to record for the current player
+     * @throws GameException if no chug is expected at this time (400)
+     * @throws GameException if the game is paused and a chug cannot be registered (400)
+     */
     public void registerChug(Chug chug) {
 
         if (!awaitingChug) {
@@ -213,14 +259,30 @@ public class GameImpl implements Game {
         return players.get(nextPlayerIndex);
     }
 
+    /**
+     * Determines whether the given card is a chug card.
+     *
+     * @param card the card to check
+     * @return `true` if the card's rank equals 14 (chug card), `false` otherwise
+     */
     private boolean isChugCard(Card card) {
         return card.rank() == 14;
     }
 
+    /**
+     * Accesses the timer that tracks the overall game duration.
+     *
+     * @return the game's overall {@code Timer}
+     */
     public Timer getGameTimer() {
         return gameTimer;
     }
 
+    /**
+     * Access the timer that tracks the active player's remaining time.
+     *
+     * @return the Timer instance used to measure and control the current player's time
+     */
     public Timer getPlayerTimer() {
         return playerTimer;
     }

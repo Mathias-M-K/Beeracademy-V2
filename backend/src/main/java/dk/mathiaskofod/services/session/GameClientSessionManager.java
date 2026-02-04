@@ -94,8 +94,13 @@ public class GameClientSessionManager extends AbstractSessionManager {
     }
 
     /**
-     * Game Events
-     **/
+     * Forwards a received GameEvent to the corresponding game client as a GameEventEnvelope.
+     *
+     * Maps the incoming event to a GameEventDto, wraps it in a GameEventEnvelope, and attempts to send it to the game identified by the event's gameId. If no game client connection exists to receive the envelope, the absence is logged and delivery is skipped.
+     *
+     * @param gameEvent the game event to forward
+     * @throws UnknownEventException if the event type is not recognized and cannot be mapped to a DTO
+     */
     void onGameEvent(@Observes GameEvent gameEvent) {
 
         GameEventDto dto = switch (gameEvent) {
