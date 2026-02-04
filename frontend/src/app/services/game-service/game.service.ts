@@ -155,7 +155,10 @@ export class GameService {
           case 'GAME_END' :
             const gameEndEvent: GameEndEvent = gameEvent.payload as GameEndEvent;
             console.log("Game end!", gameEndEvent);
+            this.gameTimeReport.set(gameEndEvent.timeReports.gameTimeReport);
+            this.playerTimeReport.set(gameEndEvent.timeReports.playerTimeReport);
             this.endGame();
+            break
         }
     }
   }

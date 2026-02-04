@@ -86,7 +86,7 @@ export class GamePage implements OnInit, OnDestroy {
   }
 
   protected drawCard() {
-    this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration()!);
+    this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
   }
 
 
