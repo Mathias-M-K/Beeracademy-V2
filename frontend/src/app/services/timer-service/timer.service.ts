@@ -13,17 +13,14 @@ import {TimeReport} from '../../../api-models/model/timeReport';
 })
 export class TimerService {
   private gameService: GameService = inject(GameService);
-  private tick = toSignal(interval(30));
+  private tick = toSignal(interval(31));
 
   private timers: Map<TimerType, Timer> = new Map<TimerType, Timer>();
 
   public getTimer(timer: TimerType) : Timer {
 
     if (!this.timers.has(timer)) {
-      const timeReportSignal = computed(() => {
-        const reports = this.gameService.timeReports();
-        return timer === TimerType.GAME ? reports?.gameTimeReport : reports?.playerTimerReport;
-      });
+      const timeReportSignal = timer === TimerType.GAME ? this.gameService.gameTimeReport : this.gameService.playerTimeReport;
       this.timers.set(timer, this.createServerSyncedTimer(timeReportSignal));
     }
 
@@ -36,15 +33,20 @@ export class TimerService {
     const serverReportedActiveTime = computed(()=> timeReport()?.activeTime);
 
     const clientAnchorTime = computed(()=>{
-      serverReportedActiveTime();
-      this.gameService.currenPlayer();
+      const report = timeReport();
+      this.gameService.currentPlayer();
+      return report;
+    }, { equal: (a, b) => a === b });
+
+    const anchorDate = computed(() => {
+      clientAnchorTime();
       return Date.now();
     });
 
     const isRunning = computed(()=> timeReport()?.state === TimerState.Running);
 
     const clientToServerDiff = computed(()=> {
-      return Math.abs((Date.now() - clientAnchorTime()) - (serverReportedActiveTime() ?? 0));
+      return Math.abs((Date.now() - anchorDate()) - (serverReportedActiveTime() ?? 0));
     });
 
     const currentDuration = computed(()=>{
@@ -54,11 +56,11 @@ export class TimerService {
         return serverReportedActiveTime();
       }
 
-      return clientToServerDiff() + (Date.now() - clientAnchorTime())
+      return clientToServerDiff() + (Date.now() - anchorDate())
     });
 
     return {
-      clientAnchorTime: clientAnchorTime,
+      clientAnchorTime: anchorDate,
       clientToServerDiff: clientToServerDiff,
       currentDuration: currentDuration,
       isRunning: isRunning,

@@ -37,13 +37,16 @@ public class Timer {
         state = TimerState.RUNNING;
     }
 
-    public void reset() {
+    public void reset(){
+        reset(false);
+    }
 
-        if(state == TimerState.PAUSED) {
+    public void reset(boolean ignorePause) {
+
+        if(state == TimerState.PAUSED && !ignorePause) {
             logCurrentPause();
         }
 
-        this.state = TimerState.RUNNING;
         this.startTime = Instant.now();
         pauses = new ArrayList<>();
     }

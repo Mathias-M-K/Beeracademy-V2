@@ -107,7 +107,11 @@ public class GameImpl implements Game {
 
     public void resumeGame() {
         gameTimer.resume();
-        playerTimer.resume();
+
+        if (!awaitingChug) {
+            playerTimer.resume();
+        }
+
 
         eventEmitter.onResumeGame(this);
     }
@@ -126,12 +130,13 @@ public class GameImpl implements Game {
             throw new GameException("Cannot draw a card while awaiting chug response", 400);
         }
 
-        //TODO implement client-side check for time
-        Duration clientTime = playerTimer.getActiveDuration();
-        Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
+        long clientServerDiff = Math.abs(clientDurationMillis - playerTimer.getActiveDuration().toMillis());
+        log.info("Client reported duration: {} ms, Server recorded duration: {} ms, diff: {}", clientDurationMillis, playerTimer.getActiveDuration().toMillis(), clientServerDiff);
+        Duration serverTime = playerTimer.getActiveDuration();
+        Duration registeredTime = round == 1 ? Duration.ofMinutes(0) : serverTime;
 
         lastCard = deck.drawCard();
-        Turn turn = new Turn(round, lastCard, playerTime.toMillis());
+        Turn turn = new Turn(round, lastCard, registeredTime.toMillis());
         currentPlayer.stats().addTurn(turn);
 
         if (!isChugCard(lastCard)) {
@@ -145,6 +150,7 @@ public class GameImpl implements Game {
         if (isChugCard(turn.card())) {
             awaitingChug = true;
             playerTimer.pause();
+            playerTimer.reset(true);
             return;
         }
 

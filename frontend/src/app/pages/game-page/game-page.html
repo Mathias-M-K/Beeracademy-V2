@@ -1,7 +1,9 @@
 <div>Connection Status : {{ connectionStatus() }}</div>
 
-@if (formattedTime()) {
-  <div>Timer: {{ formattedTime()! | gameTimeFormat }}</div>
+<div>{{gameState()}} - {{timerState()}}</div>
+
+@if (formattedGameTime()) {
+  <div>Game time: {{ formattedGameTime()! | gameTimeFormat: 'HH:mm:ss' }}</div>
 }
 
 @if (gameInfo(); as game) {
@@ -22,6 +24,7 @@
   </div>
 
   <div>Current Player: {{ currentPlayer()?.name }}</div>
+  <div>Player time: {{ formattedPlayerTime()! | gameTimeFormat: 'mm:ss.SSS' }}</div>
   @if (awaitingChug()) {
     <div>AWAITING CHUG</div>
   }

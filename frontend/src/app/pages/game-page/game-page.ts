@@ -58,11 +58,10 @@ export class GamePage implements OnInit, OnDestroy {
     this.players = this.gameService.players;
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;
-    this.currentPlayer = this.gameService.currenPlayer;
+    this.currentPlayer = this.gameService.currentPlayer;
     this.awaitingChug = this.gameService.awaitingChugFromPlayer;
     this.gameState = this.gameService.gameState;
-    // @ts-ignore
-    this.timerState = computed(() => this.gameService.timeReports()?.gameTimeReport?.state);
+    this.timerState = computed(() => this.gameService.gameTimeReport()?.state);
   }
 
   ngOnDestroy(): void {
@@ -87,7 +86,7 @@ export class GamePage implements OnInit, OnDestroy {
   }
 
   protected drawCard() {
-    this.gameService.dispatchDrawCardAction();
+    this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration()!);
   }
 
 
