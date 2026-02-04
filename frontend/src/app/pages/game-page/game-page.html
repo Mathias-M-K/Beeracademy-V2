@@ -2,9 +2,8 @@
 
 <div>{{gameState()}} - {{timerState()}}</div>
 
-@if (formattedGameTime()) {
-  <div>Game time: {{ formattedGameTime()! | gameTimeFormat: 'HH:mm:ss' }}</div>
-}
+<div>Game time: {{ formattedGameTime()! | gameTimeFormat: 'HH:mm:ss' }}</div>
+
 
 @if (gameInfo(); as game) {
   <div>{{ game.name }} - {{ game.id | gameId }}</div>

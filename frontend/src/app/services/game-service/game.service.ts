@@ -22,8 +22,7 @@ import {ChugAction} from '../models/categories/game-client-action/chug-action';
 import {ChugEvent} from '../models/categories/game-event/chug-event';
 import {GameState} from '../../../api-models/model/gameState';
 import {TimeReport} from '../../../api-models/model/timeReport';
-import {TimerService} from '../timer-service/timer.service';
-import {TimerType} from '../timer-service/models/TimerType';
+import {GameEndEvent} from '../models/categories/game-event/game-end-event';
 
 @Injectable({
   providedIn: 'root',
@@ -129,8 +128,6 @@ export class GameService {
               this.pauseTimer(this.playerTimeReport);
               this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
             }
-
-
             break;
           case 'CHUG' :
             const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
@@ -155,6 +152,10 @@ export class GameService {
             this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
             this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimerReport);
             break
+          case 'GAME_END' :
+            const gameEndEvent: GameEndEvent = gameEvent.payload as GameEndEvent;
+            console.log("Game end!", gameEndEvent);
+            this.endGame();
         }
     }
   }
@@ -218,6 +219,12 @@ export class GameService {
       } : player
     ));
     console.log(`Added turn to player ${playerId}.`);
+  }
+
+  public endGame() {
+    this.gameState.set(GameState.Finished);
+    this.pauseTimer(this.gameTimeReport);
+    this.pauseTimer(this.playerTimeReport);
   }
 
   public resetGameData() {
