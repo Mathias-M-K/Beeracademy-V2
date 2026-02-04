@@ -150,7 +150,7 @@ public class GameImpl implements Game {
         if (isChugCard(turn.card())) {
             awaitingChug = true;
             playerTimer.pause();
-            playerTimer.reset(true);
+            playerTimer.reset();
             return;
         }
 
