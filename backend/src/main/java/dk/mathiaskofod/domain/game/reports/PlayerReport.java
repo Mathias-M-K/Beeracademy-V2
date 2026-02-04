@@ -20,7 +20,8 @@ public record PlayerReport(String playerId, int totalSips, double avgSips, doubl
                             .average()
                             .orElse(0.0);
 
-                    double nrOfBeers = (double) totalSips / player.sipsInABeer();
+                    // Guard against division by zero if sipsInABeer is 0 or negative
+                    double nrOfBeers = player.sipsInABeer() <= 0 ? 0.0 : (double) totalSips / player.sipsInABeer();
 
                     long totalTime = player.stats().getTurns().stream()
                             .mapToLong(Turn::durationInMillis)

@@ -58,6 +58,38 @@ class PlayerReportTest {
             assertThat(report.totalTime(), is(0L));
             assertThat(report.avgRoundTime(), is(0L));
         }
+
+        @Test
+        @DisplayName("should handle sipsInABeer being 0 by returning 0.0 beers")
+        void shouldHandleZeroSipsInABeer() {
+            // Arrange
+            Player player = createPlayerWithStats("p1", 0);
+            player.stats().addTurn(createTurnWithSips(10));
+
+            // Act
+            List<PlayerReport> reports = PlayerReport.create(List.of(player));
+
+            // Assert
+            assertThat(reports.size(), is(1));
+            PlayerReport report = reports.getFirst();
+            assertThat(report.nrOfBeers(), is(0.0));
+        }
+
+        @Test
+        @DisplayName("should handle sipsInABeer being negative by returning 0.0 beers")
+        void shouldHandleNegativeSipsInABeer() {
+            // Arrange
+            Player player = createPlayerWithStats("p1", -5);
+            player.stats().addTurn(createTurnWithSips(10));
+
+            // Act
+            List<PlayerReport> reports = PlayerReport.create(List.of(player));
+
+            // Assert
+            assertThat(reports.size(), is(1));
+            PlayerReport report = reports.getFirst();
+            assertThat(report.nrOfBeers(), is(0.0));
+        }
     }
 
     @Nested
