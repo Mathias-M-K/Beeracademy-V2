@@ -31,7 +31,7 @@ export class GameService {
 
   private gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
-  public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimerReport);
+  public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
 
   public players = linkedSignal(() => this.gameStateObj()?.players ?? []);
   public gameInfo
@@ -145,12 +145,12 @@ export class GameService {
           case 'GAME_PAUSED' :
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
             this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
-            this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimerReport);
+            this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
             break
           case 'GAME_RESUMED' :
             const gameResumedEvent: GamePausedEvent = gameEvent.payload as GameResumedEvent;
             this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
-            this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimerReport);
+            this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
             break
           case 'GAME_END' :
             const gameEndEvent: GameEndEvent = gameEvent.payload as GameEndEvent;
