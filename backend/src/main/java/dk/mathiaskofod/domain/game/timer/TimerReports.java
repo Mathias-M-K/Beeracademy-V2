@@ -1,4 +1,4 @@
 package dk.mathiaskofod.domain.game.timer;
 
-public record TimerReports(TimeReport gameTimeReport, TimeReport playerTimerReport) {
+public record TimerReports(TimeReport gameTimeReport, TimeReport playerTimeReport) {
 }
