@@ -8,8 +8,7 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.domain.game.timer.GameTimer;
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.domain.game.timer.Timer;
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +44,10 @@ public class GameImpl implements Game {
     private Card lastCard;
 
     private int currentPlayerIndex;
-    private final GameTimer playerTimer;
+    private final Timer playerTimer;
 
     private boolean awaitingChug = false;
-    private final GameTimer gameTimer;
+    private final Timer gameTimer;
     private int round = 1;
     private final Deck deck;
 
@@ -66,13 +65,13 @@ public class GameImpl implements Game {
 
         this.eventEmitter = eventEmitter;
 
-        gameTimer = new GameTimer();
-        playerTimer = new GameTimer();
+        gameTimer = new Timer();
+        playerTimer = new Timer();
     }
 
     public void startGame() {
 
-        if (gameState == GameState.IN_PROGRESS) {
+        if (gameState != GameState.AWAITING_START) {
             return;
         }
 
@@ -81,31 +80,45 @@ public class GameImpl implements Game {
         gameTimer.start();
         playerTimer.start();
 
-        eventEmitter.onStartGame(gameId);
+        eventEmitter.onStartGame(this);
     }
 
     public void endGame() {
+
         if (gameState == GameState.FINISHED) {
             return;
         }
 
         gameState = GameState.FINISHED;
-        eventEmitter.onEndGame(gameId, gameTimer.getReport());
-        //TODO implement end logic
-    }
 
-    public void pauseGame() {
         gameTimer.pause();
         playerTimer.pause();
 
-        eventEmitter.onPauseGame(gameId, gameTimer.getReport());
+        eventEmitter.onEndGame(this);
+    }
+
+    public void pauseGame() {
+
+        gameTimer.pause();
+        playerTimer.pause();
+
+        eventEmitter.onPauseGame(this);
     }
 
     public void resumeGame() {
-        gameTimer.resume();
-        playerTimer.resume();
 
-        eventEmitter.onResumeGame(gameId, gameTimer.getReport());
+        if(gameState == GameState.FINISHED) {
+            throw new GameException("Cannot resume a finished game", 400);
+        }
+
+        gameTimer.resume();
+
+        if (!awaitingChug) {
+            playerTimer.resume();
+        }
+
+
+        eventEmitter.onResumeGame(this);
     }
 
     public void drawCard(long clientDurationMillis) {
@@ -122,12 +135,13 @@ public class GameImpl implements Game {
             throw new GameException("Cannot draw a card while awaiting chug response", 400);
         }
 
-        //TODO implement client-side check for time
-        Duration clientTime = playerTimer.getTime();
-        Duration playerTime = round == 1 ? Duration.ofMinutes(0) : clientTime;
+        long clientServerDiff = Math.abs(clientDurationMillis - playerTimer.getActiveDuration().toMillis());
+        log.info("Client reported duration: {} ms, Server recorded duration: {} ms, diff: {}", clientDurationMillis, playerTimer.getActiveDuration().toMillis(), clientServerDiff);
+        Duration serverTime = playerTimer.getActiveDuration();
+        Duration registeredTime = round == 1 ? Duration.ofMinutes(0) : serverTime;
 
         lastCard = deck.drawCard();
-        Turn turn = new Turn(round, lastCard, playerTime.toMillis());
+        Turn turn = new Turn(round, lastCard, registeredTime.toMillis());
         currentPlayer.stats().addTurn(turn);
 
         if (!isChugCard(lastCard)) {
@@ -136,11 +150,12 @@ public class GameImpl implements Game {
             previousPlayer = currentPlayer;
         }
 
-        eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, gameId);
+        eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, this);
 
         if (isChugCard(turn.card())) {
             awaitingChug = true;
             playerTimer.pause();
+            playerTimer.reset();
             return;
         }
 
@@ -165,7 +180,7 @@ public class GameImpl implements Game {
 
         playerTimer.resume();
 
-        eventEmitter.onNewChug(chug, currentPlayer, nextPlayer, gameId);
+        eventEmitter.onNewChug(chug, currentPlayer, nextPlayer, this);
 
         switchToNextPlayer();
     }
@@ -185,7 +200,6 @@ public class GameImpl implements Game {
         }
 
         currentPlayer = players.get(currentPlayerIndex);
-        playerTimer.reset();
 
         nextPlayer = peakNextPlayer();
     }
@@ -208,8 +222,12 @@ public class GameImpl implements Game {
         return card.rank() == 14;
     }
 
-    public TimeReport getTimeReport() {
-        return gameTimer.getReport();
+    public Timer getGameTimer() {
+        return gameTimer;
+    }
+
+    public Timer getPlayerTimer() {
+        return playerTimer;
     }
 
 }

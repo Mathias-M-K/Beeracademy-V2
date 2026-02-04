@@ -1,7 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed, ElementRef,
+  computed,
+  ElementRef,
   inject,
   OnDestroy,
   OnInit,
@@ -18,9 +19,10 @@ import {Card} from '../../../api-models/model/card';
 import {GameInfo} from '../../services/game-service/models/game-info';
 import {GameIdPipe} from '../../pipes/game-id-pipe';
 import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
-import {TimerService} from '../../services/timer.service';
+import {TimerService} from '../../services/timer-service/timer.service';
 import {GameState} from '../../../api-models/model/gameState';
 import {TimerState} from '../../../api-models/model/timerState';
+import {TimerType} from '../../services/timer-service/models/TimerType';
 
 @Component({
   selector: 'app-game-page',
@@ -46,18 +48,20 @@ export class GamePage implements OnInit, OnDestroy {
   protected gameState: Signal<GameState | undefined>;
   protected timerState: Signal<TimerState | undefined>
 
-  private gameTimer = inject(TimerService);
-  protected formattedTime = this.gameTimer.currentTime;
+  private gameTimer = inject(TimerService).getTimer(TimerType.GAME);
+  private playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
+  protected formattedGameTime = this.gameTimer.currentDuration;
+  protected formattedPlayerTime = this.playerTimer.currentDuration;
 
 
   constructor(private websocketService: WebsocketService, private gameService: GameService) { // Injecting it to ensure it's instantiated) {
     this.players = this.gameService.players;
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;
-    this.currentPlayer = this.gameService.currenPlayer;
+    this.currentPlayer = this.gameService.currentPlayer;
     this.awaitingChug = this.gameService.awaitingChugFromPlayer;
     this.gameState = this.gameService.gameState;
-    this.timerState = computed(()=>this.gameService.timeReport()?.state);
+    this.timerState = computed(() => this.gameService.gameTimeReport()?.state);
   }
 
   ngOnDestroy(): void {
@@ -73,18 +77,17 @@ export class GamePage implements OnInit, OnDestroy {
     this.gameService.dispatchStartGameAction();
   }
 
-  protected pauseGame(){
+  protected pauseGame() {
     this.gameService.dispatchPauseGameAction();
   }
 
-  protected resumeGame(){
+  protected resumeGame() {
     this.gameService.dispatchResumeGameAction();
   }
 
   protected drawCard() {
-    this.gameService.dispatchDrawCardAction();
+    this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
   }
-
 
 
   protected addTurn() {

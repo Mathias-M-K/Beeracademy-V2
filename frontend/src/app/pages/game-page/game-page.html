@@ -1,8 +1,11 @@
 <div>Connection Status : {{ connectionStatus() }}</div>
 
-@if (formattedTime()) {
-  <div>Timer: {{ formattedTime()! | gameTimeFormat }}</div>
+<div>{{gameState()}} - {{timerState()}}</div>
+
+@if (gameState() !== GameState.AwaitingStart) {
+  <div>Game time: {{ formattedGameTime()! | gameTimeFormat: 'HH:mm:ss' }}</div>
 }
+
 
 @if (gameInfo(); as game) {
   <div>{{ game.name }} - {{ game.id | gameId }}</div>
@@ -22,6 +25,9 @@
   </div>
 
   <div>Current Player: {{ currentPlayer()?.name }}</div>
+  @if (gameState() === GameState.InProgress) {
+    <div>Player time: {{ formattedPlayerTime()! | gameTimeFormat: 'mm:ss.SSS' }}</div>
+  }
   @if (awaitingChug()) {
     <div>AWAITING CHUG</div>
   }

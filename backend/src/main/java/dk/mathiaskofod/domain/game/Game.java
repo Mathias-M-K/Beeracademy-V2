@@ -4,7 +4,7 @@ import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.domain.game.timer.models.TimeReport;
+import dk.mathiaskofod.domain.game.timer.Timer;
 
 import java.util.List;
 
@@ -83,9 +83,15 @@ public interface Game {
     Player getPreviousPlayer();
 
     /**
-     * Provides a report on the game's time statistics, including total elapsed time, active time, and paused time.
+     * Provides Timer for the overall game.
      *
-     * @return a TimeReport record encapsulating elapsed time, active time, and paused time for the game.
+     * @return Timer
      */
-    TimeReport getTimeReport();
+    Timer getGameTimer();
+
+    /**
+     * Provides Timer for the current player.
+     * @return Timer
+     */
+    Timer getPlayerTimer();
 }

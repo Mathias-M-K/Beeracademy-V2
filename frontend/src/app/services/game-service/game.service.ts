@@ -1,4 +1,4 @@
-import {Injectable, linkedSignal, signal} from '@angular/core';
+import {Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientEvenEnvelope} from '../models/categories/game-client-event/game-client-even-envelope';
 import {GameClientConnectedEvent} from '../models/categories/game-client-event/game-client-connected.event';
@@ -21,6 +21,8 @@ import {GameResumedEvent} from '../models/categories/game-event/game-resumed-eve
 import {ChugAction} from '../models/categories/game-client-action/chug-action';
 import {ChugEvent} from '../models/categories/game-event/chug-event';
 import {GameState} from '../../../api-models/model/gameState';
+import {TimeReport} from '../../../api-models/model/timeReport';
+import {GameEndEvent} from '../models/categories/game-event/game-end-event';
 
 @Injectable({
   providedIn: 'root',
@@ -28,14 +30,15 @@ import {GameState} from '../../../api-models/model/gameState';
 export class GameService {
 
   private gameStateObj = signal<GameDto | undefined>(undefined);
-  public timeReport = linkedSignal(() => this.gameStateObj()?.timeReport);
+  public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
+  public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
 
   public players = linkedSignal(() => this.gameStateObj()?.players ?? []);
   public gameInfo
-  public gameState = linkedSignal(()=>this.gameStateObj()?.gameState);
+  public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
 
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
-  public currenPlayer = linkedSignal(() => {
+  public currentPlayer = linkedSignal(() => {
     const players = this.gameStateObj()?.players;
     const currentPlayerId = this.gameStateObj()?.currentPlayerId;
 
@@ -45,7 +48,6 @@ export class GameService {
   })
 
   public awaitingChugFromPlayer = signal<PlayerDto | undefined>(undefined)
-
 
 
   constructor(private websocketService: WebsocketService) {
@@ -86,9 +88,9 @@ export class GameService {
     this.websocketService.sendMessage(clientActionEnvelope);
   }
 
-  public dispatchDrawCardAction() {
-    const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: 123}
-    const clientActionEnvelope: GameClientEvenEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
+  public dispatchDrawCardAction(duration: number) {
+    const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: duration}
+    const clientActionEnvelope: GameClientActionEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
     this.websocketService.sendMessage(clientActionEnvelope);
   }
 
@@ -118,34 +120,78 @@ export class GameService {
           case 'DRAW_CARD':
             const drawCardEvent: DrawCardEvent = gameEvent.payload as DrawCardEvent;
             this.currentCard.set(drawCardEvent.turn.card);
-            this.currenPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
+            this.currentPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
             this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.previousPlayerId);
+            this.resetTimer(this.playerTimeReport);
 
             if (this.currentCard()?.rank === 14) {
+              this.pauseTimer(this.playerTimeReport);
               this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
             }
-            break
+            break;
           case 'CHUG' :
             const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
             this.addChugToPlayer(chugEvent.chug, chugEvent.playerId);
-            this.currenPlayer.set(this.getPlayer(chugEvent.newPlayer));
+            this.currentPlayer.set(this.getPlayer(chugEvent.newPlayer));
+            this.awaitingChugFromPlayer.set(undefined);
+            this.startTimer(this.playerTimeReport);
+
             break
           case 'GAME_START':
-            this.timeReport.update((timer)=>{
-              return {...timer, state: TimerState.Running}
-            })
+            this.startTimer(this.gameTimeReport);
+            this.startTimer(this.playerTimeReport);
             this.gameState.set(GameState.InProgress);
             break;
           case 'GAME_PAUSED' :
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
-            this.timeReport.set(gamePausedEvent.timeReport);
+            this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
+            this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
             break
           case 'GAME_RESUMED' :
-            const gameResumedEvent: GamePausedEvent = gameEvent.payload as GameResumedEvent;
-            this.timeReport.set(gameResumedEvent.timeReport);
+            const gameResumedEvent: GameResumedEvent = gameEvent.payload as GameResumedEvent;
+            this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
+            this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
+            break
+          case 'GAME_END' :
+            const gameEndEvent: GameEndEvent = gameEvent.payload as GameEndEvent;
+            console.log("Game end!", gameEndEvent);
+            this.gameTimeReport.set(gameEndEvent.timeReports.gameTimeReport);
+            this.playerTimeReport.set(gameEndEvent.timeReports.playerTimeReport);
+            this.endGame();
             break
         }
     }
+  }
+
+  private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {
+    timeReport.update((report) => {
+      if (!report) return report;
+      return {
+        ...report,
+        state: TimerState.Running
+      };
+    });
+  }
+
+  private resetTimer(timeReport: WritableSignal<TimeReport | undefined>) {
+    timeReport.update((report) => {
+      if (!report) return report;
+      return {
+        ...report,
+        elapsedTime: 0,
+        activeTime: 0,
+      };
+    });
+  }
+
+  private pauseTimer(timeReport: WritableSignal<TimeReport | undefined>) {
+    timeReport.update((report) => {
+      if (!report) return report;
+      return {
+        ...report,
+        state: TimerState.Paused,
+      };
+    });
   }
 
   private getPlayer(playerId: string): PlayerDto | undefined {
@@ -176,6 +222,12 @@ export class GameService {
       } : player
     ));
     console.log(`Added turn to player ${playerId}.`);
+  }
+
+  public endGame() {
+    this.gameState.set(GameState.Finished);
+    this.pauseTimer(this.gameTimeReport);
+    this.pauseTimer(this.playerTimeReport);
   }
 
   public resetGameData() {
