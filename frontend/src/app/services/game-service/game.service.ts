@@ -28,7 +28,7 @@ import {GameState} from '../../../api-models/model/gameState';
 export class GameService {
 
   private gameStateObj = signal<GameDto | undefined>(undefined);
-  public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
+  public timeReports = linkedSignal(() => this.gameStateObj()?.timerReports);
 
   public players = linkedSignal(() => this.gameStateObj()?.players ?? []);
   public gameInfo
@@ -124,25 +124,37 @@ export class GameService {
             if (this.currentCard()?.rank === 14) {
               this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
             }
-            break
+
+            this.timeReports.update((reports)=>{
+              if (!reports) return reports;
+              console.log("Doing it", reports.playerTimerReport)
+              return {...reports,
+                playerTimerReport: reports.playerTimerReport ? {...reports.playerTimerReport, elapsedTime: 0, activeTime: 0, } : undefined
+            };});
+            break;
           case 'CHUG' :
             const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
             this.addChugToPlayer(chugEvent.chug, chugEvent.playerId);
             this.currenPlayer.set(this.getPlayer(chugEvent.newPlayer));
             break
           case 'GAME_START':
-            this.gameTimeReport.update((timer)=>{
-              return {...timer, state: TimerState.Running}
-            })
+            this.timeReports.update((reports) => {
+              if (!reports) return reports;
+              return {
+                ...reports,
+                gameTimeReport: reports.gameTimeReport ? {...reports.gameTimeReport, state: TimerState.Running} : undefined,
+                playerTimerReport: reports.playerTimerReport ? {...reports.playerTimerReport, state: TimerState.Running} : undefined
+              };
+            });
             this.gameState.set(GameState.InProgress);
             break;
           case 'GAME_PAUSED' :
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
-            this.gameTimeReport.set(gamePausedEvent.timerReports.gameTimeReport);
+            this.timeReports.set(gamePausedEvent.timerReports);
             break
           case 'GAME_RESUMED' :
             const gameResumedEvent: GamePausedEvent = gameEvent.payload as GameResumedEvent;
-            this.gameTimeReport.set(gameResumedEvent.timerReports.gameTimeReport);
+            this.timeReports.set(gameResumedEvent.timerReports);
             break
         }
     }
