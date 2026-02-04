@@ -148,7 +148,7 @@ export class GameService {
             this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
             break
           case 'GAME_RESUMED' :
-            const gameResumedEvent: GamePausedEvent = gameEvent.payload as GameResumedEvent;
+            const gameResumedEvent: GameResumedEvent = gameEvent.payload as GameResumedEvent;
             this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
             this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
             break
