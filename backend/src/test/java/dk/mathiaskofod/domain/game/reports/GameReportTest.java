@@ -100,11 +100,11 @@ class GameReportTest {
 
             // Assert
             assertThat(report.beersConsumed().size(), is(2));
-            // Sorted by value (ascending)
-            assertThat(report.beersConsumed().get(0).playerId(), is(PLAYER_1_ID));
-            assertThat(report.beersConsumed().get(0).value(), is(0.8));
-            assertThat(report.beersConsumed().get(1).playerId(), is(PLAYER_2_ID));
-            assertThat(report.beersConsumed().get(1).value(), is(1.0));
+            // Sorted by value (descending)
+            assertThat(report.beersConsumed().get(0).playerId(), is(PLAYER_2_ID));
+            assertThat(report.beersConsumed().get(0).value(), is(1.0));
+            assertThat(report.beersConsumed().get(1).playerId(), is(PLAYER_1_ID));
+            assertThat(report.beersConsumed().get(1).value(), is(0.8));
         }
     }
 

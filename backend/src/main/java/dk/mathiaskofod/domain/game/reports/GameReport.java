@@ -3,6 +3,7 @@ package dk.mathiaskofod.domain.game.reports;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 
+import java.util.Comparator;
 import java.util.List;
 
 public record GameReport(List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat> beersConsumed, List<PlayerPodiumStat> avgRoundTimes) {
@@ -22,7 +23,7 @@ public record GameReport(List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat
                             .sum() / player.sipsInABeer();
                     return new PlayerPodiumStat(player.id(), totalBeers);
                 })
-                .sorted()
+                .sorted(Comparator.reverseOrder())
                 .toList();
 
 
