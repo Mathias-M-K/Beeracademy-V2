@@ -71,7 +71,7 @@ public class GameImpl implements Game {
 
     public void startGame() {
 
-        if (gameState == GameState.IN_PROGRESS) {
+        if (gameState != GameState.AWAITING_START) {
             return;
         }
 
@@ -89,10 +89,10 @@ public class GameImpl implements Game {
             return;
         }
 
+        gameState = GameState.FINISHED;
+
         gameTimer.pause();
         playerTimer.pause();
-
-        gameState = GameState.FINISHED;
 
         eventEmitter.onEndGame(this);
     }
@@ -106,6 +106,11 @@ public class GameImpl implements Game {
     }
 
     public void resumeGame() {
+
+        if(gameState == GameState.FINISHED) {
+            throw new GameException("Cannot resume a finished game", 400);
+        }
+
         gameTimer.resume();
 
         if (!awaitingChug) {
