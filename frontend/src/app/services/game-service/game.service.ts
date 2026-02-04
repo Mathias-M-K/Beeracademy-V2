@@ -1,4 +1,4 @@
-import {inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientEvenEnvelope} from '../models/categories/game-client-event/game-client-even-envelope';
 import {GameClientConnectedEvent} from '../models/categories/game-client-event/game-client-connected.event';
