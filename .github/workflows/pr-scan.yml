@@ -2,7 +2,7 @@ name: SonarQube PR Analysis
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 env:
   SONAR_HOST_URL: https://sonarcloud.io
@@ -50,6 +50,7 @@ jobs:
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
             -Dsonar.pullrequest.branch=${{ github.head_ref }} \
             -Dsonar.pullrequest.base=${{ github.base_ref }}
+            -Dsonar.branch.name=""
         working-directory: ./backend
 
   sonar-frontend:
@@ -70,6 +71,7 @@ jobs:
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
             -Dsonar.pullrequest.branch=${{ github.head_ref }}
             -Dsonar.pullrequest.base=${{ github.base_ref }}
+            -Dsonar.branch.name=""
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
