@@ -75,8 +75,8 @@ jobs:
         with:
           name: ${{ env.RUN_SCAN_AND_TEST }}
           path: backend/build/generated-openapi/openapi.json
-  build-test-and-deploy-backend:
-    name: Build, Test, Scan and Deploy Backend
+  build-test-and-scan-backend:
+    name: Build, Test and Scan Backend
     runs-on: self-hosted
     needs: log-inputs
 
@@ -149,13 +149,9 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
 
-      - name: Deploy to Microk8s
-        run: |
-          # Use the kubectl provided by MicroK8s
-          microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
-          microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
 
-  build-test-and-deploy-frontend:
+  build-test-and-scan-frontend:
+    name: Build, Test and Scan Frontend
     needs: generate-openapi
     runs-on: self-hosted
 
@@ -204,7 +200,19 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
 
-      - name: Deploy to Microk8s
+  deploy-frontend-and-backend:
+    name: Deploy Frontend and Backend
+    needs: [build-test-and-scan-backend, build-test-and-scan-frontend]
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy Backend to MicroK8s
+        run: |
+          # Use the kubectl provided by MicroK8s
+          microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
+          microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
+
+      - name: Deploy Frontend to MicroK8s
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
