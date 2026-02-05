@@ -27,7 +27,7 @@ env:
   VERSION: ${{ github.ref_name }}
 
 jobs:
-  build-backend:
+  build-test-and-deploy-backend:
     runs-on: self-hosted
 
     steps:
@@ -69,6 +69,7 @@ jobs:
         working-directory: ./backend
 
       - name: SonarQube Scan
+        if: github.event_name == 'push' || github.event.inputs.scan == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -101,7 +102,7 @@ jobs:
           string: ${{env.BACKEND_IMAGE_NAME}}
 
       - name: Build and push Docker image
-        if: true
+        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./backend
@@ -112,14 +113,15 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
       #
       - name: Deploy to Microk8s
-        if: true
+        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
           microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
 
 
-  build-frontend:
+
+  build-test-and-deploy-frontend:
     needs: build-backend
     runs-on: self-hosted
 
@@ -144,6 +146,7 @@ jobs:
           path: ./frontend/api/ # Download it directly into your frontend folder
 
       - name: SonarQube Scan - Frontend
+        if: github.event_name == 'push' || github.event.inputs.scan == 'true'
         uses: SonarSource/sonarqube-scan-action@v7.0.0
         with:
           projectBaseDir: frontend
@@ -167,7 +170,7 @@ jobs:
           string: ${{env.FRONTEND_IMAGE_NAME}}
 
       - name: Build and push Docker image
-        if: true
+        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
@@ -177,7 +180,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
       #
       - name: Deploy to Microk8s
-        if: true
+        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}

@@ -7,6 +7,7 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 
 ## Deploy from local
 Changes to the application can be deployed from your local machine, and it's pretty easy!
+>It does require that kubectl is configured to point to the cluster where you want to deploy
 
 1. Make sure docker is running on your machine. 
 

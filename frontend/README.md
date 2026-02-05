@@ -1,57 +1,57 @@
-# @
+# Beeracademy Angular Frontend
 
-Backend API for Beeracademy application
+## Package.json scripts
+### openAPi
+- `openApi` : Generates the Angular API client from the OpenAPI spec file located in `openapi-spec/openapi.json`.
+- `openApi:fetch` : Copies the OpenAPI spec file from the backend build folder to the frontend `openapi-spec` folder.
+- `openApi:local` : Runs both `openApi:fetch` and `openApi` scripts in sequence for local development.
 
-The version of the OpenAPI document: 1.0.0
+### docker
+- `docker:build` : Builds the Docker image for the Angular application.
+- `docker:push` : Pushes the Docker image to the GitHub Container Registry.
+
+### kubectl
+- `kubectl:deploy` : Updates the Kubernetes deployment to use the latest Docker image from the GitHub Container Registry.
+
+## Docker
+The Angular application can't build without an OpenApi spec file. In the CI/CD pipeline, this file is fetched as an artifact, 
+but locally we need to ensure it exist before building an image.
+
+Furthermore, it's possible to also push the docker image to the GitHub container registry `ghcp`
+
+
+### Prerequisites
+- Make sure to do a clean build with the backend, to generate the latest openapi spec
+- Run the `openApi:fetch` script from `package.json`. This copies the openapi.json file from backend/build folder to frontend/openapi-spec.
+
+### Docker build
+Build the image
+```bash
+docker build -t ghcr.io/mathias-m-k/beer-academy-frontend .
+```
+
+### Push to Github Container Registry
+
+Start by make sure you're logged in to the container registry
+```bash
+docker login ghcr.io
+```
+
+When completed, you can do a push
+
+```bash
+docker push ghcr.io/mathias-m-k/beer-academy-frontend:latest
+```
+And viola, you should be able to see the package at [Github Packages](https://github.com/Mathias-M-K?tab=packages)
+>This process is also described in the backend, with automatic Gradle tasks to do a local deploy of the latest package
 
 ## Building
-
 To install the required dependencies and to build the typescript sources run:
 
 ```console
 npm install
 npm run build
 ```
-
-## Publishing
-
-First build the package then run `npm publish dist` (don't forget to specify the `dist` folder!)
-
-## Consuming
-
-Navigate to the folder of your consuming project and run one of next commands.
-
-_published:_
-
-```console
-npm install @ --save
-```
-
-_without publishing (not recommended):_
-
-```console
-npm install PATH_TO_GENERATED_PACKAGE/dist.tgz --save
-```
-
-_It's important to take the tgz file, otherwise you'll get trouble with links on windows_
-
-_using `npm link`:_
-
-In PATH_TO_GENERATED_PACKAGE/dist:
-
-```console
-npm link
-```
-
-In your project:
-
-```console
-npm link 
-```
-
-__Note for Windows users:__ The Angular CLI has troubles to use linked npm packages.
-Please refer to this issue <https://github.com/angular/angular-cli/issues/8284> for a solution / workaround.
-Published packages are not effected by this issue.
 
 ### General usage
 
