@@ -13,7 +13,6 @@ env:
 
 jobs:
   build-test-and-deploy-backend:
-    needs: log-inputs
     runs-on: self-hosted
 
     steps:
