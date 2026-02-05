@@ -1,4 +1,5 @@
-name: Build and Deploy to Microk8s
+name: Build and Deploy
+run-name: Build of ${{ github.ref_name }} triggered by ${{ github.event_name }}
 
 on:
   push:
@@ -11,61 +12,75 @@ on:
         required: true
         default: true
         type: boolean
-      push-image:
-        description: 'Push Docker images to registry after build'
-        required: true
-        default: true
-        type: boolean
-      deploy:
-        description: 'Deploy to Microk8s after build'
-        required: true
-        default: true
-        type: boolean
-
-
 
 env:
-  RUN_SCAN: ${{ github.event_name == 'push' || github.event.inputs['test-and-scan'] == true }}
-  PUSH_TO_REGISTRY: ${{ github.event_name == 'push' || github.event.inputs['push-image'] == true }}
-  DO_DEPLOY: ${{ github.event_name == 'push' || github.event.inputs['deploy'] == true }}
+  # Environment variable to control whether to run tests and SonarQube scan
+  RUN_SCAN_AND_TEST: ${{ github.event_name == 'push' || github.event.inputs['test-and-scan'] == true }}
 
-  REGISTRY: ghcr.io
+  # OpenAPI spec file artifact name for sharing between jobs
   OPEN_API_SPEC_FILE_ARTIFACT_NAME: openapi-spec
+
+  # Environment variables for Docker registry and image names
+  REGISTRY: ghcr.io
   FRONTEND_IMAGE_NAME: ${{ github.actor }}/beer-academy-frontend
   BACKEND_IMAGE_NAME: ${{ github.actor }}/beer-academy-backend
   NAMESPACE: beer-academy
   VERSION: ${{ github.ref_name }}
 
-
 jobs:
+
   log-inputs:
+    name: Log Workflow Inputs
     runs-on: self-hosted
 
     steps:
       - name: Log workflow inputs
         run: |
           echo "Event Name: ${{ github.event_name }}"
-          echo "Run Scan: ${{ env.RUN_SCAN }}"
-          echo "Push to Registry: ${{ env.PUSH_TO_REGISTRY }}"
-          echo "Do Deploy: ${{ env.DO_DEPLOY }}"
-          echo "Workflow_dispatch Inputs:"
-          echo "  Test and Scan: ${{ github.event.inputs['test-and-scan'] }}"
-          echo "  Push Image: ${{ github.event.inputs['push-image'] }}"
-          echo "  Deploy: ${{ github.event.inputs['deploy'] }}"
+          echo "Run Scan env: ${{ env.RUN_SCAN_AND_TEST }}"
+          echo "Test and Scan: ${{ github.event.inputs['test-and-scan'] }}"
 
-  build-test-and-deploy-backend:
-    needs: log-inputs
-    runs-on: self-hosted
-
-    steps:
       - name: Log environment variables
         run: |
-          echo "User: ${{ env.USER }}"
           echo "Registry: ${{ env.REGISTRY }}"
           echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
           echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
           echo "Semantic Version: ${{ env.VERSION }}"
 
+
+
+  generate-openapi:
+    name: Generate OpenAPI Spec
+    runs-on: self-hosted
+    needs: log-inputs
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5.2.0
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Generate OpenAPI Spec
+        run: |
+          chmod +x gradlew
+          ./gradlew quarkusBuild -x test
+        working-directory: ./backend
+
+      - name: Upload OpenAPI Spec
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.RUN_SCAN_AND_TEST }}
+          path: backend/build/generated-openapi/openapi.json
+  build-test-and-deploy-backend:
+    name: Build, Test, Scan and Deploy Backend
+    runs-on: self-hosted
+    needs: log-inputs
+
+    steps:
 
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -77,27 +92,28 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
 
       - name: Cache SonarQube packages
-        if: env.RUN_SCAN == 'true'
-        uses: actions/cache@v4
+        if: env.RUN_SCAN_AND_TEST == 'true'
+        uses: actions/cache@v5.0.3
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
       - name: Build and test with Gradle
+        if: env.RUN_SCAN_AND_TEST == 'true'
         run: |
           chmod +x gradlew
           ./gradlew build test
         working-directory: ./backend
 
       - name: SonarQube Scan
-        if: env.RUN_SCAN == 'true'
+        if: env.RUN_SCAN_AND_TEST == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -110,14 +126,7 @@ jobs:
           ./gradlew quarkusBuild
         working-directory: ./backend
 
-      - name: Upload OpenAPI Spec
-        uses: actions/upload-artifact@v6
-        with:
-          name: openapi-spec
-          path: backend/build/generated-openapi/openapi.json
-
       - name: Log in to the Container registry
-        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -131,7 +140,6 @@ jobs:
           string: ${{env.BACKEND_IMAGE_NAME}}
 
       - name: Build and push Docker image
-        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./backend
@@ -140,42 +148,31 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
-      #
+
       - name: Deploy to Microk8s
-        if: env.DO_DEPLOY == 'true'
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
           microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
 
-
-
   build-test-and-deploy-frontend:
-    needs: build-test-and-deploy-backend
+    needs: generate-openapi
     runs-on: self-hosted
 
     steps:
-      - name: Log environment variables
-        run: |
-          echo "User: ${{ env.USER }}"
-          echo "Registry: ${{ env.REGISTRY }}"
-          echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
-          echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
-          echo "Semantic Version: ${{ env.VERSION }}"
-
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Get the Spec from the "Locker"
+      - name: Get OpenAPI Spec artifact
         uses: actions/download-artifact@v7
         with:
-          name: openapi-spec
+          name: ${{ env.RUN_SCAN_AND_TEST }}
           path: ./frontend/openapi-spec/
 
       - name: SonarQube Scan - Frontend
-        if: env.RUN_SCAN == 'true'
+        if: env.RUN_SCAN_AND_TEST == 'true'
         uses: SonarSource/sonarqube-scan-action@v7.0.0
         with:
           projectBaseDir: frontend
@@ -186,7 +183,6 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Log in to the Container registry
-        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -200,7 +196,6 @@ jobs:
           string: ${{env.FRONTEND_IMAGE_NAME}}
 
       - name: Build and push Docker image
-        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
@@ -208,9 +203,8 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
-      #
+
       - name: Deploy to Microk8s
-        if: env.DO_DEPLOY == 'true'
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
