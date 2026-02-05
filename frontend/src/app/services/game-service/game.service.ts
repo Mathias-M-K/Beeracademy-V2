@@ -104,20 +104,23 @@ export class GameService {
   public handleEvent(message: WebsocketEnvelope) {
     console.log("Websocket Message:", message);
     switch (message.category) {
-      case 'GAME_CLIENT_EVENT':
+      case 'GAME_CLIENT_EVENT': {
         const gameClientEvent = message as GameClientEvenEnvelope;
 
         switch (gameClientEvent.payload.type) {
-          case 'CLIENT_CONNECTED':
+          case 'CLIENT_CONNECTED': {
             const payload: GameClientConnectedEvent = gameClientEvent.payload as GameClientConnectedEvent;
             this.gameStateObj.set(payload.game);
+            break;
+          }
         }
         break;
-      case 'GAME_EVENT':
+      }
+      case 'GAME_EVENT': {
         const gameEvent: GameEventEnvelope = message as GameEventEnvelope;
 
         switch (gameEvent.payload.type) {
-          case 'DRAW_CARD':
+          case 'DRAW_CARD': {
             const drawCardEvent: DrawCardEvent = gameEvent.payload as DrawCardEvent;
             this.currentCard.set(drawCardEvent.turn.card);
             this.currentPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
@@ -129,37 +132,43 @@ export class GameService {
               this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
             }
             break;
-          case 'CHUG' :
+          }
+          case 'CHUG' : {
             const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
             this.addChugToPlayer(chugEvent.chug, chugEvent.playerId);
             this.currentPlayer.set(this.getPlayer(chugEvent.newPlayer));
             this.awaitingChugFromPlayer.set(undefined);
             this.startTimer(this.playerTimeReport);
-
-            break
-          case 'GAME_START':
+            break;
+          }
+          case 'GAME_START': {
             this.startTimer(this.gameTimeReport);
             this.startTimer(this.playerTimeReport);
             this.gameState.set(GameState.InProgress);
             break;
-          case 'GAME_PAUSED' :
+          }
+          case 'GAME_PAUSED' : {
             const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
             this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
             this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
             break
-          case 'GAME_RESUMED' :
+          }
+          case 'GAME_RESUMED' : {
             const gameResumedEvent: GameResumedEvent = gameEvent.payload as GameResumedEvent;
             this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
             this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
             break
-          case 'GAME_END' :
+          }
+          case 'GAME_END' : {
             const gameEndEvent: GameEndEvent = gameEvent.payload as GameEndEvent;
             console.log("Game end!", gameEndEvent);
             this.gameTimeReport.set(gameEndEvent.timeReports.gameTimeReport);
             this.playerTimeReport.set(gameEndEvent.timeReports.playerTimeReport);
             this.endGame();
             break
+          }
         }
+      }
     }
   }
 

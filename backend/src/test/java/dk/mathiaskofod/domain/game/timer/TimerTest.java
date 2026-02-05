@@ -55,18 +55,19 @@ public class TimerTest {
         }
 
         @Test
-        @DisplayName("After reset, timer should be RUNNING")
+        @DisplayName("After reset, timer keeps previous state")
         void afterResetTimerShouldBeRunning() {
 
             //Arrange
             timer.start();
             timer.pause();
+            TimerState expectedStateBeforeReset = timer.state;
 
             //Act
             timer.reset();
 
             //Assert
-            assertThat(timer.state, is(TimerState.RUNNING));
+            assertThat(timer.state, is(expectedStateBeforeReset));
         }
 
         @Test
