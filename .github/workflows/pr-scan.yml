@@ -8,13 +8,6 @@ env:
   SONAR_HOST_URL: https://sonarcloud.io
 
 jobs:
-  log-pipeline-version:
-    name: Log Pipeline Version
-    runs-on: self-hosted
-    steps:
-      - name: Log something
-        run: |
-          echo "Waddup 2.0"
 
   sonar-backend:
     name: SonarQube Backend Analysis
@@ -22,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Shallow clones should be disabled for better analysis
 
@@ -66,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

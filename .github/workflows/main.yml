@@ -41,7 +41,7 @@ jobs:
 
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -135,7 +135,7 @@ jobs:
           echo "Semantic Version: ${{ env.VERSION }}"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
