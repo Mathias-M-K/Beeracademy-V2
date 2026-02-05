@@ -29,9 +29,20 @@ env:
 
 jobs:
 
+  setup-environment-variables:
+    name: Setup Environment Variables
+    runs-on: self-hosted
+    steps:
+      - name: Convert image name to lowercase
+        id: IMAGE_NAME
+        run: |
+          echo "backend=$(echo '${{ env.BACKEND_IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "frontend=$(echo '${{ env.FRONTEND_IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
   log-inputs:
     name: Log Workflow Inputs
     runs-on: self-hosted
+    needs: setup-environment-variables
 
     steps:
       - name: Log workflow inputs
@@ -73,7 +84,7 @@ jobs:
       - name: Upload OpenAPI Spec
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ env.RUN_SCAN_AND_TEST }}
+          name: ${{ env.OPEN_API_SPEC_FILE_ARTIFACT_NAME }}
           path: backend/build/generated-openapi/openapi.json
   build-test-and-scan-backend:
     name: Build, Test and Scan Backend
@@ -133,12 +144,6 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Convert image name to lowercase
-        id: IMAGE_NAME
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{env.BACKEND_IMAGE_NAME}}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -146,8 +151,8 @@ jobs:
           file: ./backend/src/main/docker/Dockerfile.jvm
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
-            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{github.ref_name}}
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest
 
 
   build-test-and-scan-frontend:
@@ -164,7 +169,7 @@ jobs:
       - name: Get OpenAPI Spec artifact
         uses: actions/download-artifact@v7
         with:
-          name: ${{ env.RUN_SCAN_AND_TEST }}
+          name: ${{ env.OPEN_API_SPEC_FILE_ARTIFACT_NAME }}
           path: ./frontend/openapi-spec/
 
       - name: SonarQube Scan - Frontend
@@ -185,20 +190,14 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Convert image name to lowercase
-        id: IMAGE_NAME
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{env.FRONTEND_IMAGE_NAME}}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
-            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{github.ref_name}}
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
 
   deploy-frontend-and-backend:
     name: Deploy Frontend and Backend
@@ -209,12 +208,12 @@ jobs:
       - name: Deploy Backend to MicroK8s
         run: |
           # Use the kubectl provided by MicroK8s
-          microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
+          microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
           microk8s.kubectl rollout status deployment/beer-academy-backend-deployment -n beer-academy
 
       - name: Deploy Frontend to MicroK8s
         run: |
           # Use the kubectl provided by MicroK8s
-          microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
+          microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
           microk8s.kubectl rollout status deployment/beer-academy-frontend-deployment -n beer-academy
 

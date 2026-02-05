@@ -38,3 +38,4 @@ in SonarQube as separate projects. We also use SonarQube plugins in Intellij to 
 
 ## Common
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Mathias-M-K/Beeracademy-V2?utm_source=oss&utm_medium=github&utm_campaign=Mathias-M-K%2FBeeracademy-V2&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+[![Build and Deploy](https://github.com/Mathias-M-K/Beeracademy-V2/actions/workflows/main.yml/badge.svg)](https://github.com/Mathias-M-K/Beeracademy-V2/actions/workflows/main.yml)
