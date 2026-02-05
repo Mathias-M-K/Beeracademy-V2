@@ -143,7 +143,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: openapi-spec
-          path: ./frontend/api/ # Download it directly into your frontend folder
+          path: ./frontend/openapi-spec/
 
       - name: SonarQube Scan - Frontend
         if: github.event_name == 'push' || github.event.inputs.scan == 'true'
