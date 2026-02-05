@@ -12,7 +12,32 @@ env:
 
 
 jobs:
-  build-test-and-deploy-backend:
+
+  generate-openapi:
+    name: Generate OpenAPI Spec
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Verify Java Version
+        run: java -version
+
+      - name: Generate OpenAPI Spec
+        run: |
+          chmod +x gradlew
+          ./gradlew quarkusBuild -x test
+        working-directory: ./backend
+
+      - name: Upload OpenAPI Spec
+        uses: actions/upload-artifact@v6
+        with:
+          name: openapi-spec
+          path: backend/build/generated-openapi/openapi.json
+
+  build-backend:
+    name: Build Backend
     runs-on: self-hosted
 
     steps:
@@ -46,11 +71,11 @@ jobs:
           ./gradlew quarkusBuild
         working-directory: ./backend
 
-      - name: Upload OpenAPI Spec
-        uses: actions/upload-artifact@v6
-        with:
-          name: openapi-spec
-          path: backend/build/generated-openapi/openapi.json
+#      - name: Upload OpenAPI Spec
+#        uses: actions/upload-artifact@v6
+#        with:
+#          name: openapi-spec
+#          path: backend/build/generated-openapi/openapi.json
 
       - name: Convert image name to lowercase
         id: IMAGE_NAME
@@ -68,8 +93,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
 
 
-  build-test-and-deploy-frontend:
-    needs: build-test-and-deploy-backend
+
+
+  build-frontend:
+    name: Build Frontend
+    needs: generate-openapi
     runs-on: self-hosted
 
     steps:
