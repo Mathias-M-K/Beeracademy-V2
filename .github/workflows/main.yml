@@ -6,8 +6,13 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
     inputs:
-      scan:
-        description: 'Run SonarQube Scan'
+      test-and-scan:
+        description: 'Run unit tests and SonarQube scan'
+        required: true
+        default: true
+        type: boolean
+      push-image:
+        description: 'Push Docker images to registry after build'
         required: true
         default: true
         type: boolean
@@ -18,7 +23,12 @@ on:
         type: boolean
 
 
+
 env:
+  RUN_SCAN: ${{ github.event_name == 'push' || github.event.inputs.test-and-scan == true }}
+  PUSH_TO_REGISTRY: ${{ github.event_name == 'push' || github.event.inputs.push-image == true }}
+  DO_DEPLOY: ${{ github.event_name == 'push' || github.event.inputs.deploy == true }}
+
   REGISTRY: ghcr.io
   OPEN_API_SPEC_FILE_ARTIFACT_NAME: openapi-spec
   FRONTEND_IMAGE_NAME: ${{ github.actor }}/beer-academy-frontend
@@ -53,6 +63,7 @@ jobs:
           cache: 'gradle'
 
       - name: Cache SonarQube packages
+        if: env.RUN_SCAN == 'true'
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
@@ -69,7 +80,7 @@ jobs:
         working-directory: ./backend
 
       - name: SonarQube Scan
-        if: github.event_name == 'push' || github.event.inputs.scan == 'true'
+        if: env.RUN_SCAN == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -89,6 +100,7 @@ jobs:
           path: backend/build/generated-openapi/openapi.json
 
       - name: Log in to the Container registry
+        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -102,7 +114,7 @@ jobs:
           string: ${{env.BACKEND_IMAGE_NAME}}
 
       - name: Build and push Docker image
-        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
+        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./backend
@@ -113,7 +125,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
       #
       - name: Deploy to Microk8s
-        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
+        if: env.DO_DEPLOY == 'true'
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-backend-deployment beer-academy-backend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
@@ -146,7 +158,7 @@ jobs:
           path: ./frontend/openapi-spec/
 
       - name: SonarQube Scan - Frontend
-        if: github.event_name == 'push' || github.event.inputs.scan == 'true'
+        if: env.RUN_SCAN == 'true'
         uses: SonarSource/sonarqube-scan-action@v7.0.0
         with:
           projectBaseDir: frontend
@@ -157,6 +169,7 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Log in to the Container registry
+        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -170,7 +183,7 @@ jobs:
           string: ${{env.FRONTEND_IMAGE_NAME}}
 
       - name: Build and push Docker image
-        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
+        if: env.PUSH_TO_REGISTRY == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
@@ -180,7 +193,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:latest
       #
       - name: Deploy to Microk8s
-        if: github.event_name == 'push' || github.event.inputs.deploy == 'true'
+        if: env.DO_DEPLOY == 'true'
         run: |
           # Use the kubectl provided by MicroK8s
           microk8s.kubectl set image deployment/beer-academy-frontend-deployment beer-academy-frontend-container=${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}} -n ${{env.NAMESPACE}}
