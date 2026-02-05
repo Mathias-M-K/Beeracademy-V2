@@ -25,9 +25,9 @@ on:
 
 
 env:
-  RUN_SCAN: ${{ github.event_name == 'push' || github.event.inputs.test-and-scan == true }}
-  PUSH_TO_REGISTRY: ${{ github.event_name == 'push' || github.event.inputs.push-image == true }}
-  DO_DEPLOY: ${{ github.event_name == 'push' || github.event.inputs.deploy == true }}
+  RUN_SCAN: ${{ github.event_name == 'push' || github.event.inputs['test-and-scan'] == true }}
+  PUSH_TO_REGISTRY: ${{ github.event_name == 'push' || github.event.inputs['push-image'] == true }}
+  DO_DEPLOY: ${{ github.event_name == 'push' || github.event.inputs['deploy'] == true }}
 
   REGISTRY: ghcr.io
   OPEN_API_SPEC_FILE_ARTIFACT_NAME: openapi-spec
