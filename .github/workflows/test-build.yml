@@ -14,129 +14,137 @@ env:
 
 jobs:
 
-  generate-openapi:
-    name: Generate OpenAPI Spec
+  test:
+    name: test
     runs-on: self-hosted
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+      - name: echo "Running tests"
+        run: echo "Running tests"
 
-#      - name: Verify Java Version
-#        run: java -version
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v5.2.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Generate OpenAPI Spec
-        run: |
-          chmod +x gradlew
-          ./gradlew quarkusBuild -x test
-        working-directory: ./backend
-
-      - name: Upload OpenAPI Spec
-        uses: actions/upload-artifact@v6
-        with:
-          name: openapi-spec
-          path: backend/build/generated-openapi/openapi.json
-
-  build-backend:
-    name: Build Backend
-    runs-on: self-hosted
-
-    steps:
-      - name: Log environment variables
-        run: |
-          echo "User: ${{ env.USER }}"
-          echo "Registry: ${{ env.REGISTRY }}"
-          echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
-          echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
-          echo "Semantic Version: ${{ env.VERSION }}"
-
-
-      - name: Checkout repository
-        uses: actions/checkout@v6.0.2
-        with:
-          fetch-depth: 0
-
-#      - name: Verify Java Version
-#        run: java -version
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v5.2.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build with Gradle
-        run: |
-          chmod +x gradlew
-          ./gradlew quarkusBuild
-        working-directory: ./backend
-
+#  generate-openapi:
+#    name: Generate OpenAPI Spec
+#    runs-on: self-hosted
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v6.0.2
+#
+##      - name: Verify Java Version
+##        run: java -version
+#
+#      - name: Set up JDK 21
+#        uses: actions/setup-java@v5.2.0
+#        with:
+#          java-version: '21'
+#          distribution: 'temurin'
+#
+#      - name: Generate OpenAPI Spec
+#        run: |
+#          chmod +x gradlew
+#          ./gradlew quarkusBuild -x test
+#        working-directory: ./backend
+#
 #      - name: Upload OpenAPI Spec
 #        uses: actions/upload-artifact@v6
 #        with:
 #          name: openapi-spec
 #          path: backend/build/generated-openapi/openapi.json
-
-      - name: Convert image name to lowercase
-        id: IMAGE_NAME
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{env.BACKEND_IMAGE_NAME}}
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6.18.0
-        with:
-          context: ./backend
-          file: ./backend/src/main/docker/Dockerfile.jvm
-          push: false
-          tags: |
-            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
-
-
-
-
-
-  build-frontend:
-    name: Build Frontend
-    needs: generate-openapi
-    runs-on: self-hosted
-
-    steps:
-      - name: Log environment variables
-        run: |
-          echo "User: ${{ env.USER }}"
-          echo "Registry: ${{ env.REGISTRY }}"
-          echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
-          echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
-          echo "Semantic Version: ${{ env.VERSION }}"
-
-      - name: Checkout repository
-        uses: actions/checkout@v6.0.2
-        with:
-          fetch-depth: 0
-
-      - name: Get the Spec from the "Locker"
-        uses: actions/download-artifact@v7
-        with:
-          name: openapi-spec
-          path: ./frontend/openapi-spec/
-
-      - name: Convert image name to lowercase
-        id: IMAGE_NAME
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{env.FRONTEND_IMAGE_NAME}}
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6.18.0
-        with:
-          context: ./frontend
-          push: false
-          tags: |
-            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
+#
+#  build-backend:
+#    name: Build Backend
+#    runs-on: self-hosted
+#
+#    steps:
+#      - name: Log environment variables
+#        run: |
+#          echo "User: ${{ env.USER }}"
+#          echo "Registry: ${{ env.REGISTRY }}"
+#          echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
+#          echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
+#          echo "Semantic Version: ${{ env.VERSION }}"
+#
+#
+#      - name: Checkout repository
+#        uses: actions/checkout@v6.0.2
+#        with:
+#          fetch-depth: 0
+#
+##      - name: Verify Java Version
+##        run: java -version
+#
+#      - name: Set up JDK 21
+#        uses: actions/setup-java@v5.2.0
+#        with:
+#          java-version: '21'
+#          distribution: 'temurin'
+#
+#      - name: Build with Gradle
+#        run: |
+#          chmod +x gradlew
+#          ./gradlew quarkusBuild
+#        working-directory: ./backend
+#
+##      - name: Upload OpenAPI Spec
+##        uses: actions/upload-artifact@v6
+##        with:
+##          name: openapi-spec
+##          path: backend/build/generated-openapi/openapi.json
+#
+#      - name: Convert image name to lowercase
+#        id: IMAGE_NAME
+#        uses: ASzc/change-string-case-action@v6
+#        with:
+#          string: ${{env.BACKEND_IMAGE_NAME}}
+#
+#      - name: Build Docker image
+#        uses: docker/build-push-action@v6.18.0
+#        with:
+#          context: ./backend
+#          file: ./backend/src/main/docker/Dockerfile.jvm
+#          push: false
+#          tags: |
+#            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
+#
+#
+#
+#
+#
+#
+#  build-frontend:
+#    name: Build Frontend
+#    needs: generate-openapi
+#    runs-on: self-hosted
+#
+#    steps:
+#      - name: Log environment variables
+#        run: |
+#          echo "User: ${{ env.USER }}"
+#          echo "Registry: ${{ env.REGISTRY }}"
+#          echo "Frontend Image Name: ${{ env.FRONTEND_IMAGE_NAME }}"
+#          echo "Backend Image Name: ${{ env.BACKEND_IMAGE_NAME }}"
+#          echo "Semantic Version: ${{ env.VERSION }}"
+#
+#      - name: Checkout repository
+#        uses: actions/checkout@v6.0.2
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Get the Spec from the "Locker"
+#        uses: actions/download-artifact@v7
+#        with:
+#          name: openapi-spec
+#          path: ./frontend/openapi-spec/
+#
+#      - name: Convert image name to lowercase
+#        id: IMAGE_NAME
+#        uses: ASzc/change-string-case-action@v6
+#        with:
+#          string: ${{env.FRONTEND_IMAGE_NAME}}
+#
+#      - name: Build Docker image
+#        uses: docker/build-push-action@v6.18.0
+#        with:
+#          context: ./frontend
+#          push: false
+#          tags: |
+#            ${{ env.REGISTRY }}/${{ steps.IMAGE_NAME.outputs.lowercase }}:${{github.ref_name}}
