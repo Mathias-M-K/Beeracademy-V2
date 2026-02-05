@@ -5,4 +5,5 @@ dist
 .idea/
 
 .angular/
+.openapi-spec/
 src/api-models/
