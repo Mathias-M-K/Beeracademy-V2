@@ -61,7 +61,6 @@ sonar {
     properties {
         property "sonar.projectKey", "beeracademy-backend"
         property "sonar.organization", "mathias"
-        property "sonar.branch.name", "main"
     }
 }
 

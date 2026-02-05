@@ -70,7 +70,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
-        run: ./gradlew sonar --info
+        run: ./gradlew sonar -Dsonar.branch.name=main --info
         working-directory: ./backend
 
       - name: Build with Gradle
@@ -133,6 +133,8 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v7.0.0
         with:
           projectBaseDir: frontend
+          args: >
+            -Dsonar.branch.name=main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
