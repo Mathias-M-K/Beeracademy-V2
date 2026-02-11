@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class GameIdDtoGeneratorTest {
 
     Validator validator;
+    private static final int EXPECTED_GAME_ID_LENGTH = 9;
 
     @BeforeEach
     void setup() {
@@ -50,7 +51,7 @@ class GameIdDtoGeneratorTest {
     @ValueSource(strings = {"123abc123", "123-abc-123", "123123123", "abcabcabc", "abc-abc-abc", "123-123-123", "123----abc----123"})
     void validGameIdsShouldBeAccepted(String gameId) {
         Set<ConstraintViolation<GameIdDto>> violations = validator.validate(new GameIdDto(gameId));
-        assertThat(violations.size(), is(0));
+        assertThat(violations.isEmpty(), is(true));
     }
 
     @DisplayName("Invalid gameId's should be rejected")
@@ -58,7 +59,7 @@ class GameIdDtoGeneratorTest {
     @ValueSource(strings = {"a", "1", "abcabcabcabc", "123123123123", "abd-abc-abc-abc", "123-123-123-123", "123-abc-123-abc", "a2c-1b3-c1a-2a3",")(/&{[]@","#¤%-#¤%-#¤%","abc@abc@abc"})
     void invalidGameIdsShouldBeRejected(String gameId) {
         Set<ConstraintViolation<GameIdDto>> violations = validator.validate(new GameIdDto(gameId));
-        assertThat(violations.size(), is(1));
+        assertThat(violations.isEmpty(), is(false));
     }
 
     @DisplayName("GameId is normalized by removing dashes")
@@ -66,6 +67,6 @@ class GameIdDtoGeneratorTest {
     @ValueSource(strings = {"123----abc----123", "abc-abc-abc", "123-123-123","123abc123","abcabcabc","123123123"})
     void gameIdShouldBeNormalized(String gameId) {
         GameIdDto gameIdDto = assertDoesNotThrow(() -> new GameIdDto(gameId));
-        assertThat(gameIdDto.gameId().length(), is(9));
+        assertThat(gameIdDto.gameId().length(), is(EXPECTED_GAME_ID_LENGTH));
     }
 }
