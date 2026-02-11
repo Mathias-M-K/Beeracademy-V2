@@ -11,10 +11,7 @@ import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -55,7 +52,7 @@ public class GameApi {
     @GET
     @Path("/{gameId}")
     @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
-    public GameDto getGame(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public GameDto getGame(@Valid @BeanParam GameIdDto gameIdDto) {
         return lobbyService.getGame(gameIdDto.gameId());
     }
 
@@ -74,7 +71,7 @@ public class GameApi {
             },
             content = @Content(schema = @Schema(hidden = true))
     )
-    public Response claimGame(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public Response claimGame(@Valid @BeanParam GameIdDto gameIdDto) {
 
         String sessionJwt = lobbyService.claimGame(gameIdDto.gameId());
 
@@ -84,14 +81,14 @@ public class GameApi {
     @GET
     @Path("/{gameId}/players")
     @Operation(summary = "Get players in game", description = "Retrieves the list of players in a specific game")
-    public List<PlayerDto> getPlayersInGame(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public List<PlayerDto> getPlayersInGame(@Valid @BeanParam GameIdDto gameIdDto) {
         return lobbyService.getPlayersInGame(gameIdDto.gameId());
     }
 
     @GET
     @Path("/{gameId}/players/{playerId}/claim")
     @Operation(summary = "Claim player", description = "Claims a player session and returns an cookie with jwt")
-    public Response claimPlayer(@Valid @PathParam("gameId") GameIdDto gameIdDto, @PathParam("playerId") String playerId) {
+    public Response claimPlayer(@Valid @BeanParam GameIdDto gameIdDto, @PathParam("playerId") String playerId) {
 
         String sessionJwt = lobbyService.claimPlayer(gameIdDto.gameId(), playerId);
 
@@ -101,21 +98,21 @@ public class GameApi {
     @GET
     @Path("/{gameId}/reports/game")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
-    public GameReport getGameReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public GameReport getGameReport(@Valid @BeanParam GameIdDto gameIdDto) {
         return gameService.getGameReport(gameIdDto.gameId());
     }
 
     @GET
     @Path("/{gameId}/reports/players")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
-    public List<PlayerReport> getPlayerReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public List<PlayerReport> getPlayerReport(@Valid @BeanParam GameIdDto gameIdDto) {
         return gameService.getPlayerReports(gameIdDto.gameId());
     }
 
     @GET
     @Path("/{gameId}/reports/time")
     @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
-    public TimerReports getTimeReport(@Valid @PathParam("gameId") GameIdDto gameIdDto) {
+    public TimerReports getTimeReport(@Valid @BeanParam GameIdDto gameIdDto) {
         return gameService.getTimeReport(gameIdDto.gameId());
     }
 
