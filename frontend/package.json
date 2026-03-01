@@ -11,6 +11,7 @@
     "openApi": "openapi-generator-cli generate -g typescript-angular -i ./openapi-spec/openapi.json -o ./src/api-models --global-property=models",
     "openApi:local": "npm run openApi:fetch && npm run openApi",
     "docker:build": "docker build -t ghcr.io/mathias-m-k/beer-academy-frontend .",
+    "docker:run-local": "docker run -d --name beer-academy-frontend -p 8090:80 -e API_URL=http://localhost:8080 ghcr.io/mathias-m-k/beer-academy-frontend",
     "docker:push": "docker push ghcr.io/mathias-m-k/beer-academy-frontend:latest",
     "kubectl:deploy": "kubectl apply -f ../deployment/frontend"
   },
