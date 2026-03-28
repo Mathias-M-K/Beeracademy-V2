@@ -12,16 +12,22 @@ public interface Game {
 
     /**
      * Gets the user chosen name for the game
+     *
      * @return the game name
      */
     String getName();
 
     /**
      * Gets the unique identifier for the game
+     *
      * @return the game ID
      */
     String getGameId();
 
+    /**
+     * Gets the current state of the game, such as AWAITING_START, IN_PROGRESS, PAUSED, or ENDED
+     * @return state of the game
+     */
     GameState getGameState();
 
     /**
@@ -46,12 +52,14 @@ public interface Game {
 
     /**
      * Ends the current turn for a specific player and starts the next player's turn
+     *
      * @param duration the duration of the turn in milliseconds
      */
     void drawCard(long duration);
 
     /**
      * Registers a chug event in the game
+     *
      * @param chug the chug event to register
      */
     void registerChug(Chug chug);
@@ -60,24 +68,28 @@ public interface Game {
 
     /**
      * Returns a list of players in the game
+     *
      * @return a list of players
      */
     List<Player> getPlayers();
 
     /**
      * Returns the current player in turn
+     *
      * @return the current player
      */
     Player getCurrentPlayer();
 
     /**
      * Returns the next player
+     *
      * @return next player
      */
     Player getNextPlayer();
 
     /**
      * Returns the previous player
+     *
      * @return previous player
      */
     Player getPreviousPlayer();
@@ -91,7 +103,10 @@ public interface Game {
 
     /**
      * Provides Timer for the current player.
+     *
      * @return Timer
      */
     Timer getPlayerTimer();
+
+    int getRound();
 }

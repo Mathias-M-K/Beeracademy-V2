@@ -14,7 +14,9 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 @Slf4j
 public class GameImpl implements Game {
@@ -30,6 +32,7 @@ public class GameImpl implements Game {
 
     @Getter
     private final List<Player> players;
+    private final Queue<Player> playerQueue;
 
     @Getter
     private Player currentPlayer;
@@ -43,12 +46,14 @@ public class GameImpl implements Game {
     @Getter
     private Card lastCard;
 
-    private int currentPlayerIndex;
+    @Getter
+    private int round = 1;
+
     private final Timer playerTimer;
 
     private boolean awaitingChug = false;
     private final Timer gameTimer;
-    private int round = 1;
+
     private final Deck deck;
 
     GameEventEmitter eventEmitter;
@@ -57,10 +62,12 @@ public class GameImpl implements Game {
         this.name = name;
         this.gameId = gameId;
         this.players = players;
+        this.playerQueue = new LinkedList<>(players);
+        this.playerQueue.add(null);
 
-        this.currentPlayer = players.getFirst();
-        this.currentPlayerIndex = 0;
-        this.nextPlayer = peakNextPlayer();
+        this.currentPlayer = playerQueue.poll();
+        this.nextPlayer = playerQueue.peek();
+
         this.deck = new Deck(players.size());
 
         this.eventEmitter = eventEmitter;
@@ -186,36 +193,23 @@ public class GameImpl implements Game {
     }
 
     /**
-     * Advances to the next player and updates the current player index.
+     *  Switches to the next player in the queue, resets the player timer, updates the previous and next player references and adds the current player to the end of the queue.
      */
     private void switchToNextPlayer() {
 
         playerTimer.reset();
         previousPlayer = currentPlayer;
+        playerQueue.add(currentPlayer);
 
-        currentPlayerIndex++;
-        if (currentPlayerIndex > players.size() - 1) {
+        if(playerQueue.peek() == null) {
             round++;
-            currentPlayerIndex = 0;
+            playerQueue.poll();
+            playerQueue.add(null);
         }
 
-        currentPlayer = players.get(currentPlayerIndex);
+        currentPlayer = playerQueue.poll();
 
-        nextPlayer = peakNextPlayer();
-    }
-
-    /**
-     * Peaks the next player without changing the current player index.
-     *
-     * @return The next player.
-     */
-    private Player peakNextPlayer() {
-        int nextPlayerIndex = currentPlayerIndex + 1;
-        if (nextPlayerIndex > players.size() - 1) {
-            nextPlayerIndex = 0;
-        }
-
-        return players.get(nextPlayerIndex);
+        nextPlayer = playerQueue.peek();
     }
 
     private boolean isChugCard(Card card) {
