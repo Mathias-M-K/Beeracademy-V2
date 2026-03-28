@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew quarkusDev)",
+      "Bash(curl *localhost*)",
+      "WebFetch(domain:localhost)",
+      "mcp__quarkus-dev__quarkus-smallrye-openapi_getOpenAPISchema"
+    ]
+  }
+}
