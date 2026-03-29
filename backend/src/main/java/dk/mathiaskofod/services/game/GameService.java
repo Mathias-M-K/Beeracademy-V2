@@ -56,11 +56,15 @@ public class GameService {
     }
 
     public Player getCurrentPlayer(String gameId) {
-        return getGame(gameId).getCurrentPlayer();
+        return getGame(gameId).getNextToDraw();
     }
 
-    public void drawCard(long elapsedTime, String gameId) {
-        getGame(gameId).drawCard(elapsedTime);
+    public void drawCard(long clientDurationMillis, String gameId) {
+        Game game = getGame(gameId);
+        long serverDurationMillis = game.getPlayerTimer().getActiveDuration().toMillis();
+        long diff = Math.abs(clientDurationMillis - serverDurationMillis);
+        log.info("Client reported duration: {} ms, Server recorded duration: {} ms, diff: {} ms", clientDurationMillis, serverDurationMillis, diff);
+        game.drawCard(clientDurationMillis);
     }
 
     public void registerChug(Chug chug, String gameId) {

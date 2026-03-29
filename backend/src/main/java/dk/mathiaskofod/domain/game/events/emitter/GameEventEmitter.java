@@ -15,7 +15,7 @@ public interface GameEventEmitter {
 
     void onResumeGame(Game game);
 
-    void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, Game game);
+    void onDrawCard(Turn turn, Player drawnBy, Player nextToDraw, Player nextAfter, Game game);
 
-    void onNewChug(Chug chug, Player chugger, Player nextPlayer, Game game);
+    void onNewChug(Chug chug, Player drawnBy, Player nextToDraw, Game game);
 }

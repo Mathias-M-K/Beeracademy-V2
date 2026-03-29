@@ -58,12 +58,12 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     }
 
     @Override
-    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, Game game) {
-        eventBus.fire(new DrawCardEvent(turn, previousPlayer, newPlayer, nextPlayer, game.getGameId()));
+    public void onDrawCard(Turn turn, Player drawnBy, Player nextToDraw, Player nextAfter, Game game) {
+        eventBus.fire(new DrawCardEvent(turn, drawnBy, nextToDraw, nextAfter, game.getGameId()));
     }
 
     @Override
-    public void onNewChug(Chug chug, Player chugger, Player nextPlayer, Game game) {
-        eventBus.fire(new ChugEvent(chug, chugger, nextPlayer, game.getGameId()));
+    public void onNewChug(Chug chug, Player drawnBy, Player nextToDraw, Game game) {
+        eventBus.fire(new ChugEvent(chug, drawnBy, nextToDraw, game.getGameId()));
     }
 }

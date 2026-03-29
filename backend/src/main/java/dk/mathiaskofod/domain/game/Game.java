@@ -31,7 +31,7 @@ public interface Game {
     GameState getGameState();
 
     /**
-     * Starts the game by starting the timer for both the game and the first player
+     * Starts the game by starting the timer for both the game and the first nextToDraw
      */
     void startGame();
 
@@ -53,9 +53,9 @@ public interface Game {
     /**
      * Ends the current turn for a specific player and starts the next player's turn
      *
-     * @param duration the duration of the turn in milliseconds
+     * @param turnDuration the duration of the turn in milliseconds
      */
-    void drawCard(long duration);
+    void drawCard(long turnDuration);
 
     /**
      * Registers a chug event in the game
@@ -64,7 +64,7 @@ public interface Game {
      */
     void registerChug(Chug chug);
 
-    Card getLastCard();
+    Card getLastCardDrawn();
 
     /**
      * Returns a list of players in the game
@@ -78,21 +78,21 @@ public interface Game {
      *
      * @return the current player
      */
-    Player getCurrentPlayer();
+    Player getNextToDraw();
 
     /**
-     * Returns the next player
+     * Returns the next player to draw next
      *
-     * @return next player
+     * @return next player to draw
      */
-    Player getNextPlayer();
+    Player getNextAfter();
 
     /**
-     * Returns the previous player
+     * Returns the last player to draw
      *
-     * @return previous player
+     * @return last player to draw
      */
-    Player getPreviousPlayer();
+    Player getDrawnBy();
 
     /**
      * Provides Timer for the overall game.
@@ -102,7 +102,7 @@ public interface Game {
     Timer getGameTimer();
 
     /**
-     * Provides Timer for the current player.
+     * Provides Timer for player to draw next
      *
      * @return Timer
      */

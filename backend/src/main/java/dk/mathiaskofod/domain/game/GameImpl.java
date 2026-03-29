@@ -13,7 +13,6 @@ import dk.mathiaskofod.domain.game.timer.models.TimerState;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -35,19 +34,20 @@ public class GameImpl implements Game {
     private final Queue<Player> playerQueue;
 
     @Getter
-    private Player currentPlayer;
+    private Player nextToDraw;
 
     @Getter
-    private Player previousPlayer;
+    private Player drawnBy;
 
     @Getter
-    private Player nextPlayer;
+    private Player nextAfter;
 
     @Getter
-    private Card lastCard;
+    private Card lastCardDrawn;
 
     @Getter
     private int round = 1;
+    private int turnCounter = 1;
 
     private final Timer playerTimer;
 
@@ -63,10 +63,9 @@ public class GameImpl implements Game {
         this.gameId = gameId;
         this.players = players;
         this.playerQueue = new LinkedList<>(players);
-        this.playerQueue.add(null);
 
-        this.currentPlayer = playerQueue.poll();
-        this.nextPlayer = playerQueue.peek();
+        this.nextToDraw = playerQueue.poll();
+        this.nextAfter = playerQueue.peek();
 
         this.deck = new Deck(players.size());
 
@@ -114,7 +113,7 @@ public class GameImpl implements Game {
 
     public void resumeGame() {
 
-        if(gameState == GameState.FINISHED) {
+        if (gameState == GameState.FINISHED) {
             throw new GameException("Cannot resume a finished game", 400);
         }
 
@@ -128,7 +127,7 @@ public class GameImpl implements Game {
         eventEmitter.onResumeGame(this);
     }
 
-    public void drawCard(long clientDurationMillis) {
+    public void drawCard(long turnDuration) {
 
         if (gameState != GameState.IN_PROGRESS) {
             throw new GameException(String.format("Draw card not available when game is not in state: %s", GameState.IN_PROGRESS), 400);
@@ -142,22 +141,16 @@ public class GameImpl implements Game {
             throw new GameException("Cannot draw a card while awaiting chug response", 400);
         }
 
-        long clientServerDiff = Math.abs(clientDurationMillis - playerTimer.getActiveDuration().toMillis());
-        log.info("Client reported duration: {} ms, Server recorded duration: {} ms, diff: {}", clientDurationMillis, playerTimer.getActiveDuration().toMillis(), clientServerDiff);
-        Duration serverTime = playerTimer.getActiveDuration();
-        Duration registeredTime = round == 1 ? Duration.ofMinutes(0) : serverTime;
+        progressPlayerQueue();
 
-        lastCard = deck.drawCard();
-        Turn turn = new Turn(round, lastCard, registeredTime.toMillis());
-        currentPlayer.stats().addTurn(turn);
+        lastCardDrawn = deck.drawCard();
 
-        if (!isChugCard(lastCard)) {
-            switchToNextPlayer();
-        } else {
-            previousPlayer = currentPlayer;
-        }
+        //If first round, then time is set to zero, as players are just beginning
+        long duration = round == 1 ? 0 : turnDuration;
+        Turn turn = new Turn(round, lastCardDrawn, duration);
+        drawnBy.stats().addTurn(turn);
 
-        eventEmitter.onDrawCard(turn, previousPlayer, currentPlayer, nextPlayer, this);
+        eventEmitter.onDrawCard(turn, drawnBy, nextToDraw, nextAfter, this);
 
         if (isChugCard(turn.card())) {
             awaitingChug = true;
@@ -181,35 +174,31 @@ public class GameImpl implements Game {
             throw new GameException("Can't register a chug while game is paused", 400);
         }
 
-        currentPlayer.stats().addChug(chug);
+        drawnBy.stats().addChug(chug);
         awaitingChug = false;
-
 
         playerTimer.resume();
 
-        eventEmitter.onNewChug(chug, currentPlayer, nextPlayer, this);
-
-        switchToNextPlayer();
+        eventEmitter.onNewChug(chug, drawnBy, nextToDraw, this);
     }
 
     /**
-     *  Switches to the next player in the queue, resets the player timer, updates the previous and next player references and adds the current player to the end of the queue.
+     * Switches to the next nextToDraw in the queue, resets the nextToDraw timer, updates the previous and next nextToDraw references and adds the current nextToDraw to the end of the queue.
      */
-    private void switchToNextPlayer() {
+    private void progressPlayerQueue() {
 
         playerTimer.reset();
-        previousPlayer = currentPlayer;
-        playerQueue.add(currentPlayer);
+        drawnBy = nextToDraw;
 
-        if(playerQueue.peek() == null) {
+        playerQueue.add(drawnBy);
+        nextToDraw = playerQueue.poll();
+
+        nextAfter = playerQueue.peek();
+
+        turnCounter++;
+        if (turnCounter % players.size() == 0) {
             round++;
-            playerQueue.poll();
-            playerQueue.add(null);
         }
-
-        currentPlayer = playerQueue.poll();
-
-        nextPlayer = playerQueue.peek();
     }
 
     private boolean isChugCard(Card card) {

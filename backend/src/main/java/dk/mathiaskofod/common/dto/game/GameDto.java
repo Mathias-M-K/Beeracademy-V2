@@ -24,15 +24,15 @@ public record GameDto(
 
     public static GameDto create(Game game, SessionDto gameSession, List<PlayerDto> players) {
 
-        String previousPlayerId = game.getPreviousPlayer() == null ? "" : game.getPreviousPlayer().id();
+        String previousPlayerId = game.getDrawnBy() == null ? "" : game.getDrawnBy().id();
 
         return new GameDto(
                 game.getName(),
                 game.getGameId(),
                 game.getGameState(),
-                game.getLastCard(),
-                game.getCurrentPlayer().id(),
-                game.getNextPlayer().id(),
+                game.getLastCardDrawn(),
+                game.getNextToDraw().id(),
+                game.getNextAfter().id(),
                 previousPlayerId,
                 players,
                 new TimerReports(

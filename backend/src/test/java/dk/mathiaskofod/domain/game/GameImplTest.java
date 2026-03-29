@@ -63,7 +63,7 @@ class GameImplTest {
 
 
             //Assert
-            assertThat(game.getCurrentPlayer().name(), is(player));
+            assertThat(game.getNextToDraw().name(), is(player));
         }
     }
 
@@ -94,7 +94,7 @@ class GameImplTest {
         for (int turns = 0; turns < turn - 1; turns++) {
             game.drawCard(0);
 
-            if (game.getLastCard().rank() == 14) {
+            if (game.getLastCardDrawn().rank() == 14) {
                 handleChuckCard();
             }
         }

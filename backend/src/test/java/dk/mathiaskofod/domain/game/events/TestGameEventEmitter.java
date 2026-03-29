@@ -33,13 +33,13 @@ public class TestGameEventEmitter implements GameEventEmitter {
     }
 
     @Override
-    public void onDrawCard(Turn turn, Player previousPlayer, Player newPlayer, Player nextPlayer, Game game) {
+    public void onDrawCard(Turn turn, Player drawnBy, Player nextToDraw, Player nextAfter, Game game) {
         //Right now, only exist as a "Mock"
     }
 
 
     @Override
-    public void onNewChug(Chug chug, Player chugger, Player nextPlayer, Game game) {
+    public void onNewChug(Chug chug, Player drawnBy, Player nextToDraw, Game game) {
         //Right now, only exist as a "Mock"
     }
 
