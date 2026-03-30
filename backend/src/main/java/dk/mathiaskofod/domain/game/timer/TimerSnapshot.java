@@ -12,4 +12,13 @@ public record TimerSnapshot(
         TimerState state,
         List<Duration> pauses
 ) {
+
+    public static TimerSnapshot of(Timer timer) {
+        return new TimerSnapshot(
+                timer.startTime,
+                timer.pauseStartTime,
+                timer.state,
+                timer.pauses
+        );
+    }
 }

@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+//TODO consider decorator pattern to remove the eventEmitter from GameImpl
 @Slf4j
 public class GameImpl implements Game {
 
@@ -31,6 +32,8 @@ public class GameImpl implements Game {
 
     @Getter
     private final List<Player> players;
+
+    @Getter
     private final Queue<Player> playerQueue;
 
     @Getter
@@ -46,14 +49,16 @@ public class GameImpl implements Game {
     private Card lastCardDrawn;
 
     @Getter
-    private int round = 1;
     private int turnCounter = 1;
+    int round = 1;
 
+    @Getter
     private final Timer playerTimer;
 
-    private boolean awaitingChug = false;
+    @Getter
     private final Timer gameTimer;
 
+    @Getter
     private final Deck deck;
 
     GameEventEmitter eventEmitter;
@@ -69,10 +74,34 @@ public class GameImpl implements Game {
 
         this.deck = new Deck(players.size());
 
-        this.eventEmitter = eventEmitter;
-
         gameTimer = new Timer();
         playerTimer = new Timer();
+
+        this.eventEmitter = eventEmitter;
+    }
+
+    public GameImpl(GameSnapshot snapshot, GameEventEmitter eventEmitter) {
+        this.name = snapshot.name();
+        this.gameId = snapshot.gameId();
+        this.players = snapshot.players();
+
+        LinkedList<Player> restoredQueue = new LinkedList<>(snapshot.playerQueue());
+
+        this.drawnBy    = restoredQueue.getLast();
+        this.nextToDraw = restoredQueue.getFirst();
+        this.nextAfter  = restoredQueue.get(1);
+
+        this.playerQueue = restoredQueue;
+
+        this.gameTimer = new Timer(snapshot.gameTimer());
+        this.playerTimer = new Timer(snapshot.playerTimer());
+
+        this.deck = new Deck(snapshot.deck());
+
+        this.gameState = snapshot.gameState();
+        this.turnCounter = snapshot.turnCounter();
+
+        this.eventEmitter = eventEmitter;
     }
 
     public void startGame() {
@@ -119,7 +148,7 @@ public class GameImpl implements Game {
 
         gameTimer.resume();
 
-        if (!awaitingChug) {
+        if (gameState != GameState.AWAITING_CHUG) {
             playerTimer.resume();
         }
 
@@ -137,10 +166,6 @@ public class GameImpl implements Game {
             throw new GameException("Can't draw card while game is paused", 400);
         }
 
-        if (awaitingChug) {
-            throw new GameException("Cannot draw a card while awaiting chug response", 400);
-        }
-
         progressPlayerQueue();
 
         lastCardDrawn = deck.drawCard();
@@ -153,7 +178,7 @@ public class GameImpl implements Game {
         eventEmitter.onDrawCard(turn, drawnBy, nextToDraw, nextAfter, this);
 
         if (isChugCard(turn.card())) {
-            awaitingChug = true;
+            gameState = GameState.AWAITING_CHUG;
             playerTimer.pause();
             playerTimer.reset();
             return;
@@ -166,7 +191,7 @@ public class GameImpl implements Game {
 
     public void registerChug(Chug chug) {
 
-        if (!awaitingChug) {
+        if (gameState !=  GameState.AWAITING_CHUG) {
             throw new GameException("No chug expected at this time", 400);
         }
 
@@ -175,7 +200,7 @@ public class GameImpl implements Game {
         }
 
         drawnBy.stats().addChug(chug);
-        awaitingChug = false;
+        gameState = GameState.IN_PROGRESS;
 
         playerTimer.resume();
 
@@ -203,14 +228,6 @@ public class GameImpl implements Game {
 
     private boolean isChugCard(Card card) {
         return card.rank() == 14;
-    }
-
-    public Timer getGameTimer() {
-        return gameTimer;
-    }
-
-    public Timer getPlayerTimer() {
-        return playerTimer;
     }
 
 }

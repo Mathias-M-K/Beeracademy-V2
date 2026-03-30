@@ -84,7 +84,7 @@ class GameImplTest {
             progressToTurn(turn);
 
             //Assert
-            assertThat(game.getRound(), is(round));
+            assertThat(game.round, is(round));
         }
 
     }

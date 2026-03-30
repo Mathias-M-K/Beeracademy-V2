@@ -1,5 +1,6 @@
 package dk.mathiaskofod.domain.game;
 
+import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
@@ -7,6 +8,7 @@ import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.Timer;
 
 import java.util.List;
+import java.util.Queue;
 
 public interface Game {
 
@@ -26,6 +28,7 @@ public interface Game {
 
     /**
      * Gets the current state of the game, such as AWAITING_START, IN_PROGRESS, PAUSED, or ENDED
+     *
      * @return state of the game
      */
     GameState getGameState();
@@ -64,6 +67,11 @@ public interface Game {
      */
     void registerChug(Chug chug);
 
+    /**
+     * Returns the last card drawn in the game
+     *
+     * @return the last card drawn
+     */
     Card getLastCardDrawn();
 
     /**
@@ -72,6 +80,20 @@ public interface Game {
      * @return a list of players
      */
     List<Player> getPlayers();
+
+    /**
+     * Returns the queue of players in the game, representing the order of play
+     *
+     * @return the player queue
+     */
+    Queue<Player> getPlayerQueue();
+
+    /**
+     * Returns the deck of cards used in the game
+     *
+     * @return the deck of cards
+     */
+    Deck getDeck();
 
     /**
      * Returns the current player in turn
@@ -108,5 +130,11 @@ public interface Game {
      */
     Timer getPlayerTimer();
 
-    int getRound();
+
+    /**
+     * Returns the current turn counter
+     *
+     * @return current turn counter
+     */
+    int getTurnCounter();
 }

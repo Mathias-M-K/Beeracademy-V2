@@ -86,7 +86,7 @@ class DeckTest {
         Deck deck = new Deck(1);
 
         //Act
-        int remainingCards = deck.getRemainingCards();
+        int remainingCards = deck.unusedCards.size();
 
         //Assert
         assertThat(remainingCards,is(13));
@@ -98,11 +98,11 @@ class DeckTest {
 
         //Arrange
         Deck deck = new Deck(1);
-        int initialNumberOfCards = deck.getRemainingCards();
+        int initialNumberOfCards = deck.unusedCards.size();
 
         //Act
         deck.drawCard();
-        int remainingCards = deck.getRemainingCards();
+        int remainingCards = deck.unusedCards.size();
 
         //Assert
         assertThat(remainingCards,is(initialNumberOfCards-1));

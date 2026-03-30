@@ -1,12 +1,14 @@
 package dk.mathiaskofod.domain.game.timer;
 
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
+import lombok.NoArgsConstructor;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
 public class Timer {
 
     Instant startTime;
@@ -15,6 +17,13 @@ public class Timer {
     TimerState state = TimerState.NOT_STARTED;
 
     List<Duration> pauses = new ArrayList<>();
+
+    public Timer(TimerSnapshot snapshot) {
+        this.startTime = snapshot.startTime();
+        this.pauseStartTime = snapshot.pauseStartTime();
+        this.state = snapshot.state();
+        this.pauses = new ArrayList<>(snapshot.pauses());
+    }
 
     public void start() {
         this.startTime = Instant.now();

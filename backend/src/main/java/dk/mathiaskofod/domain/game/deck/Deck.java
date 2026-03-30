@@ -23,6 +23,11 @@ public class Deck {
         unusedCards = generateDeck(nrOfSuits);
     }
 
+    public Deck(DeckSnapshot snapshot) {
+        this.unusedCards = snapshot.unusedCards();
+        this.usedCards = snapshot.usedCards();
+    }
+
     public Card drawCard(){
 
         if(unusedCards.isEmpty()){
@@ -36,10 +41,6 @@ public class Deck {
         unusedCards.remove(card);
 
         return card;
-    }
-
-    public int getRemainingCards(){
-        return unusedCards.size();
     }
 
     public boolean isEmpty(){
