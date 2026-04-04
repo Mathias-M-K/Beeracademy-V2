@@ -40,21 +40,25 @@ export class GameService {
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
   public currentPlayer = linkedSignal(() => {
     const players = this.gameStateObj()?.players;
-    const currentPlayerId = this.gameStateObj()?.currentPlayerId;
+    const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.previousPlayerId : this.gameStateObj()?.currentPlayerId;
 
     if (!players || !currentPlayerId) return;
 
     return players.find((player) => player.id === currentPlayerId);
   })
 
-  public awaitingChugFromPlayer = signal<PlayerDto | undefined>(undefined)
+  public awaitingChugFromPlayer = linkedSignal(() => {
+    if (this.gameState() === GameState.AwaitingChug) {
+      return this.currentPlayer();
+    }
+    return undefined;
+  })
 
 
   constructor(private readonly websocketService: WebsocketService) {
     this.websocketService.messages$.subscribe(message => {
       this.handleEvent(message);
     });
-
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
       const state = this.gameStateObj();
       if (!state?.id || !state?.name) {
@@ -122,17 +126,18 @@ export class GameService {
         switch (gameEvent.payload.type) {
           case 'DRAW_CARD': {
             const drawCardEvent: DrawCardEvent = gameEvent.payload as DrawCardEvent;
-            const card = drawCardEvent.turn.card;
 
+            const card = drawCardEvent.turn.card;
+            const isChugCard = card?.rank === 14;
             this.currentCard.set(card);
 
-            const currentPlayerId = card?.rank === 14 ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
+            const currentPlayerId = isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
             this.currentPlayer.set(this.getPlayer(currentPlayerId));
 
             this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
             this.resetTimer(this.playerTimeReport);
 
-            if (this.currentCard()?.rank === 14) {
+            if (isChugCard) {
               this.pauseTimer(this.playerTimeReport);
               this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.nextToDraw));
             }
@@ -145,6 +150,7 @@ export class GameService {
             this.currentPlayer.set(this.getPlayer(chugEvent.nextToDraw));
             this.awaitingChugFromPlayer.set(undefined);
             this.startTimer(this.playerTimeReport);
+            this.gameState.set(GameState.InProgress);
             break;
           }
           case 'GAME_START': {
