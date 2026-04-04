@@ -114,7 +114,7 @@ public interface Game {
      *
      * @return last player to draw
      */
-    Player getDrawnBy();
+    Player getLastToDraw();
 
     /**
      * Provides Timer for the overall game.

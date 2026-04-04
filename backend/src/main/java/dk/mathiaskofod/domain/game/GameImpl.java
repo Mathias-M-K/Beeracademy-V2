@@ -40,7 +40,7 @@ public class GameImpl implements Game {
     private Player nextToDraw;
 
     @Getter
-    private Player drawnBy;
+    private Player lastToDraw;
 
     @Getter
     private Player nextAfter;
@@ -49,7 +49,7 @@ public class GameImpl implements Game {
     private Card lastCardDrawn;
 
     @Getter
-    private int turnCounter = 1;
+    private int turnCounter = 0;
     int round = 1;
 
     @Getter
@@ -83,15 +83,13 @@ public class GameImpl implements Game {
     }
 
     public GameImpl(GameSnapshot snapshot, GameEventEmitter eventEmitter) {
-        log.info("GameImpl constructor");
-        log.trace("GameImpl constructor trace");
         this.name = snapshot.name();
         this.gameId = snapshot.gameId();
         this.players = snapshot.players();
 
         LinkedList<Player> restoredQueue = new LinkedList<>(snapshot.playerQueue());
 
-        this.drawnBy = restoredQueue.get(restoredQueue.size() - 2);
+        this.lastToDraw = restoredQueue.get(restoredQueue.size() - 2);
         this.nextToDraw = restoredQueue.getLast();
         this.nextAfter  = restoredQueue.getFirst();
 
@@ -105,6 +103,8 @@ public class GameImpl implements Game {
         this.lastCardDrawn = snapshot.lastCard();
         this.gameState = snapshot.gameState();
         this.turnCounter = snapshot.turnCounter();
+
+        this.round = turnCounter / players.size() + 1;
 
         this.eventEmitter = eventEmitter;
     }
@@ -171,16 +171,16 @@ public class GameImpl implements Game {
             throw new GameException("Can't draw card while game is paused", 400);
         }
 
-        progressPlayerQueue();
-
         lastCardDrawn = deck.drawCard();
 
         //If first round, then time is set to zero, as players are just beginning
         long duration = round == 1 ? 0 : turnDuration;
         Turn turn = new Turn(round, lastCardDrawn, duration);
-        drawnBy.stats().addTurn(turn);
+        progressPlayerQueue();
 
-        eventEmitter.onDrawCard(turn, drawnBy, nextToDraw, nextAfter, this);
+        lastToDraw.stats().addTurn(turn);
+
+        eventEmitter.onDrawCard(turn, lastToDraw, nextToDraw, nextAfter, this);
 
         if (isChugCard(turn.card())) {
             gameState = GameState.AWAITING_CHUG;
@@ -204,12 +204,12 @@ public class GameImpl implements Game {
             throw new GameException("Can't register a chug while game is paused", 400);
         }
 
-        drawnBy.stats().addChug(chug);
+        lastToDraw.stats().addChug(chug);
         gameState = GameState.IN_PROGRESS;
 
         playerTimer.resume();
 
-        eventEmitter.onNewChug(chug, drawnBy, nextToDraw, this);
+        eventEmitter.onNewChug(chug, lastToDraw, nextToDraw, this);
     }
 
     /**
@@ -218,7 +218,7 @@ public class GameImpl implements Game {
     private void progressPlayerQueue() {
 
         playerTimer.reset();
-        drawnBy = nextToDraw;
+        lastToDraw = nextToDraw;
 
         nextToDraw = playerQueue.poll();
         playerQueue.add(nextToDraw);
