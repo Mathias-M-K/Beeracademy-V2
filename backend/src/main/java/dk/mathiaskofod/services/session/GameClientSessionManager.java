@@ -24,7 +24,9 @@ public class GameClientSessionManager extends AbstractSessionManager {
     public void claimGame(String gameId) {
 
         //Checks whether the game exist
-        gameService.getGame(gameId);
+        if(!gameService.checkGameExists(gameId)) {
+            throw new RuntimeException("No game bye");
+        }
 
         if (getSession(gameId).isPresent()) {
             String msg = String.format("The game with id %s is already claimed.", gameId);

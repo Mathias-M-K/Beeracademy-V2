@@ -67,10 +67,12 @@ public class GameImpl implements Game {
         this.name = name;
         this.gameId = gameId;
         this.players = players;
+
         this.playerQueue = new LinkedList<>(players);
 
         this.nextToDraw = playerQueue.poll();
         this.nextAfter = playerQueue.peek();
+        this.playerQueue.add(nextToDraw);
 
         this.deck = new Deck(players.size());
 
@@ -81,15 +83,17 @@ public class GameImpl implements Game {
     }
 
     public GameImpl(GameSnapshot snapshot, GameEventEmitter eventEmitter) {
+        log.info("GameImpl constructor");
+        log.trace("GameImpl constructor trace");
         this.name = snapshot.name();
         this.gameId = snapshot.gameId();
         this.players = snapshot.players();
 
         LinkedList<Player> restoredQueue = new LinkedList<>(snapshot.playerQueue());
 
-        this.drawnBy    = restoredQueue.getLast();
-        this.nextToDraw = restoredQueue.getFirst();
-        this.nextAfter  = restoredQueue.get(1);
+        this.drawnBy = restoredQueue.get(restoredQueue.size() - 2);
+        this.nextToDraw = restoredQueue.getLast();
+        this.nextAfter  = restoredQueue.getFirst();
 
         this.playerQueue = restoredQueue;
 
@@ -98,6 +102,7 @@ public class GameImpl implements Game {
 
         this.deck = new Deck(snapshot.deck());
 
+        this.lastCardDrawn = snapshot.lastCard();
         this.gameState = snapshot.gameState();
         this.turnCounter = snapshot.turnCounter();
 
@@ -159,7 +164,7 @@ public class GameImpl implements Game {
     public void drawCard(long turnDuration) {
 
         if (gameState != GameState.IN_PROGRESS) {
-            throw new GameException(String.format("Draw card not available when game is not in state: %s", GameState.IN_PROGRESS), 400);
+            throw new GameException(String.format("Draw card not available when game is in state: %s", gameState), 400);
         }
 
         if (gameTimer.getState() == TimerState.PAUSED) {
@@ -215,8 +220,8 @@ public class GameImpl implements Game {
         playerTimer.reset();
         drawnBy = nextToDraw;
 
-        playerQueue.add(drawnBy);
         nextToDraw = playerQueue.poll();
+        playerQueue.add(nextToDraw);
 
         nextAfter = playerQueue.peek();
 

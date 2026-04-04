@@ -2,6 +2,7 @@ package dk.mathiaskofod.services.game;
 
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.GameImpl;
+import dk.mathiaskofod.domain.game.GameSnapshot;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitterImpl;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.player.Player;
@@ -27,16 +28,20 @@ public class GameService {
     @Inject
     GameEventEmitterImpl gameEventEmitterImpl;
 
-    private final Map<String, Game> games = new HashMap<>();
+    private final Map<String, GameSnapshot> games = new HashMap<>();
 
     public String createGame(String name, List<Player> players) {
 
         String gameId = IdGenerator.generateGameId();
 
         GameImpl game = new GameImpl(name, gameId, players, gameEventEmitterImpl);
-        games.put(gameId, game);
+        games.put(gameId, GameSnapshot.of(game));
 
         return gameId;
+    }
+
+    public boolean checkGameExists(String gameId) {
+        return games.containsKey(gameId);
     }
 
     public Game getGame(String gameId) {
@@ -44,8 +49,8 @@ public class GameService {
         if (!games.containsKey(gameId)) {
             throw new GameNotFoundException(gameId);
         }
-
-        return games.get(gameId);
+        GameSnapshot snapshot = games.get(gameId);
+        return new GameImpl(snapshot, gameEventEmitterImpl);
     }
 
     public Player getPlayer(String gameId, String playerId) {
@@ -65,26 +70,37 @@ public class GameService {
         long diff = Math.abs(clientDurationMillis - serverDurationMillis);
         log.info("Client reported duration: {} ms, Server recorded duration: {} ms, diff: {} ms", clientDurationMillis, serverDurationMillis, diff);
         game.drawCard(clientDurationMillis);
+        saveGame(game);
     }
 
     public void registerChug(Chug chug, String gameId) {
-        getGame(gameId).registerChug(chug);
+        Game game = getGame(gameId);
+        game.registerChug(chug);
+        saveGame(game);
     }
 
     public void startGame(String gameId) {
-        getGame(gameId).startGame();
+        Game game = getGame(gameId);
+        game.startGame();
+        saveGame(game);
     }
 
     public void endGame(String gameId){
-        getGame(gameId).endGame();
+        Game game = getGame(gameId);
+        game.endGame();
+        saveGame(game);
     }
 
     public void pauseGame(String gameId) {
-        getGame(gameId).pauseGame();
+        Game game = getGame(gameId);
+        game.pauseGame();
+        saveGame(game);
     }
 
     public void resumeGame(String gameId){
-        getGame(gameId).resumeGame();
+        Game game = getGame(gameId);
+        game.resumeGame();
+        saveGame(game);
     }
 
     public GameReport getGameReport(String gameId) {
@@ -103,5 +119,9 @@ public class GameService {
                 TimeReport.createReport(game.getGameTimer()),
                 TimeReport.createReport(game.getPlayerTimer())
         );
+    }
+
+    private void saveGame(Game game) {
+        games.put(game.getGameId(), GameSnapshot.of(game));
     }
 }

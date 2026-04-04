@@ -51,16 +51,13 @@ public class LobbyService {
                 .map(SessionDto::create)
                 .orElseGet(SessionDto::createEmpty);
 
-        List<PlayerDto> playerDtos = getPlayersInGame(gameId);
+        List<PlayerDto> playerDtos = getPlayerDtos(game);
 
         return GameDto.create(game, gameSession, playerDtos);
 
     }
 
-
-    public List<PlayerDto> getPlayersInGame(String gameId) {
-        Game game = gameService.getGame(gameId);
-
+    public List<PlayerDto> getPlayerDtos(Game game) {
         return game.getPlayers().stream()
                 .map(player -> {
                     SessionDto playerSessionDto = playerClientSessionManager.getSession(player.id())
@@ -70,6 +67,12 @@ public class LobbyService {
                     return PlayerDto.create(player, playerSessionDto);
                 })
                 .toList();
+    }
+
+
+    public List<PlayerDto> getPlayerDtos(String gameId) {
+        Game game = gameService.getGame(gameId);
+        return getPlayerDtos(game);
     }
 
     public String claimGame(String gameId) {

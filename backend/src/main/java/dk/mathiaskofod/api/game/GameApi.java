@@ -82,7 +82,7 @@ public class GameApi {
     @Path("/{gameId}/players")
     @Operation(summary = "Get players in game", description = "Retrieves the list of players in a specific game")
     public List<PlayerDto> getPlayersInGame(@Valid @BeanParam GameIdDto gameIdDto) {
-        return lobbyService.getPlayersInGame(gameIdDto.gameId());
+        return lobbyService.getPlayerDtos(gameIdDto.gameId());
     }
 
     @GET
