@@ -40,7 +40,7 @@ export class GameService {
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
   public currentPlayer = linkedSignal(() => {
     const players = this.gameStateObj()?.players;
-    const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.previousPlayerId : this.gameStateObj()?.currentPlayerId;
+    const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw;
 
     if (!players || !currentPlayerId) return;
 
@@ -146,7 +146,7 @@ export class GameService {
           }
           case 'CHUG' : {
             const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
-            this.addChugToPlayer(chugEvent.chug, chugEvent.drawnBy);
+            this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
             this.currentPlayer.set(this.getPlayer(chugEvent.nextToDraw));
             this.awaitingChugFromPlayer.set(undefined);
             this.startTimer(this.playerTimeReport);

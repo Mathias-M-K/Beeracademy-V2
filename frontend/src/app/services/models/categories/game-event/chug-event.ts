@@ -3,6 +3,6 @@ import {Chug} from '../../../../../api-models/model/chug';
 
 export interface ChugEvent extends GameEvent {
   nextToDraw: string;
-  drawnBy: string
+  chuggedBy: string
   chug: Chug
 }
