@@ -13,13 +13,13 @@ import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
+import io.quarkus.redis.datasource.RedisDataSource;
+import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 @Slf4j
@@ -28,28 +28,32 @@ public class GameService {
     @Inject
     GameEventEmitterImpl gameEventEmitterImpl;
 
-    private final Map<String, GameSnapshot> games = new HashMap<>();
+    private final ValueCommands<String, GameSnapshot> gameSnapshots;
+
+    public GameService(RedisDataSource redisDataSource) {
+        gameSnapshots = redisDataSource.value(GameSnapshot.class);
+    }
 
     public String createGame(String name, List<Player> players) {
 
         String gameId = IdGenerator.generateGameId();
 
         GameImpl game = new GameImpl(name, gameId, players, gameEventEmitterImpl);
-        games.put(gameId, GameSnapshot.of(game));
+        saveGame(game);
 
         return gameId;
     }
 
-    public boolean checkGameExists(String gameId) {
-        return games.containsKey(gameId);
+    public boolean gameExists(String gameId) {
+        return gameSnapshots.get(gameId) != null;
     }
 
     public Game getGame(String gameId) {
 
-        if (!games.containsKey(gameId)) {
+        if (!gameExists(gameId)) {
             throw new GameNotFoundException(gameId);
         }
-        GameSnapshot snapshot = games.get(gameId);
+        GameSnapshot snapshot = gameSnapshots.get(gameId);
         return new GameImpl(snapshot, gameEventEmitterImpl);
     }
 
@@ -122,6 +126,6 @@ public class GameService {
     }
 
     private void saveGame(Game game) {
-        games.put(game.getGameId(), GameSnapshot.of(game));
+        gameSnapshots.set(game.getGameId(), GameSnapshot.of(game));
     }
 }
