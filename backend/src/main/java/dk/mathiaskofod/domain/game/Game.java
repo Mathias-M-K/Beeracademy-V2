@@ -27,9 +27,9 @@ public interface Game {
     String getGameId();
 
     /**
-     * Gets the current state of the game, such as AWAITING_START, IN_PROGRESS, PAUSED, or ENDED
+     * Gets the current state of the game
      *
-     * @return state of the game
+     * @return the current game state
      */
     GameState getGameState();
 
