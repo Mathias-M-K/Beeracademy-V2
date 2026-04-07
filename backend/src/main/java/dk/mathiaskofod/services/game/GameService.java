@@ -55,10 +55,12 @@ public class GameService {
 
     public Game getGame(String gameId) {
 
-        if (!gameExists(gameId)) {
+        GameSnapshot snapshot = gameSnapshots.get(gameId);
+
+        if(snapshot == null) {
             throw new GameNotFoundException(gameId);
         }
-        GameSnapshot snapshot = gameSnapshots.get(gameId);
+
         return new GameImpl(snapshot, gameEventEmitterImpl);
     }
 
