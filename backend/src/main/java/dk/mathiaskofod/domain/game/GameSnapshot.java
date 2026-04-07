@@ -6,6 +6,8 @@ import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.TimerSnapshot;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -29,8 +31,8 @@ public record GameSnapshot(
                 game.getGameState(),
                 game.getTurnCounter(),
                 game.getLastCardDrawn(),
-                game.getPlayers(),
-                game.getPlayerQueue(),
+                new ArrayList<>(game.getPlayers()),
+                new LinkedList<>(game.getPlayerQueue()),
                 DeckSnapshot.of(game.getDeck()),
                 TimerSnapshot.of(game.getGameTimer()),
                 TimerSnapshot.of(game.getPlayerTimer())

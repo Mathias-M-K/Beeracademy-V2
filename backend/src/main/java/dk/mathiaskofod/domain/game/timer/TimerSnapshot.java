@@ -4,6 +4,7 @@ import dk.mathiaskofod.domain.game.timer.models.TimerState;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public record TimerSnapshot(
@@ -18,7 +19,7 @@ public record TimerSnapshot(
                 timer.startTime,
                 timer.pauseStartTime,
                 timer.state,
-                timer.pauses
+                new ArrayList<>(timer.pauses)
         );
     }
 }
