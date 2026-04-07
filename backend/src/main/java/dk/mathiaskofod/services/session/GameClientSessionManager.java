@@ -23,9 +23,8 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
     public void claimGame(String gameId) {
 
-        //Checks whether the game exist
         if(!gameService.gameExists(gameId)) {
-            throw new RuntimeException("No game found");
+            throw new ResourceClaimException("Game does not exist");
         }
 
         if (getSession(gameId).isPresent()) {

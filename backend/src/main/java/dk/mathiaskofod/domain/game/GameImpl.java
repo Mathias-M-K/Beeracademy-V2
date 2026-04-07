@@ -17,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-//TODO consider decorator pattern to remove the eventEmitter from GameImpl
 @Slf4j
 public class GameImpl implements Game {
 
