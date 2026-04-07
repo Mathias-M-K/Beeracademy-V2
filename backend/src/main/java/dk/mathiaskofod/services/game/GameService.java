@@ -45,7 +45,12 @@ public class GameService {
     }
 
     public boolean gameExists(String gameId) {
-        return gameSnapshots.get(gameId) != null;
+
+        try {
+            return gameSnapshots.get(gameId) != null;
+        } catch (NullPointerException npe) {
+            return false;
+        }
     }
 
     public Game getGame(String gameId) {
@@ -89,7 +94,7 @@ public class GameService {
         saveGame(game);
     }
 
-    public void endGame(String gameId){
+    public void endGame(String gameId) {
         Game game = getGame(gameId);
         game.endGame();
         saveGame(game);
@@ -101,7 +106,7 @@ public class GameService {
         saveGame(game);
     }
 
-    public void resumeGame(String gameId){
+    public void resumeGame(String gameId) {
         Game game = getGame(gameId);
         game.resumeGame();
         saveGame(game);
