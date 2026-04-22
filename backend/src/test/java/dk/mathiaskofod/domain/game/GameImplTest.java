@@ -128,10 +128,10 @@ class GameImplTest {
         void withFourPlayersAndOneTurn(int nrOfPlayers, int nrOfTurns, int expectedRoundNr) {
 
             //Arrange
-            List<Player> playersSpy = spy(new ArrayList<>());
+            List<String> playersSpy = spy(new ArrayList<>());
             doReturn(nrOfPlayers).when(playersSpy).size();
 
-            when(gameSnapshotMock.players()).thenReturn(playersSpy);
+            when(gameSnapshotMock.playerOrder()).thenReturn(playersSpy);
             when(gameSnapshotMock.turnCounter()).thenReturn(nrOfTurns);
 
             //Act

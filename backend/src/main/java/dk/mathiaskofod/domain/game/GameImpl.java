@@ -15,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class GameImpl implements Game {
@@ -30,10 +33,8 @@ public class GameImpl implements Game {
     private GameState gameState = GameState.AWAITING_START;
 
     @Getter
-    private final List<Player> players;
-
-    @Getter
     private final Queue<Player> playerQueue;
+    private final List<String> playerOrder;
 
     @Getter
     private Player nextToDraw;
@@ -65,7 +66,7 @@ public class GameImpl implements Game {
     public GameImpl(String name, String gameId, List<Player> players, GameEventEmitter eventEmitter) {
         this.name = name;
         this.gameId = gameId;
-        this.players = players;
+        this.playerOrder = players.stream().map(Player::id).toList();
 
         this.playerQueue = new LinkedList<>(players);
 
@@ -84,10 +85,9 @@ public class GameImpl implements Game {
     public GameImpl(GameSnapshot snapshot, GameEventEmitter eventEmitter) {
         this.name = snapshot.name();
         this.gameId = snapshot.gameId();
-        this.players = snapshot.players();
+        this.playerOrder = snapshot.playerOrder();
 
         LinkedList<Player> restoredQueue = new LinkedList<>(snapshot.playerQueue());
-
         this.lastToDraw = restoredQueue.get(restoredQueue.size() - 2);
         this.nextToDraw = restoredQueue.getLast();
         this.nextAfter  = restoredQueue.getFirst();
@@ -103,9 +103,18 @@ public class GameImpl implements Game {
         this.gameState = snapshot.gameState();
         this.turnCounter = snapshot.turnCounter();
 
-        this.round = turnCounter / players.size() + 1;
+        this.round = turnCounter / playerOrder.size() + 1;
 
         this.eventEmitter = eventEmitter;
+    }
+
+    public List<Player> getPlayers() {
+        Map<String, Player> playerMap = playerQueue.stream()
+                .collect(Collectors.toMap(Player::id, Function.identity()));
+
+        return playerOrder.stream()
+                .map(playerMap::get)
+                .toList();
     }
 
     public void startGame() {
@@ -225,7 +234,7 @@ public class GameImpl implements Game {
         nextAfter = playerQueue.peek();
 
         turnCounter++;
-        if (turnCounter % players.size() == 0) {
+        if (turnCounter % playerOrder.size() == 0) {
             round++;
         }
     }
