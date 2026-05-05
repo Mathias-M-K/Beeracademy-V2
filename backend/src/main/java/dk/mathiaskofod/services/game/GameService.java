@@ -28,8 +28,10 @@ public class GameService {
     @Inject
     GameEventEmitterImpl gameEventEmitterImpl;
 
+    //TODO introduce cache key prefix
     private final ValueCommands<String, GameSnapshot> gameSnapshots;
 
+    //TODO PostConstruct instead maybe?
     public GameService(RedisDataSource redisDataSource) {
         gameSnapshots = redisDataSource.value(GameSnapshot.class);
     }

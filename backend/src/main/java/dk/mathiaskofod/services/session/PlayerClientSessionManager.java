@@ -21,7 +21,6 @@ import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
-import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -49,18 +48,6 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
                 .filter(session -> session.getConnectionId().isPresent())
                 .forEach(session -> sendMessage(session.getSessionId(), message));
 
-    }
-
-    public void claimPlayer(String gameId, String playerId) {
-
-        if (getSession(playerId).isPresent()) {
-            String msg = String.format("Player with ID: %s, from game: %s, has already been claimed.",playerId, gameId);
-            throw new ResourceClaimException(msg);
-        }
-
-        addSession(playerId, new Session(playerId));
-
-        log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId);
     }
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
@@ -103,7 +90,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", sessionId, gameId, getConnectionId(playerId));
 
         closeConnection(sessionId);
-        removeSession(sessionId);
+        sessionRegistry.removeSession(sessionId);
 
         broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }

@@ -20,31 +20,21 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class GameClientSessionManager extends AbstractSessionManager {
 
-
-    public void claimGame(String gameId) {
-
-        if(!gameService.gameExists(gameId)) {
-            throw new ResourceClaimException("Game does not exist");
-        }
-
-        if (getSession(gameId).isPresent()) {
-            String msg = String.format("The game with id %s is already claimed.", gameId);
-            throw new ResourceClaimException(msg);
-        }
-
-        addSession(gameId, new Session(gameId));
-    }
-
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
         String gameId = tokenInfo.getGameId();
 
-        getSession(gameId)
+        Session session = getSession(gameId)
                 .orElseThrow(() -> {
                     String msg = String.format("The game with id %s either doesn't exist or haven't been claimed.", gameId);
                     return new ResourceClaimException(msg);
-                })
-                .setConnectionId(websocketConnectionId);
+                });
+
+        if(session.isConnected()){
+            //TODO what to do when client is already connected?
+        }
+
+        sessionRegistry.setConnectionId(gameId, websocketConnectionId);
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnectionId);
 

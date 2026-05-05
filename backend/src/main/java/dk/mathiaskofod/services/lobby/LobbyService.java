@@ -8,8 +8,9 @@ import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.services.session.GameClientSessionManager;
-import dk.mathiaskofod.services.session.PlayerClientSessionManager;
+import dk.mathiaskofod.services.session.SessionRegistry;
+import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
+import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -25,10 +26,7 @@ public class LobbyService {
     AuthService authService;
 
     @Inject
-    GameClientSessionManager gameClientSessionManager;
-
-    @Inject
-    PlayerClientSessionManager playerClientSessionManager;
+    SessionRegistry sessionRegistry;
 
     public String createGame(CreateGameRequest createGameRequest) {
 
@@ -47,7 +45,7 @@ public class LobbyService {
 
         Game game = gameService.getGame(gameId);
 
-        SessionDto gameSession = gameClientSessionManager.getSession(gameId)
+        SessionDto gameSession = sessionRegistry.getSession(gameId)
                 .map(SessionDto::create)
                 .orElseGet(SessionDto::createEmpty);
 
@@ -57,10 +55,10 @@ public class LobbyService {
 
     }
 
-    public List<PlayerDto> getPlayerDtos(Game game) {
+    private List<PlayerDto> getPlayerDtos(Game game) {
         return game.getPlayers().stream()
                 .map(player -> {
-                    SessionDto playerSessionDto = playerClientSessionManager.getSession(player.id())
+                    SessionDto playerSessionDto = sessionRegistry.getSession(player.id())
                             .map(SessionDto::create)
                             .orElseGet(SessionDto::createEmpty);
 
@@ -69,21 +67,37 @@ public class LobbyService {
                 .toList();
     }
 
-
     public List<PlayerDto> getPlayerDtos(String gameId) {
         Game game = gameService.getGame(gameId);
         return getPlayerDtos(game);
     }
 
     public String claimGame(String gameId) {
-        gameClientSessionManager.claimGame(gameId);
+
+        if(!gameService.gameExists(gameId)) {
+            throw new ResourceClaimException("Game does not exist");
+        }
+
+        if (sessionRegistry.getSession(gameId).isPresent()) {
+            String msg = String.format("The game with id %s is already claimed.", gameId);
+            throw new ResourceClaimException(msg);
+        }
+
+        sessionRegistry.registerSession(new Session(gameId));
+
         return authService.createGameClientToken(gameId);
     }
 
     public String claimPlayer(String gameId, String playerId) {
-        playerClientSessionManager.claimPlayer(gameId, playerId);
+
+        if (sessionRegistry.getSession(playerId).isPresent()) {
+            String msg = String.format("Player with ID: %s, from game: %s, has already been claimed.",playerId, gameId);
+            throw new ResourceClaimException(msg);
+        }
 
         Player player = gameService.getPlayer(gameId, playerId);
+
+        sessionRegistry.registerSession(new Session(playerId));
 
         return authService.createPlayerClientToken(player, gameId);
     }

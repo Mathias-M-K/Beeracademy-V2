@@ -2,23 +2,22 @@ package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.lobby.LobbyService;
-import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
-import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
+import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.models.Session;
 import dk.mathiaskofod.websocket.WebsocketSessionManager;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public abstract class AbstractSessionManager implements WebsocketSessionManager {
 
-    private final Map<String, Session> sessions = new HashMap<>();
+    @Inject
+    SessionRegistry sessionRegistry;
 
     @Inject
     protected GameService gameService;
@@ -29,16 +28,8 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
     @Inject
     OpenConnections connections;
 
-    public final Optional<Session> getSession(String id){
-        return Optional.ofNullable(sessions.get(id));
-    }
-
-    protected final void addSession(String id, Session session){
-        sessions.put(id, session);
-    }
-
-    protected final void removeSession(String id){
-        sessions.remove(id);
+    public final Optional<Session> getSession(String resourceId){
+        return sessionRegistry.getSession(resourceId);
     }
 
     protected final String getConnectionId(String sessionId){

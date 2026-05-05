@@ -88,7 +88,7 @@ public class GameImpl implements Game {
         this.playerOrder = snapshot.playerOrder();
 
         LinkedList<Player> restoredQueue = new LinkedList<>(snapshot.playerQueue());
-        this.lastToDraw = restoredQueue.get(restoredQueue.size() - 2);
+        this.lastToDraw = restoredQueue.get(restoredQueue.size() - 2);  //TODO this will not work with only one player
         this.nextToDraw = restoredQueue.getLast();
         this.nextAfter  = restoredQueue.getFirst();
 

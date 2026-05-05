@@ -5,11 +5,14 @@ import lombok.Setter;
 
 import java.util.Optional;
 
-@Setter
+
 public class Session {
 
     @Getter
-    private String sessionId;
+    private final String sessionId;
+
+    @Setter
+    private String connectionId; // The ID provided by Quarkus Websocket
 
     /**
      * Creates a session
@@ -18,9 +21,6 @@ public class Session {
     public Session(String sessionId){
         this.sessionId = sessionId;
     }
-
-
-    private String connectionId; // The ID provided by Quarkus
 
     public boolean isConnected() {
         return connectionId != null;
