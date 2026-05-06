@@ -4,6 +4,7 @@ import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
@@ -11,7 +12,7 @@ import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
 import dk.mathiaskofod.services.session.exceptions.*;
-import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.services.session.repository.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,12 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         String gameId = tokenInfo.getGameId();
 
-        Session session = getSession(gameId)
-                .orElseThrow(() -> {
-                    String msg = String.format("The game with id %s either doesn't exist or haven't been claimed.", gameId);
-                    return new ResourceClaimException(msg);
-                });
+        if(!gameService.gameExists(gameId)){
+            throw new GameNotFoundException(gameId);
+        }
+
+        Session session = sessionRegistry.getSession(gameId)
+                .orElseThrow(() -> new SessionNotFoundException(gameId));
 
         if(session.isConnected()){
             //TODO what to do when client is already connected?
@@ -48,9 +50,7 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         String gameId = tokenInfo.getGameId();
 
-        getSession(gameId)
-                .orElseThrow(() -> new SessionNotFoundException(gameId))
-                .clearConnectionId();
+        sessionRegistry.clearConnectionId(gameId);
 
         log.info("Game client disconnected. GameID:{}", gameId);
     }

@@ -1,6 +1,6 @@
 package dk.mathiaskofod.common.dto.session;
 
-import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.services.session.repository.Session;
 
 public record SessionDto(boolean isClaimed, boolean isConnected) {
 

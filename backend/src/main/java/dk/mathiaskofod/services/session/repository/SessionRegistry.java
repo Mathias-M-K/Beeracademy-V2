@@ -1,6 +1,5 @@
-package dk.mathiaskofod.services.session;
+package dk.mathiaskofod.services.session.repository;
 
-import dk.mathiaskofod.services.session.models.Session;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -38,6 +37,14 @@ public class SessionRegistry {
         Session session = getSession(sessionId).orElseThrow();
         session.setConnectionId(connectionId);
         sessions.set(sessionCacheId,session);
+    }
+
+    public void clearConnectionId(String sessionId) {
+        String sessionCacheId = getSessionCacheId(sessionId);
+        getSession(sessionId).ifPresent(session -> {
+            session.clearConnectionId();
+            sessions.set(sessionCacheId, session);
+        });
     }
 
     private String getSessionCacheId(String sessionId){

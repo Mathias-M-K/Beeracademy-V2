@@ -6,13 +6,11 @@ import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
-import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import dk.mathiaskofod.websocket.WebsocketSessionManager;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
-
-import java.util.Optional;
 
 public abstract class AbstractSessionManager implements WebsocketSessionManager {
 
@@ -28,12 +26,8 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
     @Inject
     OpenConnections connections;
 
-    public final Optional<Session> getSession(String resourceId){
-        return sessionRegistry.getSession(resourceId);
-    }
-
     protected final String getConnectionId(String sessionId){
-        return getSession(sessionId).
+        return sessionRegistry.getSession(sessionId).
                 orElseThrow(() -> new SessionNotFoundException(sessionId))
                 .getConnectionId()
                 .orElseThrow(() -> new NoConnectionIdException(sessionId));

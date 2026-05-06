@@ -17,7 +17,6 @@ import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerDisconnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerRelinquishedEvent;
-import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
@@ -43,7 +42,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
     private void broadcastMessageToAllPlayersInGame(WebsocketEnvelope message, String gameId) {
         gameService.getGame(gameId).getPlayers().stream()
                 .map(Player::id)
-                .map(this::getSession)
+                .map(sessionRegistry::getSession)
                 .flatMap(Optional::stream)
                 .filter(session -> session.getConnectionId().isPresent())
                 .forEach(session -> sendMessage(session.getSessionId(), message));
@@ -55,12 +54,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         String gameId = tokenInfo.getGameId();
         String playerId = tokenInfo.getPlayerId();
 
-        getSession(playerId)
-                .orElseThrow(() -> {
-                    String msg = String.format("Player: %s, in game: %s, either doesn't exist or have not been claimed", playerId,gameId);
-                    return new ResourceClaimException(msg);
-                })
-                .setConnectionId(websocketConnectionId);
+        sessionRegistry.setConnectionId(playerId, websocketConnectionId);
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
@@ -72,9 +66,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         String gameId = tokenInfo.getGameId();
         String playerId = tokenInfo.getPlayerId();
 
-        getSession(playerId)
-                .orElseThrow(() -> new SessionNotFoundException(playerId))
-                .clearConnectionId();
+        sessionRegistry.clearConnectionId(playerId);
 
         broadcastPlayerEvent(new PlayerDisconnectedEvent(playerId, gameId));
 
@@ -83,7 +75,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
     public void relinquishPlayer(String gameId, String playerId) {
 
-        String sessionId = getSession(playerId)
+        String sessionId = sessionRegistry.getSession(playerId)
                 .orElseThrow(() -> new SessionNotFoundException(playerId))
                         .getSessionId();
 

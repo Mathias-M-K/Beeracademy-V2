@@ -8,9 +8,9 @@ import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.services.session.SessionRegistry;
 import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
-import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.services.session.repository.Session;
+import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
