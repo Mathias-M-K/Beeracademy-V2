@@ -90,6 +90,10 @@ public class LobbyService {
 
     public String claimPlayer(String gameId, String playerId) {
 
+        if(!gameService.gameExists(gameId)) {
+            throw new ResourceClaimException("Game does not exist");
+        }
+
         if (sessionRegistry.getSession(playerId).isPresent()) {
             String msg = String.format("Player with ID: %s, from game: %s, has already been claimed.",playerId, gameId);
             throw new ResourceClaimException(msg);

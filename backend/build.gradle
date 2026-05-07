@@ -136,8 +136,6 @@ tasks.register('k8sForceDeploy', Exec) {
     commandLine 'kubectl', 'rollout', 'restart', 'deployment/beer-academy-backend-deployment', '-n', 'beer-academy'
 }
 
-
-
 tasks.register('manual_deploy') {
     group = 'deployment'
     description = 'Full deployment: clean, build, docker build/push, k8s deploy'

@@ -1,6 +1,8 @@
 package dk.mathiaskofod.services.session.repository;
 
+import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import io.quarkus.redis.datasource.RedisDataSource;
+import io.quarkus.redis.datasource.keys.KeyCommands;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -10,11 +12,13 @@ import java.util.Optional;
 public class SessionRegistry {
 
     private final ValueCommands<String, Session> sessions;
+    private final KeyCommands<String> keys;
 
     private static final String SESSION_CACHE_PREFIX = "SESSION:";
 
     public SessionRegistry(RedisDataSource redisDataSource) {
         this.sessions = redisDataSource.value(Session.class);
+        this.keys = redisDataSource.key();
     }
 
     public void registerSession(Session session) {
@@ -29,12 +33,13 @@ public class SessionRegistry {
 
     public void removeSession(String sessionId) {
         String sessionCacheId = getSessionCacheId(sessionId);
-        sessions.getdel(sessionCacheId);
+        keys.del(sessionCacheId);
     }
 
     public void setConnectionId(String sessionId, String connectionId) {
         String sessionCacheId = getSessionCacheId(sessionId);
-        Session session = getSession(sessionId).orElseThrow();
+        Session session = getSession(sessionId)
+                .orElseThrow(() -> new SessionNotFoundException(sessionId));
         session.setConnectionId(connectionId);
         sessions.set(sessionCacheId,session);
     }

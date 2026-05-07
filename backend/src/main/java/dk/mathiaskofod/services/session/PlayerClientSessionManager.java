@@ -45,7 +45,13 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
                 .map(sessionRegistry::getSession)
                 .flatMap(Optional::stream)
                 .filter(session -> session.getConnectionId().isPresent())
-                .forEach(session -> sendMessage(session.getSessionId(), message));
+                .forEach(session -> {
+                    try {
+                        sendMessage(session.getSessionId(), message);
+                    } catch (Exception e) {
+                        log.info("Failed to send message to session {}: {}", session.getSessionId(), e.getMessage());
+                    }
+                });
 
     }
 
@@ -75,14 +81,14 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
     public void relinquishPlayer(String gameId, String playerId) {
 
-        String sessionId = sessionRegistry.getSession(playerId)
-                .orElseThrow(() -> new SessionNotFoundException(playerId))
-                        .getSessionId();
+        if (sessionRegistry.getSession(playerId).isEmpty()){
+            throw new SessionNotFoundException(playerId);
+        }
 
-        log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", sessionId, gameId, getConnectionId(playerId));
+        log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, getConnectionId(playerId));
 
-        closeConnection(sessionId);
-        sessionRegistry.removeSession(sessionId);
+        closeConnection(playerId);
+        sessionRegistry.removeSession(playerId);
 
         broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }
