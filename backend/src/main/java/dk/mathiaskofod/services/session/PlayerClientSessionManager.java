@@ -49,7 +49,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
                     try {
                         sendMessage(session.getSessionId(), message);
                     } catch (Exception e) {
-                        log.info("Failed to send message to session {}: {}", session.getSessionId(), e.getMessage());
+                        log.warn("Failed to send message to session {}: {}", session.getSessionId(), e.getMessage());
                     }
                 });
 
