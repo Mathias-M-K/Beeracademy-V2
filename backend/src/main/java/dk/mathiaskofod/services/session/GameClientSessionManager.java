@@ -11,7 +11,10 @@ import dk.mathiaskofod.services.session.envelopes.*;
 import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
-import dk.mathiaskofod.services.session.exceptions.*;
+import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
+import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
+import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
+import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import dk.mathiaskofod.services.session.repository.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -36,13 +39,11 @@ public class GameClientSessionManager extends AbstractSessionManager {
             //TODO what to do when client is already connected?
         }
 
-        sessionRegistry.setConnectionId(gameId, websocketConnectionId);
-
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnectionId);
 
         GameDto game = lobbyService.getGame(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
-        broadcastToGameClient(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
+        sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
 
     }
 
@@ -73,15 +74,11 @@ public class GameClientSessionManager extends AbstractSessionManager {
         }
     }
 
-    private void broadcastToGameClient(String gameId, WebsocketEnvelope message) {
-        sendMessage(gameId, message);
-    }
-
     /**
      * Player Events
      **/
     void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
-        broadcastToGameClient(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
+        sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
     /**
@@ -102,11 +99,6 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        try {
-            sendMessage(gameEvent.gameId(), envelope);
-        } catch (NoConnectionIdException noConnectionIdException) {
-            log.info("No game client connected to receive game event: {}", gameEvent);
-        }
-
+        sendMessage(gameEvent.gameId(), envelope);
     }
 }

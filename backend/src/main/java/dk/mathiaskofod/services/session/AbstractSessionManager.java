@@ -11,7 +11,9 @@ import dk.mathiaskofod.websocket.WebsocketSessionManager;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class AbstractSessionManager implements WebsocketSessionManager {
 
     @Inject
@@ -26,14 +28,14 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
     @Inject
     OpenConnections connections;
 
-    protected final String getConnectionId(String sessionId){
+    protected final String getConnectionId(String sessionId) {
         return sessionRegistry.getSession(sessionId).
                 orElseThrow(() -> new SessionNotFoundException(sessionId))
                 .getConnectionId()
                 .orElseThrow(() -> new NoConnectionIdException(sessionId));
     }
 
-    protected final void closeConnection(String sessionId){
+    protected final void closeConnection(String sessionId) {
         getWebsocketConnection(sessionId).closeAndAwait();
     }
 
@@ -43,9 +45,17 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
                 .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for gameId: " + connectionId));
     }
 
-    protected final void sendMessage(String sessionId, WebsocketEnvelope message){
-        WebSocketConnection connection = getWebsocketConnection(sessionId);
-        connection.sendTextAndAwait(message);
+    protected final void sendMessage(String sessionId, WebsocketEnvelope message) {
+
+
+        try {
+            WebSocketConnection connection = getWebsocketConnection(sessionId);
+            connection.sendTextAndAwait(message);
+        } catch (WebsocketConnectionNotFoundException e) {
+            log.warn("Could not find a websocket connection-id when attempting to send a message to → {}", sessionId);
+        } catch (NoConnectionIdException e) {
+            log.warn("Could not find a connection-id for sessionId: {}, when attempting to send a message", sessionId);
+        }
     }
 
 }
