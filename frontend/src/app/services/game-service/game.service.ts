@@ -29,7 +29,7 @@ import {GameEndEvent} from '../models/categories/game-event/game-end-event';
 })
 export class GameService {
 
-  private gameStateObj = signal<GameDto | undefined>(undefined);
+  private readonly gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
   public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
 
@@ -40,21 +40,25 @@ export class GameService {
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
   public currentPlayer = linkedSignal(() => {
     const players = this.gameStateObj()?.players;
-    const currentPlayerId = this.gameStateObj()?.currentPlayerId;
+    const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw;
 
     if (!players || !currentPlayerId) return;
 
     return players.find((player) => player.id === currentPlayerId);
   })
 
-  public awaitingChugFromPlayer = signal<PlayerDto | undefined>(undefined)
+  public awaitingChugFromPlayer = linkedSignal(() => {
+    if (this.gameState() === GameState.AwaitingChug) {
+      return this.currentPlayer();
+    }
+    return undefined;
+  })
 
 
-  constructor(private websocketService: WebsocketService) {
+  constructor(private readonly websocketService: WebsocketService) {
     this.websocketService.messages$.subscribe(message => {
       this.handleEvent(message);
     });
-
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
       const state = this.gameStateObj();
       if (!state?.id || !state?.name) {
@@ -122,23 +126,31 @@ export class GameService {
         switch (gameEvent.payload.type) {
           case 'DRAW_CARD': {
             const drawCardEvent: DrawCardEvent = gameEvent.payload as DrawCardEvent;
-            this.currentCard.set(drawCardEvent.turn.card);
-            this.currentPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
-            this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.previousPlayerId);
+
+            const card = drawCardEvent.turn.card;
+            const isChugCard = card?.rank === 14;
+            this.currentCard.set(card);
+
+            const currentPlayerId = isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
+            this.currentPlayer.set(this.getPlayer(currentPlayerId));
+
+            this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
             this.resetTimer(this.playerTimeReport);
 
-            if (this.currentCard()?.rank === 14) {
+            if (isChugCard) {
               this.pauseTimer(this.playerTimeReport);
-              this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.newPlayerId));
+              this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.nextToDraw));
             }
+
             break;
           }
           case 'CHUG' : {
             const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
-            this.addChugToPlayer(chugEvent.chug, chugEvent.playerId);
-            this.currentPlayer.set(this.getPlayer(chugEvent.newPlayer));
+            this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
+            this.currentPlayer.set(this.getPlayer(chugEvent.nextToDraw));
             this.awaitingChugFromPlayer.set(undefined);
             this.startTimer(this.playerTimeReport);
+            this.gameState.set(GameState.InProgress);
             break;
           }
           case 'GAME_START': {

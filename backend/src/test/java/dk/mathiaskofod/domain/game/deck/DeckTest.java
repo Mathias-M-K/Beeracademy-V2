@@ -5,6 +5,8 @@ import dk.mathiaskofod.domain.game.deck.exceptions.OutOfCardsException;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -78,18 +80,34 @@ class DeckTest {
 
     }
 
-    @Test
-    @DisplayName("A deck with one suit has 13 cards")
-    void deckWithOneSuitHasThirteenCards(){
+    @ParameterizedTest(name = "Deck with {0} suits should have {1} cards")
+    @CsvSource({
+            "1, 13",
+            "2, 26",
+            "3, 39",
+            "4, 52",
+            "5, 65",
+            "6, 78",
+            "7, 91",
+            "8, 104",
+            "9, 117",
+            "10, 130",
+            "11, 143",
+            "12, 156"
+    })
+    @DisplayName("Should create a snapshot of the deck with the correct number of cards")
+    void correctNrOfCardsAreCreated(int nrOfSuits, int expectedCards) {
 
         //Arrange
-        Deck deck = new Deck(1);
+        Deck deck = new Deck(nrOfSuits);
 
         //Act
-        int remainingCards = deck.getRemainingCards();
+        int nrOfCards  = deck.unusedCards.size();
 
         //Assert
-        assertThat(remainingCards,is(13));
+        assertThat(nrOfCards, is(expectedCards));
+
+
     }
 
     @Test
@@ -98,11 +116,11 @@ class DeckTest {
 
         //Arrange
         Deck deck = new Deck(1);
-        int initialNumberOfCards = deck.getRemainingCards();
+        int initialNumberOfCards = deck.unusedCards.size();
 
         //Act
         deck.drawCard();
-        int remainingCards = deck.getRemainingCards();
+        int remainingCards = deck.unusedCards.size();
 
         //Assert
         assertThat(remainingCards,is(initialNumberOfCards-1));
@@ -123,6 +141,24 @@ class DeckTest {
 
         //Assert
         assertThat(deck.isEmpty(),is(true));
+    }
+
+    @Test
+    @DisplayName("Exception is thrown if attempting to draw from empty deck")
+    void exceptionIsThrownIfAttemptingToDrawFromEmptyDeck(){
+
+        //Arrange
+        int nrOfSuits = 1;
+        Deck deck = new Deck(nrOfSuits);
+        int totalNumberOfCards = NR_OF_CARDS_IN_A_SUIT * nrOfSuits;
+
+        //Act - drawing all avaiable cards
+        for(int card = 0; card < totalNumberOfCards; card++){
+            deck.drawCard();
+        }
+
+        //Assert
+        assertThrows(OutOfCardsException.class, deck::drawCard);
     }
 
 }

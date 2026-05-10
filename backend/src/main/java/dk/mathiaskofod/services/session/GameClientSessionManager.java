@@ -4,14 +4,16 @@ import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
 import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
-import dk.mathiaskofod.services.session.exceptions.*;
-import dk.mathiaskofod.services.session.models.Session;
+import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
+import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
+import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
@@ -20,46 +22,28 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class GameClientSessionManager extends AbstractSessionManager {
 
-
-    public void claimGame(String gameId) {
-
-        //Checks whether the game exist
-        gameService.getGame(gameId);
-
-        if (getSession(gameId).isPresent()) {
-            String msg = String.format("The game with id %s is already claimed.", gameId);
-            throw new ResourceClaimException(msg);
-        }
-
-        addSession(gameId, new Session(gameId));
-    }
-
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
         String gameId = tokenInfo.getGameId();
 
-        getSession(gameId)
-                .orElseThrow(() -> {
-                    String msg = String.format("The game with id %s either doesn't exist or haven't been claimed.", gameId);
-                    return new ResourceClaimException(msg);
-                })
-                .setConnectionId(websocketConnectionId);
+        if(!gameService.gameExists(gameId)){
+            throw new GameNotFoundException(gameId);
+        }
+
+        sessionRegistry.setConnectionId(gameId, websocketConnectionId);
 
         log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnectionId);
 
         GameDto game = lobbyService.getGame(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
-        broadcastToGameClient(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
-
+        sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
     }
 
     public void onConnectionClosed(TokenInfo tokenInfo) {
 
         String gameId = tokenInfo.getGameId();
 
-        getSession(gameId)
-                .orElseThrow(() -> new SessionNotFoundException(gameId))
-                .clearConnectionId();
+        sessionRegistry.clearConnectionId(gameId);
 
         log.info("Game client disconnected. GameID:{}", gameId);
     }
@@ -82,15 +66,11 @@ public class GameClientSessionManager extends AbstractSessionManager {
         }
     }
 
-    private void broadcastToGameClient(String gameId, WebsocketEnvelope message) {
-        sendMessage(gameId, message);
-    }
-
     /**
      * Player Events
      **/
     void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
-        broadcastToGameClient(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
+        sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
     /**
@@ -111,11 +91,6 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        try {
-            sendMessage(gameEvent.gameId(), envelope);
-        } catch (NoConnectionIdException noConnectionIdException) {
-            log.info("No game client connected to receive game event: {}", gameEvent);
-        }
-
+        sendMessage(gameEvent.gameId(), envelope);
     }
 }

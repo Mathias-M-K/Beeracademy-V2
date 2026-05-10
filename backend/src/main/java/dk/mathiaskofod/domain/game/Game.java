@@ -1,5 +1,6 @@
 package dk.mathiaskofod.domain.game;
 
+import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
@@ -7,25 +8,33 @@ import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.Timer;
 
 import java.util.List;
+import java.util.Queue;
 
 public interface Game {
 
     /**
      * Gets the user chosen name for the game
+     *
      * @return the game name
      */
     String getName();
 
     /**
      * Gets the unique identifier for the game
+     *
      * @return the game ID
      */
     String getGameId();
 
+    /**
+     * Gets the current state of the game
+     *
+     * @return the current game state
+     */
     GameState getGameState();
 
     /**
-     * Starts the game by starting the timer for both the game and the first player
+     * Starts the game by starting the timer for both the game and the first nextToDraw
      */
     void startGame();
 
@@ -46,41 +55,66 @@ public interface Game {
 
     /**
      * Ends the current turn for a specific player and starts the next player's turn
-     * @param duration the duration of the turn in milliseconds
+     *
+     * @param turnDuration the duration of the turn in milliseconds
      */
-    void drawCard(long duration);
+    void drawCard(long turnDuration);
 
     /**
      * Registers a chug event in the game
+     *
      * @param chug the chug event to register
      */
     void registerChug(Chug chug);
 
-    Card getLastCard();
+    /**
+     * Returns the last card drawn in the game
+     *
+     * @return the last card drawn
+     */
+    Card getLastCardDrawn();
 
     /**
      * Returns a list of players in the game
+     *
      * @return a list of players
      */
     List<Player> getPlayers();
 
     /**
+     * Returns the queue of players in the game, representing the order of play
+     *
+     * @return the player queue
+     */
+    Queue<Player> getPlayerQueue();
+
+    /**
+     * Returns the deck of cards used in the game
+     *
+     * @return the deck of cards
+     */
+    Deck getDeck();
+
+    /**
      * Returns the current player in turn
+     *
      * @return the current player
      */
-    Player getCurrentPlayer();
+    Player getNextToDraw();
 
     /**
-     * Returns the next player
-     * @return next player
+     * Returns the next player to draw next
+     *
+     * @return next player to draw
      */
-    Player getNextPlayer();
+    Player getNextAfter();
 
     /**
-     * Returns the previous player
-     * @return previous player
+     * Returns the last player to draw
+     *
+     * @return last player to draw
      */
-    Player getPreviousPlayer();
+    Player getLastToDraw();
 
     /**
      * Provides Timer for the overall game.
@@ -90,8 +124,17 @@ public interface Game {
     Timer getGameTimer();
 
     /**
-     * Provides Timer for the current player.
+     * Provides Timer for player to draw next
+     *
      * @return Timer
      */
     Timer getPlayerTimer();
+
+
+    /**
+     * Returns the current turn counter
+     *
+     * @return current turn counter
+     */
+    int getTurnCounter();
 }

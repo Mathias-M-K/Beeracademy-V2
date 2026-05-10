@@ -3,8 +3,8 @@ import {Turn} from '../../../../../api-models/model/turn';
 
 export interface DrawCardEvent extends GameEvent {
   turn: Turn;
-  previousPlayerId: string;
-  newPlayerId: string;
-  nextPlayerId: string;
+  drawnBy: string;
+  nextToDraw: string;
+  nextAfter: string;
 
 }

@@ -23,6 +23,9 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.20.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 
+    //Redis
+    implementation("io.quarkus:quarkus-redis-client")
+
     //Micrometer
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
 
@@ -125,10 +128,18 @@ tasks.register('k8sDeploy', Exec) {
     commandLine 'kubectl', 'apply', '-f', '../deployment/backend'
 }
 
+tasks.register('k8sForceDeploy', Exec) {
+    group = 'deployment'
+    description = 'Deploy to Kubernetes'
+    dependsOn dockerPush
+
+    commandLine 'kubectl', 'rollout', 'restart', 'deployment/beer-academy-backend-deployment', '-n', 'beer-academy'
+}
+
 tasks.register('manual_deploy') {
     group = 'deployment'
     description = 'Full deployment: clean, build, docker build/push, k8s deploy'
-    dependsOn clean, build, k8sDeploy
+    dependsOn clean, build, k8sDeploy, k8sForceDeploy
 
     build.mustRunAfter clean
     dockerBuild.mustRunAfter build

@@ -4,7 +4,12 @@
       "Bash(./gradlew quarkusDev)",
       "Bash(curl *localhost*)",
       "WebFetch(domain:localhost)",
-      "mcp__quarkus-dev__quarkus-smallrye-openapi_getOpenAPISchema"
+      "mcp__quarkus-dev__quarkus-smallrye-openapi_getOpenAPISchema",
+      "Bash(./gradlew test:*)",
+      "Bash(./gradlew compileJava)",
+      "WebSearch",
+      "WebFetch(domain:quarkus.io)",
+      "Bash(./gradlew compileJava --no-daemon)"
     ]
   }
 }

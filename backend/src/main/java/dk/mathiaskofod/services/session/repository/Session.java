@@ -1,15 +1,16 @@
-package dk.mathiaskofod.services.session.models;
+package dk.mathiaskofod.services.session.repository;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Optional;
 
-@Setter
+
 public class Session {
 
     @Getter
-    private String sessionId;
+    private final String sessionId;
+
+    private String connectionId; // The ID provided by Quarkus Websocket
 
     /**
      * Creates a session
@@ -19,14 +20,14 @@ public class Session {
         this.sessionId = sessionId;
     }
 
-
-    private String connectionId; // The ID provided by Quarkus
-
     public boolean isConnected() {
         return connectionId != null;
     }
 
-    public void clearConnectionId() {
+    void setConnectionId(String connectionId) {
+        this.connectionId = connectionId;
+    }
+    void clearConnectionId() {
         this.connectionId = null;
     }
 

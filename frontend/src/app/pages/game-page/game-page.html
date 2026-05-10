@@ -1,6 +1,6 @@
 <div>Connection Status : {{ connectionStatus() }}</div>
 
-<div>{{gameState()}} - {{timerState()}}</div>
+<div>GameState:{{gameState()}} - TimerState:{{timerState()}}</div>
 
 @if (gameState() !== GameState.AwaitingStart) {
   <div>Game time: {{ formattedGameTime()! | gameTimeFormat: 'HH:mm:ss' }}</div>
@@ -10,15 +10,16 @@
 @if (gameInfo(); as game) {
   <div>{{ game.name }} - {{ game.id | gameId }}</div>
   <div class="action_buttons">
-    @if (gameState() !== GameState.InProgress) {
+
+    @if (gameState() === GameState.AwaitingStart) {
       <button (click)="startGame()">Start game</button>
     }
 
-    @if (timerState() === TimerState.Running && gameState() === GameState.InProgress) {
+    @if (timerState() === TimerState.Running && (gameState() === GameState.InProgress || gameState() === GameState.AwaitingChug)) {
       <button (click)="pauseGame()">Pause</button>
     }
 
-    @if (timerState() == TimerState.Paused && gameState() === GameState.InProgress) {
+    @if (timerState() == TimerState.Paused && (gameState() === GameState.InProgress || gameState() === GameState.AwaitingChug)) {
       <button (click)="resumeGame()">Resume</button>
     }
 
@@ -35,7 +36,7 @@
 
 <div class="players">
   @for (player of players(); track player.id) {
-    <div class="player" [class.active]="player.id === currentPlayer()?.id && gameState() === GameState.InProgress">
+    <div class="player" [class.active]="player.id === currentPlayer()?.id && (gameState() === GameState.InProgress || gameState() === GameState.AwaitingChug)">
       <div>Name: {{ player.name }}</div>
       <div>ID: {{ player.id }}</div>
 

@@ -17,11 +17,9 @@ import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerConnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerDisconnectedEvent;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerRelinquishedEvent;
-import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
-import dk.mathiaskofod.services.session.models.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -44,23 +42,17 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
     private void broadcastMessageToAllPlayersInGame(WebsocketEnvelope message, String gameId) {
         gameService.getGame(gameId).getPlayers().stream()
                 .map(Player::id)
-                .map(this::getSession)
+                .map(sessionRegistry::getSession)
                 .flatMap(Optional::stream)
                 .filter(session -> session.getConnectionId().isPresent())
-                .forEach(session -> sendMessage(session.getSessionId(), message));
+                .forEach(session -> {
+                    try {
+                        sendMessage(session.getSessionId(), message);
+                    } catch (Exception e) {
+                        log.warn("Failed to send message to session {}: {}", session.getSessionId(), e.getMessage());
+                    }
+                });
 
-    }
-
-    public void claimPlayer(String gameId, String playerId) {
-
-        if (getSession(playerId).isPresent()) {
-            String msg = String.format("Player with ID: %s, from game: %s, has already been claimed.",playerId, gameId);
-            throw new ResourceClaimException(msg);
-        }
-
-        addSession(playerId, new Session(playerId));
-
-        log.info("Player claimed! PlayerID:{}, GameID:{}", playerId, gameId);
     }
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
@@ -68,12 +60,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         String gameId = tokenInfo.getGameId();
         String playerId = tokenInfo.getPlayerId();
 
-        getSession(playerId)
-                .orElseThrow(() -> {
-                    String msg = String.format("Player: %s, in game: %s, either doesn't exist or have not been claimed", playerId,gameId);
-                    return new ResourceClaimException(msg);
-                })
-                .setConnectionId(websocketConnectionId);
+        sessionRegistry.setConnectionId(playerId, websocketConnectionId);
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
@@ -85,9 +72,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         String gameId = tokenInfo.getGameId();
         String playerId = tokenInfo.getPlayerId();
 
-        getSession(playerId)
-                .orElseThrow(() -> new SessionNotFoundException(playerId))
-                .clearConnectionId();
+        sessionRegistry.clearConnectionId(playerId);
 
         broadcastPlayerEvent(new PlayerDisconnectedEvent(playerId, gameId));
 
@@ -96,14 +81,14 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
     public void relinquishPlayer(String gameId, String playerId) {
 
-        String sessionId = getSession(playerId)
-                .orElseThrow(() -> new SessionNotFoundException(playerId))
-                        .getSessionId();
+        if (sessionRegistry.getSession(playerId).isEmpty()){
+            throw new SessionNotFoundException(playerId);
+        }
 
-        log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", sessionId, gameId, getConnectionId(playerId));
+        log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, getConnectionId(playerId));
 
-        closeConnection(sessionId);
-        removeSession(sessionId);
+        closeConnection(playerId);
+        sessionRegistry.removeSession(playerId);
 
         broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }

@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+//TODO Split API into three different APIs, Lobby, Session and GameReport
 @Path("/games")
 @Tag(name = "Game API", description = "API for managing games")
 public class GameApi {
@@ -82,7 +83,7 @@ public class GameApi {
     @Path("/{gameId}/players")
     @Operation(summary = "Get players in game", description = "Retrieves the list of players in a specific game")
     public List<PlayerDto> getPlayersInGame(@Valid @BeanParam GameIdDto gameIdDto) {
-        return lobbyService.getPlayersInGame(gameIdDto.gameId());
+        return lobbyService.getPlayerDtos(gameIdDto.gameId());
     }
 
     @GET
@@ -116,6 +117,7 @@ public class GameApi {
         return gameService.getTimeReport(gameIdDto.gameId());
     }
 
+    //TODO There must be a better way than this.
     private Response generateJwtCookieResponse(String jwt) {
 
         String sanitizedJwt = (jwt == null) ? "" : jwt.replaceAll("[\\r\\n]", "");
