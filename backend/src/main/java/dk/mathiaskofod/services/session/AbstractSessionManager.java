@@ -42,7 +42,7 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
     private WebSocketConnection getWebsocketConnection(String id) {
         String connectionId = getConnectionId(id);
         return connections.findByConnectionId(connectionId)
-                .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for gameId: " + connectionId));
+                .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for connectionId: " + connectionId));
     }
 
     protected final void sendMessage(String sessionId, WebsocketEnvelope message) {
