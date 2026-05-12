@@ -147,7 +147,6 @@ spotless {
         target('src/**/*.java')
 
         removeUnusedImports()
-        forbidWildcardImports()
 
         // apply a specific flavor of google-java-format
         palantirJavaFormat().formatJavadoc(true)

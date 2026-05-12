@@ -19,7 +19,6 @@ public class GameEventEmitterImpl implements GameEventEmitter {
     @Inject
     Event<GameEvent> eventBus;
 
-
     @Override
     public void onStartGame(Game game) {
         eventBus.fire(new StartGameEvent(game.getGameId()));
@@ -32,9 +31,7 @@ public class GameEventEmitterImpl implements GameEventEmitter {
                 GameReport.create(game.getPlayers()),
                 PlayerReport.create(game.getPlayers()),
                 new TimerReports(
-                        TimeReport.createReport(game.getGameTimer()),
-                        TimeReport.createReport(game.getPlayerTimer())
-                )));
+                        TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()))));
     }
 
     @Override
@@ -42,9 +39,7 @@ public class GameEventEmitterImpl implements GameEventEmitter {
         eventBus.fire(new PauseGameEvent(
                 game.getGameId(),
                 new TimerReports(
-                        TimeReport.createReport(game.getGameTimer()),
-                        TimeReport.createReport(game.getPlayerTimer())
-                )));
+                        TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()))));
     }
 
     @Override
@@ -52,9 +47,7 @@ public class GameEventEmitterImpl implements GameEventEmitter {
         eventBus.fire(new ResumeGameEvent(
                 game.getGameId(),
                 new TimerReports(
-                        TimeReport.createReport(game.getGameTimer()),
-                        TimeReport.createReport(game.getPlayerTimer())
-                )));
+                        TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()))));
     }
 
     @Override

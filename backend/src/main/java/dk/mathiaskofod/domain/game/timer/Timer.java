@@ -1,7 +1,6 @@
 package dk.mathiaskofod.domain.game.timer;
 
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -63,6 +62,7 @@ public class Timer {
 
     /**
      * Returns the total active duration of the timer, excluding any paused time.
+     *
      * @return active duration
      */
     public Duration getActiveDuration() {
@@ -75,6 +75,7 @@ public class Timer {
 
     /**
      * Returns the total duration from the start time to now, including paused time.
+     *
      * @return total duration
      */
     Duration getTotalDuration() {

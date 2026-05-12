@@ -27,6 +27,4 @@ public class TokenInfo {
         return Optional.ofNullable(playerId)
                 .orElseThrow(() -> new TokenException("Token doesn't contain Player-ID", 500));
     }
-
-
 }

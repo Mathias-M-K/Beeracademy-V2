@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import java.util.Optional;
 
-
 public class Session {
 
     @Getter
@@ -14,9 +13,10 @@ public class Session {
 
     /**
      * Creates a session
+     *
      * @param sessionId game-id or player-id
      */
-    public Session(String sessionId){
+    public Session(String sessionId) {
         this.sessionId = sessionId;
     }
 
@@ -27,6 +27,7 @@ public class Session {
     void setConnectionId(String connectionId) {
         this.connectionId = connectionId;
     }
+
     void clearConnectionId() {
         this.connectionId = null;
     }
@@ -35,5 +36,4 @@ public class Session {
     public Optional<String> getConnectionId() {
         return Optional.ofNullable(connectionId);
     }
-
 }

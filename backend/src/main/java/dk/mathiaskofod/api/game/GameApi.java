@@ -29,7 +29,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-//TODO Split API into three different APIs, Lobby, Session and GameReport
+// TODO Split API into three different APIs, Lobby, Session and GameReport
 @Path("/games")
 @Tag(name = "Game API", description = "API for managing games")
 public class GameApi {
@@ -59,19 +59,19 @@ public class GameApi {
 
     @GET
     @Path("/{gameId}/claim")
-    @Operation(summary = "Claim game", description = "Claims a game session and returns an authentication token as cookie")
+    @Operation(
+            summary = "Claim game",
+            description = "Claims a game session and returns an authentication token as cookie")
     @APIResponse(
             responseCode = "200",
             description = "Login successful, JWT returned in a secure cookie",
             headers = {
-                    @Header(
-                            name = "Set-Cookie",
-                            description = "Contains the JWT session token",
-                            schema = @Schema(type = SchemaType.STRING)
-                    )
+                @Header(
+                        name = "Set-Cookie",
+                        description = "Contains the JWT session token",
+                        schema = @Schema(type = SchemaType.STRING))
             },
-            content = @Content(schema = @Schema(hidden = true))
-    )
+            content = @Content(schema = @Schema(hidden = true)))
     public Response claimGame(@Valid @BeanParam GameIdDto gameIdDto) {
 
         String sessionJwt = lobbyService.claimGame(gameIdDto.gameId());
@@ -98,26 +98,32 @@ public class GameApi {
 
     @GET
     @Path("/{gameId}/reports/game")
-    @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
+    @Operation(
+            summary = "Get end of game report for game, players and time",
+            description = "Retrieves the end of game report for a specific game")
     public GameReport getGameReport(@Valid @BeanParam GameIdDto gameIdDto) {
         return gameService.getGameReport(gameIdDto.gameId());
     }
 
     @GET
     @Path("/{gameId}/reports/players")
-    @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
+    @Operation(
+            summary = "Get end of game report for game, players and time",
+            description = "Retrieves the end of game report for a specific game")
     public List<PlayerReport> getPlayerReport(@Valid @BeanParam GameIdDto gameIdDto) {
         return gameService.getPlayerReports(gameIdDto.gameId());
     }
 
     @GET
     @Path("/{gameId}/reports/time")
-    @Operation(summary = "Get end of game report for game, players and time", description = "Retrieves the end of game report for a specific game")
+    @Operation(
+            summary = "Get end of game report for game, players and time",
+            description = "Retrieves the end of game report for a specific game")
     public TimerReports getTimeReport(@Valid @BeanParam GameIdDto gameIdDto) {
         return gameService.getTimeReport(gameIdDto.gameId());
     }
 
-    //TODO There must be a better way than this.
+    // TODO There must be a better way than this.
     private Response generateJwtCookieResponse(String jwt) {
 
         String sanitizedJwt = (jwt == null) ? "" : jwt.replaceAll("[\\r\\n]", "");

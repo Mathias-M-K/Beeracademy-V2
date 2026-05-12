@@ -1,4 +1,3 @@
 package dk.mathiaskofod.domain.game.deck.models;
 
-public record Card(Suit suit, int rank) {
-}
+public record Card(Suit suit, int rank) {}

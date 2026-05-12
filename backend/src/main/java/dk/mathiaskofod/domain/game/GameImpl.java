@@ -4,6 +4,7 @@ import dk.mathiaskofod.domain.game.deck.Deck;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
+import dk.mathiaskofod.domain.game.exceptions.GameNotStartedException;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.models.Turn;
@@ -34,6 +35,7 @@ public class GameImpl implements Game {
 
     @Getter
     private final Queue<Player> playerQueue;
+
     private final List<String> playerOrder;
 
     @Getter
@@ -50,6 +52,7 @@ public class GameImpl implements Game {
 
     @Getter
     private int turnCounter = 0;
+
     int round = 1;
 
     @Getter
@@ -88,9 +91,9 @@ public class GameImpl implements Game {
         this.playerOrder = snapshot.playerOrder();
 
         LinkedList<Player> restoredQueue = new LinkedList<>(snapshot.playerQueue());
-        this.lastToDraw = restoredQueue.get(restoredQueue.size() - 2);  //TODO this will not work with only one player
+        this.lastToDraw = restoredQueue.get(restoredQueue.size() - 2); // TODO this will not work with only one player
         this.nextToDraw = restoredQueue.getLast();
-        this.nextAfter  = restoredQueue.getFirst();
+        this.nextAfter = restoredQueue.getFirst();
 
         this.playerQueue = restoredQueue;
 
@@ -109,12 +112,9 @@ public class GameImpl implements Game {
     }
 
     public List<Player> getPlayers() {
-        Map<String, Player> playerMap = playerQueue.stream()
-                .collect(Collectors.toMap(Player::id, Function.identity()));
+        Map<String, Player> playerMap = playerQueue.stream().collect(Collectors.toMap(Player::id, Function.identity()));
 
-        return playerOrder.stream()
-                .map(playerMap::get)
-                .toList();
+        return playerOrder.stream().map(playerMap::get).toList();
     }
 
     public void startGame() {
@@ -165,14 +165,13 @@ public class GameImpl implements Game {
             playerTimer.resume();
         }
 
-
         eventEmitter.onResumeGame(this);
     }
 
     public void drawCard(long turnDuration) {
 
         if (gameState != GameState.IN_PROGRESS) {
-            throw new GameException(String.format("Draw card not available when game is in state: %s", gameState), 400);
+            throw new GameNotStartedException(gameId);
         }
 
         if (gameTimer.getState() == TimerState.PAUSED) {
@@ -181,7 +180,7 @@ public class GameImpl implements Game {
 
         lastCardDrawn = deck.drawCard();
 
-        //If first round, then time is set to zero, as players are just beginning
+        // If first round, then time is set to zero, as players are just beginning
         long duration = round == 1 ? 0 : turnDuration;
         Turn turn = new Turn(round, lastCardDrawn, duration);
         progressPlayerQueue();
@@ -204,7 +203,7 @@ public class GameImpl implements Game {
 
     public void registerChug(Chug chug) {
 
-        if (gameState !=  GameState.AWAITING_CHUG) {
+        if (gameState != GameState.AWAITING_CHUG) {
             throw new GameException("No chug expected at this time", 400);
         }
 
@@ -221,7 +220,8 @@ public class GameImpl implements Game {
     }
 
     /**
-     * Switches to the next nextToDraw in the queue, resets the nextToDraw timer, updates the previous and next nextToDraw references and adds the current nextToDraw to the end of the queue.
+     * Switches to the next nextToDraw in the queue, resets the nextToDraw timer, updates the previous and next
+     * nextToDraw references and adds the current nextToDraw to the end of the queue.
      */
     private void progressPlayerQueue() {
 
@@ -242,5 +242,4 @@ public class GameImpl implements Game {
     private boolean isChugCard(Card card) {
         return card.rank() == 14;
     }
-
 }

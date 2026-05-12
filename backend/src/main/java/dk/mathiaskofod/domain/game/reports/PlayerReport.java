@@ -2,11 +2,10 @@ package dk.mathiaskofod.domain.game.reports;
 
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-
 import java.util.List;
 
-public record PlayerReport(String playerId, int totalSips, double avgSips, double nrOfBeers, long totalTime,
-                           long avgRoundTime) {
+public record PlayerReport(
+        String playerId, int totalSips, double avgSips, double nrOfBeers, long totalTime, long avgRoundTime) {
 
     public static List<PlayerReport> create(List<Player> players) {
         return players.stream()

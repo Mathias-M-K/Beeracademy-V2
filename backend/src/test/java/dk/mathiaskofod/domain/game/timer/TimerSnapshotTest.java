@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-
 class TimerSnapshotTest {
 
     @Nested
@@ -19,18 +18,18 @@ class TimerSnapshotTest {
         Timer timer;
 
         @BeforeEach
-        void init(){
+        void init() {
             timer = new Timer();
         }
 
         @Test
         @DisplayName("State should be NOT_STARTED")
-        void stateIsNotStarted(){
+        void stateIsNotStarted() {
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(timer.state, is(TimerState.NOT_STARTED));
             assertThat(snapshot.state(), is(TimerState.NOT_STARTED));
         }
@@ -39,13 +38,13 @@ class TimerSnapshotTest {
         @DisplayName("State should be RUNNING")
         void timerStateShouldBeRunning() {
 
-            //Arrange
+            // Arrange
             timer.start();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(timer.state, is(TimerState.RUNNING));
             assertThat(snapshot.state(), is(TimerState.RUNNING));
         }
@@ -54,14 +53,14 @@ class TimerSnapshotTest {
         @DisplayName("State should be PAUSED")
         void timerStateShouldBePaused() {
 
-            //Arrange
+            // Arrange
             timer.start();
             timer.pause();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(timer.state, is(TimerState.PAUSED));
             assertThat(snapshot.state(), is(TimerState.PAUSED));
         }
@@ -74,7 +73,7 @@ class TimerSnapshotTest {
         Timer timer;
 
         @BeforeEach
-        void init(){
+        void init() {
             timer = new Timer();
         }
 
@@ -82,15 +81,15 @@ class TimerSnapshotTest {
         @DisplayName("Timer should return to RUNNING state after resume")
         void timerShouldReturnToRunningStateAfterResume() {
 
-            //Arrange
+            // Arrange
             timer.start();
             timer.pause();
             timer.resume();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(timer.state, is(TimerState.RUNNING));
             assertThat(snapshot.state(), is(TimerState.RUNNING));
         }
@@ -99,13 +98,13 @@ class TimerSnapshotTest {
         @DisplayName("Resume should not be possible when timer is not PAUSED")
         void resumeShouldNotBePossibleWhenTimerIsNotPaused() {
 
-            //Arrange
+            // Arrange
             timer.start();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(timer.state, is(TimerState.RUNNING));
             assertThat(snapshot.state(), is(TimerState.RUNNING));
         }
@@ -114,13 +113,13 @@ class TimerSnapshotTest {
         @DisplayName("Resume should not be possible when timer is NOT_STARTED")
         void resumeShouldNotBePossibleWhenTimerIsNotStarted() {
 
-            //Arrange
+            // Arrange
             // Timer is in NOT_STARTED state
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(timer.state, is(TimerState.NOT_STARTED));
             assertThat(snapshot.state(), is(TimerState.NOT_STARTED));
         }
@@ -133,7 +132,7 @@ class TimerSnapshotTest {
         Timer timer;
 
         @BeforeEach
-        void init(){
+        void init() {
             timer = new Timer();
         }
 
@@ -141,17 +140,17 @@ class TimerSnapshotTest {
         @DisplayName("Reset should clear pause history")
         void resetShouldClearPauseHistory() {
 
-            //Arrange
+            // Arrange
             Timer resetTimer = new Timer();
             resetTimer.start();
             resetTimer.pause();
             resetTimer.resume();
 
-            //Act
+            // Act
             resetTimer.reset();
             TimerSnapshot snapshot = TimerSnapshot.of(resetTimer);
 
-            //Assert
+            // Assert
             assertThat(snapshot.pauses(), is(empty()));
         }
     }
@@ -163,7 +162,7 @@ class TimerSnapshotTest {
         Timer timer;
 
         @BeforeEach
-        void init(){
+        void init() {
             timer = new Timer();
         }
 
@@ -171,15 +170,15 @@ class TimerSnapshotTest {
         @DisplayName("Snapshot should not affect original timer state")
         void snapshotShouldNotAffectOriginalTimerState() {
 
-            //Arrange
+            // Arrange
             timer.start();
             TimerSnapshot snapshot1 = TimerSnapshot.of(timer);
 
-            //Act
+            // Act
             timer.pause();
             TimerSnapshot snapshot2 = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(snapshot1.state(), is(TimerState.RUNNING));
             assertThat(snapshot2.state(), is(TimerState.PAUSED));
         }
@@ -188,7 +187,7 @@ class TimerSnapshotTest {
         @DisplayName("Multiple snapshots should capture different states")
         void multipleSnapshotsShouldCaptureDifferentStates() {
 
-            //Arrange
+            // Arrange
             timer.start();
             TimerSnapshot snapshot1 = TimerSnapshot.of(timer);
             timer.pause();
@@ -196,7 +195,7 @@ class TimerSnapshotTest {
             timer.resume();
             TimerSnapshot snapshot3 = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(snapshot1.state(), is(TimerState.RUNNING));
             assertThat(snapshot2.state(), is(TimerState.PAUSED));
             assertThat(snapshot3.state(), is(TimerState.RUNNING));
@@ -210,7 +209,7 @@ class TimerSnapshotTest {
         Timer timer;
 
         @BeforeEach
-        void init(){
+        void init() {
             timer = new Timer();
         }
 
@@ -218,7 +217,7 @@ class TimerSnapshotTest {
         @DisplayName("Snapshot should capture pause history after multiple pause/resume cycles")
         void snapshotShouldCapturePauseHistoryAfterMultiplePauseResumeCycles() {
 
-            //Arrange
+            // Arrange
             timer.start();
             timer.pause();
             timer.resume();
@@ -227,10 +226,10 @@ class TimerSnapshotTest {
             timer.pause();
             timer.resume();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(snapshot.pauses(), hasSize(3));
         }
 
@@ -238,13 +237,13 @@ class TimerSnapshotTest {
         @DisplayName("Snapshot should capture empty pause history for new timer")
         void snapshotShouldCaptureEmptyPauseHistoryForNewTimer() {
 
-            //Arrange
+            // Arrange
             timer = new Timer();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(snapshot.pauses(), is(empty()));
         }
 
@@ -252,16 +251,16 @@ class TimerSnapshotTest {
         @DisplayName("Snapshot should capture empty pause history after reset")
         void snapshotShouldCaptureEmptyPauseHistoryAfterReset() {
 
-            //Arrange
+            // Arrange
             timer.start();
             timer.pause();
             timer.resume();
             timer.reset();
 
-            //Act
+            // Act
             TimerSnapshot snapshot = TimerSnapshot.of(timer);
 
-            //Assert
+            // Assert
             assertThat(snapshot.pauses(), is(empty()));
         }
     }

@@ -29,8 +29,9 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
     OpenConnections connections;
 
     protected final String getConnectionId(String sessionId) {
-        return sessionRegistry.getSession(sessionId).
-                orElseThrow(() -> new SessionNotFoundException(sessionId))
+        return sessionRegistry
+                .getSession(sessionId)
+                .orElseThrow(() -> new SessionNotFoundException(sessionId))
                 .getConnectionId()
                 .orElseThrow(() -> new NoConnectionIdException(sessionId));
     }
@@ -41,12 +42,13 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
 
     private WebSocketConnection getWebsocketConnection(String id) {
         String connectionId = getConnectionId(id);
-        return connections.findByConnectionId(connectionId)
-                .orElseThrow(() -> new WebsocketConnectionNotFoundException("Websocket connection not found for connectionId: " + connectionId));
+        return connections
+                .findByConnectionId(connectionId)
+                .orElseThrow(() -> new WebsocketConnectionNotFoundException(
+                        "Websocket connection not found for connectionId: " + connectionId));
     }
 
     protected final void sendMessage(String sessionId, WebsocketEnvelope message) {
-
 
         try {
             WebSocketConnection connection = getWebsocketConnection(sessionId);
@@ -57,5 +59,4 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
             log.warn("Could not find a connection-id for sessionId: {}, when attempting to send a message", sessionId);
         }
     }
-
 }

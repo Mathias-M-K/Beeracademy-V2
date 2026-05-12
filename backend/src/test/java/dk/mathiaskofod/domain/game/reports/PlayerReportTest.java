@@ -27,8 +27,7 @@ class PlayerReportTest {
             // Arrange
             int sipsInABeer = 10;
             Player player = createPlayerWithStats("p1", sipsInABeer);
-            Stream.of(10, 10, 10, 10, 14)
-                    .forEach(sips -> player.stats().addTurn(createTurnWithSips(sips)));
+            Stream.of(10, 10, 10, 10, 14).forEach(sips -> player.stats().addTurn(createTurnWithSips(sips)));
 
             // Act
             List<PlayerReport> reports = PlayerReport.create(List.of(player));

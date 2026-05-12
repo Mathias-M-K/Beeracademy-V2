@@ -45,55 +45,47 @@ class GameImplTest {
 
         @BeforeEach
         void init() {
-            game = new GameImpl("Game under test", gameId, List.of(defaultPlayer1, defaultPlayer2, defaultPlayer3), emitter);
+            game = new GameImpl(
+                    "Game under test", gameId, List.of(defaultPlayer1, defaultPlayer2, defaultPlayer3), emitter);
             game.startGame();
         }
 
         @ParameterizedTest(name = "Turn {0} should be {1}")
-        @CsvSource({
-                "1, Player1",
-                "2, Player2",
-                "3, Player3",
-                "4, Player1",
-                "5, Player2",
-                "6, Player3",
-                "7, Player1"
-        })
+        @CsvSource({"1, Player1", "2, Player2", "3, Player3", "4, Player1", "5, Player2", "6, Player3", "7, Player1"})
         @DisplayName("Turns are progressing as expected")
         void turnsAreProgressingAsExpected(int turn, String player) {
 
-            //Act
-            progressToTurn(game,turn);
+            // Act
+            progressToTurn(game, turn);
 
-
-            //Assert
+            // Assert
             assertThat(game.getNextToDraw().name(), is(player));
         }
     }
 
     @Nested
     @DisplayName("Round number goes up")
-    class RoundProgression{
+    class RoundProgression {
 
         GameImpl game;
 
         @BeforeEach
         void init() {
-            game = new GameImpl("Game under test", gameId, List.of(defaultPlayer1, defaultPlayer2, defaultPlayer3), emitter);
+            game = new GameImpl(
+                    "Game under test", gameId, List.of(defaultPlayer1, defaultPlayer2, defaultPlayer3), emitter);
             game.startGame();
         }
 
         @ParameterizedTest
-        @CsvSource({"1,1","4,2","7,3","10,4"})
+        @CsvSource({"1,1", "4,2", "7,3", "10,4"})
         void whenAllPlayersAreFinishedRoundIsIncreased(int turn, int round) {
 
-            //Act
-            progressToTurn(game,turn);
+            // Act
+            progressToTurn(game, turn);
 
-            //Assert
+            // Assert
             assertThat(game.round, is(round));
         }
-
     }
 
     @Nested
@@ -124,25 +116,23 @@ class GameImplTest {
         }
 
         @ParameterizedTest(name = "{0} Players with {1} turns should result in game being in round {2}")
-        @CsvSource({"2,1,1","2,2,2","2,5,3","4,4,2","4,3,1","4,9,3"})
+        @CsvSource({"2,1,1", "2,2,2", "2,5,3", "4,4,2", "4,3,1", "4,9,3"})
         void withFourPlayersAndOneTurn(int nrOfPlayers, int nrOfTurns, int expectedRoundNr) {
 
-            //Arrange
+            // Arrange
             List<String> playersSpy = spy(new ArrayList<>());
             doReturn(nrOfPlayers).when(playersSpy).size();
 
             when(gameSnapshotMock.playerOrder()).thenReturn(playersSpy);
             when(gameSnapshotMock.turnCounter()).thenReturn(nrOfTurns);
 
-            //Act
+            // Act
             GameImpl game = new GameImpl(gameSnapshotMock, emitter);
 
-            //Assert
+            // Assert
             assertThat(game.round, is(expectedRoundNr));
         }
-
     }
-
 
     private void progressToTurn(Game game, int turn) {
         for (int turns = 0; turns < turn - 1; turns++) {
@@ -157,6 +147,4 @@ class GameImplTest {
     private void handleChuckCard(Game game) {
         game.registerChug(new Chug(Suit.CIRCLE, 2000)); // Simulate a chug of 5 seconds
     }
-
-
 }

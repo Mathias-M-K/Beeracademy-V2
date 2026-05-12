@@ -9,9 +9,6 @@ public record ChugGameEventDto(Chug chug, String chuggedBy, String nextToDraw) i
 
     public static ChugGameEventDto fromGameEvent(ChugEvent event) {
         return new ChugGameEventDto(
-                event.chug(),
-                event.chuggedBy().id(),
-                event.nextToDraw().id()
-        );
+                event.chug(), event.chuggedBy().id(), event.nextToDraw().id());
     }
 }

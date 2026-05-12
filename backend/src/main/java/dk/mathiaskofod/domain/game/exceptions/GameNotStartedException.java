@@ -7,5 +7,4 @@ public class GameNotStartedException extends BaseException {
     public GameNotStartedException(String gameId) {
         super("Game with gameId " + gameId + " haven't started yet", 409);
     }
-
 }

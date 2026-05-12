@@ -8,20 +8,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-
 class DeckSnapshotTest {
 
     @Test
     @DisplayName("Unused cards are preserved in snapshot")
     void unusedCardsArePreservedInSnapshot() {
 
-        //Arrange
+        // Arrange
         Deck deck = new Deck(1);
 
-        //Act
+        // Act
         DeckSnapshot snapshot = DeckSnapshot.of(deck);
 
-        //Assert
+        // Assert
         assertThat(snapshot.unusedCards(), hasSize(13));
         assertThat(deck.unusedCards, hasSize(13));
     }
@@ -30,14 +29,14 @@ class DeckSnapshotTest {
     @DisplayName("Used cards are preserved in snapshot")
     void usedCardsArePreservedInSnapshot() {
 
-        //Arrange
+        // Arrange
         Deck deck = new Deck(1);
 
-        //Act
+        // Act
         Card drawnCard = deck.drawCard();
         DeckSnapshot snapshot = DeckSnapshot.of(deck);
 
-        //Assert
+        // Assert
         assertThat(snapshot.unusedCards(), hasSize(12));
         assertThat(snapshot.usedCards(), hasSize(1));
 

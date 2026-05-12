@@ -5,5 +5,4 @@ import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction
 import dk.mathiaskofod.services.session.models.annotations.ActionType;
 
 @ActionType("DRAW_CARD")
-public record DrawCardAction(long duration) implements GameClientAction, PlayerClientAction {
-}
+public record DrawCardAction(long duration) implements GameClientAction, PlayerClientAction {}

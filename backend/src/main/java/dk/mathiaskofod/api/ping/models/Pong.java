@@ -9,8 +9,8 @@ import java.time.ZonedDateTime;
 @Slf4j
 public record Pong(String application, ZonedDateTime time, String environment) {
 
-    public static Pong create(String application, String environment){
+    public static Pong create(String application, String environment) {
         ZonedDateTime now = Instant.now().atZone(ZoneId.systemDefault());
-        return new Pong(application,now, environment);
+        return new Pong(application, now, environment);
     }
 }

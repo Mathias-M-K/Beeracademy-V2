@@ -20,7 +20,6 @@ public class IdGenerator {
                 .mapToObj(ALPHANUMERIC_CHARS::charAt)
                 .map(Object::toString)
                 .collect(Collectors.joining());
-
     }
 
     public static String generateCorrelationId() {
@@ -34,6 +33,4 @@ public class IdGenerator {
     public static String generateGameId() {
         return generateId(GAME_ID_LENGTH);
     }
-
-
 }
