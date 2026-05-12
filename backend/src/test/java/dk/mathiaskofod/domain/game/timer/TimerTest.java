@@ -1,20 +1,19 @@
 package dk.mathiaskofod.domain.game.timer;
 
-import dk.mathiaskofod.domain.game.timer.models.TimerState;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+import dk.mathiaskofod.domain.game.timer.models.TimerState;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 public class TimerTest {
 
@@ -43,17 +42,16 @@ public class TimerTest {
             void shouldBeNotStartedWhenCreated() {
 
                 assertThat(timer.getState(), is(TimerState.NOT_STARTED));
-
             }
 
             @Test
             @DisplayName("Should be RUNNING after start")
             void shouldBeRunningAfterStart() {
 
-                //Arrange + act
+                // Arrange + act
                 timer.start();
 
-                //Assert
+                // Assert
                 assertThat(timer.getState(), is(TimerState.RUNNING));
             }
 
@@ -61,11 +59,11 @@ public class TimerTest {
             @DisplayName("Should be PAUSED after pause")
             void shouldPauseWithoutExceptions() {
 
-                //Arrange + act
+                // Arrange + act
                 timer.start();
                 timer.pause();
 
-                //Assert
+                // Assert
                 assertThat(timer.getState(), is(TimerState.PAUSED));
             }
         }
@@ -130,12 +128,11 @@ public class TimerTest {
             @DisplayName("Total pause time for a timer that haven't been started is zero")
             void totalPauseTimeShouldBeZero() {
 
-                //Arrange + act
+                // Arrange + act
                 Duration totalPauseTime = timer.getTotalPauseDuration();
 
-                //Assert
+                // Assert
                 assertThat(totalPauseTime, is(Duration.ZERO));
-
             }
         }
 
@@ -171,7 +168,7 @@ public class TimerTest {
         class DurationLogic {
 
             @BeforeEach
-            void init(){
+            void init() {
                 timer = new Timer(FIXED_CLOCK);
             }
 
@@ -188,7 +185,6 @@ public class TimerTest {
             @Nested
             @DisplayName("Active time")
             class ActiveTime {
-
 
                 @Test
                 @DisplayName("Active duration for a timer running for 5 seconds with no pauses is 5 seconds")
@@ -210,10 +206,10 @@ public class TimerTest {
                     timer.startTime = FAKE_INSTANT_NOW.minus(Duration.ofSeconds(5));
                     timer.pauses.add(Duration.ofSeconds(1));
 
-                    //Act
+                    // Act
                     Duration activeDuration = timer.getActiveDuration();
 
-                    //Assert
+                    // Assert
                     assertThat(activeDuration, is(Duration.ofSeconds(4)));
                 }
             }
@@ -226,49 +222,48 @@ public class TimerTest {
                 @Test
                 void totalDurationShouldBeFive() {
 
-                    //Arrange
+                    // Arrange
                     timer.startTime = FAKE_INSTANT_NOW.minus(Duration.ofSeconds(5));
 
-                    //Act
+                    // Act
                     Duration totalDuration = timer.getTotalDuration();
 
-                    //Assert
+                    // Assert
                     assertThat(totalDuration, is(Duration.ofSeconds(5)));
                 }
 
-                @DisplayName("Total duration for a timer running for 5 seconds with a 1 second pause is still 5 seconds")
+                @DisplayName(
+                        "Total duration for a timer running for 5 seconds with a 1 second pause is still 5 seconds")
                 @Test
                 void totalDurationForATimerWithOnePauseShouldBeFour() {
 
-                    //Arrange
+                    // Arrange
                     timer.startTime = FAKE_INSTANT_NOW.minus(Duration.ofSeconds(5));
                     timer.pauses.add(Duration.ofSeconds(1));
 
-                    //Act
+                    // Act
                     Duration totalDuration = timer.getTotalDuration();
 
-                    //Assert
+                    // Assert
                     assertThat(totalDuration, is(Duration.ofSeconds(5)));
                 }
-
             }
 
-
-
             @Test
-            @DisplayName("Active duration for a timer running for 5 seconds with two pauses of 1 second each is 3 seconds")
+            @DisplayName(
+                    "Active duration for a timer running for 5 seconds with two pauses of 1 second each is 3 seconds")
             void activeDurationForATimerWithTwoPausesShouldBeThree() {
 
-                //Arrange
+                // Arrange
                 timer.startTime = FAKE_INSTANT_NOW.minus(Duration.ofSeconds(5));
 
                 timer.pauses.add(Duration.ofSeconds(1));
                 timer.pauses.add(Duration.ofSeconds(1));
 
-                //Act
+                // Act
                 Duration activeDuration = timer.getActiveDuration();
 
-                //Assert
+                // Assert
                 assertThat(activeDuration, is(Duration.ofSeconds(3)));
             }
         }
@@ -278,7 +273,7 @@ public class TimerTest {
         class FromSnapshot {
 
             @BeforeEach
-            void init(){
+            void init() {
                 timer = new Timer();
             }
 
@@ -286,19 +281,17 @@ public class TimerTest {
             @DisplayName("Timer recreated from snapshot correctly")
             void fromSnapshot() {
 
-                //Arrange
+                // Arrange
                 TimerSnapshot snapshot = TimerSnapshot.of(timer);
                 Timer timerFromSnapshot = new Timer(snapshot);
 
-                //Assert
+                // Assert
                 assertThat(timerFromSnapshot.pauseStartTime, is(nullValue()));
                 assertThat(timerFromSnapshot.startTime, is(nullValue()));
                 assertThat(timerFromSnapshot.getState(), is(TimerState.NOT_STARTED));
                 assertThat(timerFromSnapshot.getActiveDuration(), is(Duration.ZERO));
                 assertThat(timerFromSnapshot.getTotalDuration(), is(Duration.ZERO));
-
             }
-
         }
     }
 }

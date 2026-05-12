@@ -17,10 +17,6 @@ public class ApiAuth {
     @Path("/test")
     @Authenticated
     public Response getAuthentication() {
-        return Response
-                .ok()
-                .entity(jwt)
-                .build();
+        return Response.ok().entity(jwt).build();
     }
-
 }

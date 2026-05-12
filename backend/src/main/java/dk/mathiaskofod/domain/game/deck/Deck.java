@@ -4,7 +4,6 @@ import dk.mathiaskofod.domain.game.deck.exceptions.NotEnoughSuitesAvailableExcep
 import dk.mathiaskofod.domain.game.deck.exceptions.OutOfCardsException;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.deck.models.Suit;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ public class Deck {
     List<Card> usedCards = new ArrayList<>();
 
     public Deck(int nrOfSuits) {
-        if(nrOfSuits > Suit.values().length){
+        if (nrOfSuits > Suit.values().length) {
             throw new NotEnoughSuitesAvailableException(nrOfSuits);
         }
         unusedCards = generateDeck(nrOfSuits);
@@ -28,13 +27,13 @@ public class Deck {
         this.usedCards = snapshot.usedCards();
     }
 
-    public Card drawCard(){
+    public Card drawCard() {
 
-        if(unusedCards.isEmpty()){
+        if (unusedCards.isEmpty()) {
             throw new OutOfCardsException();
         }
 
-        int randomCardIndex = random.nextInt(0,unusedCards.size());
+        int randomCardIndex = random.nextInt(0, unusedCards.size());
         Card card = unusedCards.get(randomCardIndex);
 
         usedCards.add(card);
@@ -43,19 +42,19 @@ public class Deck {
         return card;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return unusedCards.isEmpty();
     }
 
-    private static List<Card> generateDeck(int nrOfSuits){
+    private static List<Card> generateDeck(int nrOfSuits) {
 
         List<Card> cards = new ArrayList<>();
-        for (int suitIndex = 0; suitIndex<nrOfSuits; suitIndex++){
+        for (int suitIndex = 0; suitIndex < nrOfSuits; suitIndex++) {
 
             Suit suit = Suit.values()[suitIndex];
 
             for (int rank = 2; rank <= 14; rank++) {
-                cards.add(new Card(suit,rank));
+                cards.add(new Card(suit, rank));
             }
         }
 

@@ -26,13 +26,16 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         String gameId = tokenInfo.getGameId();
 
-        if(!gameService.gameExists(gameId)){
+        if (!gameService.gameExists(gameId)) {
             throw new GameNotFoundException(gameId);
         }
 
         sessionRegistry.setConnectionId(gameId, websocketConnectionId);
 
-        log.info("Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}", gameId, websocketConnectionId);
+        log.info(
+                "Websocket Connection: Type:New game client connection, GameID:{}, WebsocketConnID:{}",
+                gameId,
+                websocketConnectionId);
 
         GameDto game = lobbyService.getGame(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
@@ -66,28 +69,26 @@ public class GameClientSessionManager extends AbstractSessionManager {
         }
     }
 
-    /**
-     * Player Events
-     **/
+    /** Player Events */
     void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
         sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
-    /**
-     * Game Events
-     **/
+    /** Game Events */
     void onGameEvent(@Observes GameEvent gameEvent) {
 
-        GameEventDto dto = switch (gameEvent) {
-            case StartGameEvent ignored -> new GameStartGameEventDto();
-            case EndGameEvent endGameEvent -> GameEndEventDto.fromGameEvent(endGameEvent);
-            case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
-            case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
-            case PauseGameEvent pausedGameEvent -> GamePausedGameEventDto.fromGameEvent(pausedGameEvent);
-            case ResumeGameEvent resumeGameEvent -> GameResumedGameEventDto.fromGameEvent(resumeGameEvent);
+        GameEventDto dto =
+                switch (gameEvent) {
+                    case StartGameEvent ignored -> new GameStartGameEventDto();
+                    case EndGameEvent endGameEvent -> GameEndEventDto.fromGameEvent(endGameEvent);
+                    case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
+                    case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
+                    case PauseGameEvent pausedGameEvent -> GamePausedGameEventDto.fromGameEvent(pausedGameEvent);
+                    case ResumeGameEvent resumeGameEvent -> GameResumedGameEventDto.fromGameEvent(resumeGameEvent);
 
-            default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
-        };
+                    default ->
+                        throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
+                };
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 

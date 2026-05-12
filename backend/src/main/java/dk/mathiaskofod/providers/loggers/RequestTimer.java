@@ -1,16 +1,14 @@
 package dk.mathiaskofod.providers.loggers;
 
 import jakarta.enterprise.context.RequestScoped;
-
 import java.time.Instant;
 
 @RequestScoped
 public class RequestTimer {
 
-
     private Instant startTime;
 
-    public void startTime(){
+    public void startTime() {
         this.startTime = Instant.now();
     }
 

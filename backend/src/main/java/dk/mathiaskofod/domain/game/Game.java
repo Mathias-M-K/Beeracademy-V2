@@ -6,7 +6,6 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.Timer;
-
 import java.util.List;
 import java.util.Queue;
 
@@ -33,24 +32,16 @@ public interface Game {
      */
     GameState getGameState();
 
-    /**
-     * Starts the game by starting the timer for both the game and the first nextToDraw
-     */
+    /** Starts the game by starting the timer for both the game and the first nextToDraw */
     void startGame();
 
-    /**
-     * Ends the game, stopping all timers and finalizing the game state
-     */
+    /** Ends the game, stopping all timers and finalizing the game state */
     void endGame();
 
-    /**
-     * Pauses the game, stopping all timers temporarily
-     */
+    /** Pauses the game, stopping all timers temporarily */
     void pauseGame();
 
-    /**
-     * Resumes the game from a paused state, restarting all timers
-     */
+    /** Resumes the game from a paused state, restarting all timers */
     void resumeGame();
 
     /**
@@ -129,7 +120,6 @@ public interface Game {
      * @return Timer
      */
     Timer getPlayerTimer();
-
 
     /**
      * Returns the current turn counter

@@ -1,7 +1,6 @@
 package dk.mathiaskofod.domain.game.timer;
 
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
-
 import java.time.Duration;
 import java.util.List;
 
@@ -16,5 +15,4 @@ public record TimeReport(TimerState state, long elapsedTime, long activeTime, lo
                 timer.getTotalPauseDuration().toMillis(),
                 pausesAsLong);
     }
-
 }

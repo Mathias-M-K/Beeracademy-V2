@@ -7,12 +7,9 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-
-import java.util.Optional;
-
-
 
 @Slf4j
 @Provider
@@ -24,14 +21,12 @@ public class RestClientLogger implements ContainerRequestFilter, ContainerRespon
     @SuppressWarnings("FieldCanBeLocal")
     private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
 
-
     @Override
-    public void filter(ContainerRequestContext requestContext)  {
+    public void filter(ContainerRequestContext requestContext) {
 
         Optional<String> correlationId = Optional.ofNullable(requestContext.getHeaderString(CORRELATION_ID_HEADER));
 
-
-        MDC.put(CORRELATION_ID_HEADER,correlationId.orElse(IdGenerator.generateCorrelationId()));
+        MDC.put(CORRELATION_ID_HEADER, correlationId.orElse(IdGenerator.generateCorrelationId()));
         timer.startTime();
 
         String method = requestContext.getMethod();
@@ -41,13 +36,11 @@ public class RestClientLogger implements ContainerRequestFilter, ContainerRespon
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)  {
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
         String method = requestContext.getMethod();
         String uri = requestContext.getUriInfo().getPath();
         int status = responseContext.getStatus();
-
-
 
         int elapsedTime = timer.getResponseTime();
         log.info("Response: {} {}, Status: {}, duration: {}ms", method, uri, status, elapsedTime);

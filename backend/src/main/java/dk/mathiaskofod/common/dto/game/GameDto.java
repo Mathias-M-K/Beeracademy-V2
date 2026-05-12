@@ -8,7 +8,6 @@ import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.TimeReport;
 import dk.mathiaskofod.domain.game.timer.TimerReports;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -26,10 +25,8 @@ public record GameDto(
 
     public static GameDto create(Game game, SessionDto gameSession, List<PlayerDto> players) {
 
-
-        String lastPlayerToDraw = Optional.ofNullable(game.getLastToDraw())
-                .map(Player::id)
-                .orElse("");
+        String lastPlayerToDraw =
+                Optional.ofNullable(game.getLastToDraw()).map(Player::id).orElse("");
 
         return new GameDto(
                 game.getName(),
@@ -41,10 +38,7 @@ public record GameDto(
                 lastPlayerToDraw,
                 players,
                 new TimerReports(
-                        TimeReport.createReport(game.getGameTimer()),
-                        TimeReport.createReport(game.getPlayerTimer())
-                ),
-                gameSession
-        );
+                        TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer())),
+                gameSession);
     }
 }

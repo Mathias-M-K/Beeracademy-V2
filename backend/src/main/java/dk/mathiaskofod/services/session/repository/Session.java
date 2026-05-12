@@ -1,9 +1,7 @@
 package dk.mathiaskofod.services.session.repository;
 
-import lombok.Getter;
-
 import java.util.Optional;
-
+import lombok.Getter;
 
 public class Session {
 
@@ -14,9 +12,10 @@ public class Session {
 
     /**
      * Creates a session
+     *
      * @param sessionId game-id or player-id
      */
-    public Session(String sessionId){
+    public Session(String sessionId) {
         this.sessionId = sessionId;
     }
 
@@ -27,6 +26,7 @@ public class Session {
     void setConnectionId(String connectionId) {
         this.connectionId = connectionId;
     }
+
     void clearConnectionId() {
         this.connectionId = null;
     }
@@ -35,5 +35,4 @@ public class Session {
     public Optional<String> getConnectionId() {
         return Optional.ofNullable(connectionId);
     }
-
 }

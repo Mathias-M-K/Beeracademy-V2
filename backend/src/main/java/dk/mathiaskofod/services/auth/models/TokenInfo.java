@@ -1,9 +1,8 @@
 package dk.mathiaskofod.services.auth.models;
 
 import dk.mathiaskofod.services.auth.exceptions.TokenException;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-
 import java.util.Optional;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 public class TokenInfo {
     private final String gameId;
@@ -27,6 +26,4 @@ public class TokenInfo {
         return Optional.ofNullable(playerId)
                 .orElseThrow(() -> new TokenException("Token doesn't contain Player-ID", 500));
     }
-
-
 }

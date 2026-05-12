@@ -5,11 +5,10 @@ import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
 import dk.mathiaskofod.services.auth.models.Role;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class AuthService {
@@ -36,6 +35,4 @@ public class AuthService {
                 .expiresIn(Duration.ofHours(5))
                 .sign();
     }
-
-
 }

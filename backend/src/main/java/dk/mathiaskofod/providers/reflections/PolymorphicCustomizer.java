@@ -7,21 +7,21 @@ import dk.mathiaskofod.services.session.models.annotations.Category;
 import dk.mathiaskofod.services.session.models.annotations.EventType;
 import io.quarkus.jackson.ObjectMapperCustomizer;
 import jakarta.inject.Singleton;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
-
-import java.util.Set;
 
 @Singleton
 @Slf4j
 public class PolymorphicCustomizer implements ObjectMapperCustomizer {
 
-        // Base package to scan for classes annotated with EventCategory and EventType
+    // Base package to scan for classes annotated with EventCategory and EventType
     private static final String BASE_PACKAGE_TO_SCAN = "dk.mathiaskofod";
 
     /**
-     * This is mostly a mix of copy-paste from different guides and blogs found online. But this class makes the code
-     * so much better by automatically registering subtypes for polymorphic deserialization.
+     * This is mostly a mix of copy-paste from different guides and blogs found online. But this class makes the code so
+     * much better by automatically registering subtypes for polymorphic deserialization.
+     *
      * @param objectMapper The object mapper to customize
      */
     @Override

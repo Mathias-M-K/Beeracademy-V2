@@ -24,9 +24,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
@@ -52,7 +51,6 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
                         log.warn("Failed to send message to session {}: {}", session.getSessionId(), e.getMessage());
                     }
                 });
-
     }
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
@@ -64,7 +62,11 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
         broadcastPlayerEvent(new PlayerConnectedEvent(playerId, gameId));
 
-        log.info("Websocket Connection: Type:New player connection, PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, websocketConnectionId);
+        log.info(
+                "Websocket Connection: Type:New player connection, PlayerID:{}, GameID:{}, WebsocketConnID:{}",
+                playerId,
+                gameId,
+                websocketConnectionId);
     }
 
     public void onConnectionClosed(TokenInfo tokenInfo) {
@@ -81,11 +83,15 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
 
     public void relinquishPlayer(String gameId, String playerId) {
 
-        if (sessionRegistry.getSession(playerId).isEmpty()){
+        if (sessionRegistry.getSession(playerId).isEmpty()) {
             throw new SessionNotFoundException(playerId);
         }
 
-        log.info("Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, getConnectionId(playerId));
+        log.info(
+                "Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}",
+                playerId,
+                gameId,
+                getConnectionId(playerId));
 
         closeConnection(playerId);
         sessionRegistry.removeSession(playerId);
@@ -103,11 +109,14 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         String playerId = tokenInfo.getPlayerId();
 
         switch (payload) {
-            case DrawCardAction(long duration) ->
-                    onDrawCardAction(duration, gameId, playerId);
+            case DrawCardAction(long duration) -> onDrawCardAction(duration, gameId, playerId);
             case RelinquishPlayerAction() -> relinquishPlayer(gameId, playerId);
             default ->
-                    throw new BaseException(String.format("Action type %s not yet supported", payload.getClass().getSimpleName()), 400);
+                throw new BaseException(
+                        String.format(
+                                "Action type %s not yet supported",
+                                payload.getClass().getSimpleName()),
+                        400);
         }
     }
 
@@ -121,21 +130,24 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
     }
 
     void onPlayerEvent(@Observes PlayerClientEvent playerClientEvent) {
-        broadcastMessageToAllPlayersInGame(new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
+        broadcastMessageToAllPlayersInGame(
+                new PlayerClientEventEnvelope(playerClientEvent), playerClientEvent.gameId());
     }
 
     void onGameEvent(@Observes GameEvent gameEvent) {
 
-        GameEventDto dto = switch (gameEvent) {
-            case StartGameEvent ignored -> new GameStartGameEventDto();
-            case EndGameEvent endGameEvent -> GameEndEventDto.fromGameEvent(endGameEvent);
-            case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
-            case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
-            case PauseGameEvent pausedGameEvent -> GamePausedGameEventDto.fromGameEvent(pausedGameEvent);
-            case ResumeGameEvent resumeGameEvent -> GameResumedGameEventDto.fromGameEvent(resumeGameEvent);
+        GameEventDto dto =
+                switch (gameEvent) {
+                    case StartGameEvent ignored -> new GameStartGameEventDto();
+                    case EndGameEvent endGameEvent -> GameEndEventDto.fromGameEvent(endGameEvent);
+                    case DrawCardEvent e -> DrawCardGameEventDto.fromGameEvent(e);
+                    case ChugEvent e -> ChugGameEventDto.fromGameEvent(e);
+                    case PauseGameEvent pausedGameEvent -> GamePausedGameEventDto.fromGameEvent(pausedGameEvent);
+                    case ResumeGameEvent resumeGameEvent -> GameResumedGameEventDto.fromGameEvent(resumeGameEvent);
 
-            default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
-        };
+                    default ->
+                        throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
+                };
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 

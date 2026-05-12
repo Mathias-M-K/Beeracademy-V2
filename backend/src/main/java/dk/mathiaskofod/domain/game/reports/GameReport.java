@@ -2,14 +2,14 @@ package dk.mathiaskofod.domain.game.reports;
 
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-
 import java.util.Comparator;
 import java.util.List;
 
-public record GameReport(List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat> beersConsumed, List<PlayerPodiumStat> avgRoundTimes) {
+public record GameReport(
+        List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat> beersConsumed, List<PlayerPodiumStat> avgRoundTimes) {
 
     public static GameReport create(List<Player> players) {
-        
+
         List<PlayerPodiumStat> chugTimes = players.stream()
                 .flatMap(player -> player.stats().getChugs().stream()
                         .map(chug -> new PlayerPodiumStat(player.id(), chug.chugTimeMillis())))
@@ -28,7 +28,6 @@ public record GameReport(List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat
                 .sorted(Comparator.reverseOrder())
                 .toList();
 
-
         List<PlayerPodiumStat> avgRoundTimes = players.stream()
                 .map(player -> {
                     double avgRoundTime = player.stats().getTurns().stream()
@@ -40,7 +39,6 @@ public record GameReport(List<PlayerPodiumStat> chugTimes, List<PlayerPodiumStat
                 })
                 .sorted()
                 .toList();
-
 
         return new GameReport(chugTimes, beersConsumed, avgRoundTimes);
     }

@@ -8,9 +8,8 @@ import io.quarkus.redis.datasource.keys.KeyCommands;
 import io.quarkus.redis.datasource.transactions.OptimisticLockingTransactionResult;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
@@ -34,7 +33,7 @@ public class SessionRegistry {
         sessions.set(sessionCacheId, session);
     }
 
-    public Optional<Session> getSession(String sessionId){
+    public Optional<Session> getSession(String sessionId) {
         String sessionCacheId = getSessionCacheId(sessionId);
         return Optional.ofNullable(sessions.get(sessionCacheId));
     }
@@ -45,9 +44,10 @@ public class SessionRegistry {
     }
 
     /**
-     * Claims the WebSocket connection slot for a session
-     * If the key is modified by a concurrent writer between the pre-block read and EXEC, the transaction
-     * is aborted and retried. Only sets the connectionId if the session is not already connected.
+     * Claims the WebSocket connection slot for a session If the key is modified by a concurrent writer between the
+     * pre-block read and EXEC, the transaction is aborted and retried. Only sets the connectionId if the session is not
+     * already connected.
+     *
      * @throws SessionNotFoundException if the session does not exist
      * @throws SessionStateException if the transaction keeps failing after retries
      */
@@ -60,7 +60,6 @@ public class SessionRegistry {
             OptimisticLockingTransactionResult<Session> transactionResult = redisDataSource.withTransaction(
                     ds -> Optional.ofNullable(ds.value(Session.class).get(sessionCacheId))
                             .orElseThrow(() -> new SessionNotFoundException(sessionId)),
-
                     (session, tx) -> {
                         if (session.isConnected()) {
                             throw new SessionAlreadyConnectedException(sessionId);
@@ -68,18 +67,21 @@ public class SessionRegistry {
                         session.setConnectionId(connectionId);
                         tx.value(Session.class).set(sessionCacheId, session);
                     },
-                    sessionCacheId
-            );
+                    sessionCacheId);
 
             if (transactionResult.discarded()) {
-                log.warn("Aborted setConnectionId operation due to concurrent write on session {}. Retrying... (attempt {})", sessionId, attempt + 1);
+                log.warn(
+                        "Aborted setConnectionId operation due to concurrent write on session {}. Retrying... (attempt {})",
+                        sessionId,
+                        attempt + 1);
                 continue;
             }
 
             return;
         }
 
-        throw new SessionStateException("Failed to atomically claim connection for session " + sessionId + " after " + SET_CONNECTION_MAX_RETRIES + " attempts");
+        throw new SessionStateException("Failed to atomically claim connection for session " + sessionId + " after "
+                + SET_CONNECTION_MAX_RETRIES + " attempts");
     }
 
     public void clearConnectionId(String sessionId) {
@@ -90,8 +92,7 @@ public class SessionRegistry {
         });
     }
 
-    private String getSessionCacheId(String sessionId){
+    private String getSessionCacheId(String sessionId) {
         return SESSION_CACHE_PREFIX + sessionId;
     }
-
 }

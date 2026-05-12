@@ -36,13 +36,13 @@ public class GameWebsocket {
     GameClientSessionManager gameClientSessionManager;
 
     @OnOpen
-    public void onNewWebsocketConnection(){
+    public void onNewWebsocketConnection() {
         getManager().onNewConnection(connection.id(), new TokenInfo(jwt));
     }
 
     @OnClose
-    public void onWebsocketConnectionClosed(CloseReason reason){
-        if(reason.getCode() == CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()){
+    public void onWebsocketConnectionClosed(CloseReason reason) {
+        if (reason.getCode() == CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()) {
             return;
         }
 
@@ -50,23 +50,23 @@ public class GameWebsocket {
     }
 
     @OnTextMessage
-    public void onTextMessage(WebsocketEnvelope message){
+    public void onTextMessage(WebsocketEnvelope message) {
         getManager().onMessage(new TokenInfo(jwt), message);
     }
 
     @OnError
-    public void onError(RuntimeException e){
+    public void onError(RuntimeException e) {
         String cause = e.getCause() == null ? "" : e.getCause().getClass().getSimpleName();
-        ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(),cause,e.getMessage());
+        ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(), cause, e.getMessage());
         log.warn("Websocket error for connection {}: {}", connection.id(), response);
         connection.sendTextAndAwait(response);
 
-        if(e instanceof GameNotFoundException){
+        if (e instanceof GameNotFoundException) {
             connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
         }
     }
 
-    private WebsocketSessionManager getManager(){
+    private WebsocketSessionManager getManager() {
         Role role = Role.getRoleFromSecurityIdentity(securityIdentity);
 
         switch (role) {
@@ -77,10 +77,8 @@ public class GameWebsocket {
                 return playerClientSessionManager;
             }
             default ->
-                    throw new IllegalStateException("Unexpected value: " + Role.getRoleFromSecurityIdentity(securityIdentity));
+                throw new IllegalStateException(
+                        "Unexpected value: " + Role.getRoleFromSecurityIdentity(securityIdentity));
         }
     }
-
-
-
 }

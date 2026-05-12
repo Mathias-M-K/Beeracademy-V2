@@ -11,6 +11,6 @@ public class BaseException extends RuntimeException {
         super(message);
         this.httpStatus = httpStatus;
 
-        log.warn("{} - Message: {}", this.getClass().getSimpleName(),message);
+        log.warn("{} - Message: {}", this.getClass().getSimpleName(), message);
     }
 }

@@ -17,9 +17,8 @@ import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j
@@ -28,10 +27,10 @@ public class GameService {
     @Inject
     GameEventEmitterImpl gameEventEmitterImpl;
 
-    //TODO introduce cache key prefix
+    // TODO introduce cache key prefix
     private final ValueCommands<String, GameSnapshot> gameSnapshots;
 
-    //TODO PostConstruct instead maybe?
+    // TODO PostConstruct instead maybe?
     public GameService(RedisDataSource redisDataSource) {
         gameSnapshots = redisDataSource.value(GameSnapshot.class);
     }
@@ -59,7 +58,7 @@ public class GameService {
 
         GameSnapshot snapshot = gameSnapshots.get(gameId);
 
-        if(snapshot == null) {
+        if (snapshot == null) {
             throw new GameNotFoundException(gameId);
         }
 
@@ -81,7 +80,11 @@ public class GameService {
         Game game = getGame(gameId);
         long serverDurationMillis = game.getPlayerTimer().getActiveDuration().toMillis();
         long diff = Math.abs(clientDurationMillis - serverDurationMillis);
-        log.info("Client reported duration: {} ms, Server recorded duration: {} ms, diff: {} ms", clientDurationMillis, serverDurationMillis, diff);
+        log.info(
+                "Client reported duration: {} ms, Server recorded duration: {} ms, diff: {} ms",
+                clientDurationMillis,
+                serverDurationMillis,
+                diff);
         game.drawCard(clientDurationMillis);
         saveGame(game);
     }
@@ -129,9 +132,7 @@ public class GameService {
     public TimerReports getTimeReport(String gameId) {
         Game game = getGame(gameId);
         return new TimerReports(
-                TimeReport.createReport(game.getGameTimer()),
-                TimeReport.createReport(game.getPlayerTimer())
-        );
+                TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()));
     }
 
     private void saveGame(Game game) {

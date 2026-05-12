@@ -9,7 +9,7 @@ public enum Role {
 
     public static Role getRoleFromSecurityIdentity(SecurityIdentity securityIdentity) {
 
-        if(securityIdentity.hasRole(GAME_CLIENT.toString())) {
+        if (securityIdentity.hasRole(GAME_CLIENT.toString())) {
             return GAME_CLIENT;
         }
 
@@ -17,6 +17,6 @@ public enum Role {
             return PLAYER_CLIENT;
         }
 
-        throw new BaseException("Role not found",500);
+        throw new BaseException("Role not found", 500);
     }
 }

@@ -8,6 +8,5 @@ public record Player(String name, String id, int sipsInABeer, boolean canDrawChu
     public static Player create(String name, int sipsInABeer, boolean canDrawChugCard) {
         String id = IdGenerator.generatePlayerId();
         return new Player(name, id, sipsInABeer, canDrawChugCard, new Stats());
-
     }
 }

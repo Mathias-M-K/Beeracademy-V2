@@ -6,7 +6,7 @@ import dk.mathiaskofod.services.session.models.annotations.EventType;
 
 @EventType("GAME_PAUSED")
 public record GamePausedGameEventDto(TimerReports timerReports) implements GameEventDto {
-    public static GamePausedGameEventDto fromGameEvent(PauseGameEvent pauseGameEvent){
+    public static GamePausedGameEventDto fromGameEvent(PauseGameEvent pauseGameEvent) {
         return new GamePausedGameEventDto(pauseGameEvent.timerReports());
     }
 }
