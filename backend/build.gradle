@@ -3,6 +3,7 @@ plugins {
     id 'io.quarkus'
     id 'jacoco'
     id "org.sonarqube" version "7.2.2.6593"
+    id "com.diffplug.spotless" version "8.4.0"
 }
 java {
     toolchain {
@@ -65,11 +66,6 @@ sonar {
         property "sonar.projectKey", "beeracademy-backend"
         property "sonar.organization", "mathias"
     }
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
 }
 
 test {
@@ -143,6 +139,23 @@ tasks.register('manual_deploy') {
 
     build.mustRunAfter clean
     dockerBuild.mustRunAfter build
+}
+
+spotless {
+    java {
+
+        target('src/**/*.java')
+
+        removeUnusedImports()
+        forbidWildcardImports()
+
+        // apply a specific flavor of google-java-format
+        palantirJavaFormat().formatJavadoc(true)
+
+        // fix formatting of type annotations
+        formatAnnotations()
+
+    }
 }
 
 
