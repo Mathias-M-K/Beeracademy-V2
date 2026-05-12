@@ -1,8 +1,7 @@
 package dk.mathiaskofod.services.session.repository;
 
-import lombok.Getter;
-
 import java.util.Optional;
+import lombok.Getter;
 
 public class Session {
 

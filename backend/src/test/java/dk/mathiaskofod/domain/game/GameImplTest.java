@@ -1,5 +1,9 @@
 package dk.mathiaskofod.domain.game;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
+
 import dk.mathiaskofod.domain.game.deck.DeckSnapshot;
 import dk.mathiaskofod.domain.game.deck.models.Suit;
 import dk.mathiaskofod.domain.game.events.TestGameEventEmitter;
@@ -7,19 +11,14 @@ import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.TimerSnapshot;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.*;
 
 class GameImplTest {
 

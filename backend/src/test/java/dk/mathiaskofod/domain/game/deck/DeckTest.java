@@ -1,5 +1,9 @@
 package dk.mathiaskofod.domain.game.deck;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import dk.mathiaskofod.domain.game.deck.exceptions.NotEnoughSuitesAvailableException;
 import dk.mathiaskofod.domain.game.deck.exceptions.OutOfCardsException;
 import dk.mathiaskofod.domain.game.deck.models.Card;
@@ -7,10 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DeckTest {
 

@@ -1,10 +1,9 @@
 package dk.mathiaskofod.api.ping.models;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public record Pong(String application, ZonedDateTime time, String environment) {

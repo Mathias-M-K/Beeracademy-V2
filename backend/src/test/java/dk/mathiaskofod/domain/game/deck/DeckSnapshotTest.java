@@ -1,12 +1,12 @@
 package dk.mathiaskofod.domain.game.deck;
 
-import dk.mathiaskofod.domain.game.deck.models.Card;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+
+import dk.mathiaskofod.domain.game.deck.models.Card;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class DeckSnapshotTest {
 

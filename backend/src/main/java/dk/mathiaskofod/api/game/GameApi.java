@@ -14,6 +14,10 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -23,11 +27,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.ResponseStatus;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 
 // TODO Split API into three different APIs, Lobby, Session and GameReport
 @Path("/games")

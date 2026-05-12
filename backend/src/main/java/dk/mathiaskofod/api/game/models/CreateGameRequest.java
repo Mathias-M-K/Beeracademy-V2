@@ -1,8 +1,7 @@
 package dk.mathiaskofod.api.game.models;
 
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
 import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public record CreateGameRequest(
         @Schema(

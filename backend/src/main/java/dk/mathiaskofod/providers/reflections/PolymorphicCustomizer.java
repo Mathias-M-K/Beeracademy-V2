@@ -7,10 +7,9 @@ import dk.mathiaskofod.services.session.models.annotations.Category;
 import dk.mathiaskofod.services.session.models.annotations.EventType;
 import io.quarkus.jackson.ObjectMapperCustomizer;
 import jakarta.inject.Singleton;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
-
-import java.util.Set;
 
 @Singleton
 @Slf4j

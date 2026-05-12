@@ -24,9 +24,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
