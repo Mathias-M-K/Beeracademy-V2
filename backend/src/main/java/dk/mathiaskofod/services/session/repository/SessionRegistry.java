@@ -92,7 +92,7 @@ public class SessionRegistry {
         });
     }
 
-    private String getSessionCacheId(String sessionId) {
+    String getSessionCacheId(String sessionId) {
         return SESSION_CACHE_PREFIX + sessionId;
     }
 }

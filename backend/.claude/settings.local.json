@@ -9,7 +9,8 @@
       "Bash(./gradlew compileJava)",
       "WebSearch",
       "WebFetch(domain:quarkus.io)",
-      "Bash(./gradlew compileJava --no-daemon)"
+      "Bash(./gradlew compileJava --no-daemon)",
+      "Bash(./gradlew clean *)"
     ]
   }
 }
