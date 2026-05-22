@@ -7,9 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import dk.mathiaskofod.services.session.exceptions.SessionAlreadyConnectedException;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-
 import java.util.Optional;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -103,31 +101,30 @@ class SessionRegistryTest {
 
         sessionRegistry.setConnectionId(sessionId, connectionId);
 
-        //Act - Assert
+        // Act - Assert
         assertThrows(SessionAlreadyConnectedException.class, () -> sessionRegistry.setConnectionId(sessionId, "789"));
-
     }
 
     @Test
     @DisplayName("Clearing connectionId")
     void clearConnectionId() {
 
-        //Arrange
+        // Arrange
         Session session = new Session(sessionId);
         sessionRegistry.registerSession(session);
 
         String connectionId = "456";
 
-        //Act
+        // Act
         sessionRegistry.setConnectionId(sessionId, connectionId);
 
-        //Assert
+        // Assert
         assertThat(getSessionAndAssertExists(sessionId).getConnectionId().isPresent(), is(true));
 
-        //Act
+        // Act
         sessionRegistry.clearConnectionId(sessionId);
 
-        //Assert
+        // Assert
         assertThat(getSessionAndAssertExists(sessionId).getConnectionId().isPresent(), is(false));
     }
 
