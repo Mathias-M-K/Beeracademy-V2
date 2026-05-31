@@ -92,7 +92,7 @@ test {
         excludeClassLoaders = ["*QuarkusClassLoader"]
         destinationFile = layout.buildDirectory.file("jacoco-quarkus.exec").get().asFile
     }
-    jacocoTestReport.enabled = false
+//    jacocoTestReport.enabled = false
 }
 
 //Deploy tasks
