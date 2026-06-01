@@ -92,7 +92,15 @@ test {
         excludeClassLoaders = ["*QuarkusClassLoader"]
         destinationFile = layout.buildDirectory.file("jacoco-quarkus.exec").get().asFile
     }
-//    jacocoTestReport.enabled = false
+}
+
+jacocoTestReport {
+    executionData.setFrom(layout.buildDirectory.file("jacoco-quarkus.exec"))
+    reports {
+        xml.required = true
+        html.required = true
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+    }
 }
 
 //Deploy tasks
