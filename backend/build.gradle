@@ -1,8 +1,8 @@
 plugins {
     id 'java'
     id 'io.quarkus'
-    id 'jacoco'
     id "org.sonarqube" version "7.2.2.6593"
+    id 'jacoco'
     id "com.diffplug.spotless" version "8.4.0"
 }
 java {
@@ -56,6 +56,9 @@ dependencies {
 
     //OpenApi
     implementation 'io.quarkus:quarkus-smallrye-openapi'
+
+    //Test coverage
+    testImplementation("io.quarkus:quarkus-jacoco")
 }
 
 group = 'dk.mathiaskofod'
@@ -85,16 +88,11 @@ tasks.withType(Test).configureEach {
 }
 test {
     finalizedBy jacocoTestReport
-}
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    jacoco {
+        excludeClassLoaders = ["*QuarkusClassLoader"]
+        destinationFile = layout.buildDirectory.file("jacoco-quarkus.exec").get().asFile
     }
-}
-jacoco {
-    toolVersion = "0.8.13"
+//    jacocoTestReport.enabled = false
 }
 
 //Deploy tasks
