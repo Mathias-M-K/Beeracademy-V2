@@ -1,10 +1,9 @@
 package dk.mathiaskofod.api.ping.models;
 
+import dk.mathiaskofod.services.environment.models.Environment;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
-import dk.mathiaskofod.services.environment.models.Environment;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

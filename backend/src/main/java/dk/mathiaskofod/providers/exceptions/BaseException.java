@@ -18,6 +18,4 @@ public class BaseException extends RuntimeException {
         super(message, cause);
         this.httpStatus = httpStatus;
     }
-
-
 }
