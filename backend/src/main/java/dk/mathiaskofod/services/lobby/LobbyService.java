@@ -6,8 +6,12 @@ import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.common.dto.session.SessionDto;
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.services.auth.AuthService;
+import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.game.GameService;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
+import dk.mathiaskofod.services.lobby.models.Lobby;
+import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
+import dk.mathiaskofod.services.lobby.repository.LobbyRepository;
 import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
@@ -22,11 +26,55 @@ public class LobbyService {
     GameService gameService;
 
     @Inject
-    AuthService authService;
+    AuthenticationService authenticationService;
 
     @Inject
     SessionRegistry sessionRegistry;
 
+    @Inject
+    LobbyRepository lobbyRepository;
+
+    /**
+     * Creates a lobby and returns lobby-id
+     *
+     * @param name Name of lobby, will persist as Game name
+     * @return Lobby ID, which will persist as Game ID
+     */
+    public String createLobby(String name) {
+        String lobbyId = IdGenerator.generateGameId();
+        Lobby newLobby = new Lobby(name, lobbyId);
+
+        lobbyRepository.addLobby(newLobby);
+
+        return lobbyId;
+    }
+
+    /**
+     * Fetch lobby
+     *
+     * @return fetches lobby
+     */
+    public Lobby getLobby(String lobbyId) {
+        return lobbyRepository.getLobby(lobbyId);
+    }
+
+    /**
+     * Registers new lobby
+     *
+     * @param participantName Name of the participant, will persist as Player name
+     * @param lobbyId Lobby ID, will persist as Game ID
+     * @return Participant ID, which will persist as Player ID
+     */
+    public LobbyParticipant registerParticipant(String participantName, String lobbyId) {
+        String participantId = IdGenerator.generatePlayerId();
+        LobbyParticipant participant = new LobbyParticipant(participantName, "Fancy title", participantId);
+        getLobby(lobbyId).addParticipant(participant);
+        return participant;
+    }
+
+
+
+    @Deprecated(forRemoval = true)
     public String createGame(CreateGameRequest createGameRequest) {
 
         List<Player> newPlayers = createGameRequest.players().stream()
@@ -37,6 +85,7 @@ public class LobbyService {
         return gameService.createGame(createGameRequest.name(), newPlayers);
     }
 
+    @Deprecated(forRemoval = true)
     public GameDto getGame(String gameId) {
 
         Game game = gameService.getGame(gameId);
@@ -49,6 +98,7 @@ public class LobbyService {
         return GameDto.create(game, gameSession, playerDtos);
     }
 
+    @Deprecated(forRemoval = true)
     private List<PlayerDto> getPlayerDtos(Game game) {
         return game.getPlayers().stream()
                 .map(player -> {
@@ -62,11 +112,13 @@ public class LobbyService {
                 .toList();
     }
 
+    @Deprecated(forRemoval = true)
     public List<PlayerDto> getPlayerDtos(String gameId) {
         Game game = gameService.getGame(gameId);
         return getPlayerDtos(game);
     }
 
+    @Deprecated(forRemoval = true)
     public String claimGame(String gameId) {
 
         if (!gameService.gameExists(gameId)) {
@@ -80,9 +132,10 @@ public class LobbyService {
 
         sessionRegistry.registerSession(new Session(gameId));
 
-        return authService.createGameClientToken(gameId);
+        return authenticationService.createGameClientToken(gameId);
     }
 
+    @Deprecated(forRemoval = true)
     public String claimPlayer(String gameId, String playerId) {
 
         if (!gameService.gameExists(gameId)) {
@@ -99,6 +152,6 @@ public class LobbyService {
 
         sessionRegistry.registerSession(new Session(playerId));
 
-        return authService.createPlayerClientToken(player, gameId);
+        return authenticationService.createPlayerClientToken(player.name(), gameId);
     }
 }
