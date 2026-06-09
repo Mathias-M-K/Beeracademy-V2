@@ -2,13 +2,12 @@ package dk.mathiaskofod.api.lobby;
 
 import dk.mathiaskofod.api.lobby.models.CreateLobbyResponse;
 import dk.mathiaskofod.api.lobby.models.PlayerRegisterRequest;
-import dk.mathiaskofod.api.lobby.models.RegisterPlayerResponse;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.environment.EnvironmentService;
 import dk.mathiaskofod.services.environment.models.Environment;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.LobbyService;
-import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -80,18 +79,9 @@ public class LobbyApi {
     @APIResponse(
             responseCode = "200",
             description = "Lobby retrieved successfully.",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = LobbyDTO.class))
-    )
-    @APIResponse(
-            responseCode = "400",
-            description = "Invalid lobby ID format."
-    )
-    @APIResponse(
-            responseCode = "404",
-            description = "Lobby not found."
-    )
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LobbyDTO.class)))
+    @APIResponse(responseCode = "400", description = "Invalid lobby ID format.")
+    @APIResponse(responseCode = "404", description = "Lobby not found.")
     public LobbyDTO getLobby(
             @Parameter(
                             description = "The unique 9-character alphanumeric lobby ID",
@@ -116,22 +106,15 @@ public class LobbyApi {
                         name = "Set-Cookie",
                         description = "Contains the JWT session token",
                         schema = @Schema(type = SchemaType.STRING))
-            },
-            content =
-                    @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = RegisterPlayerResponse.class)))
+            })
     public Response registerParticipant(@Valid @BeanParam PlayerRegisterRequest request) {
-        LobbyParticipant participant = lobbyService.registerParticipant(request.playerName(), request.lobbyId());
-        String jwt = authenticationService.createPlayerClientToken(
-                request.playerName(), request.lobbyId(), participant.id());
+        lobbyService.getLobby(request.lobbyId());
+        String playerId = IdGenerator.generatePlayerId();
+        String jwt = authenticationService.createPlayerClientToken(request.playerName(), request.lobbyId(), playerId);
 
         NewCookie cookieJwt = generateJwtCookieResponse(jwt);
 
-        return Response.ok()
-                .cookie(cookieJwt)
-                .entity(RegisterPlayerResponse.fromParticipant(participant))
-                .build();
+        return Response.ok().cookie(cookieJwt).build();
     }
 
     private NewCookie generateJwtCookieResponse(String jwt) {

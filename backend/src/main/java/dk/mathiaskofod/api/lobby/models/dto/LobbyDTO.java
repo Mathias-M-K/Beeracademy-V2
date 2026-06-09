@@ -13,13 +13,12 @@ public record LobbyDTO(
         String id,
 
         @Schema(description = "The list of participants currently registered in the lobby")
-        List<LobbyParticipantDto> participants
-) {
+        List<LobbyParticipantDTO> participants) {
 
     public static LobbyDTO fromLobby(Lobby lobby) {
 
-        List<LobbyParticipantDto> participantDtos = lobby.getParticipants().stream()
-                .map(LobbyParticipantDto::fromLobbyParticipant)
+        List<LobbyParticipantDTO> participantDtos = lobby.getParticipants().stream()
+                .map(LobbyParticipantDTO::fromLobbyParticipant)
                 .toList();
 
         return new LobbyDTO(lobby.getName(), lobby.getId(), participantDtos);

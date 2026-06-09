@@ -45,6 +45,8 @@ public class LobbyService {
         Lobby newLobby = new Lobby(name, lobbyId);
 
         lobbyRepository.addLobby(newLobby);
+        Session gameClientSession = new Session(lobbyId);
+        sessionRegistry.registerSession(gameClientSession);
 
         return lobbyId;
     }
@@ -58,21 +60,15 @@ public class LobbyService {
         return lobbyRepository.getLobby(lobbyId);
     }
 
-    /**
-     * Registers new lobby
-     *
-     * @param participantName Name of the participant, will persist as Player name
-     * @param lobbyId Lobby ID, will persist as Game ID
-     * @return Participant ID, which will persist as Player ID
-     */
-    public LobbyParticipant registerParticipant(String participantName, String lobbyId) {
-        String participantId = IdGenerator.generatePlayerId();
-        LobbyParticipant participant = new LobbyParticipant(participantName, "Fancy title", participantId);
-        getLobby(lobbyId).addParticipant(participant);
-        return participant;
+    public LobbyParticipant registerConnectedParticipant(String lobbyId, String name, String id) {
+        LobbyParticipant newLobbyParticipant = new LobbyParticipant(name, "Funny title", id);
+        getLobby(lobbyId).addParticipant(newLobbyParticipant);
+        return newLobbyParticipant;
     }
 
-
+    public void removeDisconnectedParticipant(String lobbyId, String id) {
+        getLobby(lobbyId).removeParticipant(id);
+    }
 
     @Deprecated(forRemoval = true)
     public String createGame(CreateGameRequest createGameRequest) {

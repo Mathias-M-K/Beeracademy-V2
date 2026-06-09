@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.actions.player.client;
+package dk.mathiaskofod.services.session.actions.game.player;
 
 import dk.mathiaskofod.services.session.models.annotations.ActionType;
 

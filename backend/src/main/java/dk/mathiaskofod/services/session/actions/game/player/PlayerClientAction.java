@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.actions.player.client;
+package dk.mathiaskofod.services.session.actions.game.player;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

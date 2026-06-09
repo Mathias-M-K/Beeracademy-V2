@@ -1,4 +1,4 @@
-package dk.mathiaskofod.websocket;
+package dk.mathiaskofod.websocket.game;
 
 import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.Role;
@@ -6,10 +6,10 @@ import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
+import dk.mathiaskofod.services.session.WebsocketSessionManager;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.websocket.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
 import io.quarkus.security.Authenticated;
-import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +22,6 @@ public class GameWebsocket {
 
     @Inject
     JsonWebToken jwt;
-
-    @Inject
-    SecurityIdentity securityIdentity;
 
     @Inject
     WebSocketConnection connection;
@@ -67,7 +64,7 @@ public class GameWebsocket {
     }
 
     private WebsocketSessionManager getManager() {
-        Role role = Role.getRoleFromSecurityIdentity(securityIdentity);
+        Role role = Role.fromJsonWebToken(jwt);
 
         switch (role) {
             case GAME_CLIENT -> {
@@ -78,7 +75,7 @@ public class GameWebsocket {
             }
             default ->
                 throw new IllegalStateException(
-                        "Unexpected value: " + Role.getRoleFromSecurityIdentity(securityIdentity));
+                        "Unexpected value: " + Role.fromJsonWebToken(jwt));
         }
     }
 }

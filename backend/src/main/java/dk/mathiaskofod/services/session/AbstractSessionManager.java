@@ -7,7 +7,6 @@ import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.WebsocketConnectionNotFoundException;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
-import dk.mathiaskofod.websocket.WebsocketSessionManager;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;

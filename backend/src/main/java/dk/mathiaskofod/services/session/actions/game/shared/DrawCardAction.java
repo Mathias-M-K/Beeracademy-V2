@@ -1,7 +1,7 @@
-package dk.mathiaskofod.services.session.actions.shared;
+package dk.mathiaskofod.services.session.actions.game.shared;
 
 import dk.mathiaskofod.services.session.actions.game.client.GameClientAction;
-import dk.mathiaskofod.services.session.actions.player.client.PlayerClientAction;
+import dk.mathiaskofod.services.session.actions.game.player.PlayerClientAction;
 import dk.mathiaskofod.services.session.models.annotations.ActionType;
 
 @ActionType("DRAW_CARD")

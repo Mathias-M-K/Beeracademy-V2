@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.equalTo;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.lobby.models.Lobby;
-import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.DisplayName;
@@ -67,9 +66,6 @@ class LobbyApiTest {
     void canRegisterToLobby() {
 
         // Arrange
-        String lobbyId = "123456789";
-        LobbyParticipant participant = new LobbyParticipant("TestPlayer", "Apprentice", "participantId");
-        Mockito.when(lobbyService.registerParticipant("TestPlayer", lobbyId)).thenReturn(participant);
 
         when().post(url + "/123456789/register?participantName=TestPlayer")
                 .then()

@@ -28,7 +28,7 @@ import dk.mathiaskofod.services.session.actions.game.client.PauseGameAction;
 import dk.mathiaskofod.services.session.actions.game.client.RegisterChugAction;
 import dk.mathiaskofod.services.session.actions.game.client.ResumeGameAction;
 import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
-import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
+import dk.mathiaskofod.services.session.actions.game.shared.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;

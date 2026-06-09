@@ -2,11 +2,13 @@ package dk.mathiaskofod.services.session.repository;
 
 import java.util.Optional;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class Session {
 
     @Getter
-    private final String sessionId;
+    private String sessionId;
 
     private String connectionId; // The ID provided by Quarkus Websocket
 
@@ -17,6 +19,11 @@ public class Session {
      */
     public Session(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public Session(String sessionId, String connectionId) {
+        this.sessionId = sessionId;
+        this.connectionId = connectionId;
     }
 
     public boolean isConnected() {

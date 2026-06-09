@@ -23,7 +23,6 @@ public class AuthenticationService {
                 .subject(playerName)
                 .groups(new HashSet<>(List.of(Role.PLAYER_CLIENT.toString())))
                 .claim(CustomJwtClaims.GAME_ID.getName(), gameId)
-                .claim(CustomJwtClaims.PLAYER_NAME.getName(), playerName)
                 .claim(CustomJwtClaims.PLAYER_ID.getName(), playerId)
                 .expiresIn(TOKEN_DURATION)
                 .sign();

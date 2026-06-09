@@ -1,4 +1,4 @@
-package dk.mathiaskofod.websocket;
+package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;

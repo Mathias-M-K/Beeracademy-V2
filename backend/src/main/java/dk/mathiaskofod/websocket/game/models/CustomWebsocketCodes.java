@@ -1,4 +1,4 @@
-package dk.mathiaskofod.websocket.models;
+package dk.mathiaskofod.websocket.game.models;
 
 public enum CustomWebsocketCodes {
     SESSION_NOT_FOUND(4000);
