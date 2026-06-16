@@ -2,6 +2,7 @@ package dk.mathiaskofod.api.lobby;
 
 import dk.mathiaskofod.api.lobby.models.CreateLobbyResponse;
 import dk.mathiaskofod.api.lobby.models.PlayerRegisterRequest;
+import dk.mathiaskofod.api.lobby.models.RegisterPlayerResponse;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.environment.EnvironmentService;
@@ -114,7 +115,10 @@ public class LobbyApi {
 
         NewCookie cookieJwt = generateJwtCookieResponse(jwt);
 
-        return Response.ok().cookie(cookieJwt).build();
+        return Response.ok()
+                .entity(new RegisterPlayerResponse(playerId))
+                .cookie(cookieJwt)
+                .build();
     }
 
     private NewCookie generateJwtCookieResponse(String jwt) {

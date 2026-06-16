@@ -8,7 +8,7 @@ import dk.mathiaskofod.services.session.repository.Session;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
-    protected void broadcastToLobby(String lobbyId, WebsocketEnvelope envelope) {
+    protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope) {
 
         Lobby lobby = lobbyService.getLobby(lobbyId);
 

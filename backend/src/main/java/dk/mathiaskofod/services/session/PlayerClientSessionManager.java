@@ -20,6 +20,7 @@ import dk.mathiaskofod.services.session.events.playerclient.PlayerRelinquishedEv
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
+import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -38,7 +39,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         eventBus.fire(event);
     }
 
-    private void broadcastMessageToAllPlayersInGame(WebsocketEnvelope message, String gameId) {
+    private void broadcastMessageToAllPlayersInGame(WebsocketEnvelope<?> message, String gameId) {
         gameService.getGame(gameId).getPlayers().stream()
                 .map(Player::id)
                 .map(sessionRegistry::getSession)
@@ -69,7 +70,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
                 websocketConnectionId);
     }
 
-    public void onConnectionClosed(TokenInfo tokenInfo) {
+    public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
         String gameId = tokenInfo.getGameId();
         String playerId = tokenInfo.getPlayerId();
@@ -99,7 +100,7 @@ public class PlayerClientSessionManager extends AbstractSessionManager {
         broadcastPlayerEvent(new PlayerRelinquishedEvent(playerId, gameId));
     }
 
-    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope envelope) {
+    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
 
         if (!(envelope instanceof PlayerClientActionEnvelope(PlayerClientAction payload))) {
             throw new UnknownCategoryException("Only player actions allowed from player clients", 400);

@@ -4,4 +4,5 @@ import dk.mathiaskofod.services.session.actions.lobby.participant.LobbyParticipa
 import dk.mathiaskofod.services.session.models.annotations.Category;
 
 @Category("LOBBY_PARTICIPANT_ACTION")
-public record LobbyParticipantActionEnvelope(LobbyParticipantAction payload) implements WebsocketEnvelope {}
+public record LobbyParticipantActionEnvelope(LobbyParticipantAction payload)
+        implements WebsocketEnvelope<LobbyParticipantAction> {}

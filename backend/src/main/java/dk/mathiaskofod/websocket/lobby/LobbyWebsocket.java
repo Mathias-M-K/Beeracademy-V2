@@ -36,16 +36,15 @@ public class LobbyWebsocket {
     }
 
     @OnClose
-    public void onClose() {
+    public void onClose(CloseReason closeReason) {
         TokenInfo tokenInfo = new TokenInfo(jwt);
-        getSessionManager().onConnectionClosed(tokenInfo);
+        getSessionManager().onConnectionClosed(tokenInfo, closeReason);
     }
 
     @OnTextMessage
-    public void onMessage(WebsocketEnvelope message) {
+    public void onMessage(WebsocketEnvelope<?> message) {
         TokenInfo tokenInfo = new TokenInfo(jwt);
         getSessionManager().onMessage(tokenInfo, message);
-
     }
 
     private WebsocketSessionManager getSessionManager() {

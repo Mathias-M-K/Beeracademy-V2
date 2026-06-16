@@ -43,11 +43,11 @@ public class GameWebsocket {
             return;
         }
 
-        getManager().onConnectionClosed(new TokenInfo(jwt));
+        getManager().onConnectionClosed(new TokenInfo(jwt), reason);
     }
 
     @OnTextMessage
-    public void onTextMessage(WebsocketEnvelope message) {
+    public void onTextMessage(WebsocketEnvelope<?> message) {
         getManager().onMessage(new TokenInfo(jwt), message);
     }
 
@@ -73,9 +73,7 @@ public class GameWebsocket {
             case PLAYER_CLIENT -> {
                 return playerClientSessionManager;
             }
-            default ->
-                throw new IllegalStateException(
-                        "Unexpected value: " + Role.fromJsonWebToken(jwt));
+            default -> throw new IllegalStateException("Unexpected value: " + Role.fromJsonWebToken(jwt));
         }
     }
 }

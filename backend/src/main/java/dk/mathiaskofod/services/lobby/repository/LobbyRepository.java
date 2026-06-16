@@ -19,4 +19,8 @@ public class LobbyRepository {
     public Lobby getLobby(String lobbyId) {
         return Optional.ofNullable(lobbies.get(lobbyId)).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
     }
+
+    public void removeLobby(String lobbyId) {
+        lobbies.remove(lobbyId);
+    }
 }

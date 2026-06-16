@@ -39,15 +39,19 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
         getWebsocketConnection(sessionId).closeAndAwait();
     }
 
-    private WebSocketConnection getWebsocketConnection(String id) {
-        String connectionId = getConnectionId(id);
+    /**
+     * @param playerId/participantId id of either player or participant
+     * @return active websocket connection
+     */
+    protected WebSocketConnection getWebsocketConnection(String playerId) {
+        String connectionId = getConnectionId(playerId);
         return connections
                 .findByConnectionId(connectionId)
                 .orElseThrow(() -> new WebsocketConnectionNotFoundException(
                         "Websocket connection not found for connectionId: " + connectionId));
     }
 
-    protected final void sendMessage(String sessionId, WebsocketEnvelope message) {
+    protected final void sendMessage(String sessionId, WebsocketEnvelope<?> message) {
 
         try {
             WebSocketConnection connection = getWebsocketConnection(sessionId);

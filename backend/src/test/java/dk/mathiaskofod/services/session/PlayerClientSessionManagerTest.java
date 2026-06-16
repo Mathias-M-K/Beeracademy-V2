@@ -111,7 +111,7 @@ class PlayerClientSessionManagerTest {
             when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
 
             // Act
-            sessionManager.onConnectionClosed(tokenInfo);
+            sessionManager.onConnectionClosed(tokenInfo, null);
 
             // Assert
             verify(sessionRegistry).clearConnectionId(PLAYER_ID);
@@ -156,7 +156,7 @@ class PlayerClientSessionManagerTest {
         @Test
         void invalidEnvelopeType() {
             // Arrange
-            WebsocketEnvelope invalidEnvelope = mock(WebsocketEnvelope.class);
+            WebsocketEnvelope<?> invalidEnvelope = mock(WebsocketEnvelope.class);
 
             // Act & Assert
             assertThrows(UnknownCategoryException.class, () -> sessionManager.onMessage(tokenInfo, invalidEnvelope));

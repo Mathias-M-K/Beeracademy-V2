@@ -15,6 +15,9 @@ public class Lobby {
     @Getter
     private final String id;
 
+    @Getter
+    private boolean abandoned;
+
     private final Map<String, LobbyParticipant> participants = new HashMap<>();
 
     public Lobby(String name, String id) {
@@ -36,5 +39,9 @@ public class Lobby {
 
     public List<LobbyParticipant> getParticipants() {
         return participants.values().stream().toList();
+    }
+
+    public void markAbandoned() {
+        this.abandoned = true;
     }
 }

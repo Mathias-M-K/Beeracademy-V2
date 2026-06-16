@@ -9,12 +9,11 @@ import dk.mathiaskofod.services.session.actions.lobby.participant.SendMessageAct
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.services.session.events.lobby.participant.EmojiSentEvent;
-import dk.mathiaskofod.services.session.events.lobby.participant.LobbyParticipantConnectedEvent;
-import dk.mathiaskofod.services.session.events.lobby.participant.LobbyParticipantDisconnectedEvent;
-import dk.mathiaskofod.services.session.events.lobby.participant.MessageSentEvent;
+import dk.mathiaskofod.services.session.events.lobby.participant.*;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
+import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +23,12 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
 
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
-        log.info("Registering new lobby participant connected with websocket connection id: {}", websocketConnectionId);
+        log.info(
+                "New participant connected! Name: {}, Player id: {}, Game id: {}, WebsocketId:{}",
+                tokenInfo.getName(),
+                tokenInfo.getPlayerId(),
+                tokenInfo.getGameId(),
+                websocketConnectionId);
         LobbyParticipant lobbyParticipant = lobbyService.registerConnectedParticipant(
                 tokenInfo.getGameId(), tokenInfo.getName(), tokenInfo.getPlayerId());
 
@@ -38,37 +42,51 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     }
 
     @Override
-    public void onConnectionClosed(TokenInfo tokenInfo) {
-        LobbyParticipant leavingParticipant = lobbyService.getLobby(tokenInfo.getGameId()).getParticipant(tokenInfo.getPlayerId());
+    public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
+
+        log.info(
+                "Lobby participant left. Name: {}, ParticipantID: {}, CloseReason: {}-{}",
+                tokenInfo.getName(),
+                tokenInfo.getPlayerId(),
+                closeReason.getCode(),
+                closeReason.getMessage());
+
+        LobbyParticipant leavingParticipant =
+                lobbyService.getLobby(tokenInfo.getGameId()).getParticipant(tokenInfo.getPlayerId());
         lobbyService.removeDisconnectedParticipant(tokenInfo.getGameId(), tokenInfo.getPlayerId());
         sessionRegistry.removeSession(tokenInfo.getPlayerId());
 
         LobbyParticipantDisconnectedEvent event = new LobbyParticipantDisconnectedEvent(leavingParticipant);
         LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
 
+        if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode()) {
+            // Skipping broadcast, since every member have already been notified
+            return;
+        }
         broadcastToLobby(tokenInfo.getGameId(), envelope);
     }
 
     @Override
-    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope message) {
+    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> message) {
 
-        if(!(message instanceof LobbyParticipantActionEnvelope(LobbyParticipantAction action))){
+        if (!(message instanceof LobbyParticipantActionEnvelope(LobbyParticipantAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for lobby participant action", 400);
         }
 
-        //TODO write a better version of this Envelope stuff, it seems silly how it's done atm
-        switch (action){
+        switch (action) {
             case SendEmojiAction(Emoji emoji) -> {
                 EmojiSentEvent event = new EmojiSentEvent(tokenInfo.getPlayerId(), emoji);
-                LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
-                broadcastToLobby(tokenInfo.getGameId(), envelope);
+                broadcastToLobby(tokenInfo.getGameId(), new LobbyParticipantEventEnvelope(event));
             }
             case SendMessageAction(String clientMessage) -> {
-                MessageSentEvent event =  new MessageSentEvent(tokenInfo.getPlayerId(), clientMessage);
-                LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
-                broadcastToLobby(tokenInfo.getGameId(), envelope);
+                MessageSentEvent event = new MessageSentEvent(tokenInfo.getPlayerId(), clientMessage);
+                broadcastToLobby(tokenInfo.getGameId(), new LobbyParticipantEventEnvelope(event));
             }
-            default -> log.warn("Received unknown action from lobby participant with player id: {}. Action: {}", tokenInfo.getPlayerId(), action);
+            default ->
+                log.warn(
+                        "Received unknown action from lobby participant with player id: {}. Action: {}",
+                        tokenInfo.getPlayerId(),
+                        action);
         }
     }
 }

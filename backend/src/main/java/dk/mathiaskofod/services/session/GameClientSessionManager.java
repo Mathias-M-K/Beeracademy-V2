@@ -14,6 +14,7 @@ import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
+import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class GameClientSessionManager extends AbstractSessionManager {
         sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
     }
 
-    public void onConnectionClosed(TokenInfo tokenInfo) {
+    public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
         String gameId = tokenInfo.getGameId();
 
@@ -51,7 +52,7 @@ public class GameClientSessionManager extends AbstractSessionManager {
         log.info("Game client disconnected. GameID:{}", gameId);
     }
 
-    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope envelope) {
+    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for game client action", 400);

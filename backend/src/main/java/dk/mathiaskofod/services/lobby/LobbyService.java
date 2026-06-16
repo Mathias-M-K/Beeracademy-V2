@@ -9,6 +9,7 @@ import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
+import dk.mathiaskofod.services.lobby.exceptions.LobbyNotEmptyException;
 import dk.mathiaskofod.services.lobby.models.Lobby;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.lobby.repository.LobbyRepository;
@@ -18,7 +19,9 @@ import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class LobbyService {
 
@@ -51,6 +54,22 @@ public class LobbyService {
         return lobbyId;
     }
 
+    public void deleteLobby(String lobbyId) {
+        boolean isEmpty = lobbyRepository.getLobby(lobbyId).getParticipants().isEmpty();
+        if (!isEmpty) {
+            throw new LobbyNotEmptyException(lobbyId);
+        }
+
+        lobbyRepository.removeLobby(lobbyId);
+        sessionRegistry.removeSession(lobbyId);
+
+        log.info("Lobby deleted: {}", lobbyId);
+    }
+
+    public void markLobbyAbandoned(String lobbyId) {
+        getLobby(lobbyId).markAbandoned();
+    }
+
     /**
      * Fetch lobby
      *
@@ -66,8 +85,13 @@ public class LobbyService {
         return newLobbyParticipant;
     }
 
-    public void removeDisconnectedParticipant(String lobbyId, String id) {
-        getLobby(lobbyId).removeParticipant(id);
+    public void removeDisconnectedParticipant(String lobbyId, String participantId) {
+        Lobby lobby = getLobby(lobbyId);
+        lobby.removeParticipant(participantId);
+
+        if (lobby.getParticipants().isEmpty() && lobby.isAbandoned()) {
+            deleteLobby(lobbyId);
+        }
     }
 
     @Deprecated(forRemoval = true)

@@ -4,5 +4,4 @@ public enum Emoji {
     BEER,
     EXPLOSION,
     CHEERS,
-
 }
