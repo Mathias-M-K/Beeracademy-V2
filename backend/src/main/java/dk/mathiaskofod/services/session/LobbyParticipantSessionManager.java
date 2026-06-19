@@ -3,6 +3,7 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.models.Emoji;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
+import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.actions.lobby.participant.LobbyParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.participant.SendEmojiAction;
 import dk.mathiaskofod.services.session.actions.lobby.participant.SendMessageAction;
@@ -29,6 +30,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
                 tokenInfo.getPlayerId(),
                 tokenInfo.getGameId(),
                 websocketConnectionId);
+
         LobbyParticipant lobbyParticipant = lobbyService.registerConnectedParticipant(
                 tokenInfo.getGameId(), tokenInfo.getName(), tokenInfo.getPlayerId());
 
@@ -82,6 +84,8 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
                 MessageSentEvent event = new MessageSentEvent(tokenInfo.getPlayerId(), clientMessage);
                 broadcastToLobby(tokenInfo.getGameId(), new LobbyParticipantEventEnvelope(event));
             }
+            case UpdateSettingsAction updateSettingsAction ->
+                applyAndBroadcastSettings(tokenInfo.getGameId(), tokenInfo.getPlayerId(), updateSettingsAction);
             default ->
                 log.warn(
                         "Received unknown action from lobby participant with player id: {}. Action: {}",

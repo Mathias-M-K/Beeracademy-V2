@@ -3,10 +3,25 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
 import dk.mathiaskofod.services.lobby.models.Lobby;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
+import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
+import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.lobby.common.SettingsUpdatedEvent;
 import dk.mathiaskofod.services.session.repository.Session;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
+
+    protected void applyAndBroadcastSettings(
+            String gameId, String targetParticipantId, UpdateSettingsAction action) {
+
+        lobbyService
+                .getLobby(gameId)
+                .getParticipant(targetParticipantId)
+                .updateSettings(action.getSipsInABeer(), action.canDrawAce());
+
+        SettingsUpdatedEvent event = SettingsUpdatedEvent.fromAction(targetParticipantId, action);
+        broadcastToLobby(gameId, new LobbyParticipantEventEnvelope(event));
+    }
 
     protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope) {
 
@@ -16,7 +31,7 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
                 sessionRegistry.getSession(lobbyId).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
 
         lobby.getParticipants().stream()
-                .map(LobbyParticipant::id)
+                .map(LobbyParticipant::getId)
                 .forEach(sessionId -> sendMessage(sessionId, envelope));
 
         sendMessage(lobbyClientSession.getSessionId(), envelope);

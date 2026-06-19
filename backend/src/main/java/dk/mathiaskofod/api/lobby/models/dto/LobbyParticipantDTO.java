@@ -12,8 +12,19 @@ public record LobbyParticipantDTO(
         String title,
 
         @Schema(description = "The unique 12-character ID", examples = "FZQ-V0Y-YG0-UAE")
-        String id) {
+        String id,
+
+        @Schema(description = "The number of sips that make up a beer for this participant", examples = "14")
+        int sipsInABeer,
+
+        @Schema(description = "Whether the participant is allowed to draw an ace", examples = "true")
+        boolean canDrawAce) {
     public static LobbyParticipantDTO fromLobbyParticipant(LobbyParticipant participant) {
-        return new LobbyParticipantDTO(participant.name(), participant.title(), participant.id());
+        return new LobbyParticipantDTO(
+                participant.getName(),
+                participant.getTitle(),
+                participant.getId(),
+                participant.getSipsInABeer(),
+                participant.isCanDrawAce());
     }
 }

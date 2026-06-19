@@ -1,14 +1,6 @@
 package dk.mathiaskofod.services.session.actions.lobby.client;
 
-import java.time.Instant;
-import lombok.Getter;
+import dk.mathiaskofod.services.session.models.annotations.ActionType;
 
-public class StartGameAction implements LobbyClientAction {
-
-    @Getter
-    Instant startTime;
-
-    public StartGameAction() {
-        this.startTime = Instant.now();
-    }
-}
+@ActionType("LOBBY_START_GAME")
+public record StartGameAction() implements LobbyClientAction {}

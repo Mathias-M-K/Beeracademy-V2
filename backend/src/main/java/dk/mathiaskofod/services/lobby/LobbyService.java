@@ -48,8 +48,8 @@ public class LobbyService {
         Lobby newLobby = new Lobby(name, lobbyId);
 
         lobbyRepository.addLobby(newLobby);
-        Session gameClientSession = new Session(lobbyId);
-        sessionRegistry.registerSession(gameClientSession);
+        Session clientSession = new Session(lobbyId);
+        sessionRegistry.registerSession(clientSession);
 
         return lobbyId;
     }

@@ -6,7 +6,7 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
-import dk.mathiaskofod.services.session.actions.game.shared.DrawCardAction;
+import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
 import dk.mathiaskofod.services.session.events.game.*;
 import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;

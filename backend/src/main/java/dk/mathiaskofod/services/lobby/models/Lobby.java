@@ -26,7 +26,7 @@ public class Lobby {
     }
 
     public void addParticipant(LobbyParticipant participant) {
-        participants.put(participant.id(), participant);
+        participants.put(participant.getId(), participant);
     }
 
     public void removeParticipant(String participantId) {

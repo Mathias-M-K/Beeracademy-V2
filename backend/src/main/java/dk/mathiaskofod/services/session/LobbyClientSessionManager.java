@@ -4,10 +4,14 @@ import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.session.actions.lobby.client.KickParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.client.LobbyClientAction;
+import dk.mathiaskofod.services.session.actions.lobby.client.StartGameAction;
+import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantKickedEvent;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
@@ -34,7 +38,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         CloseReason participantCloseReason =
                 new CloseReason(CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "Leader left the lobby");
         lobbyService.getLobby(tokenInfo.getGameId()).getParticipants().stream()
-                .map(LobbyParticipant::id)
+                .map(LobbyParticipant::getId)
                 .forEach(playerId -> disconnectParticipant(playerId, participantCloseReason));
     }
 
@@ -49,9 +53,19 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
             case KickParticipantAction(String participantId, String kickReason) -> {
                 ParticipantKickedEvent event = new ParticipantKickedEvent(participantId, kickReason);
 
-                disconnectParticipant(
-                        participantId, new CloseReason(CustomWebsocketCodes.KICKED.getCode(), kickReason));
+                CloseReason closeReason = new CloseReason(CustomWebsocketCodes.KICKED.getCode(), kickReason);
+                disconnectParticipant(participantId, closeReason);
                 broadcastToLobby(tokenInfo.getGameId(), new LobbyClientEventEnvelope(event));
+            }
+            case StartGameAction() ->
+                broadcastToLobby(tokenInfo.getGameId(), new LobbyClientEventEnvelope(new GameStartedEvent()));
+            case UpdateSettingsAction updateSettingsAction -> {
+                String participantId = updateSettingsAction
+                        .getBehalfOf()
+                        .orElseThrow(() -> new CannotIdentifyPlayer(
+                                "No participantId was provided when attempting to change settings", 400));
+
+                applyAndBroadcastSettings(tokenInfo.getGameId(), participantId, updateSettingsAction);
             }
             default ->
                 log.warn(

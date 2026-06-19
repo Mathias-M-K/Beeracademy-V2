@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.actions.game.shared;
+package dk.mathiaskofod.services.session.actions.game.common;
 
 import dk.mathiaskofod.services.session.actions.game.client.GameClientAction;
 import dk.mathiaskofod.services.session.actions.game.player.PlayerClientAction;
