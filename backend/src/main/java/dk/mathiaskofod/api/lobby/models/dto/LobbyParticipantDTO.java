@@ -25,6 +25,6 @@ public record LobbyParticipantDTO(
                 participant.getTitle(),
                 participant.getId(),
                 participant.getSipsInABeer(),
-                participant.isCanDrawAce());
+                participant.canDrawAce());
     }
 }

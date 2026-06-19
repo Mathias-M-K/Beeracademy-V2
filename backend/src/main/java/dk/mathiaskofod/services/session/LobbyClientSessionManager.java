@@ -57,8 +57,10 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                 disconnectParticipant(participantId, closeReason);
                 broadcastToLobby(tokenInfo.getGameId(), new LobbyClientEventEnvelope(event));
             }
-            case StartGameAction() ->
+            case StartGameAction() -> {
+                lobbyService.createGame(tokenInfo.getGameId());
                 broadcastToLobby(tokenInfo.getGameId(), new LobbyClientEventEnvelope(new GameStartedEvent()));
+            }
             case UpdateSettingsAction updateSettingsAction -> {
                 String participantId = updateSettingsAction
                         .getBehalfOf()

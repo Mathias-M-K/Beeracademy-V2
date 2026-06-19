@@ -94,6 +94,15 @@ public class LobbyService {
         }
     }
 
+    public void createGame(String lobbyId){
+        Lobby lobby = getLobby(lobbyId);
+        List<Player> players = getLobby(lobbyId).getParticipants().stream()
+                .map(Player::fromParticipant)
+                .toList();
+
+        gameService.createGame(lobby.getName(), lobbyId ,players);
+    }
+
     @Deprecated(forRemoval = true)
     public String createGame(CreateGameRequest createGameRequest) {
 
