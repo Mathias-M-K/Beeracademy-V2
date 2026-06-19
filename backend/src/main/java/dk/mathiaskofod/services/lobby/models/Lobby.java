@@ -18,6 +18,9 @@ public class Lobby {
     @Getter
     private boolean abandoned;
 
+    @Getter
+    private boolean transitioning;
+
     private final Map<String, LobbyParticipant> participants = new HashMap<>();
 
     public Lobby(String name, String id) {
@@ -41,7 +44,11 @@ public class Lobby {
         return participants.values().stream().toList();
     }
 
-    public void markAbandoned() {
+    public void markAsAbandoned() {
         this.abandoned = true;
+    }
+
+    public void markAsTransitioning(){
+        this.transitioning = true;
     }
 }

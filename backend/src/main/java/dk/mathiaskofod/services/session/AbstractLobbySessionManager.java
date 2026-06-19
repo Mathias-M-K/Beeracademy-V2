@@ -1,7 +1,6 @@
 package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
-import dk.mathiaskofod.services.lobby.models.Lobby;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
@@ -25,12 +24,10 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
 
     protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope) {
 
-        Lobby lobby = lobbyService.getLobby(lobbyId);
-
         Session lobbyClientSession =
                 sessionRegistry.getSession(lobbyId).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
 
-        lobby.getParticipants().stream()
+        lobbyService.getLobby(lobbyId).getParticipants().stream()
                 .map(LobbyParticipant::getId)
                 .forEach(sessionId -> sendMessage(sessionId, envelope));
 

@@ -18,7 +18,9 @@ import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -48,26 +50,36 @@ public class LobbyService {
         Lobby newLobby = new Lobby(name, lobbyId);
 
         lobbyRepository.addLobby(newLobby);
-        Session clientSession = new Session(lobbyId);
-        sessionRegistry.registerSession(clientSession);
+        sessionRegistry.registerSession(new Session(lobbyId));
 
         return lobbyId;
     }
 
-    public void deleteLobby(String lobbyId) {
+    public void deleteLobby(String lobbyId, boolean preserveSession) {
         boolean isEmpty = lobbyRepository.getLobby(lobbyId).getParticipants().isEmpty();
+
         if (!isEmpty) {
             throw new LobbyNotEmptyException(lobbyId);
         }
 
         lobbyRepository.removeLobby(lobbyId);
-        sessionRegistry.removeSession(lobbyId);
 
-        log.info("Lobby deleted: {}", lobbyId);
+        if (preserveSession) {
+            sessionRegistry.clearConnectionId(lobbyId);
+        } else {
+            sessionRegistry.removeSession(lobbyId);
+
+        }
+
+        log.info("Lobby deleted: {}, Session preserved: {}", lobbyId, preserveSession);
     }
 
-    public void markLobbyAbandoned(String lobbyId) {
-        getLobby(lobbyId).markAbandoned();
+    public void markLobbyAsAbandoned(String lobbyId) {
+        getLobby(lobbyId).markAsAbandoned();
+    }
+
+    public void markLobbyAsTransitioning(String lobbyId) {
+        getLobby(lobbyId).markAsTransitioning();
     }
 
     /**
@@ -90,17 +102,23 @@ public class LobbyService {
         lobby.removeParticipant(participantId);
 
         if (lobby.getParticipants().isEmpty() && lobby.isAbandoned()) {
-            deleteLobby(lobbyId);
+            deleteLobby(lobbyId, false);
         }
+
+        if (lobby.getParticipants().isEmpty() && lobby.isTransitioning()) {
+            deleteLobby(lobbyId, true);
+        }
+
+
     }
 
-    public void createGame(String lobbyId){
+    public void createGame(String lobbyId) {
         Lobby lobby = getLobby(lobbyId);
         List<Player> players = getLobby(lobbyId).getParticipants().stream()
                 .map(Player::fromParticipant)
                 .toList();
 
-        gameService.createGame(lobby.getName(), lobbyId ,players);
+        gameService.createGame(lobby.getName(), lobbyId, players);
     }
 
     @Deprecated(forRemoval = true)

@@ -28,22 +28,41 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         sessionRegistry.setConnectionId(tokenInfo.getGameId(), websocketConnectionId);
     }
 
+    //TODO could probably also benefit from strategy pattern
     @Override
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
-        log.info("Leader abandoned lobby: {}", tokenInfo.getGameId());
+        String lobbyId = tokenInfo.getGameId();
 
-        lobbyService.markLobbyAbandoned(tokenInfo.getGameId());
+        log.info("Leader abandoned lobby: {}, with reason: {}-{}",
+                lobbyId,
+                closeReason.getCode(),
+                closeReason.getMessage());
 
-        CloseReason participantCloseReason =
-                new CloseReason(CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "Leader left the lobby");
-        lobbyService.getLobby(tokenInfo.getGameId()).getParticipants().stream()
+        boolean isTransitioning = closeReason.getCode() == CustomWebsocketCodes.TRANSITIONING.getCode();
+
+        CloseReason participantCloseReason;
+        if(isTransitioning){
+            lobbyService.markLobbyAsTransitioning(lobbyId);
+            participantCloseReason = new CloseReason(
+                    CustomWebsocketCodes.TRANSITIONING.getCode());
+        }else {
+            lobbyService.markLobbyAsAbandoned(lobbyId);
+            participantCloseReason = new CloseReason(
+                    CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode(),
+                    "Leader left the lobby");
+        }
+
+        lobbyService.getLobby(lobbyId).getParticipants().stream()
                 .map(LobbyParticipant::getId)
                 .forEach(playerId -> disconnectParticipant(playerId, participantCloseReason));
     }
 
+    //TODO can probably utilize strategy pattern
     @Override
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> message) {
+
+        String lobbyId = tokenInfo.getGameId();
 
         if (!(message instanceof LobbyClientActionEnvelope(LobbyClientAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for lobby client action", 400);
@@ -55,11 +74,12 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
 
                 CloseReason closeReason = new CloseReason(CustomWebsocketCodes.KICKED.getCode(), kickReason);
                 disconnectParticipant(participantId, closeReason);
-                broadcastToLobby(tokenInfo.getGameId(), new LobbyClientEventEnvelope(event));
+                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
             }
             case StartGameAction() -> {
-                lobbyService.createGame(tokenInfo.getGameId());
-                broadcastToLobby(tokenInfo.getGameId(), new LobbyClientEventEnvelope(new GameStartedEvent()));
+                lobbyService.createGame(lobbyId);
+                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(new GameStartedEvent()));
+                transitionToGameWebsocket(lobbyId);
             }
             case UpdateSettingsAction updateSettingsAction -> {
                 String participantId = updateSettingsAction
@@ -67,7 +87,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                         .orElseThrow(() -> new CannotIdentifyPlayer(
                                 "No participantId was provided when attempting to change settings", 400));
 
-                applyAndBroadcastSettings(tokenInfo.getGameId(), participantId, updateSettingsAction);
+                applyAndBroadcastSettings(lobbyId, participantId, updateSettingsAction);
             }
             default ->
                 log.warn(
@@ -75,6 +95,11 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                         tokenInfo.getPlayerId(),
                         action);
         }
+    }
+
+    private void transitionToGameWebsocket(String lobbyId){
+        CloseReason reason = new CloseReason(CustomWebsocketCodes.TRANSITIONING.getCode());
+        getWebsocketConnection(lobbyId).closeAndAwait(reason);
     }
 
     private void disconnectParticipant(String participantId, CloseReason reason) {

@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LobbyParticipantSessionManager extends AbstractLobbySessionManager {
 
+    //TODO participant session manger uses session registry directly, while client session manager doesn't
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
         log.info(
@@ -46,22 +47,27 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     @Override
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
-        log.info(
-                "Lobby participant left. Name: {}, ParticipantID: {}, CloseReason: {}-{}",
+        log.info("Lobby participant left. Name: {}, ParticipantID: {}, CloseReason: {}-{}",
                 tokenInfo.getName(),
                 tokenInfo.getPlayerId(),
                 closeReason.getCode(),
                 closeReason.getMessage());
 
-        LobbyParticipant leavingParticipant =
-                lobbyService.getLobby(tokenInfo.getGameId()).getParticipant(tokenInfo.getPlayerId());
+        LobbyParticipant leavingParticipant = lobbyService.getLobby(tokenInfo.getGameId())
+                .getParticipant(tokenInfo.getPlayerId());
         lobbyService.removeDisconnectedParticipant(tokenInfo.getGameId(), tokenInfo.getPlayerId());
-        sessionRegistry.removeSession(tokenInfo.getPlayerId());
+
+        boolean isTransitioning = CustomWebsocketCodes.TRANSITIONING.getCode() == closeReason.getCode();
+        if(isTransitioning){
+            sessionRegistry.clearConnectionId(tokenInfo.getPlayerId());
+        }else{
+            sessionRegistry.removeSession(tokenInfo.getPlayerId());
+        }
 
         LobbyParticipantDisconnectedEvent event = new LobbyParticipantDisconnectedEvent(leavingParticipant);
         LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
 
-        if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode()) {
+        if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode() || closeReason.getCode() == CustomWebsocketCodes.TRANSITIONING.getCode()) {
             // Skipping broadcast, since every member have already been notified
             return;
         }

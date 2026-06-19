@@ -3,7 +3,8 @@ package dk.mathiaskofod.websocket.game.models;
 public enum CustomWebsocketCodes {
     SESSION_NOT_FOUND(4000),
     LOBBY_LEADER_LEFT(4010),
-    KICKED(4020);
+    KICKED(4020),
+    TRANSITIONING(4030);
 
     private final int statusCode;
 
