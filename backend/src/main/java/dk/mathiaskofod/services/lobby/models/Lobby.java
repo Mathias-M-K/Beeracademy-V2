@@ -3,6 +3,7 @@ package dk.mathiaskofod.services.lobby.models;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -36,8 +37,8 @@ public class Lobby {
         participants.remove(participantId);
     }
 
-    public LobbyParticipant getParticipant(String participantId) {
-        return participants.get(participantId);
+    public Optional<LobbyParticipant> getParticipant(String participantId) {
+        return Optional.ofNullable(participants.get(participantId));
     }
 
     public List<LobbyParticipant> getParticipants() {
@@ -48,7 +49,7 @@ public class Lobby {
         this.abandoned = true;
     }
 
-    public void markAsTransitioning(){
+    public void markAsTransitioning() {
         this.transitioning = true;
     }
 }

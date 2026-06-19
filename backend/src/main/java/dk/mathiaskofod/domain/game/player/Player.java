@@ -11,7 +11,12 @@ public record Player(String name, String id, int sipsInABeer, boolean canDrawChu
         return new Player(name, id, sipsInABeer, canDrawChugCard, new Stats());
     }
 
-    public static Player fromParticipant(LobbyParticipant participant){
-        return new Player(participant.getName(), participant.getId(),participant.getSipsInABeer(), participant.canDrawAce(), new Stats());
+    public static Player fromParticipant(LobbyParticipant participant) {
+        return new Player(
+                participant.getName(),
+                participant.getId(),
+                participant.getSipsInABeer(),
+                participant.canDrawAce(),
+                new Stats());
     }
 }

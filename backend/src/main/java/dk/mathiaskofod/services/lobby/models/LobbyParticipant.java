@@ -18,16 +18,20 @@ public class LobbyParticipant {
     private String title;
     private String id;
     private int sipsInABeer;
+    private boolean
+            active; // Active, meaning a person connected to the lobby, and not a "zombie" participant created from
+    // client
 
     @Accessors(fluent = true)
     private boolean canDrawAce;
 
-    public LobbyParticipant(String name, String title, String id) {
+    public LobbyParticipant(String name, String title, String id, boolean active) {
         this.name = name;
         this.title = title;
         this.id = id;
         this.sipsInABeer = DEFAULT_SIPS_IN_A_BEER;
         this.canDrawAce = DEFAULT_CAN_DRAW_ACE;
+        this.active = active;
     }
 
     public void updateSettings(int sipsInABeer, boolean canDrawAce) {

@@ -6,16 +6,18 @@ import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsActio
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.common.SettingsUpdatedEvent;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.repository.Session;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
-    protected void applyAndBroadcastSettings(
-            String gameId, String targetParticipantId, UpdateSettingsAction action) {
+    protected void applyAndBroadcastSettings(String gameId, String targetParticipantId, UpdateSettingsAction action) {
 
         lobbyService
                 .getLobby(gameId)
                 .getParticipant(targetParticipantId)
+                .orElseThrow(() -> new CannotIdentifyPlayer(
+                        "Participant ID: " + targetParticipantId + ", didn't match any participants", 400))
                 .updateSettings(action.getSipsInABeer(), action.canDrawAce());
 
         SettingsUpdatedEvent event = SettingsUpdatedEvent.fromAction(targetParticipantId, action);
@@ -28,6 +30,7 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
                 sessionRegistry.getSession(lobbyId).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
 
         lobbyService.getLobby(lobbyId).getParticipants().stream()
+                .filter(LobbyParticipant::isActive)
                 .map(LobbyParticipant::getId)
                 .forEach(sessionId -> sendMessage(sessionId, envelope));
 

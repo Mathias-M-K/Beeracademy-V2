@@ -11,6 +11,7 @@ import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
@@ -22,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LobbyParticipantSessionManager extends AbstractLobbySessionManager {
 
-    //TODO participant session manger uses session registry directly, while client session manager doesn't
+    // TODO participant session manger uses session registry directly, while client session manager doesn't
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
         log.info(
@@ -32,13 +33,13 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
                 tokenInfo.getGameId(),
                 websocketConnectionId);
 
-        LobbyParticipant lobbyParticipant = lobbyService.registerConnectedParticipant(
-                tokenInfo.getGameId(), tokenInfo.getName(), tokenInfo.getPlayerId());
+        LobbyParticipant lobbyParticipant = lobbyService.registerParticipant(
+                tokenInfo.getGameId(), tokenInfo.getName(), tokenInfo.getPlayerId(), true);
 
         Session participantSession = new Session(tokenInfo.getPlayerId(), websocketConnectionId);
         sessionRegistry.registerSession(participantSession);
 
-        LobbyParticipantConnectedEvent event = new LobbyParticipantConnectedEvent(lobbyParticipant);
+        NewParticipantEvent event = new NewParticipantEvent(lobbyParticipant);
         LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
 
         broadcastToLobby(tokenInfo.getGameId(), envelope);
@@ -47,27 +48,37 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     @Override
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
-        log.info("Lobby participant left. Name: {}, ParticipantID: {}, CloseReason: {}-{}",
+        log.info(
+                "Lobby participant left. Name: {}, ParticipantID: {}, CloseReason: {}-{}",
                 tokenInfo.getName(),
                 tokenInfo.getPlayerId(),
                 closeReason.getCode(),
                 closeReason.getMessage());
 
-        LobbyParticipant leavingParticipant = lobbyService.getLobby(tokenInfo.getGameId())
-                .getParticipant(tokenInfo.getPlayerId());
+        /*
+        TODO we can possibly remove the markAsAbandoned() stuff from Lobby. Just don't use the LobbyService when
+         disconnecting or fail gracefully when fetching a Lobby
+         */
+
+        LobbyParticipant leavingParticipant = lobbyService
+                .getLobby(tokenInfo.getGameId())
+                .getParticipant(tokenInfo.getPlayerId())
+                .orElseThrow(() -> new CannotIdentifyPlayer(
+                        "Somehow the player token points to a player that no longer exists", 400));
         lobbyService.removeDisconnectedParticipant(tokenInfo.getGameId(), tokenInfo.getPlayerId());
 
         boolean isTransitioning = CustomWebsocketCodes.TRANSITIONING.getCode() == closeReason.getCode();
-        if(isTransitioning){
+        if (isTransitioning) {
             sessionRegistry.clearConnectionId(tokenInfo.getPlayerId());
-        }else{
+        } else {
             sessionRegistry.removeSession(tokenInfo.getPlayerId());
         }
 
         LobbyParticipantDisconnectedEvent event = new LobbyParticipantDisconnectedEvent(leavingParticipant);
         LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
 
-        if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode() || closeReason.getCode() == CustomWebsocketCodes.TRANSITIONING.getCode()) {
+        if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode()
+                || closeReason.getCode() == CustomWebsocketCodes.TRANSITIONING.getCode()) {
             // Skipping broadcast, since every member have already been notified
             return;
         }

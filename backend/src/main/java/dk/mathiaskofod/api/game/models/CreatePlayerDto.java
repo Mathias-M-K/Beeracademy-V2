@@ -3,7 +3,7 @@ package dk.mathiaskofod.api.game.models;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public record CreatePlayerDto(
-@Schema(
+        @Schema(
                 title = "Player name",
                 description = "The name of the player",
                 examples = {"Alice"})

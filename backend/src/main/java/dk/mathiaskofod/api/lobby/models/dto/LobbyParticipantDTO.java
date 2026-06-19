@@ -18,13 +18,20 @@ public record LobbyParticipantDTO(
         int sipsInABeer,
 
         @Schema(description = "Whether the participant is allowed to draw an ace", examples = "true")
-        boolean canDrawAce) {
+        boolean canDrawAce,
+
+        @Schema(
+                description =
+                        "An active participant created when a person connects. Non-active participant is client created")
+        boolean active) {
+
     public static LobbyParticipantDTO fromLobbyParticipant(LobbyParticipant participant) {
         return new LobbyParticipantDTO(
                 participant.getName(),
                 participant.getTitle(),
                 participant.getId(),
                 participant.getSipsInABeer(),
-                participant.canDrawAce());
+                participant.canDrawAce(),
+                participant.isActive());
     }
 }
