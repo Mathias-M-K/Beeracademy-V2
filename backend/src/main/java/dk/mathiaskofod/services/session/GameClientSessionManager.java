@@ -4,6 +4,7 @@ import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
@@ -17,11 +18,15 @@ import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class GameClientSessionManager extends AbstractSessionManager {
+
+    @Inject
+    GameSessionService gameSessionService;
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
@@ -38,7 +43,7 @@ public class GameClientSessionManager extends AbstractSessionManager {
                 gameId,
                 websocketConnectionId);
 
-        GameDto game = lobbyService.getGame(gameId);
+        GameDto game = gameSessionService.getGameView(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
         sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
     }

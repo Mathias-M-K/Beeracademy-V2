@@ -21,6 +21,7 @@ import dk.mathiaskofod.domain.game.reports.GameReport;
 import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.GameService;
+import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.session.actions.game.client.EndGameAction;
@@ -60,6 +61,9 @@ class GameClientSessionManagerTest {
     LobbyService lobbyService;
 
     @Mock
+    GameSessionService gameSessionService;
+
+    @Mock
     OpenConnections connections;
 
     @Mock
@@ -76,6 +80,7 @@ class GameClientSessionManagerTest {
         sessionManager.sessionRegistry = sessionRegistry;
         sessionManager.gameService = gameService;
         sessionManager.lobbyService = lobbyService;
+        sessionManager.gameSessionService = gameSessionService;
         sessionManager.connections = connections;
     }
 
@@ -100,7 +105,7 @@ class GameClientSessionManagerTest {
             when(gameService.gameExists(GAME_ID)).thenReturn(true);
 
             GameDto gameDto = mock(GameDto.class);
-            when(lobbyService.getGame(GAME_ID)).thenReturn(gameDto);
+            when(gameSessionService.getGameView(GAME_ID)).thenReturn(gameDto);
 
             mockActiveWebsocketConnection(GAME_ID);
 

@@ -5,8 +5,7 @@ import dk.mathiaskofod.api.lobby.models.PlayerRegisterRequest;
 import dk.mathiaskofod.api.lobby.models.RegisterPlayerResponse;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.services.auth.AuthenticationService;
-import dk.mathiaskofod.services.environment.EnvironmentService;
-import dk.mathiaskofod.services.environment.models.Environment;
+import dk.mathiaskofod.services.auth.SessionCookieFactory;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
@@ -33,7 +32,7 @@ public class LobbyApi {
     LobbyService lobbyService;
 
     @Inject
-    EnvironmentService environmentService;
+    SessionCookieFactory sessionCookieFactory;
 
     @Inject
     AuthenticationService authenticationService;
@@ -64,7 +63,7 @@ public class LobbyApi {
         String lobbyId = lobbyService.createLobby(name);
         String jwt = authenticationService.createGameClientToken(name, lobbyId);
 
-        NewCookie cookieJwt = generateJwtCookieResponse(jwt);
+        NewCookie cookieJwt = sessionCookieFactory.createSessionCookie(jwt);
 
         return Response.accepted()
                 .entity(new CreateLobbyResponse(lobbyId))
@@ -113,27 +112,11 @@ public class LobbyApi {
         String playerId = IdGenerator.generatePlayerId();
         String jwt = authenticationService.createPlayerClientToken(request.playerName(), request.lobbyId(), playerId);
 
-        NewCookie cookieJwt = generateJwtCookieResponse(jwt);
+        NewCookie cookieJwt = sessionCookieFactory.createSessionCookie(jwt);
 
         return Response.ok()
                 .entity(new RegisterPlayerResponse(playerId))
                 .cookie(cookieJwt)
-                .build();
-    }
-
-    private NewCookie generateJwtCookieResponse(String jwt) {
-
-        String sanitizedJwt = (jwt == null) ? "" : jwt.replaceAll("[\\r\\n]", "");
-
-        boolean isDev = environmentService.getEnvironment() == Environment.DEV;
-
-        return new NewCookie.Builder("session_jwt")
-                .httpOnly(!isDev)
-                .secure(!isDev)
-                .sameSite(isDev ? NewCookie.SameSite.LAX : NewCookie.SameSite.NONE)
-                .path("/")
-                .value(sanitizedJwt)
-                .maxAge((int) AuthenticationService.TOKEN_DURATION.getSeconds())
                 .build();
     }
 }
