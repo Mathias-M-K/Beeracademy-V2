@@ -1,17 +1,14 @@
 :host{
   position: absolute;
-  display:grid;
-  align-content: flex-start;
-  flex-direction:column;
 
-  background-color: cadetblue;
+  background-color: #ecf0f1;
 
   height: 100%;
   width: 100%;
 }
 
 #header{
-  color: white;
+
   font-size: 55px;
   text-align: center;
 

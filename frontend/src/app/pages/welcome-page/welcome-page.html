@@ -1,1 +1,8 @@
-<div id="create_game_btn" (click)="onCreateGameBtnClicked()">NYT SPIL</div>
+<div class="container">
+  <input #lobbyIdInput placeholder="LOBBY ID">
+  <input #participantNameInput placeholder="DELTAGER NAVN">
+  <button (click)="onRegisterParticipant(participantNameInput.value,lobbyIdInput.value)">Deltag</button>
+  <div class="horizontal_line"><span>eller</span></div>
+  <input #lobbyNameInput placeholder="LOBBY NAVN">
+  <button (click)="onCreateLobby(lobbyNameInput.value)">Opret en ny lobby</button>
+</div>

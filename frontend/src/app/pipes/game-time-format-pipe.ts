@@ -2,6 +2,7 @@ import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'gameTimeFormat',
+  standalone: true
 })
 export class GameTimeFormatPipe implements PipeTransform {
 

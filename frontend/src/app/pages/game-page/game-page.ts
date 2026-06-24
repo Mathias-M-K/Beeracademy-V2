@@ -32,12 +32,13 @@ import {TimerType} from '../../services/timer-service/models/TimerType';
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GamePage implements OnInit, OnDestroy {
 
   @ViewChild("chugTime")
-  private chugTimeField!: ElementRef;
+  private readonly chugTimeField!: ElementRef;
 
   protected connectionStatus = computed(() => this.websocketService.connectionStatus());
   protected players: Signal<PlayerDto[]>;
@@ -48,13 +49,16 @@ export class GamePage implements OnInit, OnDestroy {
   protected gameState: Signal<GameState | undefined>;
   protected timerState: Signal<TimerState | undefined>
 
-  private gameTimer = inject(TimerService).getTimer(TimerType.GAME);
-  private playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
+  private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
+  private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
   protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 
+  private readonly websocketService: WebsocketService = inject(WebsocketService);
+  private readonly gameService: GameService = inject(GameService);
 
-  constructor(private websocketService: WebsocketService, private gameService: GameService) { // Injecting it to ensure it's instantiated) {
+
+  constructor() {
     this.players = this.gameService.players;
     this.gameInfo = this.gameService.gameInfo;
     this.currentCard = this.gameService.currentCard;

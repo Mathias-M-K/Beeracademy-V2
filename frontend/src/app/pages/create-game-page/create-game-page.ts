@@ -1,24 +1,23 @@
-import {Component, ElementRef, HostListener, signal, ViewChild} from '@angular/core';
-import {LobbyService} from '../../services/lobby.service';
+import {Component, ElementRef, HostListener, inject, signal, ViewChild} from '@angular/core';
+import {OldLobbyService} from '../../services/old-lobby.service';
 
 @Component({
   selector: 'app-create-game-page',
-  imports: [],
   templateUrl: './create-game-page.html',
   styleUrl: './create-game-page.scss',
+  standalone: true
 })
 export class CreateGamePage {
 
   @ViewChild('playerInputField')
-  private playerInputFieldElement!: ElementRef;
+  private readonly playerInputFieldElement!: ElementRef;
 
   @ViewChild('gameNameInput')
-  private gameNameInputFieldElement!: ElementRef;
+  private readonly gameNameInputFieldElement!: ElementRef;
 
   protected players = signal<string[]>(['Mathias','Frederik','Lasse','Steffen']);
 
-  constructor(private beerAcademyService: LobbyService) {
-  }
+  private readonly beerAcademyService: OldLobbyService = inject(OldLobbyService);
 
   protected createGame(){
     const gameName = this.fetchGameNameFieldValue();

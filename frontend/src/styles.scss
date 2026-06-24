@@ -1,20 +1,47 @@
 /* You can add global styles to this file, and also import other style files */
+*{
+  box-sizing: border-box;
+}
+
 body{
   margin: 0;
 }
 
-.fascinate-regular {
-  font-family: "Fascinate", system-ui;
-  font-weight: 400;
-  font-style: normal;
+h1{
+  font-family: "Archivo", sans-serif;
 }
 
-div{
-  font-family: "Roboto", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
+button{
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  padding: 5px 20px;
+  border-radius: 5px;
+
+  background-color: black;
+  color: white;
+
+  border: none;
+
+  transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
 }
+
+button:hover{
+  background-color: #292727;
+
+  color: white;
+}
+
+input{
+  border-style: solid;
+  border-color: lightgray;
+  border-radius: 5px;
+
+  padding: 15px 20px;
+  margin: 0;
+
+  height: 25px;
+}
+
+
 
 

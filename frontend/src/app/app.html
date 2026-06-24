@@ -1,3 +1,5 @@
-<div id="header" class="fascinate-regular" (click)="onTitleClick()">BEERACADEMY</div>
+<h1 id="header" (click)="onTitleClick()" (keydown.space)="onTitleClick()">
+  <span>BEER</span><span style="color: orange">ACADEMY</span>
+</h1>
 
 <router-outlet></router-outlet>

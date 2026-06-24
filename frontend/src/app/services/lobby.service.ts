@@ -1,77 +1,36 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Router} from '@angular/router';
-import {CreateGameRequest} from '../../api-models/model/createGameRequest';
-import {GameIdDto} from '../../api-models/model/gameIdDto';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {ConfigService} from '../../config.service';
-import {CreatePlayerDto} from '../../api-models/model/createPlayerDto';
-
+import {CreateLobbyResponse} from '../../api-models/model/createLobbyResponse';
+import {Observable} from 'rxjs';
+import {RegisterPlayerResponse} from '../../api-models/model/registerPlayerResponse';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LobbyService {
 
-  private applicationConfig = inject(ConfigService);
+  private readonly appConfig: ConfigService = inject(ConfigService)
+  private readonly apiUrl: string = this.appConfig.apiUrl + "/api";
+  private readonly httpClient: HttpClient = inject(HttpClient);
 
-  private apiUrl = this.applicationConfig.apiUrl + "/api";
+  public createLobby(lobbyName: string): Observable<CreateLobbyResponse> {
 
-  constructor(private httpClient: HttpClient, private router: Router) {
+    const requestOptions = {
+      params: new HttpParams().set('name', lobbyName),
+      withCredentials: true
+    };
+
+    return this.httpClient.post<CreateLobbyResponse>(this.apiUrl + '/lobbies', null, requestOptions);
   }
 
-  public createGame(players: string[], gameName: string): void {
+  public fetchParticipantToken(lobbyId: string, participantName: string): Observable<RegisterPlayerResponse>{
+    const requestOptions = {
+      params: new HttpParams().set('participantName', participantName),
+      withCredentials: true
+    };
 
-    let newPlayers: CreatePlayerDto[] = [];
-    players.forEach(player => {
-
-      const createPlayerObj: CreatePlayerDto = {
-        playerName: player,
-        sipsInABeer: 14,
-        canDrawChugCard: true,
-      }
-
-      newPlayers.push(createPlayerObj);
-    });
-
-    const requestBody: CreateGameRequest = {
-      name: gameName,
-      players: newPlayers
-    }
-
-    this.httpClient.post<GameIdDto>(this.apiUrl + '/games', requestBody).subscribe({
-      next: response => {
-        console.log("Create game response", response);
-        this.claimGame(response.gameId!);
-      },
-      error: error => {
-        console.error("Create game error", error);
-      }
-    });
+    return this.httpClient.post<RegisterPlayerResponse>(this.apiUrl + `/lobbies/${lobbyId}/register`,null,requestOptions);
   }
-
-  private claimGame(gameId: string): void {
-    this.httpClient.get<void>(this.apiUrl + `/games/${gameId}/claim`, {withCredentials: true}).subscribe({
-      next: () => {
-        console.log("Game claimed!");
-        this.testAuth();
-      },
-      error: error => {
-        console.error("Claim game error", error);
-      }
-    })
-  }
-
-  private testAuth() {
-    this.httpClient.get<any>(this.apiUrl + '/auth/test', {withCredentials: true}).subscribe({
-      next: response => {
-        console.log("Test auth", response);
-        this.router.navigate(['/game']);
-      },
-      error: error => {
-        console.error(error);
-      }
-    })
-  }
-
 
 }

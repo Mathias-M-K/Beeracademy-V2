@@ -26,7 +26,7 @@ public class SessionCookieFactory {
         return new NewCookie.Builder(SESSION_COOKIE_NAME)
                 .httpOnly(!isDev)
                 .secure(!isDev)
-                .sameSite(isDev ? NewCookie.SameSite.LAX : NewCookie.SameSite.NONE)
+                .sameSite(NewCookie.SameSite.LAX)
                 .path("/")
                 .value(sanitizedJwt)
                 .maxAge((int) AuthenticationService.TOKEN_DURATION.getSeconds())
