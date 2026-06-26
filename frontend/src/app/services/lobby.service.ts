@@ -43,6 +43,13 @@ export class LobbyService {
 
   private readonly _role = signal<Role | undefined>(undefined);
   public readonly role = this._role.asReadonly();
+  public readonly readableRole = computed(()=>{
+    switch (this.role()) {
+      case Role.PlayerClient : return 'Deltager'
+      case Role.GameClient : return 'Vært'
+      default : return 'Ukendt'
+    }
+  })
 
   private readonly _chatMessages = new Subject<MessageInfo>()
   public readonly chatMessages = this._chatMessages.asObservable();

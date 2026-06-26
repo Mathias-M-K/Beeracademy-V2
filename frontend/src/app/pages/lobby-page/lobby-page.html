@@ -2,7 +2,7 @@
   <div class="header" style="grid-area: header">
     <div>
       <h1>{{ lobbyService.title() }}</h1>
-      <p class="header_subtitle">Du er {{ lobbyService.role() }}</p>
+      <p class="header_subtitle">Du er {{ lobbyService.readableRole() }}</p>
     </div>
 
     <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''"></app-lobby-info-quick>
