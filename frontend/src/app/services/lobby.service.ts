@@ -97,19 +97,27 @@ export class LobbyService {
   private handleNewMessageEvent(event: LobbyEventEnvelope) {
     const newMessageEvent: NewMessageEvent = event.payload as NewMessageEvent;
 
-    let senderName = newMessageEvent.senderId === this.lobbyId() ?
+    const isSenderHost: boolean = newMessageEvent.senderId === this.lobbyId();
+
+    let senderName = isSenderHost ?
       'Vært' :
       this.getParticipant(newMessageEvent.senderId)?.name;
 
-    if(!senderName){
-      console.error("Can't identify message owner", event);
+    if (!senderName) {
+      console.error("Can't identify message owner, somehow?", event);
       senderName = 'Unknown'
     }
 
-    const messageInfo: MessageInfo = {direction: MessageDirection.IN, message: newMessageEvent.message, sender: senderName}
-    console.log("Pushing message to queue", messageInfo)
+    const messageInfo: MessageInfo = {
+      direction: MessageDirection.IN,
+      message: newMessageEvent.message,
+      sender: senderName,
+      fromHost: isSenderHost
+    };
+
     this._chatMessages.next(messageInfo)
   }
+
   private handleNewParticipantEvent(event: LobbyEventEnvelope) {
     const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
     this.addParticipant(newParticipantEvent.participant);
@@ -153,7 +161,8 @@ export class LobbyService {
   public sendMessage(message: string): void {
     this.sendLobbyAction(sendMessageAction(message));
   }
-  private getParticipant(participantId: string): LobbyParticipantDTO | undefined{
+
+  private getParticipant(participantId: string): LobbyParticipantDTO | undefined {
     return this._participants().find(participant => participant.id === participantId);
   }
 

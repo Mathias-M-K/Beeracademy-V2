@@ -4,5 +4,6 @@ export interface MessageInfo {
   sender: string;
   message: string;
   direction: MessageDirection
+  fromHost: boolean;
 
 }

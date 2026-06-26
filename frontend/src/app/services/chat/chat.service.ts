@@ -1,4 +1,4 @@
-import {effect, inject, Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {MessageInfo} from './models/message-info';
 import {MessageDirection} from './models/message-direction';
 import {LobbyService} from '../lobby.service';
@@ -28,8 +28,8 @@ export class ChatService {
     if (!trimmed) {
       return;
     }
-    // Local echo for now. Seam: later also forward to the websocket layer.
-    this.addMessage({sender: 'Me', message: trimmed, direction: MessageDirection.OUT});
+
+    this.addMessage({sender: 'Me', message: trimmed, direction: MessageDirection.OUT, fromHost: true});
     this.lobbyService.sendMessage(text);
   }
 
