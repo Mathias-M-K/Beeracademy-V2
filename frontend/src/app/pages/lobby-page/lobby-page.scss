@@ -9,15 +9,18 @@
     'header'
     'participant-list'
     'chat';
-
 }
 
-
+.header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 @media(min-width: 700px) {
   :host{
     width: 90vw;
-    //max-width: 1000px;
+    max-width: 1500px;
     grid-template-areas:
     'header header'
     'participant-list chat';

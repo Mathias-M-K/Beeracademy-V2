@@ -5,6 +5,7 @@ import {LobbyParticipantDTO} from '../../../../api-models/model/lobbyParticipant
   selector: 'app-participant-overview',
   templateUrl: './participant-overview.html',
   styleUrl: './participant-overview.scss',
+  standalone: true
 })
 export class ParticipantOverview {
 

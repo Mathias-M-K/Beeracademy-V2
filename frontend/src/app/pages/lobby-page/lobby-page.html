@@ -1,8 +1,13 @@
 @if (lobbyService.title()){
   <div class="header" style="grid-area: header">
-    <h1>{{ lobbyService.title() }} - {{lobbyService.lobbyId()}}</h1>
-    <p class="header_subtitle">Du er {{lobbyService.role()}}</p>
+    <div>
+      <h1>{{ lobbyService.title() }}</h1>
+      <p class="header_subtitle">Du er {{lobbyService.role()}}</p>
+    </div>
+
+    <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''"></app-lobby-info-quick>
   </div>
+
   <div style="grid-area: participant-list">
     <app-participant-overview
       [participants]="lobbyService.participants()"
@@ -13,8 +18,3 @@
     <h1>Chat</h1>
   </div>
 }
-
-
-<!--<h4>Websocket</h4>-->
-<!--<p>State: {{this.websocketState()}}</p>-->
-<!--<button (click)="startWebsocket()">Start websocket</button>-->

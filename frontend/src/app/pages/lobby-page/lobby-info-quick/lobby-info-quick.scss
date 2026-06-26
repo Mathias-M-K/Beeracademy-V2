@@ -1,0 +1,16 @@
+:host{
+  display: grid;
+
+  border: 1px solid lightgray;
+  border-radius: 10px;
+  background-color: white;
+
+  height: fit-content;
+  padding: 10px;
+
+}
+
+h2, p{
+  margin: 0;
+  box-sizing: content-box;
+}

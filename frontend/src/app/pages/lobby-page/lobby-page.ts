@@ -1,16 +1,16 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
-import {LobbyWebsocketService} from '../../services/lobby-websocket.service';
-import {LobbyApi} from '../../services/lobby-api.service';
+import {Component, inject, OnInit} from '@angular/core';
 import {LobbyService} from '../../services/lobby.service';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {Role} from '../../../api-models/model/role';
+import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 
 @Component({
   selector: 'app-lobby-page',
   templateUrl: './lobby-page.html',
   styleUrl: './lobby-page.scss',
   imports: [
-    ParticipantOverview
+    ParticipantOverview,
+    LobbyInfoQuick
   ],
   standalone: true
 })
