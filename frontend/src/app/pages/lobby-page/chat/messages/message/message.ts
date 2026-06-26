@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 import {MessageInfo} from '../../../../../services/chat/models/message-info';
 import {MessageDirection} from '../../../../../services/chat/models/message-direction';
 
@@ -9,9 +9,11 @@ import {MessageDirection} from '../../../../../services/chat/models/message-dire
   standalone: true,
   host: {
     '[class.outbound]': 'message().direction === MessageDirection.OUT',
+    '[class.isFromToHost]': 'isHost()',
   }
 })
 export class Message {
-    readonly message = input.required<MessageInfo>();
+  readonly message = input.required<MessageInfo>();
+  readonly isHost = computed(() => this.message().fromHost);
   protected readonly MessageDirection = MessageDirection;
 }

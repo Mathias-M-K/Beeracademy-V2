@@ -5,7 +5,7 @@
   justify-self: start;
 }
 
-:host(.outbound) {
+:host(.outbound)  {
   justify-self: end;
 }
 
@@ -21,8 +21,7 @@ h3 {
 }
 
 .message-background {
-
-  background-color: lightgray;
+  background-color: rosybrown;
   color: black;
   border-radius: 0 15px 15px 15px;
   padding: 10px;
@@ -31,7 +30,14 @@ h3 {
 }
 
 :host(.outbound) .message-background {
-  background-color: rosybrown;
+  background-color: lightgray;
   color: black;
   border-radius: 15px 0 15px 15px;
+}
+
+:host(.isFromToHost:not(.outbound)) .message-background {
+  background-color: darkseagreen;
+}
+:host(.isFromToHost:not(.outbound))  p {
+  color: darkseagreen;
 }
