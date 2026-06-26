@@ -1,4 +1,4 @@
-:host{
+:host {
   display: grid;
   grid-template-rows: auto 1fr 100px;
 
@@ -9,22 +9,33 @@
 
   padding: 10px;
 
-  height: 800px;
+  min-height: 500px;
+  max-height: 850px;
 }
 
-.message-creation{
+.message-container {
+  display: grid;
+  overflow: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: lightgray transparent;
+  scroll-behavior: smooth;
+}
+
+.message-creation {
   display: grid;
   align-content: end;
   gap: 10px;
 }
-.emoji-row{
+
+.emoji-row {
   display: flex;
   gap: 5px;
   flex-direction: row;
   justify-content: space-between;
 }
 
-.emoji-row > div{
+.emoji-row > div {
   background-color: white;
 
   border: 2px solid lightgray;
@@ -43,15 +54,16 @@
   transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
 }
 
-.emoji-row > div:hover{
+.emoji-row > div:hover {
   background-color: antiquewhite;
   font-size: 20px;
 }
-.emoji-row > div:active{
+
+.emoji-row > div:active {
   background-color: white;
   padding-bottom: 20px;
 }
 
-input{
+input {
   width: 100%;
 }

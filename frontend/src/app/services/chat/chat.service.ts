@@ -2,6 +2,7 @@ import {inject, Injectable, signal} from '@angular/core';
 import {MessageInfo} from './models/message-info';
 import {MessageDirection} from './models/message-direction';
 import {LobbyService} from '../lobby.service';
+import {Role} from '../../../api-models/model/role';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +30,8 @@ export class ChatService {
       return;
     }
 
-    this.addMessage({sender: 'Me', message: trimmed, direction: MessageDirection.OUT, fromHost: true});
+    const isHost = this.lobbyService.role() === Role.GameClient;
+    this.addMessage({sender: 'Mig', message: trimmed, direction: MessageDirection.OUT, fromHost: isHost});
     this.lobbyService.sendMessage(text);
   }
 

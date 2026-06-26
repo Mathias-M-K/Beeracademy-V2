@@ -1,29 +1,37 @@
-:host{
+:host {
   display: grid;
   max-width: 70%;
   gap: 3px;
   justify-self: start;
 }
 
-:host(.outbound){
+:host(.outbound) {
   justify-self: end;
 }
-p{
+
+p {
   color: grey;
   margin-bottom: 0;
 }
-h3{
+
+h3 {
   font-size: 16px;
   font-weight: 300;
   margin: 0;
 }
-.message-background{
 
-  background-color: rosybrown;
+.message-background {
+
+  background-color: lightgray;
   color: black;
   border-radius: 0 15px 15px 15px;
   padding: 10px;
 
   align-content: center;
+}
 
+:host(.outbound) .message-background {
+  background-color: rosybrown;
+  color: black;
+  border-radius: 15px 0 15px 15px;
 }

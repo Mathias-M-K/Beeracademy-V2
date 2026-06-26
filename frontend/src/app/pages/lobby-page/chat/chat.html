@@ -2,7 +2,10 @@
   <h3>Chat</h3>
   <div class="horizontal_line"></div>
 </div>
-<app-messages [messages]="chatService.messages()"></app-messages>
+<div class="message-container" #message_container>
+  <app-messages [messages]="chatService.messages()"></app-messages>
+</div>
+
 <div class="message-creation">
   <div class="emoji-row">
     <div>🍺</div>
