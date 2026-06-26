@@ -1,6 +1,6 @@
-import {LobbyClientAction} from './lobby-client-action';
+import {LobbyAction} from '../lobby-action';
 
-interface NewPlayerAction extends LobbyClientAction {
+interface NewPlayerAction extends LobbyAction {
   name: string;
 }
 

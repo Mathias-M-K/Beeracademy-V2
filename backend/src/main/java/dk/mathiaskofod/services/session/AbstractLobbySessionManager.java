@@ -12,6 +12,7 @@ import dk.mathiaskofod.services.session.repository.Session;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
@@ -29,7 +30,7 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
     }
 
     protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope) {
-        broadcastToLobby(lobbyId,envelope, Collections.emptyList());
+        broadcastToLobby(lobbyId, envelope, Collections.emptyList());
     }
 
     protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope, List<String> excluded) {
@@ -43,7 +44,9 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
                 .filter(id -> !excluded.contains(id))
                 .forEach(sessionId -> sendMessage(sessionId, envelope));
 
-        sendMessage(lobbyClientSession.getSessionId(), envelope);
+        if (!excluded.contains(lobbyId)) {
+            sendMessage(lobbyClientSession.getSessionId(), envelope);
+        }
     }
 
 

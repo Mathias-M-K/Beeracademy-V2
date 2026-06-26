@@ -1,6 +1,6 @@
-import {LobbyClientAction} from './lobby-client-action';
+import {LobbyAction} from '../lobby-action';
 
-interface RemovePlayerAction extends LobbyClientAction {
+interface RemovePlayerAction extends LobbyAction {
   participantId: string;
 }
 export function removePlayerAction(participantId: string): RemovePlayerAction  {

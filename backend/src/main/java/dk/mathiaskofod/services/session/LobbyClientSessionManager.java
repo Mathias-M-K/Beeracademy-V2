@@ -3,19 +3,25 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
+import dk.mathiaskofod.services.lobby.models.Emoji;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.session.actions.lobby.client.AddParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.client.RemoveParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.client.LobbyClientAction;
 import dk.mathiaskofod.services.session.actions.lobby.client.StartGameAction;
+import dk.mathiaskofod.services.session.actions.lobby.common.SendEmojiAction;
+import dk.mathiaskofod.services.session.actions.lobby.common.SendMessageAction;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
+import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantRemovedEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantEvent;
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
@@ -24,6 +30,8 @@ import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Slf4j
 @ApplicationScoped
@@ -117,6 +125,14 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                                 "No participantId was provided when attempting to change settings", 400));
 
                 applyAndBroadcastSettings(lobbyId, participantId, updateSettingsAction);
+            }
+            case SendEmojiAction(Emoji emoji) -> {
+                EmojiSentEvent event = new EmojiSentEvent(lobbyId, emoji);
+                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event), List.of(lobbyId));
+            }
+            case SendMessageAction(String clientMessage) -> {
+                MessageSentEvent event = new MessageSentEvent(lobbyId, clientMessage);
+                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event), List.of(lobbyId));
             }
             default ->
                 log.warn(

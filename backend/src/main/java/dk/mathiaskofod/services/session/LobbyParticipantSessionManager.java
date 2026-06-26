@@ -6,16 +6,16 @@ import dk.mathiaskofod.services.lobby.models.Emoji;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.actions.lobby.participant.LobbyParticipantAction;
-import dk.mathiaskofod.services.session.actions.lobby.participant.SendEmojiAction;
-import dk.mathiaskofod.services.session.actions.lobby.participant.SendMessageAction;
-import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
+import dk.mathiaskofod.services.session.actions.lobby.common.SendEmojiAction;
+import dk.mathiaskofod.services.session.actions.lobby.common.SendMessageAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
-import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
@@ -98,24 +98,27 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     @Override
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> message) {
 
+        String lobbyId = tokenInfo.getGameId();
+        String playerId = tokenInfo.getPlayerId();
+
         if (!(message instanceof LobbyParticipantActionEnvelope(LobbyParticipantAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for lobby participant action", 400);
         }
 
         switch (action) {
             case SendEmojiAction(Emoji emoji) -> {
-                EmojiSentEvent event = new EmojiSentEvent(tokenInfo.getPlayerId(), emoji);
-                broadcastToLobby(tokenInfo.getGameId(), new LobbyParticipantEventEnvelope(event));
+                EmojiSentEvent event = new EmojiSentEvent(playerId, emoji);
+                broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event),List.of(playerId));
             }
             case SendMessageAction(String clientMessage) -> {
-                MessageSentEvent event = new MessageSentEvent(tokenInfo.getPlayerId(), clientMessage);
-                broadcastToLobby(tokenInfo.getGameId(), new LobbyParticipantEventEnvelope(event));
+                MessageSentEvent event = new MessageSentEvent(playerId, clientMessage);
+                broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
             }
             case UpdateSettingsAction updateSettingsAction ->
-                    applyAndBroadcastSettings(tokenInfo.getGameId(), tokenInfo.getPlayerId(), updateSettingsAction);
+                    applyAndBroadcastSettings(lobbyId, playerId, updateSettingsAction);
             default -> log.warn(
                     "Received unknown action from lobby participant with player id: {}. Action: {}",
-                    tokenInfo.getPlayerId(),
+                    playerId,
                     action);
         }
     }
