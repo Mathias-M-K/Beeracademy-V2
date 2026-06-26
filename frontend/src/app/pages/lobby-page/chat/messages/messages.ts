@@ -1,5 +1,5 @@
 import {Component, input} from '@angular/core';
-import {MessageInfo} from '../../../../services/models/message-info';
+import {MessageInfo} from '../../../../services/chat/models/message-info';
 import {Message} from './message/message';
 
 

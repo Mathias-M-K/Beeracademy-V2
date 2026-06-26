@@ -1,0 +1,18 @@
+:host{
+  display: grid;
+  max-width: 70%;
+}
+
+:host(.outbound){
+  justify-self: end;
+  justify-items: end;
+}
+p{
+  color: grey;
+  margin-bottom: 0;
+}
+h3{
+  font-size: 16px;
+  font-weight: 300;
+  margin-top: 0;
+}

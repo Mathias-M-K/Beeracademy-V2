@@ -1,5 +1,6 @@
 import {Injectable, signal} from '@angular/core';
 import {MessageInfo} from './models/message-info';
+import {MessageDirection} from './models/message-direction';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ export class ChatService {
       return;
     }
     // Local echo for now. Seam: later also forward to the websocket layer.
-    this.addMessage({sender: 'Me', message: trimmed});
+    this.addMessage({sender: 'Me', message: trimmed, direction: MessageDirection.OUT});
   }
 
   // Entry point for incoming messages (e.g. future websocket chat events).
