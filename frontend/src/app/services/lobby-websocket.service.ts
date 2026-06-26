@@ -33,6 +33,7 @@ export class LobbyWebsocketService {
   }
 
   private handleClose(closeEvent: CloseEvent): void {
+    this._connectionStatus.set(ConnectionStatus.DISCONNECTED);
     console.log('Websocket closed', closeEvent.code, closeEvent.reason);
   }
 

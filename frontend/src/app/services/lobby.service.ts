@@ -68,20 +68,10 @@ export class LobbyService {
     console.log("Handling Lobby client event", event);
 
     switch (event.payload.type){
-      case "HELLO_LOBBY_SNAPSHOT" : {
-        this.handleHelloLobbySnapshotEvent(event);
-        break;
-      }
-      case "HELLO_LOBBY_ROLE" : {
-        this.handleHelloLobbyRoleEvent(event);
-        break;
-      }
-      case "NEW_PARTICIPANT" : {
-        const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
-        this.addParticipant(newParticipantEvent.participant)
-        break;
-      }
-      case "PARTICIPANT_KICKED" : {
+      case "HELLO_LOBBY_SNAPSHOT" : return this.handleHelloLobbySnapshotEvent(event);
+      case "HELLO_LOBBY_ROLE" : return this.handleHelloLobbyRoleEvent(event);
+      case "NEW_PARTICIPANT" : return this.handleNewParticipantEvent(event);
+      case "PARTICIPANT_REMOVED" : {
         const participantKickedEvent = event.payload as ParticipantKickedEvent;
         this.removeParticipant(participantKickedEvent.participantId);
       }
@@ -93,24 +83,20 @@ export class LobbyService {
     console.log("Handling LobbyParticipant event", event);
 
     switch (event.payload.type) {
-      case "NEW_PARTICIPANT" : {
-        const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
-        this.addParticipant(newParticipantEvent.participant)
-        break
-      }
-      case "HELLO_LOBBY_SNAPSHOT" : {
-        this.handleHelloLobbySnapshotEvent(event);
-        break;
-      }
-      case "HELLO_LOBBY_ROLE" : {
-        this.handleHelloLobbyRoleEvent(event);
-        break;
-      }
+      case "NEW_PARTICIPANT" : return this.handleNewParticipantEvent(event);
+      case "HELLO_LOBBY_SNAPSHOT" : return this.handleHelloLobbySnapshotEvent(event);
+      case "HELLO_LOBBY_ROLE" : return this.handleHelloLobbyRoleEvent(event);
       case "PARTICIPANT_DISCONNECTED" : {
         const participantLeavesEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
         this.removeParticipant(participantLeavesEvent.participantId)
       }
     }
+  }
+
+  private handleNewParticipantEvent(msg: WebsocketEnvelope){
+    const event = msg as LobbyClientEventEnvelope;
+    const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
+    this.addParticipant(newParticipantEvent.participant);
   }
 
   private handleHelloLobbySnapshotEvent(msg: WebsocketEnvelope) {

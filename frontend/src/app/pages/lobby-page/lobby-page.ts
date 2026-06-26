@@ -15,6 +15,7 @@ import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
   standalone: true
 })
 export class LobbyPage implements OnInit {
+  protected readonly Role = Role;
 
   public readonly lobbyService = inject(LobbyService)
 
@@ -30,5 +31,5 @@ export class LobbyPage implements OnInit {
     this.lobbyService.requestParticipantRemoval(participantId);
   }
 
-  protected readonly Role = Role;
+
 }

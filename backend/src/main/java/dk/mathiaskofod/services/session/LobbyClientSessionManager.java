@@ -1,12 +1,11 @@
 package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
-import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.session.actions.lobby.client.AddParticipantAction;
-import dk.mathiaskofod.services.session.actions.lobby.client.KickParticipantAction;
+import dk.mathiaskofod.services.session.actions.lobby.client.RemoveParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.client.LobbyClientAction;
 import dk.mathiaskofod.services.session.actions.lobby.client.StartGameAction;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
@@ -14,7 +13,7 @@ import dk.mathiaskofod.services.session.envelopes.LobbyClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
-import dk.mathiaskofod.services.session.events.lobby.client.ParticipantKickedEvent;
+import dk.mathiaskofod.services.session.events.lobby.client.ParticipantRemovedEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantEvent;
@@ -93,11 +92,11 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                 NewParticipantEvent event = new NewParticipantEvent(newParticipant);
                 broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
             }
-            case KickParticipantAction(String participantId, String kickReason) -> {
-                ParticipantKickedEvent event = new ParticipantKickedEvent(participantId, kickReason);
+            case RemoveParticipantAction(String participantId) -> {
+                ParticipantRemovedEvent event = new ParticipantRemovedEvent(participantId);
 
                 try {
-                    CloseReason closeReason = new CloseReason(CustomWebsocketCodes.KICKED.getCode(), kickReason);
+                    CloseReason closeReason = new CloseReason(CustomWebsocketCodes.KICKED.getCode());
                     disconnectParticipant(participantId, closeReason);
                 } catch (SessionNotFoundException snf) {
                     log.info("Participant: {}, is not active. Proceeding to remove from lobby", participantId);
