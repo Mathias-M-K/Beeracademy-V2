@@ -4,6 +4,7 @@ import {ParticipantOverview} from './participant-overview/participant-overview';
 import {Role} from '../../../api-models/model/role';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {ConnectionStatus} from '../../services/models/connection-status';
+import {Chat} from './chat/chat';
 
 @Component({
   selector: 'app-lobby-page',
@@ -11,7 +12,8 @@ import {ConnectionStatus} from '../../services/models/connection-status';
   styleUrl: './lobby-page.scss',
   imports: [
     ParticipantOverview,
-    LobbyInfoQuick
+    LobbyInfoQuick,
+    Chat
   ],
   standalone: true
 })

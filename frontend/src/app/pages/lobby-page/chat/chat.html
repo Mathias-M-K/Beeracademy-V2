@@ -1,0 +1,17 @@
+<div>
+  <h3>Chat</h3>
+  <div class="horizontal_line"></div>
+</div>
+<app-messages [messages]="chatService.messages()"></app-messages>
+<div class="message-creation">
+  <div class="emoji-row">
+    <div>🍺</div>
+    <div>🤮</div>
+    <div>🎊</div>
+    <div>😂</div>
+    <div>🔥</div>
+    <div>💀</div>
+  </div>
+  <input #messageField aria-label="message-field" placeholder="Skriv en besked" (keydown.enter)="sendMessage(messageField)">
+</div>
+

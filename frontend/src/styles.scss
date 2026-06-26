@@ -7,7 +7,7 @@ body{
   margin: 0;
 }
 
-h1,h2,h3,h4,h5,h6,p{
+h1,h2,h3,h4,h5,h6,p, input{
   font-family: "Archivo", sans-serif;
 }
 
@@ -62,6 +62,8 @@ input{
   margin: 0;
 
   height: 25px;
+
+  font-size: 16px;
 }
 
 .header_subtitle{

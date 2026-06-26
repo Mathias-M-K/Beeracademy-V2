@@ -21,6 +21,7 @@
   :host{
     width: 90vw;
     max-width: 1500px;
+    grid-template-columns: 1fr auto;
     grid-template-areas:
     'header header'
     'participant-list chat';

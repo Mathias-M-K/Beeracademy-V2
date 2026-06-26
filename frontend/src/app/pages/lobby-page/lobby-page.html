@@ -1,24 +1,22 @@
-@if (lobbyService.title() && lobbyService.websocketConnectionStatus() === ConnectionStatus.CONNECTED){
+@if (lobbyService.title() && lobbyService.websocketConnectionStatus() === ConnectionStatus.CONNECTED) {
   <div class="header" style="grid-area: header">
     <div>
       <h1>{{ lobbyService.title() }}</h1>
-      <p class="header_subtitle">Du er {{lobbyService.role()}}</p>
+      <p class="header_subtitle">Du er {{ lobbyService.role() }}</p>
     </div>
 
     <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''"></app-lobby-info-quick>
   </div>
 
-  <div style="grid-area: participant-list">
-    <app-participant-overview
-      [participants]="lobbyService.participants()"
-      [isLobbyOwner]="lobbyService.role() === Role.GameClient"
-      (addParticipant)="onAddParticipant($event)"
-      (removeParticipant)="onRemoveParticipant($event)"
-      (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
-  </div>
-  <div style="grid-area: chat">
-    <h1>Chat</h1>
-  </div>
+
+  <app-participant-overview style="grid-area: participant-list"
+                            [participants]="lobbyService.participants()"
+                            [isLobbyOwner]="lobbyService.role() === Role.GameClient"
+                            (addParticipant)="onAddParticipant($event)"
+                            (removeParticipant)="onRemoveParticipant($event)"
+                            (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
+
+  <app-chat style="grid-area: chat"></app-chat>
 } @else {
-  <h2>{{lobbyService.websocketConnectionStatus()}}</h2>
+  <h2>{{ lobbyService.websocketConnectionStatus() }}</h2>
 }
