@@ -104,4 +104,8 @@ export class LobbyService {
   public removeParticipant(participantId: string): void {
     this._participants.update(current => [...current.filter(participant => participant.id !== participantId)]);
   }
+
+  public leaveLobby(){
+    this.lobbyWebsocket.disconnect();
+  }
 }

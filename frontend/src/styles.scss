@@ -17,7 +17,7 @@ button{
   padding: 5px 20px;
   border-radius: 5px;
 
-  width: 200px;
+  width: fit-content;
   height: 40px;
 
   background-color: black;
@@ -40,6 +40,16 @@ button:active{
   color: black;
   background-color: white;
   border: 1px solid black;
+}
+.btn-warning{
+  color: black;
+  background-color: white;
+  border: 1px solid black;
+}
+.btn-warning:hover{
+  color: black;
+  background-color: #FFA500FF;
+  border: 1px solid #FFA500FF;
 }
 
 

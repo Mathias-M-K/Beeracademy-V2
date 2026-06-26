@@ -1,9 +1,16 @@
 
 <div style="grid-area: header" class="header">
   <h3 style="grid-area: count">Deltagere - {{participants().length}}</h3>
-  @if (isLobbyOwner()) {
-    <button style="grid-area: add-btn" class="btn-secondary" (click)="addParticipant.emit('matty')">+ Tilføj deltager</button>
-  }
+  <div class="buttons" style="grid-area: buttons">
+    @if (isLobbyOwner()) {
+      <button class="btn-secondary" (click)="addParticipant.emit('matty')">+ Tilføj deltager</button>
+      <button class="btn-warning" (click)="disconnect.emit()">Luk Lobby</button>
+    } @else {
+      <button class="btn-warning" (click)="disconnect.emit()">Forlad lobby</button>
+    }
+
+  </div>
+
   @if (participants().length) {
     <div style="grid-area: line" class="horizontal_line">Deltagere</div>
   }

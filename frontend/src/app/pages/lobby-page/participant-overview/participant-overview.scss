@@ -14,9 +14,13 @@
 .header{
   display: grid;
   justify-content: space-between;
-  grid-template-areas: 'count add-btn''line line';
+  grid-template-areas: 'count buttons''line line';
 
   align-items: center;
+}
+.buttons{
+  display: flex;
+  gap: 10px;
 }
 
 .participants{

@@ -53,5 +53,9 @@ export class LobbyWebsocketService {
     });
   }
 
+  public disconnect(): void {
+    this.subject.complete();
+  }
+
 }
 

@@ -1,0 +1,32 @@
+:host{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  background-color: #222222;
+}
+
+:host(.active){
+  background-color: #222222;
+  color: white;
+}
+
+:host(.local){
+  border: 2px dashed grey;
+  background-color: white;
+  color: grey;
+}
+
+.active-indicator{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  border: 2px solid white;
+}

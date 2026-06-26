@@ -17,6 +17,7 @@ export class ParticipantOverview {
   readonly isLobbyOwner = input<boolean>(false)
   readonly addParticipant = output<string>()
   readonly removeParticipant = output<string>()
+  readonly disconnect = output<void>()
 
   readonly participantsWithShortName = computed(() => {
     const counts = new Map<string, number>();

@@ -3,6 +3,7 @@ import {LobbyService} from '../../services/lobby.service';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {Role} from '../../../api-models/model/role';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
+import {ConnectionStatus} from '../../services/models/connection-status';
 
 @Component({
   selector: 'app-lobby-page',
@@ -32,4 +33,5 @@ export class LobbyPage implements OnInit {
   }
 
 
+  protected readonly ConnectionStatus = ConnectionStatus;
 }

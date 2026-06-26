@@ -1,24 +1,19 @@
-:host{
+:host {
   display: grid;
-  grid-template-columns: 100px 4fr 1fr;
+  grid-template-columns: 100px auto 1fr;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
-button{
+
+button {
   width: 100px;
   justify-self: end;
 }
 
-.profile-picture{
+.badge {
   justify-self: center;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  width: 60px;
-  border-radius: 50%;
-  background-color: #222222;
 
 }
+
+

@@ -1,4 +1,4 @@
-@if (lobbyService.title()){
+@if (lobbyService.title() && lobbyService.websocketConnectionStatus() === ConnectionStatus.CONNECTED){
   <div class="header" style="grid-area: header">
     <div>
       <h1>{{ lobbyService.title() }}</h1>
@@ -13,7 +13,8 @@
       [participants]="lobbyService.participants()"
       [isLobbyOwner]="lobbyService.role() === Role.GameClient"
       (addParticipant)="onAddParticipant($event)"
-      (removeParticipant)="onRemoveParticipant($event)"></app-participant-overview>
+      (removeParticipant)="onRemoveParticipant($event)"
+      (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
   </div>
   <div style="grid-area: chat">
     <h1>Chat</h1>
