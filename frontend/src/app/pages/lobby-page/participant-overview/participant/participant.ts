@@ -10,6 +10,7 @@ import {LobbyParticipantDTO} from '../../../../../api-models/model/lobbyParticip
 export class Participant {
 
   readonly participant = input.required<LobbyParticipantDTO>();
+  readonly participantNameShort = input.required<string>()
   readonly canBeRemoved = input<boolean>(false);
 
   readonly remove = output<string>()

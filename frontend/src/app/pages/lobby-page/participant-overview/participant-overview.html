@@ -11,7 +11,11 @@
 
 <div class="participants" style="grid-area: participants">
   @for (participant of participants(); track participant.id){
-    <app-participant [participant]="participant" [canBeRemoved]="isLobbyOwner()" (remove)="removeParticipant.emit($event)"></app-participant>
+    <app-participant
+      [participant]="participant"
+      [participantNameShort]="participant.name!.substring(0,3).toUpperCase()"
+      [canBeRemoved]="isLobbyOwner()"
+      (remove)="removeParticipant.emit($event)" ></app-participant>
   }
 </div>
 
