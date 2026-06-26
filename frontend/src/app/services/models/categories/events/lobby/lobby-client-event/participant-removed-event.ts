@@ -1,6 +1,6 @@
 import {LobbyEvent} from '../lobby-event';
 
-export interface ParticipantKickedEvent extends LobbyEvent {
+export interface ParticipantRemovedEvent extends LobbyEvent {
   kickReason: string;
   participantId: string;
 }

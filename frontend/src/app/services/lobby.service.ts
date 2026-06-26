@@ -2,9 +2,9 @@ import {computed, inject, Injectable, linkedSignal, signal} from '@angular/core'
 import {LobbyWebsocketService} from './lobby-websocket.service';
 import {LobbyDTO} from '../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from './models/websocket-envelope';
-import {LobbyStateEvent} from './models/categories/events/lobby/lobby-client-event/lobby-state-event';
+import {LobbyStateEvent} from './models/categories/events/lobby/common/lobby-state-event';
 import {Role} from '../../api-models/model/role';
-import {LobbyRoleEvent} from './models/categories/events/lobby/lobby-client-event/lobby-role-event';
+import {LobbyRoleEvent} from './models/categories/events/lobby/common/lobby-role-event';
 import {newPlayerAction} from './models/categories/actions/lobby/lobby-client-action/new-player-action';
 import {LobbyClientAction} from './models/categories/actions/lobby/lobby-client-action/lobby-client-action';
 import {lobbyClientActionEnvelope} from './models/categories/actions/lobby/lobby-client-action/lobby-client-action-envelope';
@@ -13,7 +13,7 @@ import {
   ParticipantDisconnectedEvent
 } from './models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
 import {removePlayerAction} from './models/categories/actions/lobby/lobby-client-action/remove-player-action';
-import {ParticipantKickedEvent} from './models/categories/events/lobby/lobby-client-event/participant-kicked-event';
+import {ParticipantRemovedEvent} from './models/categories/events/lobby/lobby-client-event/participant-removed-event';
 import {LobbyEventEnvelope} from './models/categories/events/lobby/lobby-event-envelope';
 
 @Injectable({
@@ -60,13 +60,13 @@ export class LobbyService {
       case "HELLO_LOBBY_ROLE" : return this.handleHelloLobbyRoleEvent(event);
       case "NEW_PARTICIPANT" : return this.handleNewParticipantEvent(event);
       case "PARTICIPANT_REMOVED" : {
-        const participantKickedEvent = event.payload as ParticipantKickedEvent;
-        this.removeParticipant(participantKickedEvent.participantId);
+        const participantRemovedEvent = event.payload as ParticipantRemovedEvent;
+        this.removeParticipant(participantRemovedEvent.participantId);
         break;
       }
       case "PARTICIPANT_DISCONNECTED" : {
-        const participantLeavesEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
-        this.removeParticipant(participantLeavesEvent.participantId)
+        const participantDisconnectedEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
+        this.removeParticipant(participantDisconnectedEvent.participantId)
       }
     }
   }
