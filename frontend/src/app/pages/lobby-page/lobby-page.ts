@@ -22,8 +22,12 @@ export class LobbyPage implements OnInit {
     this.lobbyService.connectToWebsocket();
   }
 
-  onAddPlayer(name: string) {
-    this.lobbyService.createLocalParticipant(name);
+  onAddParticipant(name: string) {
+    this.lobbyService.requestParticipantCreation(name);
+  }
+
+  onRemoveParticipant(participantId: string) {
+    this.lobbyService.requestParticipantRemoval(participantId);
   }
 
   protected readonly Role = Role;

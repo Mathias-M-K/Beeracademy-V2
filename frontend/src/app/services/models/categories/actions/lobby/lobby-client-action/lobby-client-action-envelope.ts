@@ -1,5 +1,5 @@
 import {LobbyClientAction} from './lobby-client-action';
-import {WebsocketEnvelope} from '../../websocket-envelope';
+import {WebsocketEnvelope} from '../../../../websocket-envelope';
 
 interface LobbyClientActionEnvelope extends WebsocketEnvelope {
   category: 'LOBBY_CLIENT_ACTION';

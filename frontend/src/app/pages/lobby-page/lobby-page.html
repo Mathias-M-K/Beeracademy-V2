@@ -12,7 +12,8 @@
     <app-participant-overview
       [participants]="lobbyService.participants()"
       [isLobbyOwner]="lobbyService.role() === Role.GameClient"
-      (addParticipant)="onAddPlayer($event)"></app-participant-overview>
+      (addParticipant)="onAddParticipant($event)"
+      (removeParticipant)="onRemoveParticipant($event)"></app-participant-overview>
   </div>
   <div style="grid-area: chat">
     <h1>Chat</h1>

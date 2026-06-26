@@ -7,7 +7,6 @@ import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.api.lobby.models.dto.RoleDTO;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.auth.SessionCookieFactory;
-import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.LobbyService;

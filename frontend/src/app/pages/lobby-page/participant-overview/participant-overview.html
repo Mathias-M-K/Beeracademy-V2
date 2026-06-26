@@ -9,6 +9,9 @@
   }
 </div>
 
-@for (participant of participants(); track participant.id){
-  <div>{{participant.name}}</div>
-}
+<div class="participants" style="grid-area: participants">
+  @for (participant of participants(); track participant.id){
+    <app-participant [participant]="participant" [canBeRemoved]="isLobbyOwner()" (remove)="removeParticipant.emit($event)"></app-participant>
+  }
+</div>
+

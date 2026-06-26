@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@Schema(description = "Represents a game lobby containing the lobby state and its participants")
 public class Lobby {
 
     @Getter

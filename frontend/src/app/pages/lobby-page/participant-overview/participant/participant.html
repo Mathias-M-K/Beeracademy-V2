@@ -1,0 +1,9 @@
+<div>
+  <h3>{{participant().name}}</h3>
+  <p class="header_subtitle">{{participant().title}} • {{participant().sipsInABeer}} slurke i en øl</p>
+</div>
+
+@if (canBeRemoved()) {
+  <button (click)="remove.emit(participant().id!)">Fjern</button>
+}
+

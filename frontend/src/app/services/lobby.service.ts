@@ -6,9 +6,9 @@ import {LobbyClientEventEnvelope} from './models/categories/events/lobby/lobby-c
 import {LobbyStateEvent} from './models/categories/events/lobby/lobby-client-event/lobby-state-event';
 import {Role} from '../../api-models/model/role';
 import {LobbyRoleEvent} from './models/categories/events/lobby/lobby-client-event/lobby-role-event';
-import {newPlayerAction} from './models/categories/lobby-client-action/new-player-action';
-import {LobbyClientAction} from './models/categories/lobby-client-action/lobby-client-action';
-import {lobbyClientActionEnvelope} from './models/categories/lobby-client-action/lobby-client-action-envelope';
+import {newPlayerAction} from './models/categories/actions/lobby/lobby-client-action/new-player-action';
+import {LobbyClientAction} from './models/categories/actions/lobby/lobby-client-action/lobby-client-action';
+import {lobbyClientActionEnvelope} from './models/categories/actions/lobby/lobby-client-action/lobby-client-action-envelope';
 import {NewParticipantEvent} from './models/categories/events/lobby/common/new-participant-event';
 import {
   LobbyParticipantEventEnvelope
@@ -16,6 +16,8 @@ import {
 import {
   ParticipantDisconnectedEvent
 } from './models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
+import {removePlayerAction} from './models/categories/actions/lobby/lobby-client-action/remove-player-action';
+import {ParticipantKickedEvent} from './models/categories/events/lobby/lobby-client-event/participant-kicked-event';
 
 @Injectable({
   providedIn: 'root',
@@ -71,13 +73,17 @@ export class LobbyService {
         break;
       }
       case "HELLO_LOBBY_ROLE" : {
-        const lobbyRoleEvent = event.payload as LobbyRoleEvent;
-        this._role.set(lobbyRoleEvent.role);
+        this.handleHelloLobbyRoleEvent(event);
         break;
       }
       case "NEW_PARTICIPANT" : {
         const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
         this.addParticipant(newParticipantEvent.participant)
+        break;
+      }
+      case "PARTICIPANT_KICKED" : {
+        const participantKickedEvent = event.payload as ParticipantKickedEvent;
+        this.removeParticipant(participantKickedEvent.participantId);
       }
     }
   }
@@ -96,6 +102,10 @@ export class LobbyService {
         this.handleHelloLobbySnapshotEvent(event);
         break;
       }
+      case "HELLO_LOBBY_ROLE" : {
+        this.handleHelloLobbyRoleEvent(event);
+        break;
+      }
       case "PARTICIPANT_DISCONNECTED" : {
         const participantLeavesEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
         this.removeParticipant(participantLeavesEvent.participantId)
@@ -109,8 +119,17 @@ export class LobbyService {
     this.lobbyState$.set(lobbyStateExchangeEvent.lobby)
   }
 
-  public createLocalParticipant(name: string): void {
+  private handleHelloLobbyRoleEvent(msg: WebsocketEnvelope) {
+    const event = msg as LobbyClientEventEnvelope;
+    const lobbyRoleEvent = event.payload as LobbyRoleEvent;
+    this._role.set(lobbyRoleEvent.role);
+  }
+
+  public requestParticipantCreation(name: string): void {
     this.sendLobbyAction(newPlayerAction(name));
+  }
+  public requestParticipantRemoval(participantId: string): void {
+    this.sendLobbyAction(removePlayerAction(participantId))
   }
 
   private sendLobbyAction(action: LobbyClientAction): void {

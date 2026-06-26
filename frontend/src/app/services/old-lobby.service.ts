@@ -1,10 +1,8 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {CreateGameRequest} from '../../api-models/model/createGameRequest';
 import {GameIdDto} from '../../api-models/model/gameIdDto';
 import {ConfigService} from '../../config.service';
-import {CreatePlayerDto} from '../../api-models/model/createPlayerDto';
 
 
 @Injectable({
@@ -21,10 +19,10 @@ export class OldLobbyService {
 
   public createGame(players: string[], gameName: string): void {
 
-    let newPlayers: CreatePlayerDto[] = [];
+    let newPlayers: any[] = [];
     players.forEach(player => {
 
-      const createPlayerObj: CreatePlayerDto = {
+      const createPlayerObj: any = {
         playerName: player,
         sipsInABeer: 14,
         canDrawChugCard: true,
@@ -33,7 +31,7 @@ export class OldLobbyService {
       newPlayers.push(createPlayerObj);
     });
 
-    const requestBody: CreateGameRequest = {
+    const requestBody: any = {
       name: gameName,
       players: newPlayers
     }
