@@ -1,5 +1,7 @@
 package dk.mathiaskofod.services.session;
 
+import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
+import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
@@ -13,6 +15,8 @@ import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantKickedEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantEvent;
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
@@ -28,8 +32,16 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
 
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
+        String lobbyId = tokenInfo.getGameId();
         log.info("Registering new client connected with websocket connection id: {}", websocketConnectionId);
-        sessionRegistry.setConnectionId(tokenInfo.getGameId(), websocketConnectionId);
+        sessionRegistry.setConnectionId(lobbyId, websocketConnectionId);
+
+        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId));
+        LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
+        sendMessage(lobbyId, new LobbyClientEventEnvelope(lobbySnapshotEvent));
+
+        LobbyRoleEvent roleEvent = new LobbyRoleEvent(tokenInfo.getRole());
+        sendMessage(lobbyId, new LobbyClientEventEnvelope(roleEvent));
     }
 
     // TODO could probably also benefit from strategy pattern

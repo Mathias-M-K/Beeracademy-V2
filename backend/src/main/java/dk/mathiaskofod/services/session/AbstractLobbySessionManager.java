@@ -9,6 +9,10 @@ import dk.mathiaskofod.services.session.events.lobby.common.SettingsUpdatedEvent
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.repository.Session;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
     protected void applyAndBroadcastSettings(String gameId, String targetParticipantId, UpdateSettingsAction action) {
@@ -25,6 +29,10 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
     }
 
     protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope) {
+        broadcastToLobby(lobbyId,envelope, Collections.emptyList());
+    }
+
+    protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope, List<String> excluded) {
 
         Session lobbyClientSession =
                 sessionRegistry.getSession(lobbyId).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
@@ -32,8 +40,11 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
         lobbyService.getLobby(lobbyId).getParticipants().stream()
                 .filter(LobbyParticipant::isActive)
                 .map(LobbyParticipant::getId)
+                .filter(id -> !excluded.contains(id))
                 .forEach(sessionId -> sendMessage(sessionId, envelope));
 
         sendMessage(lobbyClientSession.getSessionId(), envelope);
     }
+
+
 }

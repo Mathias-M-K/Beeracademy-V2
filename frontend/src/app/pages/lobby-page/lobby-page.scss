@@ -1,0 +1,28 @@
+:host {
+  display: grid;
+  gap: 20px;
+  justify-self: center;
+
+  min-width: 450px;
+  width: 90%;
+  grid-template-areas:
+    'header'
+    'participant-list'
+    'chat';
+
+}
+
+
+
+@media(min-width: 700px) {
+  :host{
+    width: 90vw;
+    //max-width: 1000px;
+    grid-template-areas:
+    'header header'
+    'participant-list chat';
+
+    grid-template-rows: 1fr 4fr;
+    grid-template-columns: 2fr 1fr;
+  }
+}

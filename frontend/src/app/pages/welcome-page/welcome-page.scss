@@ -17,18 +17,3 @@ button{
   width: 100%;
   justify-self: center;
 }
-
-.horizontal_line{
-  color: grey;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.horizontal_line::before,
-.horizontal_line::after{
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: lightgray;
-}

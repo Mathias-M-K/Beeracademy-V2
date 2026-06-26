@@ -1,5 +1,6 @@
 package dk.mathiaskofod.services.session;
 
+import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.models.Emoji;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
@@ -7,9 +8,12 @@ import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsActio
 import dk.mathiaskofod.services.session.actions.lobby.participant.LobbyParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.participant.SendEmojiAction;
 import dk.mathiaskofod.services.session.actions.lobby.participant.SendMessageAction;
+import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
@@ -19,6 +23,8 @@ import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @ApplicationScoped
 @Slf4j
 public class LobbyParticipantSessionManager extends AbstractLobbySessionManager {
@@ -26,32 +32,41 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     // TODO participant session manger uses session registry directly, while client session manager doesn't
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
+        String lobbyId = tokenInfo.getGameId();
         log.info(
                 "New participant connected! Name: {}, Player id: {}, Game id: {}, WebsocketId:{}",
                 tokenInfo.getName(),
                 tokenInfo.getPlayerId(),
-                tokenInfo.getGameId(),
+                lobbyId,
                 websocketConnectionId);
 
         LobbyParticipant lobbyParticipant = lobbyService.registerParticipant(
-                tokenInfo.getGameId(), tokenInfo.getName(), tokenInfo.getPlayerId(), true);
+                lobbyId, tokenInfo.getName(), tokenInfo.getPlayerId(), true);
 
         Session participantSession = new Session(tokenInfo.getPlayerId(), websocketConnectionId);
         sessionRegistry.registerSession(participantSession);
 
         NewParticipantEvent event = new NewParticipantEvent(lobbyParticipant);
-        LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
+        broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(tokenInfo.getPlayerId()));
 
-        broadcastToLobby(tokenInfo.getGameId(), envelope);
+        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId));
+        LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
+        sendMessage(tokenInfo.getPlayerId(), new LobbyParticipantEventEnvelope(lobbySnapshotEvent));
+
+        LobbyRoleEvent roleEvent = new LobbyRoleEvent(tokenInfo.getRole());
+        sendMessage(tokenInfo.getPlayerId(), new LobbyParticipantEventEnvelope(roleEvent));
     }
 
     @Override
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
+        String lobbyId = tokenInfo.getGameId();
+        String playerId = tokenInfo.getPlayerId();
+
         log.info(
                 "Lobby participant left. Name: {}, ParticipantID: {}, CloseReason: {}-{}",
                 tokenInfo.getName(),
-                tokenInfo.getPlayerId(),
+                playerId,
                 closeReason.getCode(),
                 closeReason.getMessage());
 
@@ -60,21 +75,16 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
          disconnecting or fail gracefully when fetching a Lobby
          */
 
-        LobbyParticipant leavingParticipant = lobbyService
-                .getLobby(tokenInfo.getGameId())
-                .getParticipant(tokenInfo.getPlayerId())
-                .orElseThrow(() -> new CannotIdentifyPlayer(
-                        "Somehow the player token points to a player that no longer exists", 400));
-        lobbyService.removeDisconnectedParticipant(tokenInfo.getGameId(), tokenInfo.getPlayerId());
+        lobbyService.removeDisconnectedParticipant(lobbyId, playerId);
 
         boolean isTransitioning = CustomWebsocketCodes.TRANSITIONING.getCode() == closeReason.getCode();
         if (isTransitioning) {
-            sessionRegistry.clearConnectionId(tokenInfo.getPlayerId());
+            sessionRegistry.clearConnectionId(playerId);
         } else {
-            sessionRegistry.removeSession(tokenInfo.getPlayerId());
+            sessionRegistry.removeSession(playerId);
         }
 
-        LobbyParticipantDisconnectedEvent event = new LobbyParticipantDisconnectedEvent(leavingParticipant);
+        LobbyParticipantDisconnectedEvent event = new LobbyParticipantDisconnectedEvent(playerId);
         LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
 
         if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode()
@@ -82,7 +92,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
             // Skipping broadcast, since every member have already been notified
             return;
         }
-        broadcastToLobby(tokenInfo.getGameId(), envelope);
+        broadcastToLobby(lobbyId, envelope);
     }
 
     @Override
@@ -102,12 +112,11 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
                 broadcastToLobby(tokenInfo.getGameId(), new LobbyParticipantEventEnvelope(event));
             }
             case UpdateSettingsAction updateSettingsAction ->
-                applyAndBroadcastSettings(tokenInfo.getGameId(), tokenInfo.getPlayerId(), updateSettingsAction);
-            default ->
-                log.warn(
-                        "Received unknown action from lobby participant with player id: {}. Action: {}",
-                        tokenInfo.getPlayerId(),
-                        action);
+                    applyAndBroadcastSettings(tokenInfo.getGameId(), tokenInfo.getPlayerId(), updateSettingsAction);
+            default -> log.warn(
+                    "Received unknown action from lobby participant with player id: {}. Action: {}",
+                    tokenInfo.getPlayerId(),
+                    action);
         }
     }
 }

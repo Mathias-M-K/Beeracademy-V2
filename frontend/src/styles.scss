@@ -7,7 +7,7 @@ body{
   margin: 0;
 }
 
-h1{
+h1,h2,h3,h4,h5,h6,p{
   font-family: "Archivo", sans-serif;
 }
 
@@ -21,15 +21,24 @@ button{
   color: white;
 
   border: none;
+  cursor: pointer;
 
   transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
 }
-
 button:hover{
   background-color: #292727;
 
   color: white;
 }
+button:active{
+  background-color: #FFA500FF;
+}
+.btn-secondary{
+  color: black;
+  background-color: white;
+  border: 1px solid black;
+}
+
 
 input{
   border-style: solid;
@@ -40,6 +49,26 @@ input{
   margin: 0;
 
   height: 25px;
+}
+
+.header_subtitle{
+  margin-top: -15px;
+  color: grey;
+}
+
+.horizontal_line{
+  color: grey;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.horizontal_line::before,
+.horizontal_line::after{
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: lightgray;
 }
 
 

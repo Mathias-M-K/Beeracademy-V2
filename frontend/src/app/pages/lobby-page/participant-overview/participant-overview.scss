@@ -1,0 +1,22 @@
+:host{
+  display: grid;
+
+  border: 2px solid lightgray;
+  border-radius: 5px;
+
+  padding: 10px;
+
+  grid-template-areas: 'header header';
+}
+
+.header{
+  display: grid;
+  justify-content: space-between;
+  grid-template-areas: 'count add-btn''line line';
+
+  align-items: center;
+}
+.header > button{
+  width: 200px;
+  height: 40px;
+}

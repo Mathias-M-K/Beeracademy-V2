@@ -1,7 +1,7 @@
 import {Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
-import {GameClientEvenEnvelope} from '../models/categories/game-client-event/game-client-even-envelope';
-import {GameClientConnectedEvent} from '../models/categories/game-client-event/game-client-connected.event';
+import {GameClientEvenEnvelope} from '../models/categories/events/game/game-client-event/game-client-even-envelope';
+import {GameClientConnectedEvent} from '../models/categories/events/game/game-client-event/game-client-connected.event';
 import {WebsocketService} from '../websocket.service';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
@@ -11,18 +11,18 @@ import {GameInfo} from './models/game-info';
 import {DrawCardAction} from '../models/categories/game-client-action/draw-card-action';
 import {StartGameAction} from '../models/categories/game-client-action/start-game-action';
 import {GameClientActionEnvelope} from '../models/categories/game-client-action/game-client-action-envelope';
-import {GameEventEnvelope} from '../models/categories/game-event/game-event-envelope';
-import {DrawCardEvent} from '../models/categories/game-event/draw-card-event';
+import {GameEventEnvelope} from '../models/categories/events/game/game-event/game-event-envelope';
+import {DrawCardEvent} from '../models/categories/events/game/game-event/draw-card-event';
 import {TimerState} from '../../../api-models/model/timerState';
 import {PauseGameAction} from '../models/categories/game-client-action/pause-game-action';
 import {ResumeGameAction} from '../models/categories/game-client-action/resume-game-action';
-import {GamePausedEvent} from '../models/categories/game-event/game-paused-event';
-import {GameResumedEvent} from '../models/categories/game-event/game-resumed-event';
+import {GamePausedEvent} from '../models/categories/events/game/game-event/game-paused-event';
+import {GameResumedEvent} from '../models/categories/events/game/game-event/game-resumed-event';
 import {ChugAction} from '../models/categories/game-client-action/chug-action';
-import {ChugEvent} from '../models/categories/game-event/chug-event';
+import {ChugEvent} from '../models/categories/events/game/game-event/chug-event';
 import {GameState} from '../../../api-models/model/gameState';
 import {TimeReport} from '../../../api-models/model/timeReport';
-import {GameEndEvent} from '../models/categories/game-event/game-end-event';
+import {GameEndEvent} from '../models/categories/events/game/game-event/game-end-event';
 
 @Injectable({
   providedIn: 'root',

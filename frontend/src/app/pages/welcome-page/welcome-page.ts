@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {Router} from '@angular/router';
-import {LobbyService} from '../../services/lobby.service';
+import {LobbyApi} from '../../services/lobby-api.service';
 
 @Component({
   selector: 'app-welcome-page',
@@ -12,7 +12,7 @@ import {LobbyService} from '../../services/lobby.service';
 export class WelcomePage {
 
   private readonly router: Router = inject(Router);
-  private readonly lobbyService: LobbyService = inject(LobbyService);
+  private readonly lobbyService: LobbyApi = inject(LobbyApi);
 
   public onCreateLobby(lobbyName: string): void {
     this.lobbyService.createLobby(lobbyName).subscribe({
@@ -27,7 +27,7 @@ export class WelcomePage {
   }
 
   public navigateToLobbyPage(): void {
-    this.router.navigate(['/lobby']);
+    this.router.navigate(['/lobby'], { state: { joinAuto: true } });
   }
 
 }

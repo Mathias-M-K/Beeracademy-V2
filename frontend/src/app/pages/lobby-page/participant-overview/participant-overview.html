@@ -1,0 +1,16 @@
+
+<div style="grid-area: header" class="header">
+  <h3 style="grid-area: count">Deltagere - {{participants().length}}</h3>
+  @if (isLobbyOwner()) {
+    <button style="grid-area: add-btn" class="btn-secondary" (click)="addParticipant.emit('matty')">+ Tilføj deltager</button>
+  }
+  @if (participants().length) {
+    <div style="grid-area: line" class="horizontal_line">Deltagere</div>
+  }
+</div>
+@for (participant of participants(); track participant.id){
+  <div>{{participant.name}}</div>
+}
+
+
+

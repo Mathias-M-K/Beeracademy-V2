@@ -4,8 +4,11 @@ import dk.mathiaskofod.api.lobby.models.CreateLobbyResponse;
 import dk.mathiaskofod.api.lobby.models.PlayerRegisterRequest;
 import dk.mathiaskofod.api.lobby.models.RegisterPlayerResponse;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
+import dk.mathiaskofod.api.lobby.models.dto.RoleDTO;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.auth.SessionCookieFactory;
+import dk.mathiaskofod.services.auth.models.Role;
+import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
@@ -15,6 +18,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -36,6 +40,9 @@ public class LobbyApi {
 
     @Inject
     AuthenticationService authenticationService;
+
+    @Inject
+    JsonWebToken jsonWebToken;
 
     @POST
     @Operation(
@@ -119,5 +126,11 @@ public class LobbyApi {
                 .entity(new RegisterPlayerResponse(playerId))
                 .cookie(cookieJwt)
                 .build();
+    }
+
+    @GET
+    @Path("/role")
+    public RoleDTO getRole(){
+        return new RoleDTO(new TokenInfo(jsonWebToken).getRole());
     }
 }
