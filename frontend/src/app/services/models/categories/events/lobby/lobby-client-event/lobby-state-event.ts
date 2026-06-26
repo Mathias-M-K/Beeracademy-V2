@@ -1,6 +1,7 @@
 import {LobbyDTO} from '../../../../../../../api-models/model/lobbyDTO';
-import {LobbyClientEvent} from './lobby-client-event';
+import {LobbyEvent} from '../lobby-event';
 
-export interface LobbyStateEvent extends LobbyClientEvent{
+
+export interface LobbyStateEvent extends LobbyEvent {
   lobby: LobbyDTO;
 }

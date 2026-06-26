@@ -2,7 +2,6 @@ import {computed, inject, Injectable, linkedSignal, signal} from '@angular/core'
 import {LobbyWebsocketService} from './lobby-websocket.service';
 import {LobbyDTO} from '../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from './models/websocket-envelope';
-import {LobbyClientEventEnvelope} from './models/categories/events/lobby/lobby-client-event/lobby-client-event-envelope';
 import {LobbyStateEvent} from './models/categories/events/lobby/lobby-client-event/lobby-state-event';
 import {Role} from '../../api-models/model/role';
 import {LobbyRoleEvent} from './models/categories/events/lobby/lobby-client-event/lobby-role-event';
@@ -11,13 +10,11 @@ import {LobbyClientAction} from './models/categories/actions/lobby/lobby-client-
 import {lobbyClientActionEnvelope} from './models/categories/actions/lobby/lobby-client-action/lobby-client-action-envelope';
 import {NewParticipantEvent} from './models/categories/events/lobby/common/new-participant-event';
 import {
-  LobbyParticipantEventEnvelope
-} from './models/categories/events/lobby/lobby-participant-event/lobby-participant-event-envelope';
-import {
   ParticipantDisconnectedEvent
 } from './models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
 import {removePlayerAction} from './models/categories/actions/lobby/lobby-client-action/remove-player-action';
 import {ParticipantKickedEvent} from './models/categories/events/lobby/lobby-client-event/participant-kicked-event';
+import {LobbyEventEnvelope} from './models/categories/events/lobby/lobby-event-envelope';
 
 @Injectable({
   providedIn: 'root',
@@ -50,42 +47,23 @@ export class LobbyService {
 
   private handleWebsocketMessage(msg: WebsocketEnvelope) {
 
-    switch (msg.category) {
-      case 'LOBBY_CLIENT_EVENT': {
-        this.handleLobbyClientEvent(msg as LobbyClientEventEnvelope);
-        break
-      }
-      case 'LOBBY_PARTICIPANT_EVENT': {
-        this.handleLobbyParticipantEvent(msg as LobbyParticipantEventEnvelope);
-        break
-      }
-      default: console.error("Can't handle message",msg);
+    const supportedEventCategories: string[] = ['LOBBY_CLIENT_EVENT','LOBBY_PARTICIPANT_EVENT'];
+
+    if(!supportedEventCategories.includes(msg.category)){
+      console.error("Can't handle message", msg);
     }
-  }
 
-  private handleLobbyClientEvent(event: LobbyClientEventEnvelope): void {
+    const event: LobbyEventEnvelope = msg as LobbyEventEnvelope;
 
-    console.log("Handling Lobby client event", event);
-
-    switch (event.payload.type){
+    switch (event.payload.type) {
       case "HELLO_LOBBY_SNAPSHOT" : return this.handleHelloLobbySnapshotEvent(event);
       case "HELLO_LOBBY_ROLE" : return this.handleHelloLobbyRoleEvent(event);
       case "NEW_PARTICIPANT" : return this.handleNewParticipantEvent(event);
       case "PARTICIPANT_REMOVED" : {
         const participantKickedEvent = event.payload as ParticipantKickedEvent;
         this.removeParticipant(participantKickedEvent.participantId);
+        break;
       }
-    }
-  }
-
-  private handleLobbyParticipantEvent(event: LobbyParticipantEventEnvelope): void {
-
-    console.log("Handling LobbyParticipant event", event);
-
-    switch (event.payload.type) {
-      case "NEW_PARTICIPANT" : return this.handleNewParticipantEvent(event);
-      case "HELLO_LOBBY_SNAPSHOT" : return this.handleHelloLobbySnapshotEvent(event);
-      case "HELLO_LOBBY_ROLE" : return this.handleHelloLobbyRoleEvent(event);
       case "PARTICIPANT_DISCONNECTED" : {
         const participantLeavesEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
         this.removeParticipant(participantLeavesEvent.participantId)
@@ -93,20 +71,17 @@ export class LobbyService {
     }
   }
 
-  private handleNewParticipantEvent(msg: WebsocketEnvelope){
-    const event = msg as LobbyClientEventEnvelope;
+  private handleNewParticipantEvent(event: LobbyEventEnvelope){
     const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
     this.addParticipant(newParticipantEvent.participant);
   }
 
-  private handleHelloLobbySnapshotEvent(msg: WebsocketEnvelope) {
-    const event = msg as LobbyClientEventEnvelope;
+  private handleHelloLobbySnapshotEvent(event: LobbyEventEnvelope) {
     const lobbyStateExchangeEvent = event.payload as LobbyStateEvent;
     this.lobbyState$.set(lobbyStateExchangeEvent.lobby)
   }
 
-  private handleHelloLobbyRoleEvent(msg: WebsocketEnvelope) {
-    const event = msg as LobbyClientEventEnvelope;
+  private handleHelloLobbyRoleEvent(event: LobbyEventEnvelope) {
     const lobbyRoleEvent = event.payload as LobbyRoleEvent;
     this._role.set(lobbyRoleEvent.role);
   }
@@ -129,8 +104,4 @@ export class LobbyService {
   public removeParticipant(participantId: string): void {
     this._participants.update(current => [...current.filter(participant => participant.id !== participantId)]);
   }
-
-
-
-
 }

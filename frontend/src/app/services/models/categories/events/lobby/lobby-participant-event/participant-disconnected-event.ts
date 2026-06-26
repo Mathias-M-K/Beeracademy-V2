@@ -1,5 +1,5 @@
-import {LobbyParticipantEvent} from './lobby-participant-event';
+import {LobbyEvent} from '../lobby-event';
 
-export interface ParticipantDisconnectedEvent extends LobbyParticipantEvent {
+export interface ParticipantDisconnectedEvent extends LobbyEvent {
   participantId: string;
 }
