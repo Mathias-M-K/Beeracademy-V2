@@ -1,9 +1,5 @@
-import {MessageDirection} from './message-direction';
+import {ChatInfo} from './chat-info';
 
-export interface MessageInfo {
-  sender: string;
+export interface MessageInfo extends ChatInfo{
   message: string;
-  direction: MessageDirection
-  fromHost: boolean;
-
 }

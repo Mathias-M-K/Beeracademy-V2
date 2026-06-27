@@ -1,6 +1,7 @@
 <app-participant-badge class="badge"
                        [initials]="participantNameShort()"
-                       [isActive]="participant().active!">
+                       [isActive]="participant().active!"
+                       [reaction]="emojiReaction()">
 </app-participant-badge>
 <div>
   <h3>{{participant().name}}</h3>

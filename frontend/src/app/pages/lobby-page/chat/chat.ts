@@ -1,6 +1,16 @@
-import {afterNextRender, afterRenderEffect, Component, ElementRef, inject, Injector, viewChild} from '@angular/core';
+import {
+  afterNextRender,
+  afterRenderEffect,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  viewChild
+} from '@angular/core';
 import {Messages} from './messages/messages';
 import {ChatService} from '../../../services/chat/chat.service';
+import {Emoji} from '../../../../api-models/model/emoji';
+import {sendEmojiAction} from '../../../services/models/categories/actions/lobby/common/send-emoji-action';
 
 @Component({
   selector: 'app-chat',
@@ -27,6 +37,10 @@ export class Chat {
     });
   }
 
+  sendEmoji(emoji: Emoji): void {
+    this.chatService.sendEmoji(emoji);
+  }
+
   sendMessage(field: HTMLInputElement): void {
 
     this.chatService.sendMessage(field.value);
@@ -40,4 +54,7 @@ export class Chat {
       el.scrollTop = el.scrollHeight;
     }, {injector: this.injector});
   }
+
+  protected readonly Emoji = Emoji;
+  protected readonly sendEmojiAction = sendEmojiAction;
 }

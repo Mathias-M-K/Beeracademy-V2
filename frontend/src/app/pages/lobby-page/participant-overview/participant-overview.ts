@@ -1,6 +1,9 @@
-import {Component, computed, input, output} from '@angular/core';
+import {Component, computed, inject, input, output, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {LobbyParticipantDTO} from '../../../../api-models/model/lobbyParticipantDTO';
 import {Participant} from './participant/participant';
+import {EmojiInfo} from '../../../services/chat/models/emoji-info';
+import {ChatService} from '../../../services/chat/chat.service';
 
 @Component({
   selector: 'app-participant-overview',
@@ -13,11 +16,23 @@ import {Participant} from './participant/participant';
 })
 export class ParticipantOverview {
 
+  private readonly chatService = inject(ChatService);
+
   readonly participants = input<LobbyParticipantDTO[]>([]);
   readonly isLobbyOwner = input<boolean>(false)
   readonly addParticipant = output<string>()
   readonly removeParticipant = output<string>()
   readonly disconnect = output<void>()
+
+  /** Latest reaction keyed by participant id. The targeted entry gets a fresh
+   *  object on each event, so only that participant's input changes. */
+  protected readonly emojiReactions = signal<Record<string, EmojiInfo>>({});
+
+  constructor() {
+    this.chatService.emojis.pipe(takeUntilDestroyed()).subscribe(emojiInfo => {
+      this.emojiReactions.update(map => ({...map, [emojiInfo.senderId]: emojiInfo}));
+    });
+  }
 
   readonly participantsWithShortName = computed(() => {
     const counts = new Map<string, number>();

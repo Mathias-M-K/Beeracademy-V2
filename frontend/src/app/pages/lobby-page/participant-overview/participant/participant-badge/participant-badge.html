@@ -2,4 +2,6 @@
 @if (isActive()){
   <div class="active-indicator"></div>
 }
-
+<div class="emoji-clip" [class.emoji-active]="showEmoji()">
+  <div class="emoji">{{ emoji() }}</div>
+</div>

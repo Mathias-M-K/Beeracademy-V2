@@ -18,12 +18,17 @@ import {
 import {removePlayerAction} from './models/categories/actions/lobby/lobby-client-action/remove-player-action';
 import {ParticipantRemovedEvent} from './models/categories/events/lobby/lobby-client-event/participant-removed-event';
 import {LobbyEventEnvelope} from './models/categories/events/lobby/lobby-event-envelope';
-import {sendMessageAction} from './models/categories/actions/lobby/lobby-participant-action/send-message-action';
+import {sendMessageAction} from './models/categories/actions/lobby/common/send-message-action';
 import {Subject} from 'rxjs';
 import {MessageInfo} from './chat/models/message-info';
 import {NewMessageEvent} from './models/categories/events/lobby/common/new-message-event';
 import {MessageDirection} from './chat/models/message-direction';
 import {LobbyParticipantDTO} from '../../api-models/model/lobbyParticipantDTO';
+import {Emoji} from '../../api-models/model/emoji';
+import {sendEmojiAction} from './models/categories/actions/lobby/common/send-emoji-action';
+import {EmojiInfo} from './chat/models/emoji-info';
+import {EMOJI_DISPLAY} from './chat/models/emoji-display';
+import {NewEmojiEvent} from './models/categories/events/lobby/common/new-emoji.event';
 
 @Injectable({
   providedIn: 'root',
@@ -53,6 +58,9 @@ export class LobbyService {
 
   private readonly _chatMessages = new Subject<MessageInfo>()
   public readonly chatMessages = this._chatMessages.asObservable();
+
+  private readonly _emojiReactions = new Subject<EmojiInfo>();
+  public readonly emojiReactions = this._emojiReactions.asObservable();
 
   private readonly _lobbyReset = new Subject<void>()
   public readonly lobbyReset = this._lobbyReset.asObservable();
@@ -89,6 +97,8 @@ export class LobbyService {
         return this.handleNewParticipantEvent(event);
       case "MESSAGE_SENT" :
         return this.handleNewMessageEvent(event);
+      case "EMOJI_SENT" :
+        return this.handleNewEmojiEvent(event);
       case "PARTICIPANT_REMOVED" : {
         const participantRemovedEvent = event.payload as ParticipantRemovedEvent;
         this.removeParticipant(participantRemovedEvent.participantId);
@@ -118,11 +128,38 @@ export class LobbyService {
     const messageInfo: MessageInfo = {
       direction: MessageDirection.IN,
       message: newMessageEvent.message,
-      sender: senderName,
+      senderName: senderName,
+      senderId: newMessageEvent.senderId,
       fromHost: isSenderHost
     };
 
     this._chatMessages.next(messageInfo)
+  }
+
+  private handleNewEmojiEvent(event: LobbyEventEnvelope) {
+    const newEmojiEvent: NewEmojiEvent = event.payload as NewEmojiEvent;
+
+    const isSenderHost: boolean = newEmojiEvent.senderId === this.lobbyId();
+
+    let senderName = isSenderHost ?
+      'Vært' :
+      this.getParticipant(newEmojiEvent.senderId)?.name;
+
+    if (!senderName) {
+      console.error("Can't identify emoji owner, somehow?", event);
+      senderName = 'Unknown'
+    }
+
+    const emojiInfo: EmojiInfo = {
+      direction: MessageDirection.IN,
+      emoji: newEmojiEvent.emoji,
+      emojiAsString: EMOJI_DISPLAY[newEmojiEvent.emoji],
+      senderName: senderName,
+      senderId: newEmojiEvent.senderId,
+      fromHost: isSenderHost
+    };
+
+    this._emojiReactions.next(emojiInfo);
   }
 
   private handleNewParticipantEvent(event: LobbyEventEnvelope) {
@@ -167,6 +204,10 @@ export class LobbyService {
 
   public sendMessage(message: string): void {
     this.sendLobbyAction(sendMessageAction(message));
+  }
+
+  public sendEmoji(emoji: Emoji): void{
+    this.sendLobbyAction(sendEmojiAction(emoji));
   }
 
   private getParticipant(participantId: string): LobbyParticipantDTO | undefined {

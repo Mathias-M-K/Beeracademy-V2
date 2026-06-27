@@ -21,6 +21,7 @@
     <app-participant
       [participant]="entry.participant"
       [participantNameShort]="entry.shortName"
+      [emojiReaction]="emojiReactions()[entry.participant.id ?? '']"
       [canBeRemoved]="isLobbyOwner()"
       (remove)="removeParticipant.emit($event)" ></app-participant>
   }
