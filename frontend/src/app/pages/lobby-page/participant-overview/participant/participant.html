@@ -8,7 +8,12 @@
   <p class="header_subtitle">{{participant().title}} • {{participant().sipsInABeer}} slurke i en øl</p>
 </div>
 
-@if (canBeRemoved()) {
-  <button (click)="remove.emit(participant().id!)">Fjern</button>
-}
+<div class="btn-row">
+  <button class="btn-secondary" (click)="console.log('I dont do anything')">🔧</button>
+  @if (canBeRemoved()) {
+    <button class="btn-secondary" (click)="remove.emit(participant().id!)">X</button>
+  }
+</div>
+
+
 

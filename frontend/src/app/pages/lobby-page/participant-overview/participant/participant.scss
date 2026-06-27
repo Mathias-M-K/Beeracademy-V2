@@ -6,9 +6,17 @@
   align-items: center;
 }
 
-button {
-  width: 100px;
+.btn-row{
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
   justify-self: end;
+}
+
+button {
+  width: 40px;
+  justify-self: end;
+  padding: 0;
 }
 
 .badge {

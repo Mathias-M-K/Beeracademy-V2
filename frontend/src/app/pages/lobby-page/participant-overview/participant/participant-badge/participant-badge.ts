@@ -17,6 +17,7 @@ const EMOJI_HOLD_MS = 2500;
 export class ParticipantBadge implements OnDestroy {
   readonly initials = input<string>('');
   readonly isActive = input<boolean>(false);
+
   /** A new reaction object pushed from the parent triggers the animation. */
   readonly reaction = input<EmojiInfo>();
 
