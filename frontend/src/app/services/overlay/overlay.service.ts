@@ -8,6 +8,7 @@ import {OVERLAY_DATA, OverlayHandle} from './models/overlay-handle';
 })
 export class OverlayService {
 
+  //TODO create a shared modal component, that other components can wire themselves into, to get a shared design across overlays
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
 

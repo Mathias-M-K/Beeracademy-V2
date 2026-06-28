@@ -11,9 +11,9 @@
   <app-participant-overview style="grid-area: participant-list"
                             [participants]="lobbyService.participants()"
                             [isLobbyOwner]="lobbyService.isHost()"
-                            (addParticipant)="onAddParticipant($event)"
+                            (addParticipant)="openNewParticipantOverlay()"
                             (removeParticipant)="onRemoveParticipant($event)"
-                            (openParticipantSettings)="onEditParticipantSettings($event)"
+                            (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
                             (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
 
   <app-chat style="grid-area: chat"></app-chat>

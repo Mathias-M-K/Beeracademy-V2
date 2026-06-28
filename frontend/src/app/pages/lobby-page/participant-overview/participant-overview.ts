@@ -21,7 +21,7 @@ export class ParticipantOverview {
   readonly participants = input<LobbyParticipantDTO[]>([]);
   readonly isLobbyOwner = input<boolean>(false);
 
-  readonly addParticipant = output<string>();
+  readonly addParticipant = output<void>();
   readonly removeParticipant = output<string>();
   readonly openParticipantSettings = output<LobbyParticipantDTO | undefined>()
   readonly disconnect = output<void>();

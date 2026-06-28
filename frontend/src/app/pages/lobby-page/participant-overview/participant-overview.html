@@ -3,7 +3,7 @@
   <h3 style="grid-area: count">Deltagere - {{participants().length}}</h3>
   <div class="buttons" style="grid-area: buttons">
     @if (isLobbyOwner()) {
-      <button class="btn-secondary" (click)="addParticipant.emit('matty')">+ Tilføj deltager</button>
+      <button class="btn-secondary" (click)="addParticipant.emit()">+ Tilføj deltager</button>
       <button class="btn-warning" (click)="disconnect.emit()">Luk Lobby</button>
     } @else {
       <button class="btn-warning" (click)="disconnect.emit()">Forlad lobby</button>

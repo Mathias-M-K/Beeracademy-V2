@@ -1,6 +1,5 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
-import {Role} from '../../../api-models/model/role';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {ConnectionStatus} from '../../services/models/connection-status';
 import {Chat} from './chat/chat';
@@ -9,6 +8,7 @@ import {OverlayService} from '../../services/overlay/overlay.service';
 import {ParticipantSettingsOverlay} from '../../overlay/participant-settings-overlay/participant-settings.overlay';
 import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
 import {LobbyService} from '../../services/lobby.service';
+import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-participant-overlay';
 
 @Component({
   selector: 'app-lobby-page',
@@ -18,8 +18,7 @@ import {LobbyService} from '../../services/lobby.service';
     ParticipantOverview,
     LobbyInfoQuick,
     Chat
-  ],
-  standalone: true
+  ]
 })
 export class LobbyPage implements OnInit {
 
@@ -30,7 +29,7 @@ export class LobbyPage implements OnInit {
     this.lobbyService.connectToWebsocket();
   }
 
-  onAddParticipant(name: string) {
+  addParticipant(name: string) {
     this.lobbyService.requestParticipantCreation(name);
   }
 
@@ -38,10 +37,10 @@ export class LobbyPage implements OnInit {
     this.lobbyService.requestParticipantRemoval(participantId);
   }
 
-  onEditParticipantSettings(participant: LobbyParticipantDTO | undefined): void {
+  openEditParticipantSettingsOverlay(participant: LobbyParticipantDTO | undefined): void {
 
-    const actualParticipant = participant?? this.lobbyService.self();
-    if(!actualParticipant) {
+    const actualParticipant = participant ?? this.lobbyService.self();
+    if (!actualParticipant) {
       console.error("Didn't find participant when attempting to open settings", participant);
       return;
     }
@@ -56,6 +55,16 @@ export class LobbyPage implements OnInit {
       }
       this.lobbyService.requestParticipantSettingsUpdate(result.sipsInABeer, result.canDrawAce, actualParticipant.id);
     })
+  }
+
+  openNewParticipantOverlay(): void {
+    const overlayHandle = this.overlayService.openOverlay<NewParticipantOverlay, void, string>(NewParticipantOverlay);
+    overlayHandle.closed.then(participantName => {
+      if (participantName) {
+        this.addParticipant(participantName)
+      }
+    })
+
   }
 
 

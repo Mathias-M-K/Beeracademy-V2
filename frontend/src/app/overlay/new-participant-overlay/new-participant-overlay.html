@@ -1,0 +1,14 @@
+<div>
+  <p class="upper_subtitle">Ny spiller</p>
+  <h2>Tilføj deltager</h2>
+</div>
+
+<div>
+  <p class="upper_subtitle">Navn</p>
+  <input aria-label="new-participant-input" placeholder="fx. Mathias" [value]="name()" (input)="name.set(nameInput.value)" #nameInput>
+</div>
+
+<div class="action-buttons">
+  <button (click)="exit()" class="btn-secondary">{{name() ? 'Tilføj' : 'Luk'}}</button>
+</div>
+
