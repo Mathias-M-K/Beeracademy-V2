@@ -2,6 +2,7 @@
 import {Role} from '../../../../../../../api-models/model/role';
 import {LobbyEvent} from '../lobby-event';
 
-export interface LobbyRoleEvent extends LobbyEvent {
+export interface LobbyIdentityEvent extends LobbyEvent {
   role: Role;
+  id: string;
 }

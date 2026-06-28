@@ -1,11 +1,11 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {MessageInfo} from './models/message-info';
 import {MessageDirection} from './models/message-direction';
-import {LobbyService} from '../lobby.service';
 import {Role} from '../../../api-models/model/role';
 import {Subject} from 'rxjs';
 import {EmojiInfo} from './models/emoji-info';
 import {Emoji} from '../../../api-models/model/emoji';
+import {LobbyService} from '../lobby.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +13,7 @@ import {Emoji} from '../../../api-models/model/emoji';
 export class ChatService {
 
   private readonly lobbyService: LobbyService = inject(LobbyService);
+  private readonly isHost = this.lobbyService.isHost;
 
   private readonly _messages = signal<MessageInfo[]>([]);
   public readonly messages = this._messages.asReadonly();
@@ -40,15 +41,12 @@ export class ChatService {
       return;
     }
 
-    const isHost = this.lobbyService.role() === Role.GameClient;
-
-    //TODO return here and set senderId
-    this.addMessage({senderName: 'Mig', senderId:'', message: trimmed, direction: MessageDirection.OUT, fromHost: isHost});
+    this.addMessage({senderName: 'Mig', senderId:'', message: trimmed, direction: MessageDirection.OUT, fromHost: this.isHost()});
     this.lobbyService.sendMessage(text);
   }
 
   public sendEmoji(emoji: Emoji){
-    // const isHost = this.lobbyService.role() === Role.GameClient;
+
     this.lobbyService.sendEmoji(emoji)
 
   }

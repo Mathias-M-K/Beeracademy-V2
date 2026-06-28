@@ -18,9 +18,7 @@ public class LobbyParticipant {
     private String title;
     private String id;
     private int sipsInABeer;
-    private boolean
-            active; // Active, meaning a person connected to the lobby, and not a "zombie" participant created from
-    // client
+    private boolean active; // Active, meaning a person connected to the lobby
 
     @Accessors(fluent = true)
     private boolean canDrawAce;

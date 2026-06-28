@@ -1,6 +1,7 @@
 package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
+import dk.mathiaskofod.api.lobby.models.dto.LobbyParticipantDTO;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import dk.mathiaskofod.services.lobby.models.Emoji;
@@ -14,11 +15,10 @@ import dk.mathiaskofod.services.session.actions.lobby.common.SendMessageAction;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientEventEnvelope;
-import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantRemovedEvent;
-import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbyIdentityEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
@@ -47,7 +47,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
         sendMessage(lobbyId, new LobbyClientEventEnvelope(lobbySnapshotEvent));
 
-        LobbyRoleEvent roleEvent = new LobbyRoleEvent(tokenInfo.getRole());
+        LobbyIdentityEvent roleEvent = new LobbyIdentityEvent(tokenInfo.getRole(), lobbyId);
         sendMessage(lobbyId, new LobbyClientEventEnvelope(roleEvent));
     }
 
@@ -97,7 +97,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                 LobbyParticipant newParticipant =
                         lobbyService.registerParticipant(lobbyId, participantName, participantId, false);
 
-                NewParticipantEvent event = new NewParticipantEvent(newParticipant);
+                NewParticipantEvent event = new NewParticipantEvent(LobbyParticipantDTO.fromLobbyParticipant(newParticipant));
                 broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
             }
             case RemoveParticipantAction(String participantId) -> {

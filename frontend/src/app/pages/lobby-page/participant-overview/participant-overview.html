@@ -7,12 +7,13 @@
       <button class="btn-warning" (click)="disconnect.emit()">Luk Lobby</button>
     } @else {
       <button class="btn-warning" (click)="disconnect.emit()">Forlad lobby</button>
+      <button class="btn-secondary" (click)="openParticipantSettings.emit(undefined)">🔧</button>
     }
 
   </div>
 
   @if (participants().length) {
-    <div style="grid-area: line" class="horizontal_line">Deltagere</div>
+    <div style="grid-area: line" class="horizontal_line"></div>
   }
 </div>
 
@@ -22,8 +23,10 @@
       [participant]="entry.participant"
       [participantNameShort]="entry.shortName"
       [emojiReaction]="emojiReactions()[entry.participant.id ?? '']"
-      [canBeRemoved]="isLobbyOwner()"
-      (remove)="removeParticipant.emit($event)" ></app-participant>
+      [inLineEditing]="isLobbyOwner()"
+      (remove)="removeParticipant.emit($event)"
+      (editSettings)="openParticipantSettings.emit(entry.participant)">
+    </app-participant>
   }
 </div>
 

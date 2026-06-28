@@ -6,7 +6,6 @@ import {LobbyApi} from '../../services/lobby-api.service';
   selector: 'app-welcome-page',
   templateUrl: './welcome-page.html',
   styleUrl: './welcome-page.scss',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WelcomePage {

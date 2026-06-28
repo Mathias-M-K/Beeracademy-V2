@@ -70,12 +70,21 @@ input{
   margin-top: -15px;
   color: grey;
 }
+.upper_subtitle{
+  padding: 0;
+  margin: 0;
+  color: darkgray;
+}
 
 .horizontal_line{
   color: grey;
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.horizontal_line:empty{
+  gap: 0;
 }
 
 .horizontal_line::before,

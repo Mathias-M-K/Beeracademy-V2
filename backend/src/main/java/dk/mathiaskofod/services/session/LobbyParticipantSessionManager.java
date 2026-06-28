@@ -1,6 +1,7 @@
 package dk.mathiaskofod.services.session;
 
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
+import dk.mathiaskofod.api.lobby.models.dto.LobbyParticipantDTO;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.models.Emoji;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
@@ -12,7 +13,7 @@ import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
-import dk.mathiaskofod.services.session.events.lobby.common.LobbyRoleEvent;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbyIdentityEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
@@ -33,28 +34,29 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
         String lobbyId = tokenInfo.getGameId();
+        String participantId = tokenInfo.getPlayerId();
         log.info(
                 "New participant connected! Name: {}, Player id: {}, Game id: {}, WebsocketId:{}",
                 tokenInfo.getName(),
-                tokenInfo.getPlayerId(),
+                participantId,
                 lobbyId,
                 websocketConnectionId);
 
         LobbyParticipant lobbyParticipant = lobbyService.registerParticipant(
-                lobbyId, tokenInfo.getName(), tokenInfo.getPlayerId(), true);
+                lobbyId, tokenInfo.getName(), participantId, true);
 
-        Session participantSession = new Session(tokenInfo.getPlayerId(), websocketConnectionId);
+        Session participantSession = new Session(participantId, websocketConnectionId);
         sessionRegistry.registerSession(participantSession);
 
-        NewParticipantEvent event = new NewParticipantEvent(lobbyParticipant);
-        broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(tokenInfo.getPlayerId()));
+        NewParticipantEvent event = new NewParticipantEvent(LobbyParticipantDTO.fromLobbyParticipant(lobbyParticipant));
+        broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(participantId));
 
         LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId));
         LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
-        sendMessage(tokenInfo.getPlayerId(), new LobbyParticipantEventEnvelope(lobbySnapshotEvent));
+        sendMessage(participantId, new LobbyParticipantEventEnvelope(lobbySnapshotEvent));
 
-        LobbyRoleEvent roleEvent = new LobbyRoleEvent(tokenInfo.getRole());
-        sendMessage(tokenInfo.getPlayerId(), new LobbyParticipantEventEnvelope(roleEvent));
+        LobbyIdentityEvent roleEvent = new LobbyIdentityEvent(tokenInfo.getRole(), participantId);
+        sendMessage(participantId, new LobbyParticipantEventEnvelope(roleEvent));
     }
 
     @Override

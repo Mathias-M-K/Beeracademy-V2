@@ -19,10 +19,12 @@ export class ParticipantOverview {
   private readonly chatService = inject(ChatService);
 
   readonly participants = input<LobbyParticipantDTO[]>([]);
-  readonly isLobbyOwner = input<boolean>(false)
-  readonly addParticipant = output<string>()
-  readonly removeParticipant = output<string>()
-  readonly disconnect = output<void>()
+  readonly isLobbyOwner = input<boolean>(false);
+
+  readonly addParticipant = output<string>();
+  readonly removeParticipant = output<string>();
+  readonly openParticipantSettings = output<LobbyParticipantDTO | undefined>()
+  readonly disconnect = output<void>();
 
   /** Latest reaction keyed by participant id. The targeted entry gets a fresh
    *  object on each event, so only that participant's input changes. */

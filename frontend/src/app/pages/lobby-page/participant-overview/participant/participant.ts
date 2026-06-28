@@ -9,17 +9,18 @@ import {EmojiInfo} from '../../../../services/chat/models/emoji-info';
   styleUrl: './participant.scss',
   imports: [
     ParticipantBadge
-  ],
-  standalone: true
+  ]
 })
 export class Participant {
 
   readonly participant = input.required<LobbyParticipantDTO>();
   readonly participantNameShort = input.required<string>()
   readonly emojiReaction = input.required<EmojiInfo>();
-  readonly canBeRemoved = input<boolean>(false);
+  readonly inLineEditing = input<boolean>(false);
 
-  readonly remove = output<string>()
+  readonly remove = output<string>();
+  readonly editSettings = output<LobbyParticipantDTO>()
 
-  protected readonly console = console;
+
+
 }

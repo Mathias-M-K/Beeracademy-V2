@@ -4,7 +4,7 @@ import {LobbyDTO} from '../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from './models/websocket-envelope';
 import {LobbyStateEvent} from './models/categories/events/lobby/common/lobby-state-event';
 import {Role} from '../../api-models/model/role';
-import {LobbyRoleEvent} from './models/categories/events/lobby/common/lobby-role-event';
+import {LobbyIdentityEvent} from './models/categories/events/lobby/common/lobby-identity-event';
 import {newPlayerAction} from './models/categories/actions/lobby/lobby-client-action/new-player-action';
 import {LobbyAction} from './models/categories/actions/lobby/lobby-action';
 import {
@@ -29,6 +29,13 @@ import {sendEmojiAction} from './models/categories/actions/lobby/common/send-emo
 import {EmojiInfo} from './chat/models/emoji-info';
 import {EMOJI_DISPLAY} from './chat/models/emoji-display';
 import {NewEmojiEvent} from './models/categories/events/lobby/common/new-emoji.event';
+import {
+  changeParticipantSettingsAction
+} from './models/categories/actions/lobby/common/update-participant-settings-action';
+import {
+  ParticipantSettingsUpdatedEvent
+} from './models/categories/events/lobby/common/participant-settings-updated-event';
+import {identifyFromEvent, Identity} from './models/identity';
 
 @Injectable({
   providedIn: 'root',
@@ -46,15 +53,23 @@ export class LobbyService {
   private readonly _participants = linkedSignal(() => this.lobbyState$()?.participants ?? []);
   public readonly participants = this._participants.asReadonly();
 
-  private readonly _role = signal<Role | undefined>(undefined);
-  public readonly role = this._role.asReadonly();
-  public readonly readableRole = computed(()=>{
+  private readonly _identity = signal<Identity | undefined>(undefined);
+  public readonly role = computed(()=>this._identity()?.role);
+  public readonly readableRole = computed(() => {
     switch (this.role()) {
-      case Role.PlayerClient : return 'Deltager'
-      case Role.GameClient : return 'Vært'
-      default : return 'Ukendt'
+      case Role.PlayerClient :
+        return 'Deltager'
+      case Role.GameClient :
+        return 'Vært'
+      default :
+        return 'Ukendt'
     }
   })
+  public readonly selfId = computed(()=>this._identity()?.id);
+  public readonly self = computed(()=>this.getParticipant(this.selfId()??''))
+  public readonly isHost = computed(() => this.role() === Role.GameClient)
+
+
 
   private readonly _chatMessages = new Subject<MessageInfo>()
   public readonly chatMessages = this._chatMessages.asObservable();
@@ -65,16 +80,17 @@ export class LobbyService {
   private readonly _lobbyReset = new Subject<void>()
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
+
+
   constructor() {
-    this.lobbyWebsocket.messages$.subscribe({
-      next: msg => this.handleWebsocketMessage(msg)
-    })
+    this.lobbyWebsocket.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
   }
 
   public connectToWebsocket(): void {
     this.lobbyWebsocket.connectToWebsocket();
   }
 
+  //Handle websocket messages
   private handleWebsocketMessage(msg: WebsocketEnvelope) {
 
     const supportedEventCategories: string[] = ['LOBBY_CLIENT_EVENT', 'LOBBY_PARTICIPANT_EVENT'];
@@ -91,8 +107,8 @@ export class LobbyService {
     switch (event.payload.type) {
       case "HELLO_LOBBY_SNAPSHOT" :
         return this.handleHelloLobbySnapshotEvent(event);
-      case "HELLO_LOBBY_ROLE" :
-        return this.handleHelloLobbyRoleEvent(event);
+      case "HELLO_LOBBY_IDENTITY" :
+        return this.handleHelloLobbyIdentityEvent(event);
       case "NEW_PARTICIPANT" :
         return this.handleNewParticipantEvent(event);
       case "MESSAGE_SENT" :
@@ -106,7 +122,10 @@ export class LobbyService {
       }
       case "PARTICIPANT_DISCONNECTED" : {
         const participantDisconnectedEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
-        this.removeParticipant(participantDisconnectedEvent.participantId)
+        return this.removeParticipant(participantDisconnectedEvent.participantId)
+      }
+      case "SETTINGS_UPDATED" : {
+        return this.handleParticipantSettingsUpdate(event);
       }
     }
   }
@@ -172,28 +191,55 @@ export class LobbyService {
     this.lobbyState$.set(lobbyStateExchangeEvent.lobby)
   }
 
-  private handleHelloLobbyRoleEvent(event: LobbyEventEnvelope) {
-    const lobbyRoleEvent = event.payload as LobbyRoleEvent;
-    this._role.set(lobbyRoleEvent.role);
+  private handleHelloLobbyIdentityEvent(event: LobbyEventEnvelope) {
+    const lobbyIdentityEvent = event.payload as LobbyIdentityEvent;
+    this._identity.set(identifyFromEvent(lobbyIdentityEvent));
   }
 
+  private handleParticipantSettingsUpdate(event: LobbyEventEnvelope) {
+    const updatedSettingsEvent: ParticipantSettingsUpdatedEvent = event.payload as ParticipantSettingsUpdatedEvent;
+    this.updateParticipant(updatedSettingsEvent.participantId, {
+      sipsInABeer: updatedSettingsEvent.sipsInABeer,
+      canDrawAce: updatedSettingsEvent.canDrawAce
+    });
+  }
+
+  //Dispatch action
   public requestParticipantCreation(name: string): void {
-    this.sendLobbyAction(newPlayerAction(name));
+    this.dispatchLobbyAction(newPlayerAction(name));
   }
 
   public requestParticipantRemoval(participantId: string): void {
-    this.sendLobbyAction(removePlayerAction(participantId))
+    this.dispatchLobbyAction(removePlayerAction(participantId))
   }
 
-  private sendLobbyAction(action: LobbyAction): void {
-    if (this.role() === Role.PlayerClient) {
-      this.lobbyWebsocket.send(lobbyParticipantActionEnvelope(action));
+  public requestParticipantSettingsUpdate(sipsInABeer: number, canDrawAce: boolean, behalfOf?: string) {
+    if (this.isHost()) {
+      this.dispatchLobbyAction(changeParticipantSettingsAction(sipsInABeer, canDrawAce, behalfOf));
     } else {
-      this.lobbyWebsocket.send(lobbyClientActionEnvelope(action));
+      this.dispatchLobbyAction(changeParticipantSettingsAction(sipsInABeer, canDrawAce));
     }
 
   }
 
+  private dispatchLobbyAction(action: LobbyAction): void {
+    if (this.isHost()) {
+      this.lobbyWebsocket.send(lobbyClientActionEnvelope(action));
+    } else {
+      this.lobbyWebsocket.send(lobbyParticipantActionEnvelope(action));
+    }
+  }
+
+  //Chat
+  public sendMessage(message: string): void {
+    this.dispatchLobbyAction(sendMessageAction(message));
+  }
+
+  public sendEmoji(emoji: Emoji): void {
+    this.dispatchLobbyAction(sendEmojiAction(emoji));
+  }
+
+  //UI
   public addParticipant(newParticipant: LobbyParticipantDTO): void {
     this._participants.update(current => [...current, newParticipant]);
   }
@@ -202,18 +248,18 @@ export class LobbyService {
     this._participants.update(current => [...current.filter(participant => participant.id !== participantId)]);
   }
 
-  public sendMessage(message: string): void {
-    this.sendLobbyAction(sendMessageAction(message));
-  }
-
-  public sendEmoji(emoji: Emoji): void{
-    this.sendLobbyAction(sendEmojiAction(emoji));
-  }
-
+  //Helper
   private getParticipant(participantId: string): LobbyParticipantDTO | undefined {
     return this._participants().find(participant => participant.id === participantId);
   }
 
+  private updateParticipant(participantId: string, changes: Partial<LobbyParticipantDTO>) {
+    this._participants.update((participants) =>
+      participants.map(participant => participant.id === participantId ? {...participant, ...changes} : participant)
+    );
+  }
+
+  //Disconnect
   public leaveLobby() {
     this.lobbyWebsocket.disconnect();
   }

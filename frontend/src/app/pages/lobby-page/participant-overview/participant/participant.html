@@ -5,12 +5,12 @@
 </app-participant-badge>
 <div>
   <h3>{{participant().name}}</h3>
-  <p class="header_subtitle">{{participant().title}} • {{participant().sipsInABeer}} slurke i en øl</p>
+  <p class="header_subtitle">{{participant().title}} • {{participant().sipsInABeer}} slurke i en øl • {{participant().canDrawAce ? 'Kan trække es' : 'Kan IKKE trække es'}}</p>
 </div>
 
 <div class="btn-row">
-  <button class="btn-secondary" (click)="console.log('I dont do anything')">🔧</button>
-  @if (canBeRemoved()) {
+  @if (inLineEditing()) {
+    <button class="btn-secondary" (click)="editSettings.emit(participant())">🔧</button>
     <button class="btn-secondary" (click)="remove.emit(participant().id!)">X</button>
   }
 </div>
