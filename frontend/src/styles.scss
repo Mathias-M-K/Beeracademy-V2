@@ -20,7 +20,7 @@ button{
   width: fit-content;
   height: 40px;
 
-  background-color: black;
+  background-color: #b65b1a;
   color: white;
 
   border: none;
@@ -29,12 +29,12 @@ button{
   transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
 }
 button:hover{
-  background-color: #292727;
+  background-color: #d58955;
 
   color: white;
 }
 button:active{
-  background-color: #FFA500FF;
+  background-color: #603315;
 }
 .btn-secondary{
   color: black;
@@ -48,8 +48,8 @@ button:active{
 }
 .btn-warning:hover{
   color: black;
-  background-color: #FFA500FF;
-  border: 1px solid #FFA500FF;
+  background-color: orange;
+  border: 1px solid #b65b1a;
 }
 
 

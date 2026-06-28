@@ -4,6 +4,7 @@ import {ConnectionStatus} from './models/connection-status';
 import {webSocket} from 'rxjs/webSocket';
 import {WebsocketEnvelope} from './models/websocket-envelope';
 import {Subject} from 'rxjs';
+import {CustomWebsocketCodes} from '../../api-models/model/customWebsocketCodes';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,9 @@ export class LobbyWebsocketService {
 
   private readonly _messages = new Subject<WebsocketEnvelope>();
   public readonly messages$ = this._messages.asObservable();
+
+  private readonly _gameStarted = new Subject<void>();
+  public readonly gameStarted = this._gameStarted.asObservable();
 
   private readonly subject = webSocket<WebsocketEnvelope>({
     url: this.websocketUrl,
@@ -34,6 +38,10 @@ export class LobbyWebsocketService {
 
   private handleClose(closeEvent: CloseEvent): void {
     this._connectionStatus.set(ConnectionStatus.DISCONNECTED);
+
+    if (closeEvent.code === 4030) {
+      this._gameStarted.next();
+    }
     console.log('Websocket closed', closeEvent.code, closeEvent.reason);
   }
 
@@ -42,7 +50,7 @@ export class LobbyWebsocketService {
     this.subject.next(envelope);
   }
 
-  public connectToWebsocket(){
+  public connectToWebsocket() {
     this._connectionStatus.set(ConnectionStatus.CONNECTING)
     this.subject.subscribe({
       next: message => this._messages.next(message),

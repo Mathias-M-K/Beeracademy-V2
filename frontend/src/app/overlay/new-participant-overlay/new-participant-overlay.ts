@@ -1,9 +1,12 @@
 import {Component, inject, signal} from '@angular/core';
 import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
+import {CdkTrapFocus} from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-new-participant-overlay',
-  imports: [],
+  imports: [
+    CdkTrapFocus
+  ],
   templateUrl: './new-participant-overlay.html',
   styleUrl: './new-participant-overlay.scss',
 })

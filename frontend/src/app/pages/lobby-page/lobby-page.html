@@ -8,13 +8,20 @@
     <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''"></app-lobby-info-quick>
   </div>
 
-  <app-participant-overview style="grid-area: participant-list"
-                            [participants]="lobbyService.participants()"
-                            [isLobbyOwner]="lobbyService.isHost()"
-                            (addParticipant)="openNewParticipantOverlay()"
-                            (removeParticipant)="onRemoveParticipant($event)"
-                            (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
-                            (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
+  <div style="grid-area: participant-list" class="left">
+    <app-participant-overview
+      [participants]="lobbyService.participants()"
+      [isLobbyOwner]="lobbyService.isHost()"
+      (addParticipant)="openNewParticipantOverlay()"
+      (removeParticipant)="onRemoveParticipant($event)"
+      (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
+      (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
+
+    @if (lobbyService.participants().length > 0) {
+      <button class="start-btn" (click)="lobbyService.startGame()">Start spil • {{lobbyService.participants().length}} Spillere</button>
+    }
+  </div>
+
 
   <app-chat style="grid-area: chat"></app-chat>
 } @else {

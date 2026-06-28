@@ -1,14 +1,14 @@
-:host {
+:host{
   display: grid;
   gap: 20px;
   justify-self: center;
 
-  min-width: 450px;
-  width: 90%;
+  width: 90vw;
+  max-width: 1500px;
+  grid-template-columns: 3fr 1fr;
   grid-template-areas:
-    'header'
-    'participant-list'
-    'chat';
+    'header header'
+    'participant-list chat';
 }
 
 .header{
@@ -16,14 +16,29 @@
   justify-content: space-between;
   align-items: center;
 }
+.start-btn{
+  width: 100%;
+  height: 60px;
+}
 
-@media(min-width: 1000px) {
-  :host{
-    width: 90vw;
-    max-width: 1500px;
-    grid-template-columns: 3fr 1fr;
+.left{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media(max-width: 1000px) {
+  :host {
+    display: grid;
+    gap: 20px;
+    justify-self: center;
+
+    min-width: 450px;
+    width: 90%;
+    grid-template-columns: auto;
     grid-template-areas:
-    'header header'
-    'participant-list chat';
+    'header'
+    'participant-list'
+    'chat';
   }
 }
