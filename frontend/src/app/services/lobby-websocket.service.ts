@@ -4,7 +4,7 @@ import {ConnectionStatus} from './models/connection-status';
 import {webSocket} from 'rxjs/webSocket';
 import {WebsocketEnvelope} from './models/websocket-envelope';
 import {Subject} from 'rxjs';
-import {CustomWebsocketCodes} from '../../api-models/model/customWebsocketCodes';
+import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
 
 @Injectable({
   providedIn: 'root',
@@ -22,15 +22,7 @@ export class LobbyWebsocketService {
   private readonly _gameStarted = new Subject<void>();
   public readonly gameStarted = this._gameStarted.asObservable();
 
-  private readonly subject = webSocket<WebsocketEnvelope>({
-    url: this.websocketUrl,
-    openObserver: {
-      next: () => this.handleOpen(),
-    },
-    closeObserver: {
-      next: (closeEvent: CloseEvent) => this.handleClose(closeEvent),
-    },
-  });
+  private websocket?: WebSocketSubject<WebsocketEnvelope>;
 
   private handleOpen(): void {
     this._connectionStatus.set(ConnectionStatus.CONNECTED);
@@ -42,17 +34,23 @@ export class LobbyWebsocketService {
     if (closeEvent.code === 4030) {
       this._gameStarted.next();
     }
-    console.log('Websocket closed', closeEvent.code, closeEvent.reason);
-  }
-
-  public send(envelope: WebsocketEnvelope): void {
-    console.log("Sending", envelope);
-    this.subject.next(envelope);
   }
 
   public connectToWebsocket() {
+    this.disconnect();
     this._connectionStatus.set(ConnectionStatus.CONNECTING)
-    this.subject.subscribe({
+
+      this.websocket = webSocket<WebsocketEnvelope>({
+      url: this.websocketUrl,
+      openObserver: {
+        next: () => this.handleOpen(),
+      },
+      closeObserver: {
+        next: (closeEvent: CloseEvent) => this.handleClose(closeEvent),
+      },
+    });
+
+    this.websocket.subscribe({
       next: message => this._messages.next(message),
       error: error => {
         this._connectionStatus.set(ConnectionStatus.DISCONNECTED)
@@ -61,8 +59,14 @@ export class LobbyWebsocketService {
     });
   }
 
+  public send(envelope: WebsocketEnvelope): void {
+    this.websocket?.next(envelope);
+  }
+
   public disconnect(): void {
-    this.subject.complete();
+    this.websocket?.complete();
+    this.websocket = undefined;
+    this._connectionStatus.set(ConnectionStatus.DISCONNECTED);
   }
 
 }

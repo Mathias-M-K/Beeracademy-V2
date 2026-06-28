@@ -64,9 +64,7 @@ export class LobbyPage implements OnInit {
         this.addParticipant(participantName)
       }
     })
-
   }
-
 
   protected readonly ConnectionStatus = ConnectionStatus;
 }

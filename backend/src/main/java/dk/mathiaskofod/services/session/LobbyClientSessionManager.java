@@ -68,6 +68,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         CloseReason participantCloseReason;
         if (isTransitioning) {
             lobbyService.markLobbyAsTransitioning(lobbyId);
+            sessionRegistry.clearConnectionId(lobbyId);
             participantCloseReason = new CloseReason(CustomWebsocketCodes.TRANSITIONING.getCode());
         } else {
             lobbyService.markLobbyAsAbandoned(lobbyId);

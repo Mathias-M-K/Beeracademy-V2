@@ -57,7 +57,7 @@ export class LobbyService {
   public readonly participants = this._participants.asReadonly();
 
   private readonly _identity = signal<Identity | undefined>(undefined);
-  public readonly role = computed(()=>this._identity()?.role);
+  public readonly role = computed(() => this._identity()?.role);
   public readonly readableRole = computed(() => {
     switch (this.role()) {
       case Role.PlayerClient :
@@ -68,10 +68,9 @@ export class LobbyService {
         return 'Ukendt'
     }
   })
-  public readonly selfId = computed(()=>this._identity()?.id);
-  public readonly self = computed(()=>this.getParticipant(this.selfId()??''))
+  public readonly selfId = computed(() => this._identity()?.id);
+  public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''))
   public readonly isHost = computed(() => this.role() === Role.GameClient)
-
 
 
   private readonly _chatMessages = new Subject<MessageInfo>()
@@ -84,19 +83,20 @@ export class LobbyService {
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
 
-
   constructor() {
     this.lobbyWebsocket.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
-    this.lobbyWebsocket.gameStarted.subscribe(()=>this.onGameStarted());
+    this.lobbyWebsocket.gameStarted.subscribe(() => this.onGameStarted());
   }
 
   public connectToWebsocket(): void {
     this.lobbyWebsocket.connectToWebsocket();
   }
-  public startGame(): void{
+
+  public startGame(): void {
     this.dispatchLobbyAction(startGameAction())
   }
-  public onGameStarted(){
+
+  public onGameStarted() {
     this.router.navigate(['/game']);
   }
 
@@ -139,6 +139,7 @@ export class LobbyService {
       }
     }
   }
+
   private handleNewMessageEvent(event: LobbyEventEnvelope) {
     const newMessageEvent: NewMessageEvent = event.payload as NewMessageEvent;
 
@@ -163,6 +164,7 @@ export class LobbyService {
 
     this._chatMessages.next(messageInfo)
   }
+
   private handleNewEmojiEvent(event: LobbyEventEnvelope) {
     const newEmojiEvent: NewEmojiEvent = event.payload as NewEmojiEvent;
 
@@ -188,18 +190,22 @@ export class LobbyService {
 
     this._emojiReactions.next(emojiInfo);
   }
+
   private handleNewParticipantEvent(event: LobbyEventEnvelope) {
     const newParticipantEvent: NewParticipantEvent = event.payload as NewParticipantEvent;
     this.addParticipant(newParticipantEvent.participant);
   }
+
   private handleHelloLobbySnapshotEvent(event: LobbyEventEnvelope) {
     const lobbyStateExchangeEvent = event.payload as LobbyStateEvent;
     this.lobbyState$.set(lobbyStateExchangeEvent.lobby)
   }
+
   private handleHelloLobbyIdentityEvent(event: LobbyEventEnvelope) {
     const lobbyIdentityEvent = event.payload as LobbyIdentityEvent;
     this._identity.set(identifyFromEvent(lobbyIdentityEvent));
   }
+
   private handleParticipantSettingsUpdate(event: LobbyEventEnvelope) {
     const updatedSettingsEvent: ParticipantSettingsUpdatedEvent = event.payload as ParticipantSettingsUpdatedEvent;
     this.updateParticipant(updatedSettingsEvent.participantId, {
@@ -210,15 +216,17 @@ export class LobbyService {
 
   //Dispatch action
   public requestParticipantCreation(name: string): void {
-    if(!name.trim()){
+    if (!name.trim()) {
       console.warn("Tried to create participant with blank name");
       return;
     }
     this.dispatchLobbyAction(newPlayerAction(name));
   }
+
   public requestParticipantRemoval(participantId: string): void {
     this.dispatchLobbyAction(removePlayerAction(participantId))
   }
+
   public requestParticipantSettingsUpdate(sipsInABeer: number, canDrawAce: boolean, behalfOf?: string) {
     if (this.isHost()) {
       this.dispatchLobbyAction(changeParticipantSettingsAction(sipsInABeer, canDrawAce, behalfOf));
@@ -227,6 +235,7 @@ export class LobbyService {
     }
 
   }
+
   private dispatchLobbyAction(action: LobbyAction): void {
     if (this.isHost()) {
       this.lobbyWebsocket.send(lobbyClientActionEnvelope(action));
@@ -239,6 +248,7 @@ export class LobbyService {
   public sendMessage(message: string): void {
     this.dispatchLobbyAction(sendMessageAction(message));
   }
+
   public sendEmoji(emoji: Emoji): void {
     this.dispatchLobbyAction(sendEmojiAction(emoji));
   }
@@ -247,6 +257,7 @@ export class LobbyService {
   public addParticipant(newParticipant: LobbyParticipantDTO): void {
     this._participants.update(current => [...current, newParticipant]);
   }
+
   public removeParticipant(participantId: string): void {
     this._participants.update(current => [...current.filter(participant => participant.id !== participantId)]);
   }
@@ -255,6 +266,7 @@ export class LobbyService {
   private getParticipant(participantId: string): LobbyParticipantDTO | undefined {
     return this._participants().find(participant => participant.id === participantId);
   }
+
   private updateParticipant(participantId: string, changes: Partial<LobbyParticipantDTO>) {
     this._participants.update((participants) =>
       participants.map(participant => participant.id === participantId ? {...participant, ...changes} : participant)
