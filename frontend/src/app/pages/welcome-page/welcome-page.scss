@@ -17,3 +17,10 @@ button{
   width: 100%;
   justify-self: center;
 }
+
+@media (max-width: 350px) {
+  .container{
+    width: 95vw;
+  }
+
+}
