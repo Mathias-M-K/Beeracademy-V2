@@ -1,11 +1,13 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {Router} from '@angular/router';
+import {NgxMaskDirective} from 'ngx-mask';
 import {LobbyApi} from '../../services/lobby-api.service';
 
 @Component({
   selector: 'app-welcome-page',
   templateUrl: './welcome-page.html',
   styleUrl: './welcome-page.scss',
+  imports: [NgxMaskDirective],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WelcomePage {
@@ -20,7 +22,8 @@ export class WelcomePage {
   }
 
   public onRegisterParticipant(participantName: string, lobbyId: string): void {
-    this.lobbyService.fetchParticipantToken(lobbyId,participantName).subscribe({
+    const cleanLobbyId = lobbyId.replaceAll('-', '');
+    this.lobbyService.fetchParticipantToken(cleanLobbyId,participantName).subscribe({
       next: () => this.navigateToLobbyPage()
     })
   }

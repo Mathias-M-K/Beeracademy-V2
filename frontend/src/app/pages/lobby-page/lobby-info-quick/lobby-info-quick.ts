@@ -1,9 +1,13 @@
 import {Component, input} from '@angular/core';
+import {NgxMaskPipe} from 'ngx-mask';
 
 @Component({
   selector: 'app-lobby-info-quick',
   templateUrl: './lobby-info-quick.html',
   styleUrl: './lobby-info-quick.scss',
+  imports: [
+    NgxMaskPipe
+  ],
   standalone: true
 })
 export class LobbyInfoQuick {
