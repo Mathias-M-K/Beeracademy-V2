@@ -1,8 +1,8 @@
-<div class="container">
-  <input #lobbyIdInput placeholder="LOBBY ID">
-  <input #participantNameInput placeholder="DELTAGER NAVN">
+
+  <input aria-label="lobby id" #lobbyIdInput placeholder="LOBBY ID">
+  <input aria-label="participant name" #participantNameInput placeholder="DELTAGER NAVN">
   <button (click)="onRegisterParticipant(participantNameInput.value,lobbyIdInput.value)">Deltag</button>
   <div class="horizontal_line"><span>eller</span></div>
-  <input #lobbyNameInput placeholder="LOBBY NAVN">
-  <button (click)="onCreateLobby(lobbyNameInput.value)">Opret en ny lobby</button>
-</div>
+  <input aria-label="lobbyNameInput" #lobbyNameInput placeholder="LOBBY NAVN" (keyup.enter)="onCreateLobby(lobbyNameInput.value)">
+  <button (click)="onCreateLobby(lobbyNameInput.value)" class="btn-secondary">Opret en ny lobby</button>
+

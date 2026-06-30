@@ -1,26 +1,22 @@
 :host{
   display: grid;
-}
-.container{
   justify-self: center;
-  display: inherit;
-  gap: 20px;
+  gap: 15px;
   width: 350px;
 }
 
+input, button{
+  width: 100%;
+  justify-self: center;
+}
 input{
-  width: 100%;
-  justify-self: center;
+  text-align: center;
 }
 
-button{
-  width: 100%;
-  justify-self: center;
-}
 
-@media (max-width: 350px) {
-  .container{
-    width: 95vw;
+@media (max-width: 450px) {
+  :host{
+    width: 80vw;
   }
 
 }

@@ -1,84 +1,102 @@
+@use "colors";
+
 /* You can add global styles to this file, and also import other style files */
-*{
+* {
   box-sizing: border-box;
 }
 
-body{
+:root {
+  --btn-background: var(--primary);
+  --btn-background-hover: var(--primary-hover);
+  --btn-foreground: var(--color-white);
+  --btn-foreground-hover: var(--color-white);
+}
+
+body {
   margin: 0;
   background-color: #ecf0f1;
 }
 
-h1,h2,h3,h4,h5,h6,p, input{
+h1, h2, h3, h4, h5, h6, p, input {
   font-family: "Archivo", sans-serif;
 }
 
-button{
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 20px;
-  padding: 5px 20px;
+button {
+  font-family: "Archivo", sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 10px 20px;
   border-radius: 5px;
 
   width: fit-content;
-  height: 40px;
+  height: fit-content;
 
-  background-color: #b65b1a;
-  color: white;
+  background-color: var(--btn-background);
+  color: var(--btn-foreground);
 
   border: none;
   cursor: pointer;
 
   transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
 }
-button:hover{
-  background-color: #d58955;
 
-  color: white;
+button:hover {
+  background-color: var(--btn-background-hover);
+  color: var(--btn-foreground-hover);
 }
-button:active{
-  background-color: #603315;
+button:active {
+  background-color: color-mix(in oklab, var(--btn-background), black 30%);
 }
+
 .btn-secondary{
-  color: black;
-  background-color: white;
-  border: 1px solid black;
+  --btn-background: var(--color-white);
+  --btn-background-hover: var(--color-black);
+  --btn-foreground: var(--color-black);
+  --btn-foreground-hover: var(--color-white);
+
+  border: 1px solid var(--color-silver);
 }
+
 .btn-warning{
-  color: black;
-  background-color: white;
-  border: 1px solid black;
-}
-.btn-warning:hover{
-  color: black;
-  background-color: orange;
-  border: 1px solid #b65b1a;
+  --btn-background: var(--color-white);
+  --btn-background-hover: var(--color-black);
+  --btn-foreground: var(--color-black);
+  --btn-foreground-hover: var(--color-white);
 }
 
-
-input{
+input {
   border-style: solid;
-  border-color: lightgray;
+  border-color: var(--color-silver);
   border-radius: 5px;
+  border-width: 1px;
 
-  padding: 15px 20px;
+  padding: 25px 10px;
   margin: 0;
+
 
   height: 25px;
 
   font-size: 16px;
 }
-
-.header_subtitle{
-  margin-top: -15px;
-  color: grey;
+input::placeholder {
+  padding: 0;
+  color: var(--color-silver);
+  font-size: 14px;
 }
-.upper_subtitle{
+
+.header_subtitle {
+  margin-top: -15px;
+  color: var(--color-silver);
+}
+
+.upper_subtitle {
   padding: 0;
   margin: 0;
-  color: darkgray;
+  color: var(--color-silver);
 }
 
 .horizontal_line{
-  color: grey;
+  color: var(--color-silver);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -93,7 +111,7 @@ input{
   content: "";
   flex: 1;
   height: 1px;
-  background: lightgray;
+  background: var(--color-silver);
 }
 
 
