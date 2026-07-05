@@ -1,5 +1,5 @@
 import {computed, inject, Injectable, linkedSignal, signal} from '@angular/core';
-import {LobbyWebsocketService} from './lobby-websocket.service';
+import {WebsocketService} from './websocket.service';
 import {LobbyDTO} from '../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from './models/websocket-envelope';
 import {LobbyStateEvent} from './models/categories/events/lobby/common/lobby-state-event';
@@ -45,7 +45,7 @@ import {Router} from '@angular/router';
 export class LobbyService {
 
   private readonly router: Router = inject(Router);
-  private readonly lobbyWebsocket: LobbyWebsocketService = inject(LobbyWebsocketService);
+  private readonly lobbyWebsocket: WebsocketService = inject(WebsocketService);
 
   public readonly websocketConnectionStatus = this.lobbyWebsocket.connectionStatus;
 
@@ -85,11 +85,11 @@ export class LobbyService {
 
   constructor() {
     this.lobbyWebsocket.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
-    this.lobbyWebsocket.gameStarted.subscribe(() => this.onGameStarted());
+    this.lobbyWebsocket.lobbyLeaderStartedTheGame.subscribe(() => this.onGameStarted());
   }
 
   public connectToWebsocket(): void {
-    this.lobbyWebsocket.connectToWebsocket();
+    this.lobbyWebsocket.connectToLobbyWebsocket();
   }
 
   public startGame(): void {

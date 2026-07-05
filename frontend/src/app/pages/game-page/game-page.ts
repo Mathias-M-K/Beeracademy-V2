@@ -10,7 +10,6 @@ import {
   ViewChild,
   WritableSignal
 } from '@angular/core';
-import {WebsocketService} from '../../services/websocket.service';
 import {GameService} from '../../services/game-service/game.service';
 import {PlayerDto} from '../../../api-models/model/playerDto';
 import {Suit} from '../../../api-models/model/suit';
@@ -23,6 +22,8 @@ import {TimerService} from '../../services/timer-service/timer.service';
 import {GameState} from '../../../api-models/model/gameState';
 import {TimerState} from '../../../api-models/model/timerState';
 import {TimerType} from '../../services/timer-service/models/TimerType';
+import {WebsocketService} from '../../services/websocket.service';
+
 
 @Component({
   selector: 'app-game-page',
@@ -54,7 +55,7 @@ export class GamePage implements OnInit, OnDestroy {
   protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 
-  private readonly websocketService: WebsocketService = inject(WebsocketService);
+  private readonly websocketService = inject(WebsocketService);
   private readonly gameService: GameService = inject(GameService);
 
 
@@ -69,12 +70,12 @@ export class GamePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.websocketService.closeConnection();
+    this.websocketService.disconnect();
     this.gameService.resetGameData();
   }
 
   ngOnInit(): void {
-    this.websocketService.connectToWebSocket();
+    this.websocketService.connectToGameWebsocket();
   }
 
   protected startGame() {

@@ -72,5 +72,13 @@ export class LobbyPage implements OnInit {
     this.router.navigate(['/']);
   }
 
+  addUsualSuspects(){
+    this.lobbyService.requestParticipantCreation("Mathias");
+    this.lobbyService.requestParticipantCreation("Lasse");
+    this.lobbyService.requestParticipantCreation("Frederik");
+    this.lobbyService.requestParticipantCreation("Andreas");
+    this.lobbyService.requestParticipantCreation("Jakob");
+  }
+
   protected readonly ConnectionStatus = ConnectionStatus;
 }

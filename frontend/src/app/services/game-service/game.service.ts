@@ -2,7 +2,6 @@ import {Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientEvenEnvelope} from '../models/categories/events/game/game-client-event/game-client-even-envelope';
 import {GameClientConnectedEvent} from '../models/categories/events/game/game-client-event/game-client-connected.event';
-import {WebsocketService} from '../websocket.service';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
 import {PlayerDto} from '../../../api-models/model/playerDto';
@@ -23,6 +22,7 @@ import {ChugEvent} from '../models/categories/events/game/game-event/chug-event'
 import {GameState} from '../../../api-models/model/gameState';
 import {TimeReport} from '../../../api-models/model/timeReport';
 import {GameEndEvent} from '../models/categories/events/game/game-event/game-end-event';
+import {WebsocketService} from '../websocket.service';
 
 @Injectable({
   providedIn: 'root',
@@ -56,9 +56,8 @@ export class GameService {
 
 
   constructor(private readonly websocketService: WebsocketService) {
-    this.websocketService.messages$.subscribe(message => {
-      this.handleEvent(message);
-    });
+    this.websocketService.messages$.subscribe(message => this.handleEvent(message));
+
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
       const state = this.gameStateObj();
       if (!state?.id || !state?.name) {
@@ -77,32 +76,32 @@ export class GameService {
   public dispatchStartGameAction() {
     const startGameAction: StartGameAction = {type: 'START_GAME'};
     const clientActionEnvelope: GameClientActionEnvelope = {payload: startGameAction, category: 'GAME_CLIENT_ACTION'};
-    this.websocketService.sendMessage(clientActionEnvelope);
+    this.websocketService.send(clientActionEnvelope);
   }
 
   public dispatchPauseGameAction() {
     const pauseGameAction: PauseGameAction = {type: 'PAUSE_GAME'};
     const clientActionEnvelope: GameClientActionEnvelope = {payload: pauseGameAction, category: 'GAME_CLIENT_ACTION'};
-    this.websocketService.sendMessage(clientActionEnvelope);
+    this.websocketService.send(clientActionEnvelope);
   }
 
   public dispatchResumeGameAction() {
     const resumeGameAction: ResumeGameAction = {type: 'RESUME_GAME'};
     const clientActionEnvelope: GameClientActionEnvelope = {payload: resumeGameAction, category: 'GAME_CLIENT_ACTION'};
-    this.websocketService.sendMessage(clientActionEnvelope);
+    this.websocketService.send(clientActionEnvelope);
   }
 
   public dispatchDrawCardAction(duration: number) {
     const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: duration}
     const clientActionEnvelope: GameClientActionEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
-    this.websocketService.sendMessage(clientActionEnvelope);
+    this.websocketService.send(clientActionEnvelope);
   }
 
   public dispatchChugAction(chugTimeInMillis: number) {
     const chug: Chug = {suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis};
     const chugAction: ChugAction = {type: 'REGISTER_CHUG', chug}
     const gameClientActionEnvelope: GameClientActionEnvelope = {category: "GAME_CLIENT_ACTION", payload: chugAction};
-    this.websocketService.sendMessage(gameClientActionEnvelope);
+    this.websocketService.send(gameClientActionEnvelope);
   }
 
   public handleEvent(message: WebsocketEnvelope) {
