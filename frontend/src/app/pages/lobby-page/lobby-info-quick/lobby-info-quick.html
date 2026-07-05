@@ -1,2 +1,5 @@
-<p class="header_subtitle">Lobbykode</p>
-<h2>{{ lobbyId() | mask : 'AAA-AAA-AAA' }}</h2>
+<div>
+  <p class="header_subtitle">Lobbykode</p>
+  <h2>{{ lobbyId() | mask : 'AAA-AAA-AAA' }}</h2>
+</div>
+<button class="btn-tertiary" [cdkCopyToClipboard]="lobbyId()">👆</button>

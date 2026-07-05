@@ -25,12 +25,14 @@
   --color-black:        #120e0e;
   --color-silver:       #bdc3c7;
   --color-cloud:        #ecf0f1;
+  --complementary:      #247edc;
 
 
   /* Semantic */
   --primary:        var(--color-coffie-500);
   --primary-hover:  var(--color-coffie-600);
   --primary-text:   var(--color-black);
+  --primary-complementary:   var(--complementary);
   --accent:         var(--color-indigo-500);
   --surface:        var(--color-white);
   --surface-muted:  var(--color-slate-100);

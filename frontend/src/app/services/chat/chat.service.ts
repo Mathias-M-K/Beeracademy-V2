@@ -1,11 +1,11 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {MessageInfo} from './models/message-info';
 import {MessageDirection} from './models/message-direction';
-import {Role} from '../../../api-models/model/role';
 import {Subject} from 'rxjs';
 import {EmojiInfo} from './models/emoji-info';
 import {Emoji} from '../../../api-models/model/emoji';
 import {LobbyService} from '../lobby.service';
+import {EMOJI_DISPLAY} from './models/emoji-display';
 
 @Injectable({
   providedIn: 'root',
@@ -46,8 +46,8 @@ export class ChatService {
   }
 
   public sendEmoji(emoji: Emoji){
-
-    this.lobbyService.sendEmoji(emoji)
+    this.lobbyService.sendEmoji(emoji);
+    this.sendMessage(EMOJI_DISPLAY[emoji]);
 
   }
 

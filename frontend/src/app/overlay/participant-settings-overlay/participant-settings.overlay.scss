@@ -34,13 +34,13 @@ h2{
   justify-content: center;
 }
 
+
+
 @media(max-width: 600px) {
   :host{
+    align-content: start;
     width: 100vw;
-    height: 98vh;
+    height: 100vh;
     border-radius: 0;
-
-
   }
-
 }

@@ -17,6 +17,7 @@ export class Participant {
   readonly participantNameShort = input.required<string>()
   readonly emojiReaction = input.required<EmojiInfo>();
   readonly inLineEditing = input<boolean>(false);
+  readonly compact = input<boolean>(false);
 
   readonly remove = output<string>();
   readonly editSettings = output<LobbyParticipantDTO>()

@@ -13,6 +13,10 @@ input{
   text-align: center;
 }
 
+#lobby-id-input{
+  text-transform: uppercase;
+}
+
 
 @media (max-width: 450px) {
   :host{

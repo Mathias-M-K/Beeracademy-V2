@@ -1,6 +1,7 @@
 :host{
-  display: grid;
+  display: flex;
 
+justify-content: space-between;
   border: 1px solid lightgray;
   border-radius: 10px;
   background-color: white;

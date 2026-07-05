@@ -3,15 +3,28 @@
                        [isActive]="participant().active!"
                        [reaction]="emojiReaction()">
 </app-participant-badge>
+
 <div>
-  <h3>{{participant().name}}</h3>
-  <p class="header_subtitle">{{participant().title}} • {{participant().sipsInABeer}} slurke i en øl • {{participant().canDrawAce ? 'Kan trække es' : 'Kan IKKE trække es'}}</p>
-</div>
+  <h3>{{participant().name}}
+    @if (compact()) {
+      <ng-container>
+        - <span class="compact-title">{{participant().active ? 'Aktiv' : 'Lokal'}}</span>
+      </ng-container>
+
+    }
+  </h3>
+  @let aceText = participant().canDrawAce ? 'Kan trække es' : 'Kan IKKE trække es';
+  @if (compact()) {
+    <p class="header_subtitle">{{participant().title}}<br>{{participant().sipsInABeer}} slurke i en øl<br>{{aceText}}</p>
+  } @else {
+    <p class="header_subtitle">{{participant().title}} • {{participant().sipsInABeer}} slurke i en øl • {{aceText}}</p>
+  }
+  </div>
 
 <div class="btn-row">
   @if (inLineEditing()) {
-    <button class="btn-secondary" (click)="editSettings.emit(participant())">🔧</button>
-    <button class="btn-secondary" (click)="remove.emit(participant().id!)">X</button>
+    <button class="btn-tertiary" (click)="editSettings.emit(participant())">🔧</button>
+    <button class="btn-tertiary" (click)="remove.emit(participant().id!)">X</button>
   }
 </div>
 

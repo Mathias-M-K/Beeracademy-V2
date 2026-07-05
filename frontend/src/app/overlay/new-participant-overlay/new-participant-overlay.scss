@@ -25,3 +25,12 @@ input{
   justify-content: center;
   align-items: center;
 }
+
+@media(max-width: 600px) {
+  :host{
+    align-content: start;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}

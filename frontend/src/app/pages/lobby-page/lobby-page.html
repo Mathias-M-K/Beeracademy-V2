@@ -8,7 +8,7 @@
     <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''"></app-lobby-info-quick>
   </div>
 
-  <div style="grid-area: participant-list" class="left">
+  <div style="grid-area: participant-list" class="participant-list">
     <app-participant-overview
       [participants]="lobbyService.participants()"
       [isLobbyOwner]="lobbyService.isHost()"
@@ -18,12 +18,14 @@
       (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
 
     @if (lobbyService.participants().length > 0) {
-      <button class="start-btn" (click)="lobbyService.startGame()">Start spil • {{lobbyService.participants().length}} Spillere</button>
+      <button class="start-btn" (click)="lobbyService.startGame()">Start spil • {{ lobbyService.participants().length }}
+        Spillere
+      </button>
     }
   </div>
 
-
   <app-chat style="grid-area: chat"></app-chat>
+
 } @else {
   <h2>{{ lobbyService.websocketConnectionStatus() }}</h2>
 }

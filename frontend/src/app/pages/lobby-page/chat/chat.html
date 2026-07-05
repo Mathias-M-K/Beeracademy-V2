@@ -15,6 +15,10 @@
     <div (keydown.enter)="sendEmojiAction(Emoji.Fire)" (click)="sendEmoji(Emoji.Fire)">🔥</div>
     <div (keydown.enter)="sendEmojiAction(Emoji.Skull)" (click)="sendEmoji(Emoji.Skull)">💀</div>
   </div>
-  <input #messageField aria-label="message-field" placeholder="Skriv en besked" (keydown.enter)="sendMessage(messageField)">
+  <div class="msg-input">
+    <input #messageField aria-label="message-field" placeholder="Skriv en besked" (keydown.enter)="sendMessage(messageField)">
+    <button (click)="sendMessage(messageField)">Send</button>
+  </div>
+
 </div>
 

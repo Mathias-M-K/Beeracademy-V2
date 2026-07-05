@@ -1,9 +1,11 @@
 import {Component, computed, inject, input, output, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {LobbyParticipantDTO} from '../../../../api-models/model/lobbyParticipantDTO';
 import {Participant} from './participant/participant';
 import {EmojiInfo} from '../../../services/chat/models/emoji-info';
 import {ChatService} from '../../../services/chat/chat.service';
+import {BreakpointObserver} from '@angular/cdk/layout';
+import {map} from 'rxjs';
 
 @Component({
   selector: 'app-participant-overview',
@@ -16,6 +18,7 @@ import {ChatService} from '../../../services/chat/chat.service';
 })
 export class ParticipantOverview {
 
+  private readonly breakpointObserver: BreakpointObserver = inject(BreakpointObserver);
   private readonly chatService = inject(ChatService);
 
   readonly participants = input<LobbyParticipantDTO[]>([]);
@@ -26,11 +29,21 @@ export class ParticipantOverview {
   readonly openParticipantSettings = output<LobbyParticipantDTO | undefined>()
   readonly disconnect = output<void>();
 
+  protected readonly isCompact = toSignal(
+    this.breakpointObserver
+      .observe('(max-width: 500px)')
+      .pipe(map((result) => result.matches)),
+    { initialValue: false },
+  );
+
   /** Latest reaction keyed by participant id. The targeted entry gets a fresh
    *  object on each event, so only that participant's input changes. */
   protected readonly emojiReactions = signal<Record<string, EmojiInfo>>({});
 
   constructor() {
+    console.log("Heyo")
+
+
     this.chatService.emojis.pipe(takeUntilDestroyed()).subscribe(emojiInfo => {
       this.emojiReactions.update(map => ({...map, [emojiInfo.senderId]: emojiInfo}));
     });

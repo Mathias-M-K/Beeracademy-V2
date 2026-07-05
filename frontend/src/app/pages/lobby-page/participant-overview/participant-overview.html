@@ -1,18 +1,15 @@
-
 <div style="grid-area: header" class="header">
   <h3 style="grid-area: count">Deltagere - {{participants().length}}</h3>
   <div class="buttons" style="grid-area: buttons">
     @if (isLobbyOwner()) {
       <button class="btn-secondary" (click)="addParticipant.emit()">+ Tilføj deltager</button>
-      <button class="btn-warning" (click)="disconnect.emit()">Luk Lobby</button>
+      <button class="btn-tertiary" (click)="disconnect.emit()">Luk Lobby</button>
     } @else {
-      <button class="btn-warning" (click)="disconnect.emit()">Forlad lobby</button>
-      <button class="btn-secondary" (click)="openParticipantSettings.emit(undefined)">🔧</button>
+      <button class="btn-secondary" (click)="disconnect.emit()">Forlad lobby</button>
+      <button class="btn-tertiary" (click)="openParticipantSettings.emit(undefined)">Indstillinger</button>
     }
-
   </div>
-
-  @if (participants().length) {
+  @if (participants().length && !isCompact()) {
     <div style="grid-area: line" class="horizontal_line"></div>
   }
 </div>
@@ -24,6 +21,7 @@
       [participantNameShort]="entry.shortName"
       [emojiReaction]="emojiReactions()[entry.participant.id ?? '']"
       [inLineEditing]="isLobbyOwner()"
+      [compact]="isCompact()"
       (remove)="removeParticipant.emit($event)"
       (editSettings)="openParticipantSettings.emit(entry.participant)">
     </app-participant>
