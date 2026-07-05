@@ -15,6 +15,10 @@ export class WelcomePage {
   private readonly router: Router = inject(Router);
   private readonly lobbyService: LobbyApi = inject(LobbyApi);
 
+  public onTitleClick(){
+    this.router.navigate(['welcome']);
+  }
+
   public onCreateLobby(lobbyName: string): void {
     this.lobbyService.createLobby(lobbyName).subscribe({
       next: () => this.navigateToLobbyPage()

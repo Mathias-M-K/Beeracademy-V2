@@ -10,9 +10,9 @@
   <p class="header_subtitle">Hvor mange slurke tæller for en øl</p>
 </div>
 <div style="grid-area: beer-actions" class="action">
-  <button (click)="decreaseSips()">-</button>
+  <button class="btn-secondary" (click)="decreaseSips()">-</button>
   <h4>{{ sipsInABeer() }}</h4>
-  <button (click)="increaseSips()">+</button>
+  <button class="btn-secondary" (click)="increaseSips()">+</button>
 </div>
 
 
@@ -22,7 +22,7 @@
 </div>
 
 <div style="grid-area: ace-actions" class="action">
-  <button (click)="toggleAce()">{{ canDrawAce() ? 'Ja' : 'Nej' }}</button>
+  <button class="btn-secondary" (click)="toggleAce()">{{ canDrawAce() ? 'Ja' : 'Nej' }}</button>
 </div>
 
 <div class="action_buttons" style="grid-area: action-btn">

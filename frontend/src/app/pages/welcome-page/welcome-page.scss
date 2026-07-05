@@ -1,8 +1,24 @@
 :host{
   display: grid;
   justify-self: center;
+}
+
+.content{
+  display: grid;
+  justify-self: center;
   gap: 15px;
   width: 350px;
+}
+
+#header{
+  font-size: 55px;
+  text-align: center;
+
+  cursor: pointer;
+  user-select: none;
+}
+h1 > span{
+  font-size: 5rem;
 }
 
 input, button{
@@ -19,7 +35,13 @@ input{
 
 
 @media (max-width: 450px) {
-  :host{
+  .content{
     width: 80vw;
+  }
+}
+
+@media (max-width: 750px) {
+  #header > span{
+    font-size: 10vw;
   }
 }

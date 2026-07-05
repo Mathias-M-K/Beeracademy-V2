@@ -9,6 +9,7 @@ import {ParticipantSettingsOverlay} from '../../overlay/participant-settings-ove
 import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
 import {LobbyService} from '../../services/lobby.service';
 import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-participant-overlay';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-lobby-page',
@@ -24,6 +25,7 @@ export class LobbyPage implements OnInit {
 
   public readonly lobbyService = inject(LobbyService)
   private readonly overlayService = inject(OverlayService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.lobbyService.connectToWebsocket();
@@ -64,6 +66,10 @@ export class LobbyPage implements OnInit {
         this.addParticipant(participantName)
       }
     })
+  }
+
+  public goHome(){
+    this.router.navigate(['/']);
   }
 
   protected readonly ConnectionStatus = ConnectionStatus;

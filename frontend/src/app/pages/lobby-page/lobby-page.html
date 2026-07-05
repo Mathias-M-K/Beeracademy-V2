@@ -27,5 +27,9 @@
   <app-chat style="grid-area: chat"></app-chat>
 
 } @else {
-  <h2>{{ lobbyService.websocketConnectionStatus() }}</h2>
+  <div class="connection-scren">
+    <h2>{{ lobbyService.websocketConnectionStatus() }}</h2>
+    <button class="btn-secondary" (click)="goHome()">Tilbage</button>
+  </div>
+
 }

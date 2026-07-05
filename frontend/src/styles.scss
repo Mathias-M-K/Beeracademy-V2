@@ -54,6 +54,7 @@ button:active {
   --btn-background-hover: var(--color-white);
   --btn-foreground: var(--color-white);
   --btn-foreground-hover: var(--color-black);
+  border: 1px solid var(--btn-background);
 }
 
 .btn-tertiary{
