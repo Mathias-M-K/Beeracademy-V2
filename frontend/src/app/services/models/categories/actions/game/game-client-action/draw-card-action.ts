@@ -1,5 +1,9 @@
-import {GameClientAction} from './game-client-action';
+import {GameAction} from '../game-action';
 
-export interface DrawCardAction extends GameClientAction {
+interface DrawCardAction extends GameAction {
   duration: number;
+}
+
+export function drawCardAction(duration: number): DrawCardAction {
+  return {type: 'DRAW_CARD', duration: duration}
 }

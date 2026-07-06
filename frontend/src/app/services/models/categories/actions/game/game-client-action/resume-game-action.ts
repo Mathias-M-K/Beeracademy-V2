@@ -1,3 +1,7 @@
-import {GameClientAction} from './game-client-action';
+import {GameAction} from '../game-action';
 
-export interface ResumeGameAction extends GameClientAction {}
+interface ResumeGameAction extends GameAction {}
+
+export function resumeGameAction(): ResumeGameAction {
+  return {type: 'RESUME_GAME'};
+}

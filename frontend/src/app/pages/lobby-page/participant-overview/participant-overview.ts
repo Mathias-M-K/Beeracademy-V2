@@ -41,9 +41,6 @@ export class ParticipantOverview {
   protected readonly emojiReactions = signal<Record<string, EmojiInfo>>({});
 
   constructor() {
-    console.log("Heyo")
-
-
     this.chatService.emojis.pipe(takeUntilDestroyed()).subscribe(emojiInfo => {
       this.emojiReactions.update(map => ({...map, [emojiInfo.senderId]: emojiInfo}));
     });

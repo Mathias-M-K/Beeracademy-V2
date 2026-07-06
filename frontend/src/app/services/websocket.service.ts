@@ -30,7 +30,7 @@ export class WebsocketService {
   }
 
   private handleClose(closeEvent: CloseEvent): void {
-    this._connectionStatus.set(ConnectionStatus.DISCONNECTED);
+    this.disconnect();
 
     if (closeEvent.code === 4030) {
       this._lobbyLeaderStartedTheGame.next();
@@ -45,6 +45,7 @@ export class WebsocketService {
   }
 
   private connectToWebsocket(url: string) {
+    console.debug("Connecting to Websocket", url);
     this.disconnect();
     this._connectionStatus.set(ConnectionStatus.CONNECTING)
 
@@ -68,11 +69,12 @@ export class WebsocketService {
   }
 
   public send(envelope: WebsocketEnvelope): void {
+    console.debug("Sending envelope", envelope);
     this.websocket?.next(envelope);
   }
 
   public disconnect(): void {
-    this.websocket?.complete();
+    this.websocket?.complete()
     this.websocket = undefined;
     this._connectionStatus.set(ConnectionStatus.DISCONNECTED);
   }

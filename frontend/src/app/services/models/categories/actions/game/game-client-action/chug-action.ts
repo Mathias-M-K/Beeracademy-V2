@@ -1,6 +1,10 @@
-import {GameClientAction} from './game-client-action';
+import {GameAction} from '../game-action';
 import {Chug} from '../../../../../../../api-models/model/chug';
 
-export interface ChugAction extends GameClientAction {
+interface ChugAction extends GameAction {
   chug: Chug;
+}
+
+export function chugAction(chug: Chug): ChugAction {
+  return {type: 'REGISTER_CHUG', chug: chug}
 }

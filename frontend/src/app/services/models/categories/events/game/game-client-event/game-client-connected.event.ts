@@ -1,7 +1,8 @@
-import {GameClientEvent} from './game-client-event';
-import {GameDto} from '../../../../../../../api-models/model/gameDto';
 
-export interface GameClientConnectedEvent extends GameClientEvent {
+import {GameDto} from '../../../../../../../api-models/model/gameDto';
+import {GameEvent} from '../game-event';
+
+export interface GameClientConnectedEvent extends GameEvent {
   game: GameDto;
 
 }

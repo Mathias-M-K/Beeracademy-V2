@@ -1,3 +1,7 @@
-import {GameClientAction} from './game-client-action';
+import {GameAction} from '../game-action';
 
-export interface PauseGameAction extends GameClientAction {}
+interface PauseGameAction extends GameAction {}
+
+export function pauseGameAction(): PauseGameAction {
+  return {type: 'PAUSE_GAME'};
+}

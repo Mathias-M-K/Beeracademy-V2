@@ -19,7 +19,7 @@ import {removePlayerAction} from './models/categories/actions/lobby/lobby-client
 import {ParticipantRemovedEvent} from './models/categories/events/lobby/lobby-client-event/participant-removed-event';
 import {LobbyEventEnvelope} from './models/categories/events/lobby/lobby-event-envelope';
 import {sendMessageAction} from './models/categories/actions/lobby/common/send-message-action';
-import {Subject} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {MessageInfo} from './chat/models/message-info';
 import {NewMessageEvent} from './models/categories/events/lobby/common/new-message-event';
 import {MessageDirection} from './chat/models/message-direction';
@@ -82,9 +82,11 @@ export class LobbyService {
   private readonly _lobbyReset = new Subject<void>()
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
+  private readonly websocketSubscription: Subscription;
+
 
   constructor() {
-    this.lobbyWebsocket.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
+    this.websocketSubscription = this.lobbyWebsocket.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
     this.lobbyWebsocket.lobbyLeaderStartedTheGame.subscribe(() => this.onGameStarted());
   }
 
@@ -97,6 +99,7 @@ export class LobbyService {
   }
 
   public onGameStarted() {
+    this.websocketSubscription.unsubscribe();
     this.router.navigate(['/game']);
   }
 
@@ -110,7 +113,7 @@ export class LobbyService {
       return;
     }
 
-    console.log("Handling message", msg);
+    console.log("Handling event", msg);
 
     const event: LobbyEventEnvelope = msg as LobbyEventEnvelope;
 

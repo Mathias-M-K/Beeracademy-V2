@@ -1,5 +1,11 @@
-import {GameClientAction} from './game-client-action';
+import {GameAction} from '../game-action';
 
-export interface StartGameAction extends GameClientAction {
+interface StartGameAction extends GameAction {
 
 }
+
+export function startGameAction(): StartGameAction {
+  return {type: 'START_GAME'};
+}
+
+

@@ -1,33 +1,36 @@
-import {Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
-import {GameClientEvenEnvelope} from '../models/categories/events/game/game-client-event/game-client-even-envelope';
 import {GameClientConnectedEvent} from '../models/categories/events/game/game-client-event/game-client-connected.event';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
 import {PlayerDto} from '../../../api-models/model/playerDto';
 import {Turn} from '../../../api-models/model/turn';
 import {GameInfo} from './models/game-info';
-import {DrawCardAction} from '../models/categories/actions/game/game-client-action/draw-card-action';
-import {StartGameAction} from '../models/categories/actions/game/game-client-action/start-game-action';
-import {GameClientActionEnvelope} from '../models/categories/actions/game/game-client-action/game-client-action-envelope';
-import {GameEventEnvelope} from '../models/categories/events/game/game-event/game-event-envelope';
+import {drawCardAction} from '../models/categories/actions/game/game-client-action/draw-card-action';
+import {GameEventEnvelope} from '../models/categories/events/game/game-event-envelope';
 import {DrawCardEvent} from '../models/categories/events/game/game-event/draw-card-event';
 import {TimerState} from '../../../api-models/model/timerState';
-import {PauseGameAction} from '../models/categories/actions/game/game-client-action/pause-game-action';
-import {ResumeGameAction} from '../models/categories/actions/game/game-client-action/resume-game-action';
+import {pauseGameAction} from '../models/categories/actions/game/game-client-action/pause-game-action';
+import {resumeGameAction} from '../models/categories/actions/game/game-client-action/resume-game-action';
 import {GamePausedEvent} from '../models/categories/events/game/game-event/game-paused-event';
 import {GameResumedEvent} from '../models/categories/events/game/game-event/game-resumed-event';
-import {ChugAction} from '../models/categories/actions/game/game-client-action/chug-action';
+import {chugAction} from '../models/categories/actions/game/game-client-action/chug-action';
 import {ChugEvent} from '../models/categories/events/game/game-event/chug-event';
 import {GameState} from '../../../api-models/model/gameState';
 import {TimeReport} from '../../../api-models/model/timeReport';
 import {GameEndEvent} from '../models/categories/events/game/game-event/game-end-event';
 import {WebsocketService} from '../websocket.service';
+import {GameAction} from '../models/categories/actions/game/game-action';
+import {startGameAction} from '../models/categories/actions/game/game-client-action/start-game-action';
+import {gameClientActionEnvelope} from '../models/categories/actions/game/game-action-envelope';
 
+//TODO The way the timers work and integrates is weird, or at least I don't understand it
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
+
+  private readonly websocketService = inject(WebsocketService);
 
   private readonly gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
@@ -55,8 +58,8 @@ export class GameService {
   })
 
 
-  constructor(private readonly websocketService: WebsocketService) {
-    this.websocketService.messages$.subscribe(message => this.handleEvent(message));
+  constructor() {
+    this.websocketService.messages$.subscribe(message => this.handleWebsocketMessage(message));
 
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
       const state = this.gameStateObj();
@@ -73,115 +76,124 @@ export class GameService {
     });
   }
 
+  public handleWebsocketMessage(msg: WebsocketEnvelope) {
+
+    const supportedEventCategories: string[] = ['GAME_EVENT', 'GAME_CLIENT_EVENT'];
+
+    if (!supportedEventCategories.includes(msg.category)) {
+      console.error("Can't handle message", msg);
+      return;
+    }
+
+    console.debug("Handling event:", msg);
+
+    const event: GameEventEnvelope = msg as GameEventEnvelope;
+
+    switch (event.payload.type) {
+      case 'CLIENT_CONNECTED' :
+        return this.handleGameClientConnected(event);
+      case 'DRAW_CARD':
+        return this.handleDrawCardEvent(event);
+      case 'CHUG':
+        return this.handleChugEvent(event);
+      case 'GAME_START':
+        return this.handleGameStartEvent();
+      case 'GAME_PAUSED':
+        return this.handleGamePausedEvent(event);
+      case 'GAME_RESUMED':
+        return this.handleGameResumedEvent(event);
+      case 'GAME_END':
+        return this.handleGameEndEvent(event);
+    }
+  }
+
+  /**Handle websocket messages**/
+  private handleGameClientConnected(event: GameEventEnvelope) {
+    const gameClientConnectedEvent = event.payload as GameClientConnectedEvent;
+    this.gameStateObj.set(gameClientConnectedEvent.game);
+  }
+
+  private handleDrawCardEvent(event: GameEventEnvelope) {
+    const drawCardEvent: DrawCardEvent = event.payload as DrawCardEvent;
+
+    const card = drawCardEvent.turn.card;
+    const isChugCard = card?.rank === 14;
+    this.currentCard.set(card);
+
+    const currentPlayerId = isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
+    this.currentPlayer.set(this.getPlayer(currentPlayerId));
+
+    this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
+    this.resetTimer(this.playerTimeReport);
+
+    if (isChugCard) {
+      this.pauseTimer(this.playerTimeReport);
+      this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.nextToDraw));
+    }
+  }
+
+  private handleChugEvent(event: GameEventEnvelope) {
+    const chugEvent: ChugEvent = event.payload as ChugEvent;
+    this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
+    this.currentPlayer.set(this.getPlayer(chugEvent.nextToDraw));
+    this.awaitingChugFromPlayer.set(undefined);
+    this.startTimer(this.playerTimeReport);
+    this.gameState.set(GameState.InProgress);
+  }
+
+  private handleGameStartEvent() {
+    this.startTimer(this.gameTimeReport);
+    this.startTimer(this.playerTimeReport);
+    this.gameState.set(GameState.InProgress);
+  }
+
+  private handleGamePausedEvent(event: GameEventEnvelope) {
+    const gamePausedEvent: GamePausedEvent = event.payload as GamePausedEvent;
+    this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
+    this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
+  }
+
+  private handleGameResumedEvent(event: GameEventEnvelope) {
+    const gameResumedEvent: GameResumedEvent = event.payload as GameResumedEvent;
+    this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
+    this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
+  }
+
+  private handleGameEndEvent(event: GameEventEnvelope) {
+    const gameEndEvent: GameEndEvent = event.payload as GameEndEvent;
+    console.log("Game end!", gameEndEvent);
+    this.gameTimeReport.set(gameEndEvent.timeReports.gameTimeReport);
+    this.playerTimeReport.set(gameEndEvent.timeReports.playerTimeReport);
+    this.endGame();
+  }
+
+
+  /**Dispatch actions**/
+  private dispatchGameAction(action: GameAction) {
+    this.websocketService.send(gameClientActionEnvelope(action));
+  }
+
   public dispatchStartGameAction() {
-    const startGameAction: StartGameAction = {type: 'START_GAME'};
-    const clientActionEnvelope: GameClientActionEnvelope = {payload: startGameAction, category: 'GAME_CLIENT_ACTION'};
-    this.websocketService.send(clientActionEnvelope);
+    this.dispatchGameAction(startGameAction())
   }
 
   public dispatchPauseGameAction() {
-    const pauseGameAction: PauseGameAction = {type: 'PAUSE_GAME'};
-    const clientActionEnvelope: GameClientActionEnvelope = {payload: pauseGameAction, category: 'GAME_CLIENT_ACTION'};
-    this.websocketService.send(clientActionEnvelope);
+    this.dispatchGameAction(pauseGameAction());
   }
 
   public dispatchResumeGameAction() {
-    const resumeGameAction: ResumeGameAction = {type: 'RESUME_GAME'};
-    const clientActionEnvelope: GameClientActionEnvelope = {payload: resumeGameAction, category: 'GAME_CLIENT_ACTION'};
-    this.websocketService.send(clientActionEnvelope);
+    this.dispatchGameAction(resumeGameAction());
   }
 
   public dispatchDrawCardAction(duration: number) {
-    const drawCardAction: DrawCardAction = {type: 'DRAW_CARD', duration: duration}
-    const clientActionEnvelope: GameClientActionEnvelope = {payload: drawCardAction, category: 'GAME_CLIENT_ACTION'}
-    this.websocketService.send(clientActionEnvelope);
+    this.dispatchGameAction(drawCardAction(duration));
   }
 
   public dispatchChugAction(chugTimeInMillis: number) {
     const chug: Chug = {suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis};
-    const chugAction: ChugAction = {type: 'REGISTER_CHUG', chug}
-    const gameClientActionEnvelope: GameClientActionEnvelope = {category: "GAME_CLIENT_ACTION", payload: chugAction};
-    this.websocketService.send(gameClientActionEnvelope);
+    this.dispatchGameAction(chugAction(chug));
   }
 
-  public handleEvent(message: WebsocketEnvelope) {
-    console.log("Websocket Message:", message);
-    switch (message.category) {
-      case 'GAME_CLIENT_EVENT': {
-        const gameClientEvent = message as GameClientEvenEnvelope;
-
-        switch (gameClientEvent.payload.type) {
-          case 'CLIENT_CONNECTED': {
-            const payload: GameClientConnectedEvent = gameClientEvent.payload as GameClientConnectedEvent;
-            this.gameStateObj.set(payload.game);
-            break;
-          }
-        }
-        break;
-      }
-      case 'GAME_EVENT': {
-        const gameEvent: GameEventEnvelope = message as GameEventEnvelope;
-
-        switch (gameEvent.payload.type) {
-          case 'DRAW_CARD': {
-            const drawCardEvent: DrawCardEvent = gameEvent.payload as DrawCardEvent;
-
-            const card = drawCardEvent.turn.card;
-            const isChugCard = card?.rank === 14;
-            this.currentCard.set(card);
-
-            const currentPlayerId = isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
-            this.currentPlayer.set(this.getPlayer(currentPlayerId));
-
-            this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
-            this.resetTimer(this.playerTimeReport);
-
-            if (isChugCard) {
-              this.pauseTimer(this.playerTimeReport);
-              this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.nextToDraw));
-            }
-
-            break;
-          }
-          case 'CHUG' : {
-            const chugEvent: ChugEvent = gameEvent.payload as ChugEvent;
-            this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
-            this.currentPlayer.set(this.getPlayer(chugEvent.nextToDraw));
-            this.awaitingChugFromPlayer.set(undefined);
-            this.startTimer(this.playerTimeReport);
-            this.gameState.set(GameState.InProgress);
-            break;
-          }
-          case 'GAME_START': {
-            this.startTimer(this.gameTimeReport);
-            this.startTimer(this.playerTimeReport);
-            this.gameState.set(GameState.InProgress);
-            break;
-          }
-          case 'GAME_PAUSED' : {
-            const gamePausedEvent: GamePausedEvent = gameEvent.payload as GamePausedEvent;
-            this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
-            this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
-            break
-          }
-          case 'GAME_RESUMED' : {
-            const gameResumedEvent: GameResumedEvent = gameEvent.payload as GameResumedEvent;
-            this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
-            this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
-            break
-          }
-          case 'GAME_END' : {
-            const gameEndEvent: GameEndEvent = gameEvent.payload as GameEndEvent;
-            console.log("Game end!", gameEndEvent);
-            this.gameTimeReport.set(gameEndEvent.timeReports.gameTimeReport);
-            this.playerTimeReport.set(gameEndEvent.timeReports.playerTimeReport);
-            this.endGame();
-            break
-          }
-        }
-      }
-    }
-  }
 
   private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {
     timeReport.update((report) => {
