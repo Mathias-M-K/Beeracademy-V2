@@ -45,10 +45,7 @@
 
 @media(max-width: 1000px) {
   :host {
-    display: grid;
     gap: 10px;
-    justify-self: center;
-
 
     width: 90%;
     grid-template-columns: auto;
