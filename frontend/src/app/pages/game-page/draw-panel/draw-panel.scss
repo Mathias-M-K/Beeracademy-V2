@@ -1,0 +1,21 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr 4fr;
+  gap: 20px;
+  justify-items: baseline;
+  background-color: white;
+  border: 1px solid var(--color-cloud);
+  border-radius: 10px;
+  padding: 30px;
+}
+
+.player-info{
+  width: 100%;
+}
+
+.player-stats{
+  display: flex;
+  gap: 20px;
+}
+
+

@@ -33,7 +33,7 @@ export class OverlayService {
       ]
     });
 
-    overlayRef.backdropClick().subscribe(() => handle.close());
+    // overlayRef.backdropClick().subscribe(() => handle.close());
 
     overlayRef.attach(new ComponentPortal(component, null, injector));
 

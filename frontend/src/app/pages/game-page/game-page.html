@@ -1,71 +1,24 @@
-<div>Connection Status : {{ connectionStatus() }}</div>
 
-<div>GameState:{{gameState()}} - TimerState:{{timerState()}}</div>
+<app-header style="grid-area: header"
+            [gameInfo]="gameInfo()"
+            [gameTime]="formattedGameTime()??0"
+            [timerState]="timerState()??TimerState.NotStarted"
+            (startClick)="startGame()"
+            (pauseClick)="pauseGame()"
+            (resumeClick)="resumeGame()">
+</app-header>
 
-@if (gameState() !== GameState.AwaitingStart) {
-  <div>Game time: {{ formattedGameTime()! | gameTimeFormat: 'HH:mm:ss' }}</div>
-}
+<app-card-count style="grid-area: card-count"></app-card-count>
 
+<app-draw-panel id="draw-panel" style="grid-area: draw-panel"
+                (drawCardClick)="drawCard()"
+                [currentCard]="currentCard()"
+                [currentPlayerTime]="formattedPlayerTime()??0"
+                [currentPlayer]="currentPlayer()">
+</app-draw-panel>
 
-@if (gameInfo(); as game) {
-  <div>{{ game.name }} - {{ game.id | gameId }}</div>
-  <div class="action_buttons">
+<app-podium style="grid-area: podium" [players]="players()"></app-podium>
 
-    @if (gameState() === GameState.AwaitingStart) {
-      <button (click)="startGame()">Start game</button>
-    }
+<app-player-grid style="grid-area: players" [players]="players()"></app-player-grid>
 
-    @if (timerState() === TimerState.Running && (gameState() === GameState.InProgress || gameState() === GameState.AwaitingChug)) {
-      <button (click)="pauseGame()">Pause</button>
-    }
-
-    @if (timerState() == TimerState.Paused && (gameState() === GameState.InProgress || gameState() === GameState.AwaitingChug)) {
-      <button (click)="resumeGame()">Resume</button>
-    }
-
-  </div>
-
-  <div>Current Player: {{ currentPlayer()?.name }}</div>
-  @if (gameState() === GameState.InProgress) {
-    <div>Player time: {{ formattedPlayerTime()! | gameTimeFormat: 'mm:ss.SSS' }}</div>
-  }
-  @if (awaitingChug()) {
-    <div>AWAITING CHUG</div>
-  }
-}
-
-<div class="players">
-  @for (player of players(); track player.id) {
-    <div class="player" [class.active]="player.id === currentPlayer()?.id && (gameState() === GameState.InProgress || gameState() === GameState.AwaitingChug)">
-      <div>Name: {{ player.name }}</div>
-      <div>ID: {{ player.id }}</div>
-
-      <div style="margin-top: 20px">Chugs</div>
-      @for (chug of player.stats?.chugs; track $index) {
-        <div>{{ chug.suit }}-{{ chug.chugTimeMillis }}</div>
-      }
-
-      <div style="margin-top: 20px">Turns</div>
-      @for (turn of player.stats?.turns; track $index) {
-        <div>({{ turn.card?.rank }}-{{ turn.card?.suit }})-{{ turn.round }}-{{ turn.durationInMillis }}</div>
-      }
-    </div>
-  }
-</div>
-
-@if (gameState()){
-  <div class="draw_card_area">
-    <div class="card deck" (click)="drawCard()">Deck</div>
-    <div class="card">{{ currentCard()?.suit }} - {{ currentCard()?.rank }}</div>
-  </div>
-
-  <div>
-    <div>Angiv bunde-tid i millisekunder (1000 = 1 sekund)</div>
-    <input type="number" #chugTime>
-    <button (click)="registerChug()">Send bundetid</button>
-  </div>
-}
-
-
-
-
+<app-beer-bottle></app-beer-bottle>

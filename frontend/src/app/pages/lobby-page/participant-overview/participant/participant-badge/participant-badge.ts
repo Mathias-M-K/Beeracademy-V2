@@ -10,13 +10,18 @@ const EMOJI_HOLD_MS = 2500;
   templateUrl: './participant-badge.html',
   styleUrl: './participant-badge.scss',
   host: {
-    '[class.active]': 'isActive()',
-    '[class.local]': '!isActive()',
+    '[class.active]': 'style() === "active" || "default"',
+    '[class.local]': 'style() === "local"',
+    '[class.small]': 'size() === "s"',
+    '[style.background-color]':'backgroundColor()'
   },
 })
 export class ParticipantBadge implements OnDestroy {
   readonly initials = input<string>('');
-  readonly isActive = input<boolean>(false);
+  readonly style = input<'default'|'active'|'local'>('default');
+
+  readonly size = input<'s' | 'm'>('m');  //small, medium
+  readonly backgroundColor = input<string>('');
 
   /** A new reaction object pushed from the parent triggers the animation. */
   readonly reaction = input<EmojiInfo>();
@@ -29,6 +34,7 @@ export class ParticipantBadge implements OnDestroy {
   private hideTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
+
     effect(() => {
       const reaction = this.reaction();
       if (!reaction) {

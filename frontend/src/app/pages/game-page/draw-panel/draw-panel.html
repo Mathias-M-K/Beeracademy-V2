@@ -1,0 +1,22 @@
+<app-card (keydown)="drawCardClick.emit()" (click)="drawCardClick.emit()" [isBackside]="true"></app-card>
+<app-card [card]="currentCard()"></app-card>
+
+<div class="player-info">
+  <p class="upper_subtitle">Nu trækker</p>
+  <h3>{{currentPlayer()?.name ?? ''}}</h3>
+
+  <div class="horizontal_line"></div>
+  <div class="player-stats">
+    @let lastCard = currentPlayer()?.stats?.turns?.at(-1)?.card;
+    <div>
+      <p class="upper_subtitle">Sidste kort</p>
+
+      <h4>{{lastCard?.rank}} - {{lastCard?.suit}}</h4>
+    </div>
+    <div>
+      <p class="upper_subtitle">Tid</p>
+      <h4>{{currentPlayerTime() | gameTimeFormat: 'mm:ss.SSS'}}</h4>
+    </div>
+  </div>
+
+</div>

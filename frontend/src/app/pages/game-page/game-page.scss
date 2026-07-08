@@ -1,36 +1,58 @@
-:host{
+:host {
+  position: relative;
   display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: auto auto 250px;
+  grid-template-areas:
+  'header header header header'
+  'card-count card-count card-count card-count'
+  'draw-panel draw-panel draw-panel podium'
+  'players players players podium'
+  'old old old old'
+;
+
+  justify-self: center;
+
+  width: 80vw;
+}
+
+.unmigrated-content {
+  display: none;
   height: 100%;
   width: 100%;
+  overflow: hidden;
 
   justify-items: center;
   align-content: flex-start;
   gap: 25px;
 }
 
-.action_buttons{
+
+
+.action_buttons {
   display: flex;
 }
 
-.players{
+.players {
   width: fit-content;
   display: flex;
   gap: 20px;
 }
 
-.player{
+.player {
   background-color: burlywood;
 
   color: white;
   padding: 10px;
   border-radius: 5px;
 }
-.active{
+
+.active {
   background-color: #9c7d52;
 }
 
-
-.draw_card_area{
+.draw_card_area {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,7 +61,8 @@
   height: 300px;
   width: 400px;
 }
-.card{
+
+.card {
   display: flex;
   background-color: grey;
   width: 150px;
@@ -53,8 +76,27 @@
   user-select: none;
 }
 
-.deck{
+.deck {
   box-shadow: 2px 2px 4px #222222;
   cursor: pointer;
   user-select: none;
 }
+
+.testing{
+  position: relative;   // anchors the `fill` image to this box
+  width: 40px;
+  height: 140px;
+  border: 1px solid var(--color-silver);
+}
+
+
+
+.testing-two{
+  background-color: #4caf50;
+
+  mask: url("/beer-bottle.png") center / contain no-repeat;
+  position: relative;   // anchors the `fill` image to this box
+  width: 30px;
+  border: 1px solid var(--color-silver);
+}
+

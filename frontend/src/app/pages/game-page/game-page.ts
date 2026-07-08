@@ -2,39 +2,49 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef,
-  inject,
+  ElementRef, inject,
   OnDestroy,
   OnInit,
   Signal,
   ViewChild,
   WritableSignal
 } from '@angular/core';
-import {GameService} from '../../services/game-service/game.service';
+import {GameService} from '../../services/game/game.service';
 import {PlayerDto} from '../../../api-models/model/playerDto';
-import {Suit} from '../../../api-models/model/suit';
-import {Turn} from '../../../api-models/model/turn';
 import {Card} from '../../../api-models/model/card';
-import {GameInfo} from '../../services/game-service/models/game-info';
-import {GameIdPipe} from '../../pipes/game-id-pipe';
-import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
+import {GameInfo} from '../../services/game/models/game-info';
 import {TimerService} from '../../services/timer-service/timer.service';
 import {GameState} from '../../../api-models/model/gameState';
 import {TimerState} from '../../../api-models/model/timerState';
 import {TimerType} from '../../services/timer-service/models/TimerType';
 import {WebsocketService} from '../../services/websocket.service';
+import {Header} from './header/header';
+import {CardCount} from './card-count/card-count';
+import {DrawPanel} from './draw-panel/draw-panel';
+import {PodiumComponent} from './podium/podium.component';
+import {PlayerGrid} from './player-grid/player-grid';
+import {NgOptimizedImage} from '@angular/common';
+import {BeerBottle} from '../../common/beer-bottle/beer-bottle';
 
 
 @Component({
   selector: 'app-game-page',
   imports: [
-    GameIdPipe,
-    GameTimeFormatPipe
+    Header,
+    CardCount,
+    DrawPanel,
+    PodiumComponent,
+    PlayerGrid,
+    NgOptimizedImage,
+    BeerBottle
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keyup.space)': 'drawCard()',
+  },
 })
 export class GamePage implements OnInit, OnDestroy {
 
@@ -94,39 +104,5 @@ export class GamePage implements OnInit, OnDestroy {
     this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
   }
 
-
-  protected addTurn() {
-    const players = this.players();
-    if (players.length === 0) {
-      console.warn("Cannot add chug: No players found in state.");
-      return;
-    }
-
-    const card: Card = {
-      suit: Suit.Circle,
-      rank: 10
-    }
-
-    const turn: Turn = {
-      round: 1,
-      card: card,
-      durationInMillis: 1500
-    }
-    const id: string | undefined = players[0].id;
-
-    if (!id) {
-      console.warn("Cannot add chug: Player ID is missing.");
-      return;
-    }
-
-    this.gameService.addTurnToPlayer(turn, id);
-
-  }
-
-  protected registerChug() {
-    this.gameService.dispatchChugAction(this.chugTimeField.nativeElement.value);
-  }
-
-  protected readonly GameState = GameState;
   protected readonly TimerState = TimerState;
 }

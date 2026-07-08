@@ -1,5 +1,5 @@
 <h3>{{ initials() }}</h3>
-@if (isActive()){
+@if (style() === 'active'){
   <div class="active-indicator"></div>
 }
 <div class="emoji-clip" [class.emoji-active]="showEmoji()">

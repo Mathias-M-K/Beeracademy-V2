@@ -1,6 +1,6 @@
 <app-participant-badge class="badge"
                        [initials]="participantNameShort()"
-                       [isActive]="participant().active!"
+                       [style]="participant().active ? 'active' : 'local'"
                        [reaction]="emojiReaction()">
 </app-participant-badge>
 

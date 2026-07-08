@@ -1,7 +1,7 @@
 import {computed, inject, Injectable, Signal} from '@angular/core';
 import {interval} from 'rxjs';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {GameService} from '../game-service/game.service';
+import {GameService} from '../game/game.service';
 import {TimerState} from '../../../api-models/model/timerState';
 import {TimerType} from './models/TimerType';
 import {Timer} from './models/Timer';
@@ -12,10 +12,10 @@ import {TimeReport} from '../../../api-models/model/timeReport';
   providedIn: 'root',
 })
 export class TimerService {
-  private gameService: GameService = inject(GameService);
-  private tick = toSignal(interval(31));
+  private readonly gameService: GameService = inject(GameService);
+  private readonly tick = toSignal(interval(31));
 
-  private timers: Map<TimerType, Timer> = new Map<TimerType, Timer>();
+  private readonly timers: Map<TimerType, Timer> = new Map<TimerType, Timer>();
 
   public getTimer(timer: TimerType) : Timer {
 
@@ -67,11 +67,6 @@ export class TimerService {
       serverReportedActiveTime: serverReportedActiveTime
     };
   }
-
-
-
-
-
 
 
   // private lastestServerTime = computed(()=>this.gameService.timeReports()?.gameTimeReport?.activeTime);

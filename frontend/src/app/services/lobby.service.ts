@@ -45,9 +45,9 @@ import {Router} from '@angular/router';
 export class LobbyService {
 
   private readonly router: Router = inject(Router);
-  private readonly lobbyWebsocket: WebsocketService = inject(WebsocketService);
+  private readonly websocketService: WebsocketService = inject(WebsocketService);
 
-  public readonly websocketConnectionStatus = this.lobbyWebsocket.connectionStatus;
+  public readonly websocketConnectionStatus = this.websocketService.connectionStatus;
 
   private readonly lobbyState$ = signal<LobbyDTO | undefined>(undefined);
 
@@ -86,12 +86,12 @@ export class LobbyService {
 
 
   constructor() {
-    this.websocketSubscription = this.lobbyWebsocket.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
-    this.lobbyWebsocket.lobbyLeaderStartedTheGame.subscribe(() => this.onGameStarted());
+    this.websocketSubscription = this.websocketService.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
+    this.websocketService.lobbyLeaderStartedTheGame.subscribe(() => this.onGameStarted());
   }
 
   public connectToWebsocket(): void {
-    this.lobbyWebsocket.connectToLobbyWebsocket();
+    this.websocketService.connectToLobbyWebsocket();
   }
 
   public startGame(): void {
@@ -241,9 +241,9 @@ export class LobbyService {
 
   private dispatchLobbyAction(action: LobbyAction): void {
     if (this.isHost()) {
-      this.lobbyWebsocket.send(lobbyClientActionEnvelope(action));
+      this.websocketService.send(lobbyClientActionEnvelope(action));
     } else {
-      this.lobbyWebsocket.send(lobbyParticipantActionEnvelope(action));
+      this.websocketService.send(lobbyParticipantActionEnvelope(action));
     }
   }
 
@@ -278,6 +278,6 @@ export class LobbyService {
 
   //Disconnect
   public leaveLobby() {
-    this.lobbyWebsocket.disconnect();
+    this.websocketService.disconnect();
   }
 }

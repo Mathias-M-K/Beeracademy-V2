@@ -1,0 +1,39 @@
+:host{
+  display: grid;
+  grid-template-columns:repeat(auto-fit,minmax(100px, 1fr));
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+button{
+  height: 40px;
+  justify-self: end;
+}
+.btn-icon{
+  width: 40px;
+}
+
+#left{
+  display: grid;
+  grid-template-columns:repeat(3,auto);
+  align-items: inherit;
+  justify-content: start;
+  gap: inherit;
+}
+
+#center{
+  display: grid;
+  align-items: inherit;
+  justify-content: center;
+  gap: inherit;
+}
+
+#right{
+  display: grid;
+  grid-template-columns:repeat(3,auto);
+  align-items: inherit;
+  justify-content: end;
+  gap: inherit;
+}
+

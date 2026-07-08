@@ -1,0 +1,14 @@
+:host{
+  $width:30px;
+
+  position: relative;
+  background-color: #4caf50;
+  -webkit-mask: url("/beer-bottle.png") center / contain no-repeat;
+  aspect-ratio: 4;
+
+  width: $width;
+  height: $width*4;
+  border: 1px solid var(--color-silver);
+
+  //border: 1px solid slateblue;
+}

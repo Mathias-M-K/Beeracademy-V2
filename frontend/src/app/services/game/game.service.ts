@@ -1,4 +1,4 @@
-import {inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {effect, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientConnectedEvent} from '../models/categories/events/game/game-client-event/game-client-connected.event';
 import {GameDto} from '../../../api-models/model/gameDto';
@@ -23,14 +23,17 @@ import {WebsocketService} from '../websocket.service';
 import {GameAction} from '../models/categories/actions/game/game-action';
 import {startGameAction} from '../models/categories/actions/game/game-client-action/start-game-action';
 import {gameClientActionEnvelope} from '../models/categories/actions/game/game-action-envelope';
+import {OverlayService} from '../overlay/overlay.service';
+import {ChugOverlay} from '../../overlay/chug-overlay/chug-overlay';
 
-//TODO The way the timers work and integrates is weird, or at least I don't understand it
+//TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
 
   private readonly websocketService = inject(WebsocketService);
+  private readonly overlayService = inject(OverlayService);
 
   private readonly gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
@@ -59,6 +62,12 @@ export class GameService {
 
 
   constructor() {
+    effect(() => {
+      if (this.gameState() === GameState.AwaitingChug){
+        this.initiateChug();
+      }
+    });
+
     this.websocketService.messages$.subscribe(message => this.handleWebsocketMessage(message));
 
     this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
@@ -127,9 +136,15 @@ export class GameService {
     this.resetTimer(this.playerTimeReport);
 
     if (isChugCard) {
-      this.pauseTimer(this.playerTimeReport);
-      this.awaitingChugFromPlayer.set(this.getPlayer(drawCardEvent.nextToDraw));
+      this.gameState.set(GameState.AwaitingChug);
     }
+  }
+
+  private initiateChug(){
+    this.pauseTimer(this.playerTimeReport);
+    this.awaitingChugFromPlayer.set(this.currentPlayer());
+    this.overlayService.openOverlay<ChugOverlay, PlayerDto, number>(ChugOverlay,this.currentPlayer())
+      .closed.then((chugTime) => {this.dispatchChugAction(chugTime??0)})
   }
 
   private handleChugEvent(event: GameEventEnvelope) {
@@ -193,6 +208,7 @@ export class GameService {
     const chug: Chug = {suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis};
     this.dispatchGameAction(chugAction(chug));
   }
+
 
 
   private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {

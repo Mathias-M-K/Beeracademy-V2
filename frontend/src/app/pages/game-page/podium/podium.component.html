@@ -1,0 +1,25 @@
+<h3>Podiet - hurtigste bunde-tider</h3>
+
+<div class="columns">
+  @for (participant of topThreePlayers(); track participant.id){
+      <div>
+          <app-participant-badge
+            [initials]="participant?.name?.substring(0,1)??''" size="s"
+            backgroundColor=""></app-participant-badge>
+          <p>{{ participant.name }}</p>
+          <div class="podium-shape"><h2>{{$index+1}}</h2></div>
+        </div>
+  }
+</div>
+
+<div>
+  <div class="horizontal_line"></div>
+  <p class="upper_subtitle">Seneste</p>
+  @for (chug of chugTimes(); track $index){
+    <div class="chug-time">
+      <div style="grid-area: color-dot" class="dot"></div>
+      <p style="grid-area: text">{{chug.name}} - {{chug.chugTimeMillis}}ms - {{chug.suit}}</p>
+      <div class="horizontal_line" style="grid-area: divider"></div>
+    </div>
+  }
+</div>
