@@ -2,11 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef, inject,
+  inject,
   OnDestroy,
   OnInit,
   Signal,
-  ViewChild,
   WritableSignal
 } from '@angular/core';
 import {GameService} from '../../services/game/game.service';
@@ -23,7 +22,6 @@ import {CardCount} from './card-count/card-count';
 import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
-import {NgOptimizedImage} from '@angular/common';
 import {BeerBottle} from '../../common/beer-bottle/beer-bottle';
 
 
@@ -35,7 +33,6 @@ import {BeerBottle} from '../../common/beer-bottle/beer-bottle';
     DrawPanel,
     PodiumComponent,
     PlayerGrid,
-    NgOptimizedImage,
     BeerBottle
   ],
   templateUrl: './game-page.html',
@@ -47,9 +44,6 @@ import {BeerBottle} from '../../common/beer-bottle/beer-bottle';
   },
 })
 export class GamePage implements OnInit, OnDestroy {
-
-  @ViewChild("chugTime")
-  private readonly chugTimeField!: ElementRef;
 
   protected connectionStatus = computed(() => this.websocketService.connectionStatus());
   protected players: Signal<PlayerDto[]>;
