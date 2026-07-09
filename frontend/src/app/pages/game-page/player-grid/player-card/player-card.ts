@@ -1,11 +1,13 @@
 import {Component, computed, effect, input, Signal} from '@angular/core';
 import {PlayerDto} from '../../../../../api-models/model/playerDto';
 import {NgOptimizedImage} from '@angular/common';
+import {BeerBottle} from '../../../../common/beer-bottle/beer-bottle';
 
 @Component({
   selector: 'app-player-card',
   imports: [
-    NgOptimizedImage
+    NgOptimizedImage,
+    BeerBottle
   ],
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
@@ -26,6 +28,10 @@ export class PlayerCard {
   readonly sipsLeftInBeer = computed(() =>{
     if (this.totalSips() === 0) return 0;
     return (this.player().sipsInABeer??0) - (this.totalSips() % (this.player().sipsInABeer ?? 0));
+  })
+
+  readonly sipsLeftInBeerAsPercentage = computed(()=>{
+    return this.sipsLeftInBeer() / (this.player().sipsInABeer??0) * 100;
   })
 
   readonly lastCard = computed(() => {
