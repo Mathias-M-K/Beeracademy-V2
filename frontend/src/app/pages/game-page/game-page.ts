@@ -22,7 +22,6 @@ import {CardCount} from './card-count/card-count';
 import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
-import {BeerBottle} from '../../common/beer-bottle/beer-bottle';
 
 
 @Component({
@@ -32,8 +31,7 @@ import {BeerBottle} from '../../common/beer-bottle/beer-bottle';
     CardCount,
     DrawPanel,
     PodiumComponent,
-    PlayerGrid,
-    BeerBottle
+    PlayerGrid
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',

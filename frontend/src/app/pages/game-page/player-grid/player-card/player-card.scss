@@ -8,6 +8,7 @@
   padding: 10px;
 
   background-color: white;
+  user-select: none;
 }
 
 #header{
@@ -30,6 +31,7 @@
 .beer-rack{
   display: flex;
   gap: 5px;
+  overflow: hidden;
 }
 
 .player-stats{
@@ -53,8 +55,20 @@ h1,h3{
   font-size: 14px;
 }
 
-.beer{
+.consumed-beer-container{
   width: 10px;
+  animation: beer-fly-in 0.75s cubic-bezier(0.38, 1.21, 0.22, 1.00) backwards;
+}
+
+@keyframes beer-fly-in {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .beer-indicator{

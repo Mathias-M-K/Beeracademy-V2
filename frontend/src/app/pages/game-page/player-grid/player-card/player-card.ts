@@ -1,12 +1,10 @@
 import {Component, computed, effect, input, Signal} from '@angular/core';
 import {PlayerDto} from '../../../../../api-models/model/playerDto';
-import {NgOptimizedImage} from '@angular/common';
 import {BeerBottle} from '../../../../common/beer-bottle/beer-bottle';
 
 @Component({
   selector: 'app-player-card',
   imports: [
-    NgOptimizedImage,
     BeerBottle
   ],
   templateUrl: './player-card.html',
