@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {NgxMaskPipe} from 'ngx-mask';
 import {CdkCopyToClipboard} from '@angular/cdk/clipboard';
 import {MaterialIcon} from '../../../common/material-icon/material-icon';
@@ -15,6 +15,9 @@ import {MaterialIcon} from '../../../common/material-icon/material-icon';
   standalone: true
 })
 export class LobbyInfoQuick {
+
+  readonly qrBtnClick = output<void>()
+
   readonly lobbyId = input<string>('-');
 
 }

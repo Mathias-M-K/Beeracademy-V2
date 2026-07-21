@@ -1,50 +1,50 @@
 import {ApplicationRef, computed, inject, Injectable, linkedSignal, signal} from '@angular/core';
-import {WebsocketService} from './websocket.service';
-import {LobbyDTO} from '../../api-models/model/lobbyDTO';
-import {WebsocketEnvelope} from './models/websocket-envelope';
-import {LobbyStateEvent} from './models/categories/events/lobby/common/lobby-state-event';
-import {Role} from '../../api-models/model/role';
-import {LobbyIdentityEvent} from './models/categories/events/lobby/common/lobby-identity-event';
-import {newPlayerAction} from './models/categories/actions/lobby/lobby-client-action/new-player-action';
-import {LobbyAction} from './models/categories/actions/lobby/lobby-action';
+import {WebsocketService} from '../websocket.service';
+import {LobbyDTO} from '../../../api-models/model/lobbyDTO';
+import {WebsocketEnvelope} from '../models/websocket-envelope';
+import {LobbyStateEvent} from '../models/categories/events/lobby/common/lobby-state-event';
+import {Role} from '../../../api-models/model/role';
+import {LobbyIdentityEvent} from '../models/categories/events/lobby/common/lobby-identity-event';
+import {newPlayerAction} from '../models/categories/actions/lobby/lobby-client-action/new-player-action';
+import {LobbyAction} from '../models/categories/actions/lobby/lobby-action';
 import {
   lobbyClientActionEnvelope,
   lobbyParticipantActionEnvelope
-} from './models/categories/actions/lobby/lobby-action-envelope';
-import {NewParticipantEvent} from './models/categories/events/lobby/common/new-participant-event';
+} from '../models/categories/actions/lobby/lobby-action-envelope';
+import {NewParticipantEvent} from '../models/categories/events/lobby/common/new-participant-event';
 import {
   ParticipantDisconnectedEvent
-} from './models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
-import {removePlayerAction} from './models/categories/actions/lobby/lobby-client-action/remove-player-action';
-import {ParticipantRemovedEvent} from './models/categories/events/lobby/lobby-client-event/participant-removed-event';
-import {LobbyEventEnvelope} from './models/categories/events/lobby/lobby-event-envelope';
-import {sendMessageAction} from './models/categories/actions/lobby/common/send-message-action';
+} from '../models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
+import {removePlayerAction} from '../models/categories/actions/lobby/lobby-client-action/remove-player-action';
+import {ParticipantRemovedEvent} from '../models/categories/events/lobby/lobby-client-event/participant-removed-event';
+import {LobbyEventEnvelope} from '../models/categories/events/lobby/lobby-event-envelope';
+import {sendMessageAction} from '../models/categories/actions/lobby/common/send-message-action';
 import {Subject, Subscription} from 'rxjs';
-import {MessageInfo} from './chat/models/message-info';
-import {NewMessageEvent} from './models/categories/events/lobby/common/new-message-event';
-import {MessageDirection} from './chat/models/message-direction';
-import {LobbyParticipantDTO} from '../../api-models/model/lobbyParticipantDTO';
-import {Emoji} from '../../api-models/model/emoji';
-import {sendEmojiAction} from './models/categories/actions/lobby/common/send-emoji-action';
-import {EmojiInfo} from './chat/models/emoji-info';
-import {EMOJI_DISPLAY} from './chat/models/emoji-display';
-import {NewEmojiEvent} from './models/categories/events/lobby/common/new-emoji.event';
+import {MessageInfo} from '../chat/models/message-info';
+import {NewMessageEvent} from '../models/categories/events/lobby/common/new-message-event';
+import {MessageDirection} from '../chat/models/message-direction';
+import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
+import {Emoji} from '../../../api-models/model/emoji';
+import {sendEmojiAction} from '../models/categories/actions/lobby/common/send-emoji-action';
+import {EmojiInfo} from '../chat/models/emoji-info';
+import {EMOJI_DISPLAY} from '../chat/models/emoji-display';
+import {NewEmojiEvent} from '../models/categories/events/lobby/common/new-emoji.event';
 import {
   changeParticipantSettingsAction
-} from './models/categories/actions/lobby/common/update-participant-settings-action';
+} from '../models/categories/actions/lobby/common/update-participant-settings-action';
 import {
   ParticipantSettingsUpdatedEvent
-} from './models/categories/events/lobby/common/participant-settings-updated-event';
-import {identifyFromEvent, Identity} from './models/identity';
-import {startGameAction} from './models/categories/actions/lobby/lobby-client-action/start-game-action';
+} from '../models/categories/events/lobby/common/participant-settings-updated-event';
+import {identifyFromEvent, Identity} from '../models/identity';
+import {startGameAction} from '../models/categories/actions/lobby/lobby-client-action/start-game-action';
 import {Router} from '@angular/router';
-import {ParticipantPosition} from '../../api-models/model/participantPosition';
+import {ParticipantPosition} from '../../../api-models/model/participantPosition';
 import {
   rearrangeParticipantAction
-} from './models/categories/actions/lobby/lobby-client-action/rearrange-participant-action';
+} from '../models/categories/actions/lobby/lobby-client-action/rearrange-participant-action';
 import {
   ParticipantsRearrangedEvent
-} from './models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
+} from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
 
 @Injectable({
   providedIn: 'root',

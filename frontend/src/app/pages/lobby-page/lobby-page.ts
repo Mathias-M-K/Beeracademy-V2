@@ -7,9 +7,11 @@ import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO
 import {OverlayService} from '../../services/overlay/overlay.service';
 import {ParticipantSettingsOverlay} from '../../overlay/participant-settings-overlay/participant-settings.overlay';
 import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
-import {LobbyService} from '../../services/lobby.service';
+import {LobbyService} from '../../services/lobby/lobby.service';
 import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-participant-overlay';
 import {Router} from '@angular/router';
+import {QrCodeOverlay} from '../../overlay/qr-code-overlay/qr-code-overlay';
+import {LobbyJoinData} from '../../services/lobby/models/lobby-join-data';
 
 @Component({
   selector: 'app-lobby-page',
@@ -63,6 +65,12 @@ export class LobbyPage implements OnInit {
       }
       this.lobbyService.requestParticipantSettingsUpdate(result.sipsInABeer, result.canDrawAce, actualParticipant.id);
     })
+  }
+
+  showQrCode(){
+    console.log(document.baseURI);
+    const joinData: LobbyJoinData = {joinLink: document.baseURI, lobbyId: this.lobbyService.lobbyId()??'Ukendt'}
+    this.overlayService.openOverlay<QrCodeOverlay, LobbyJoinData, void>(QrCodeOverlay, joinData);
   }
 
   openNewParticipantOverlay(): void {

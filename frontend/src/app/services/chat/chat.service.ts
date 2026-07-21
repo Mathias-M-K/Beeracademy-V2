@@ -4,7 +4,7 @@ import {MessageDirection} from './models/message-direction';
 import {Subject} from 'rxjs';
 import {EmojiInfo} from './models/emoji-info';
 import {Emoji} from '../../../api-models/model/emoji';
-import {LobbyService} from '../lobby.service';
+import {LobbyService} from '../lobby/lobby.service';
 import {EMOJI_DISPLAY} from './models/emoji-display';
 
 @Injectable({

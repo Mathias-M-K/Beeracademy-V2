@@ -5,7 +5,7 @@
       <p class="header_subtitle">Du er {{ lobbyService.readableRole() }}</p>
     </div>
 
-    <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''"></app-lobby-info-quick>
+    <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''" (qrBtnClick)="showQrCode()"></app-lobby-info-quick>
   </div>
 
   <div style="grid-area: participant-list" class="participant-list">
