@@ -1,0 +1,14 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // Inherit the surrounding text colour so icons match their context.
+  color: currentColor;
+  line-height: 1;
+}
+
+.material-symbols-outlined {
+  // Keep the glyph optically aligned with adjacent text.
+  display: block;
+  user-select: none;
+}

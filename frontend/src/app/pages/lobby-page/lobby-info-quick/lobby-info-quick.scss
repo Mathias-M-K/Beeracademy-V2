@@ -1,17 +1,26 @@
-:host{
-  display: flex;
+:host {
+  display: grid;
+  grid-template-areas:
+    'header copy-btn'
+    'id copy-btn';
 
-justify-content: space-between;
+  align-items: center;
+  justify-content: space-between;
   border: 1px solid lightgray;
   border-radius: 10px;
   background-color: white;
 
+  column-gap: 10px;
+
   height: fit-content;
   padding: 10px;
-
 }
 
-h2, p{
+h2, p {
   margin: 0;
   box-sizing: content-box;
+}
+
+button {
+  padding: 2px 5px;
 }

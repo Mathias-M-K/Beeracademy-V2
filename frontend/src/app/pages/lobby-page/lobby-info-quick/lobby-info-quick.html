@@ -1,5 +1,8 @@
-<div>
-  <p class="header_subtitle">Lobbykode</p>
-  <h2>{{ lobbyId() | mask : 'AAA-AAA-AAA' }}</h2>
-</div>
-<button class="btn-tertiary" [cdkCopyToClipboard]="lobbyId()">👆</button>
+<p class="header_subtitle" style="grid-area: header">Lobbykode</p>
+
+
+<h2 style="grid-area: id">{{ lobbyId() | mask : 'AAA-AAA-AAA' }}</h2>
+
+<button style="grid-area: copy-btn" class="btn-tertiary" [cdkCopyToClipboard]="lobbyId()">
+  <material-icon icon="content_copy"></material-icon>
+</button>
