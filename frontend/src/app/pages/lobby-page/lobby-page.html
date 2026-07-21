@@ -10,11 +10,12 @@
 
   <div style="grid-area: participant-list" class="participant-list">
     <app-participant-overview
-      [participants]="lobbyService.participants()"
+      [participants]="this.participants()"
       [isLobbyOwner]="lobbyService.isHost()"
       (addParticipant)="openNewParticipantOverlay()"
       (removeParticipant)="onRemoveParticipant($event)"
       (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
+      (participantsRearranged)="onParticipantsRearranged($event)"
       (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
 
     @if (lobbyService.participants().length > 0) {

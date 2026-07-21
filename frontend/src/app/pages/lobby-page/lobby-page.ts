@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, linkedSignal, OnInit} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {ConnectionStatus} from '../../services/models/connection-status';
@@ -27,6 +27,8 @@ export class LobbyPage implements OnInit {
   private readonly overlayService = inject(OverlayService);
   private readonly router = inject(Router);
 
+  readonly participants = linkedSignal(() => this.lobbyService.participants());
+
   ngOnInit(): void {
     this.lobbyService.connectToWebsocket();
   }
@@ -37,6 +39,10 @@ export class LobbyPage implements OnInit {
 
   onRemoveParticipant(participantId: string) {
     this.lobbyService.requestParticipantRemoval(participantId);
+  }
+
+  onParticipantsRearranged(reorderedParticipantList: LobbyParticipantDTO[]): void {
+    this.lobbyService.requestParticipantsRearranged(reorderedParticipantList);
   }
 
   openEditParticipantSettingsOverlay(participant: LobbyParticipantDTO | undefined): void {
@@ -68,11 +74,11 @@ export class LobbyPage implements OnInit {
     })
   }
 
-  public goHome(){
+  public goHome() {
     this.router.navigate(['/']);
   }
 
-  addUsualSuspects(){
+  addUsualSuspects() {
     this.lobbyService.requestParticipantCreation("Mathias");
     this.lobbyService.requestParticipantCreation("Lasse");
     this.lobbyService.requestParticipantCreation("Frederik");

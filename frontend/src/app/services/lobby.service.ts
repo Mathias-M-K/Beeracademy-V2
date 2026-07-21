@@ -38,6 +38,10 @@ import {
 import {identifyFromEvent, Identity} from './models/identity';
 import {startGameAction} from './models/categories/actions/lobby/lobby-client-action/start-game-action';
 import {Router} from '@angular/router';
+import {ParticipantPosition} from '../../api-models/model/participantPosition';
+import {
+  rearrangeParticipantAction
+} from './models/categories/actions/lobby/lobby-client-action/rearrange-participant-action';
 
 @Injectable({
   providedIn: 'root',
@@ -113,7 +117,7 @@ export class LobbyService {
       return;
     }
 
-    console.log("Handling event", msg);
+    console.debug("Handling event", msg);
 
     const event: LobbyEventEnvelope = msg as LobbyEventEnvelope;
 
@@ -139,6 +143,10 @@ export class LobbyService {
       }
       case "SETTINGS_UPDATED" : {
         return this.handleParticipantSettingsUpdate(event);
+      }
+      case "PARTICIPANTS_REARRANGED": {
+        console.log("Folks have been rearranged");
+        break;
       }
     }
   }
@@ -236,6 +244,18 @@ export class LobbyService {
     } else {
       this.dispatchLobbyAction(changeParticipantSettingsAction(sipsInABeer, canDrawAce));
     }
+
+  }
+
+  public requestParticipantsRearranged(newParticipantList: LobbyParticipantDTO[]): void {
+
+    const newParticipantPositions: ParticipantPosition[] = [];
+
+    newParticipantList.forEach((participant: LobbyParticipantDTO, index) => {
+      newParticipantPositions.push({participantId: participant.id, newPosition: index})
+    });
+
+    this.dispatchLobbyAction(rearrangeParticipantAction(newParticipantPositions));
 
   }
 

@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, output, signal} from '@angular/core';
+import {ApplicationRef, Component, computed, inject, input, linkedSignal, output, signal} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {LobbyParticipantDTO} from '../../../../api-models/model/lobbyParticipantDTO';
 import {Participant} from './participant/participant';
@@ -6,13 +6,16 @@ import {EmojiInfo} from '../../../services/chat/models/emoji-info';
 import {ChatService} from '../../../services/chat/chat.service';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {map} from 'rxjs';
+import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-participant-overview',
   templateUrl: './participant-overview.html',
   styleUrl: './participant-overview.scss',
   imports: [
-    Participant
+    Participant,
+    CdkDropList,
+    CdkDrag
   ],
   standalone: true
 })
@@ -20,6 +23,7 @@ export class ParticipantOverview {
 
   private readonly breakpointObserver: BreakpointObserver = inject(BreakpointObserver);
   private readonly chatService = inject(ChatService);
+  private readonly appRef = inject(ApplicationRef);
 
   readonly participants = input<LobbyParticipantDTO[]>([]);
   readonly isLobbyOwner = input<boolean>(false);
@@ -28,6 +32,7 @@ export class ParticipantOverview {
   readonly removeParticipant = output<string>();
   readonly openParticipantSettings = output<LobbyParticipantDTO | undefined>()
   readonly disconnect = output<void>();
+  readonly participantsRearranged = output<LobbyParticipantDTO[]>()
 
   protected readonly isCompact = toSignal(
     this.breakpointObserver
@@ -46,9 +51,11 @@ export class ParticipantOverview {
     });
   }
 
+  protected readonly orderedParticipants = linkedSignal(() => this.participants());
+
   readonly participantsWithShortName = computed(() => {
     const counts = new Map<string, number>();
-    return this.participants().map(participant => {
+    return this.orderedParticipants().map(participant => {
       const base = (participant.name ?? '').substring(0, 3).toUpperCase();
       const count = counts.get(base) ?? 0;
       counts.set(base, count + 1);
@@ -57,4 +64,15 @@ export class ParticipantOverview {
     });
   });
 
+  onDrop(data: CdkDragDrop<unknown>){
+    this.orderedParticipants.update(participants => {
+      const reordered = [...participants];
+      moveItemInArray(reordered, data.previousIndex, data.currentIndex);
+
+      this.participantsRearranged.emit(reordered);
+      return reordered;
+    });
+
+    this.appRef.tick();
+  }
 }

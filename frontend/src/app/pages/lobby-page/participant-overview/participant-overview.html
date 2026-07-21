@@ -14,9 +14,12 @@
   }
 </div>
 
-<div class="participants" style="grid-area: participants">
+<div cdkDropList (cdkDropListDropped)="onDrop($event)" class="participants" style="grid-area: participants">
   @for (entry of participantsWithShortName(); track entry.participant.id){
     <app-participant
+      class="participant"
+      cdkDrag
+      cdkDragBoundary=".participants"
       [participant]="entry.participant"
       [participantNameShort]="entry.shortName"
       [emojiReaction]="emojiReactions()[entry.participant.id ?? '']"
