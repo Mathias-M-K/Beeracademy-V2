@@ -2,13 +2,15 @@ import {Component, input, output} from '@angular/core';
 import {LobbyParticipantDTO} from '../../../../../api-models/model/lobbyParticipantDTO';
 import {ParticipantBadge} from './participant-badge/participant-badge';
 import {EmojiInfo} from '../../../../services/chat/models/emoji-info';
+import {MaterialIcon} from '../../../../common/material-icon/material-icon';
 
 @Component({
   selector: 'app-participant',
   templateUrl: './participant.html',
   styleUrl: './participant.scss',
   imports: [
-    ParticipantBadge
+    ParticipantBadge,
+    MaterialIcon
   ]
 })
 export class Participant {

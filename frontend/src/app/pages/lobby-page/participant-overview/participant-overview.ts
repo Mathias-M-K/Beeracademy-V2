@@ -7,6 +7,7 @@ import {ChatService} from '../../../services/chat/chat.service';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {map} from 'rxjs';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
+import {MaterialIcon} from '../../../common/material-icon/material-icon';
 
 @Component({
   selector: 'app-participant-overview',
@@ -15,7 +16,8 @@ import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/d
   imports: [
     Participant,
     CdkDropList,
-    CdkDrag
+    CdkDrag,
+    MaterialIcon
   ],
   standalone: true
 })

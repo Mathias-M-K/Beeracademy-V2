@@ -2,10 +2,19 @@
   <h3 style="grid-area: count">Deltagere - {{participants().length}}</h3>
   <div class="buttons" style="grid-area: buttons">
     @if (isLobbyOwner()) {
-      <button class="btn-secondary" (click)="addParticipant.emit()">+ Tilføj deltager</button>
-      <button class="btn-tertiary" (click)="disconnect.emit()">Luk Lobby</button>
+      <button class="btn-tertiary" (click)="addParticipant.emit()">
+        <material-icon icon="person_add"></material-icon>
+        Tilføj deltager
+      </button>
+      <button class="btn-tertiary" (click)="disconnect.emit()">
+        <material-icon icon="exit_to_app"></material-icon>
+        Luk Lobby
+      </button>
     } @else {
-      <button class="btn-secondary" (click)="disconnect.emit()">Forlad lobby</button>
+      <button class="btn-tertiary" (click)="disconnect.emit()">
+        <material-icon icon="exit_to_app"></material-icon>
+        Forlad lobby
+      </button>
       <button class="btn-tertiary" (click)="openParticipantSettings.emit(undefined)">Indstillinger</button>
     }
   </div>

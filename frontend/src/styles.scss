@@ -22,15 +22,23 @@ h1, h2, h3, h4, h5, h6, p, input {
 }
 
 button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   font-family: "Archivo", sans-serif;
   font-weight: bold;
   font-size: 16px;
-  padding: 10px 20px;
+
+  --btn-padding: 10px;
+  padding: var(--btn-padding);
+
   border-radius: 5px;
   white-space: nowrap;
 
   width: fit-content;
-  height: fit-content;
+  min-width: 40px;
+  height: 40px;
 
   background-color: var(--btn-background);
   color: var(--btn-foreground);
@@ -40,7 +48,15 @@ button {
   cursor: pointer;
 
   transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
+  column-gap: 5px;
 }
+button > material-icon{
+  margin: calc(var(--btn-padding) * -1) 0;
+}
+.btn-icon > material-icon{
+  margin: calc(var(--btn-padding) * -1);
+}
+
 
 button:hover {
   background-color: var(--btn-background-hover);
