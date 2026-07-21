@@ -1,7 +1,10 @@
 package dk.mathiaskofod.api.lobby.models.dto;
 
 import dk.mathiaskofod.services.lobby.models.Lobby;
+import java.util.Comparator;
 import java.util.List;
+
+import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "Data transfer object representing a game lobby and its participants")
@@ -18,6 +21,7 @@ public record LobbyDTO(
     public static LobbyDTO fromLobby(Lobby lobby) {
 
         List<LobbyParticipantDTO> participantDtos = lobby.getParticipants().stream()
+                .sorted(Comparator.comparingInt(LobbyParticipant::getPosition))
                 .map(LobbyParticipantDTO::fromLobbyParticipant)
                 .toList();
 

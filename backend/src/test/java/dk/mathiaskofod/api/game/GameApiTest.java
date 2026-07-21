@@ -22,9 +22,9 @@ class GameApiTest {
     GameService gameService;
 
     /**
-     * Creates a game directly via {@link GameService} (no session registered), mirroring what the
-     * old {@code POST /api/games} endpoint did. A game created this way is unclaimed, so the
-     * claim-game/claim-player endpoints can be exercised.
+     * Creates a game directly via {@link GameService} (no session registered), mirroring what the old {@code POST
+     * /api/games} endpoint did. A game created this way is unclaimed, so the claim-game/claim-player endpoints can be
+     * exercised.
      *
      * @return the generated game ID
      */

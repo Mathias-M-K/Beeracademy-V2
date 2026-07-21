@@ -107,7 +107,10 @@ public class LobbyApi {
     @APIResponse(
             responseCode = "200",
             description = "Player registered successfully. Returns registered player details and sets a JWT cookie.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = RegisterPlayerResponse.class)),
+            content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RegisterPlayerResponse.class)),
             headers = {
                 @Header(
                         name = "Set-Cookie",
@@ -129,7 +132,7 @@ public class LobbyApi {
 
     @GET
     @Path("/role")
-    public RoleDTO getRole(){
+    public RoleDTO getRole() {
         return new RoleDTO(new TokenInfo(jsonWebToken).getRole());
     }
 }

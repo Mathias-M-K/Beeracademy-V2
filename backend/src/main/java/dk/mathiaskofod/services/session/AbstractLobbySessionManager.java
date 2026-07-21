@@ -8,11 +8,8 @@ import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.common.SettingsUpdatedEvent;
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.repository.Session;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
@@ -48,6 +45,4 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
             sendMessage(lobbyClientSession.getSessionId(), envelope);
         }
     }
-
-
 }

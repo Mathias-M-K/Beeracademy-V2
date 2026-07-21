@@ -14,13 +14,13 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Unifies Game state ({@link GameService}) with Session info ({@link SessionRegistry}) — the two
- * independent sources of truth the API needs together.
+ * Unifies Game state ({@link GameService}) with Session info ({@link SessionRegistry}) — the two independent sources of
+ * truth the API needs together.
  *
- * <p>Owns both the read-models (assembling {@link GameDto}/{@link PlayerDto} with session data) and
- * the session-claim commands. {@link GameService} stays a pure command/domain service with no
- * session knowledge; this is the layer that joins the two. JWT minting stays in the API layer
- * ({@code GameApi}), mirroring the {@code LobbyApi}/{@code LobbyService} split.
+ * <p>Owns both the read-models (assembling {@link GameDto}/{@link PlayerDto} with session data) and the session-claim
+ * commands. {@link GameService} stays a pure command/domain service with no session knowledge; this is the layer that
+ * joins the two. JWT minting stays in the API layer ({@code GameApi}), mirroring the
+ * {@code LobbyApi}/{@code LobbyService} split.
  */
 @Slf4j
 @ApplicationScoped
@@ -36,10 +36,8 @@ public class GameSessionService {
 
         Game game = gameService.getGame(gameId);
 
-        SessionDto gameSession = sessionRegistry
-                .getSession(gameId)
-                .map(SessionDto::create)
-                .orElseGet(SessionDto::createEmpty);
+        SessionDto gameSession =
+                sessionRegistry.getSession(gameId).map(SessionDto::create).orElseGet(SessionDto::createEmpty);
 
         List<PlayerDto> playerDtos = assemblePlayers(game);
 

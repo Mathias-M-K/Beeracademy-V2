@@ -5,10 +5,10 @@ import dk.mathiaskofod.api.lobby.models.dto.LobbyParticipantDTO;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.models.Emoji;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
-import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
-import dk.mathiaskofod.services.session.actions.lobby.participant.LobbyParticipantAction;
 import dk.mathiaskofod.services.session.actions.lobby.common.SendEmojiAction;
 import dk.mathiaskofod.services.session.actions.lobby.common.SendMessageAction;
+import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
+import dk.mathiaskofod.services.session.actions.lobby.participant.LobbyParticipantAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
@@ -22,9 +22,8 @@ import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j
@@ -42,8 +41,8 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
                 lobbyId,
                 websocketConnectionId);
 
-        LobbyParticipant lobbyParticipant = lobbyService.registerParticipant(
-                lobbyId, tokenInfo.getName(), participantId, true);
+        LobbyParticipant lobbyParticipant =
+                lobbyService.registerParticipant(lobbyId, tokenInfo.getName(), participantId, true);
 
         Session participantSession = new Session(participantId, websocketConnectionId);
         sessionRegistry.registerSession(participantSession);
@@ -110,18 +109,19 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
         switch (action) {
             case SendEmojiAction(Emoji emoji) -> {
                 EmojiSentEvent event = new EmojiSentEvent(playerId, emoji);
-                broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event),List.of(playerId));
+                broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
             }
             case SendMessageAction(String clientMessage) -> {
                 MessageSentEvent event = new MessageSentEvent(playerId, clientMessage);
                 broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
             }
             case UpdateSettingsAction updateSettingsAction ->
-                    applyAndBroadcastSettings(lobbyId, playerId, updateSettingsAction);
-            default -> log.warn(
-                    "Received unknown action from lobby participant with player id: {}. Action: {}",
-                    playerId,
-                    action);
+                applyAndBroadcastSettings(lobbyId, playerId, updateSettingsAction);
+            default ->
+                log.warn(
+                        "Received unknown action from lobby participant with player id: {}. Action: {}",
+                        playerId,
+                        action);
         }
     }
 }

@@ -20,7 +20,9 @@ public record LobbyParticipantDTO(
         @Schema(description = "Whether the participant is allowed to draw an ace", examples = "true")
         boolean canDrawAce,
 
-        @Schema(description = "An active participant created when a person connects. Non-active participant is client created")
+        @Schema(
+                description =
+                        "An active participant created when a person connects. Non-active participant is client created")
         boolean active) {
 
     public static LobbyParticipantDTO fromLobbyParticipant(LobbyParticipant participant) {

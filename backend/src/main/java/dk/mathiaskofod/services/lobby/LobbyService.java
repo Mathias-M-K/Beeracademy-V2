@@ -7,6 +7,7 @@ import dk.mathiaskofod.services.lobby.exceptions.LobbyNotEmptyException;
 import dk.mathiaskofod.services.lobby.models.Lobby;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.lobby.repository.LobbyRepository;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -75,7 +76,9 @@ public class LobbyService {
     }
 
     public LobbyParticipant registerParticipant(String lobbyId, String name, String id, boolean active) {
-        LobbyParticipant newLobbyParticipant = new LobbyParticipant(name, "Funny title", id, active);
+        int participantPosition = getLobby(lobbyId).getParticipants().size();
+        LobbyParticipant newLobbyParticipant =
+                new LobbyParticipant(name, "Funny title", id, active, participantPosition);
         getLobby(lobbyId).addParticipant(newLobbyParticipant);
         return newLobbyParticipant;
     }
@@ -88,9 +91,17 @@ public class LobbyService {
 
         if (isEmpty && lobby.isAbandoned()) {
             deleteLobby(lobbyId, false);
-        }else if (isEmpty && lobby.isTransitioning()) {
+        } else if (isEmpty && lobby.isTransitioning()) {
             deleteLobby(lobbyId, true);
         }
+    }
+
+    public void changeParticipantPosition(String lobbyId, String participantId, int newPosition) {
+        getLobby(lobbyId)
+                .getParticipant(participantId)
+                .orElseThrow(() -> new CannotIdentifyPlayer(
+                        "Participant ID: " + participantId + ", didn't match any participants", 400))
+                .setPosition(newPosition);
     }
 
     public void createGame(String lobbyId) {
@@ -101,5 +112,4 @@ public class LobbyService {
 
         gameService.createGame(lobby.getName(), lobbyId, players);
     }
-
 }

@@ -7,8 +7,8 @@ import dk.mathiaskofod.services.session.models.annotations.EventType;
 
 /**
  * Event fired when a device joins, and in turn received the current lobby state
+ *
  * @param lobby lobby state
  */
 @EventType("HELLO_LOBBY_SNAPSHOT")
-public record LobbySnapshotEvent(LobbyDTO lobby) implements LobbyParticipantEvent, LobbyClientEvent {
-}
+public record LobbySnapshotEvent(LobbyDTO lobby) implements LobbyParticipantEvent, LobbyClientEvent {}
