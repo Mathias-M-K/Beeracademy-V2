@@ -18,8 +18,10 @@
       (participantsRearranged)="onParticipantsRearranged($event)"
       (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
 
-    @if (lobbyService.participants().length > 0) {
-      <button class="start-btn" (click)="lobbyService.startGame()">Start spil • {{ lobbyService.participants().length }}
+    @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
+      <button
+        class="start-btn"
+        (click)="lobbyService.startGame()" [style.view-transition-name]="'start-btn'">Start spil • {{ lobbyService.participants().length }}
         Spillere
       </button>
     }

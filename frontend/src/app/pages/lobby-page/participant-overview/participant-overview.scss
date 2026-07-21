@@ -29,7 +29,6 @@
   gap: 5px;
 
   user-select: none;
-  cursor: grab;
 }
 
 @media (min-width: 500px) {
@@ -58,13 +57,13 @@
   }
 }
 
-.participant:active {
-  cursor: grabbing;
-}
-
 .participants.cdk-drop-list-dragging,
 .participants.cdk-drop-list-dragging .participant {
   cursor: grabbing;
+}
+
+.cdk-drag:not(.cdk-drag-disabled){
+  cursor: grab;
 }
 
 .cdk-drag-placeholder {

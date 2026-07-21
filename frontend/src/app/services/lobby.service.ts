@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, linkedSignal, signal} from '@angular/core';
+import {ApplicationRef, computed, inject, Injectable, linkedSignal, signal} from '@angular/core';
 import {WebsocketService} from './websocket.service';
 import {LobbyDTO} from '../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from './models/websocket-envelope';
@@ -42,12 +42,16 @@ import {ParticipantPosition} from '../../api-models/model/participantPosition';
 import {
   rearrangeParticipantAction
 } from './models/categories/actions/lobby/lobby-client-action/rearrange-participant-action';
+import {
+  ParticipantsRearrangedEvent
+} from './models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LobbyService {
 
+  private readonly appRef = inject(ApplicationRef);
   private readonly router: Router = inject(Router);
   private readonly websocketService: WebsocketService = inject(WebsocketService);
 
@@ -145,8 +149,7 @@ export class LobbyService {
         return this.handleParticipantSettingsUpdate(event);
       }
       case "PARTICIPANTS_REARRANGED": {
-        console.log("Folks have been rearranged");
-        break;
+        return this.handleParticipantRearranged(event);
       }
     }
   }
@@ -225,6 +228,31 @@ export class LobbyService {
     });
   }
 
+  private handleParticipantRearranged(event: LobbyEventEnvelope) {
+    const participantsRearrangedEvent = event.payload as ParticipantsRearrangedEvent;
+
+    this.animateStateChange(() =>
+      this._participants.set(participantsRearrangedEvent.participants),
+    );
+  }
+
+  /**
+   * Applies a state change inside a view transition so the affected list
+   * animates into its new layout. Falls back to a plain update when the
+   * browser lacks the View Transitions API. The `appRef.tick()` flushes the
+   * DOM synchronously (zoneless) so the transition captures the new state.
+   */
+  private animateStateChange(update: () => void): void {
+    if (!document.startViewTransition) {
+      update();
+      return;
+    }
+    document.startViewTransition(() => {
+      update();
+      this.appRef.tick();
+    });
+  }
+
   //Dispatch action
   public requestParticipantCreation(name: string): void {
     if (!name.trim()) {
@@ -282,7 +310,9 @@ export class LobbyService {
   }
 
   public removeParticipant(participantId: string): void {
-    this._participants.update(current => [...current.filter(participant => participant.id !== participantId)]);
+    this.animateStateChange(() =>
+      this._participants.update(current => current.filter(participant => participant.id !== participantId)),
+    );
   }
 
   //Helper
