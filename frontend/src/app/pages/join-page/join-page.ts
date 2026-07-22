@@ -36,6 +36,7 @@ export class JoinPage {
   constructor() {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => this.getLobbyInfo(params['lobby-id']));
     this.overlayService.openOverlay<BeerLoaderOverlay,void,void>(BeerLoaderOverlay);
+
   }
 
   private getLobbyInfo(lobbyId: string){

@@ -1,10 +1,19 @@
 $area: 200px;
 $lift: 55px;
+$rust: #dc8224;
 
 :host {
-  position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 
+
+}
+
+// Positioning context for the bounce: the beer, its shadow and the glow ring.
+.stage {
+  position: relative;
   width: $area;
   // Extra room above the beer for the bounce.
   height: $area + $lift;
@@ -27,11 +36,12 @@ $lift: 55px;
 
   background-color: white;
   border-radius: 50%;
+  border: 1px solid #f3ecec;
 
   // Squash pivots on the bottom so it presses into the "ground".
   transform-origin: center bottom;
 
-  animation: hover .8s infinite;
+  animation: hover 0.8s infinite;
 }
 
 // A real ground shadow: pinned to the floor, it only scales and fades —
@@ -53,7 +63,39 @@ $lift: 55px;
 
   transform: translateX(-50%);
 
-  animation: shadow-pulse .8s infinite;
+  animation: shadow-pulse 0.8s infinite;
+}
+
+.status {
+  margin: 0;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+
+// Classic three-dot loader, pulsing in sequence.
+.dots {
+  display: flex;
+  gap: 10px;
+}
+
+.dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $rust;
+  opacity: 0.35;
+
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}
+
+.dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dots span:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
 @keyframes hover {
@@ -88,9 +130,23 @@ $lift: 55px;
   }
 }
 
+@keyframes dot-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .beer,
-  .shadow {
+  .shadow,
+  .dots span {
     animation: none;
   }
 }

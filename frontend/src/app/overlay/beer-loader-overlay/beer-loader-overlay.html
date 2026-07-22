@@ -1,4 +1,15 @@
-<div class="beer">
-  <material-icon class="glyph a" icon="sports_bar" [size]="150" [style.color]="'#DC8224FF'"></material-icon>
+<div class="stage">
+  <div class="beer">
+    <material-icon class="glyph a" icon="sports_bar" [size]="150" [style.color]="'#DC8224FF'"></material-icon>
+  </div>
+
+  <div class="shadow" aria-hidden="true"></div>
 </div>
-<div class="shadow" aria-hidden="true"></div>
+
+<p class="status" aria-live="polite">{{ statusText() }}</p>
+
+<div class="dots" aria-hidden="true">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
