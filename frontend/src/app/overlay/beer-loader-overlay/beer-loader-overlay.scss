@@ -1,33 +1,96 @@
 $area: 200px;
+$lift: 55px;
 
 :host {
+  position: relative;
+  display: block;
+
+  width: $area;
+  // Extra room above the beer for the bounce.
+  height: $area + $lift;
+}
+
+.beer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  box-sizing: border-box;
+
   display: flex;
   justify-content: center;
   align-items: center;
 
   padding: 20px;
-
-  background-color: white;
   width: $area;
   height: $area;
 
+  background-color: white;
   border-radius: 50%;
 
-  animation: hover 1.5s ease-in-out infinite;
+  // Squash pivots on the bottom so it presses into the "ground".
+  transform-origin: center bottom;
+
+  animation: hover .8s infinite;
+}
+
+// A real ground shadow: pinned to the floor, it only scales and fades —
+// it never rises with the beer, which is what sells the height.
+.shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+
+  width: $area * 0.8;
+  height: 26px;
+  border-radius: 50%;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0) 70%
+  );
+
+  transform: translateX(-50%);
+
+  animation: shadow-pulse .8s infinite;
 }
 
 @keyframes hover {
   0%,
   100% {
-    transform: translateY(0);
+    // Grounded: squashed wide + short.
+    transform: translateY(0) scale(1.06, 0.94);
+    // Rise: quick lift-off that eases into a hang at the top.
+    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
   }
   50% {
-    transform: translateY(-50px);
+    // Peak: stretched tall + narrow.
+    transform: translateY(-$lift) scale(0.97, 1.03);
+    // Fall: accelerate downward under "gravity".
+    animation-timing-function: cubic-bezier(0.8, 0, 0.7, 1);
+  }
+}
+
+@keyframes shadow-pulse {
+  0%,
+  100% {
+    // Beer grounded: shadow large and dark.
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  50% {
+    // Beer at the peak: shadow small and faint.
+    transform: translateX(-50%) scale(0.55);
+    opacity: 0.4;
+    animation-timing-function: cubic-bezier(0.8, 0, 0.7, 1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :host {
+  .beer,
+  .shadow {
     animation: none;
   }
 }
