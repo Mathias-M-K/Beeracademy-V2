@@ -4,6 +4,7 @@ import {ConfigService} from '../../config.service';
 import {CreateLobbyResponse} from '../../api-models/model/createLobbyResponse';
 import {Observable} from 'rxjs';
 import {RegisterPlayerResponse} from '../../api-models/model/registerPlayerResponse';
+import {LobbyDTO} from '../../api-models/model/lobbyDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -24,13 +25,17 @@ export class LobbyApi {
     return this.httpClient.post<CreateLobbyResponse>(this.apiUrl + '/lobbies', null, requestOptions);
   }
 
-  public fetchParticipantToken(lobbyId: string, participantName: string): Observable<RegisterPlayerResponse>{
+  public getLobby(lobbyId: string): Observable<LobbyDTO> {
+    return this.httpClient.get<LobbyDTO>(this.apiUrl + '/lobbies/' + lobbyId);
+  }
+
+  public fetchParticipantToken(lobbyId: string, participantName: string): Observable<RegisterPlayerResponse> {
     const requestOptions = {
       params: new HttpParams().set('participantName', participantName),
       withCredentials: true
     };
 
-    return this.httpClient.post<RegisterPlayerResponse>(this.apiUrl + `/lobbies/${lobbyId}/register`,null,requestOptions);
+    return this.httpClient.post<RegisterPlayerResponse>(this.apiUrl + `/lobbies/${lobbyId}/register`, null, requestOptions);
   }
 
 }

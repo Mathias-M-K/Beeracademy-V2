@@ -10,6 +10,8 @@
   --btn-background-hover: var(--primary-hover);
   --btn-foreground: var(--color-white);
   --btn-foreground-hover: var(--color-white);
+
+  --font: "Archivo", sans-serif;
 }
 
 body {
@@ -49,6 +51,10 @@ button {
 
   transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
   column-gap: 5px;
+}
+button:disabled{
+  pointer-events: none;
+  opacity: 0.7;
 }
 button > material-icon{
   margin: calc(var(--btn-padding) * -1) 0;

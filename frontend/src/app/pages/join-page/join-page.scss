@@ -1,0 +1,77 @@
+:host {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 100vh;
+}
+
+.content {
+  display: inherit;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 400px;
+}
+
+.content > div {
+  display: inherit;
+  flex-direction: inherit;
+  justify-content: inherit;
+  align-items: inherit;
+
+}
+
+.content > div:nth-child(2) {
+  gap: 5px;
+  margin: 20px;
+}
+.content > div:nth-child(3) {
+  gap: 15px;
+  align-items: start;
+}
+
+.content:hover {
+  border: none;
+}
+
+#input{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+h2, h1 {
+  display: flex;
+  margin: 0;
+}
+
+h1 > div:nth-child(2) {
+  color: var(--primary);
+}
+
+input, button, div {
+  width: 100%;
+}
+
+
+span {
+  font-family: var(--font), serif;
+  font-size: 12px;
+  color: var(--color-silver);
+}
+
+@media (max-width: 500px) {
+
+  :host{
+    margin-top: 30px;
+    justify-content: start;
+  }
+  .content{
+    width: 95vw;
+  }
+
+}
