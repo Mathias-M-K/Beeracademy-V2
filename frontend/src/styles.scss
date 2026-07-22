@@ -49,12 +49,13 @@ button {
   user-select: none;
   cursor: pointer;
 
-  transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
+  transition: background-color 0.200s ease;
   column-gap: 5px;
 }
 button:disabled{
+  background-color: var(--primary-disabled);
   pointer-events: none;
-  opacity: 0.7;
+  color: var(--primary-disabled-text);
 }
 button > material-icon{
   margin: calc(var(--btn-padding) * -1) 0;

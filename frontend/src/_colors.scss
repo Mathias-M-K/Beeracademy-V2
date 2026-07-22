@@ -25,6 +25,8 @@
   --color-black:        #120e0e;
   --color-silver:       #808c95;
   --color-cloud:        #ecf0f1;
+  --color-grey-500:     #c9c9c9;
+  --color-grey-600:     #8f8f8f;
   --complementary:      #247edc;
 
 
@@ -32,7 +34,9 @@
   --primary:        var(--color-coffie-500);
   --primary-hover:  var(--color-coffie-600);
   --primary-text:   var(--color-black);
-  --primary-complementary:   var(--complementary);
+  --primary-complementary:  var(--complementary);
+  --primary-disabled:       var(--color-grey-500);
+  --primary-disabled-text:  var(--color-grey-600);
   --accent:         var(--color-indigo-500);
   --surface:        var(--color-white);
   --surface-muted:  var(--color-slate-100);

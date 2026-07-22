@@ -1,8 +1,8 @@
 <div class="content">
-  <h1>
+  <h2>
     <div>BEER</div>
     <div>ACADEMY</div>
-  </h1>
+  </h2>
 
   <div>
     <span>Du er ved at deltage i</span>
@@ -13,10 +13,16 @@
 
   <div>
     <div id="input">
-      <span>dit navn</span>
-      <input placeholder="fx. Anders" [value]="participantName()" (input)="participantName.set($any($event.target).value)" aria-label="participant name">
+      <label for="participant-name">dit navn</label>
+      <input
+        id="participant-name"
+        [formField]="nameForm.participantName"
+        (keyup.enter)="getParticipantToken(nameModel().participantName)"
+        placeholder="fx. Anders"
+        autocomplete="new-password"
+        data-dashlane-disabled-on-field="true">
     </div>
-    <button (click)="getParticipantToken(participantName())" [disabled]="!nameOk()">Deltag</button>
+    <button (click)="getParticipantToken(nameModel().participantName)" [disabled]="nameForm().invalid()">Deltag</button>
   </div>
 
 </div>
