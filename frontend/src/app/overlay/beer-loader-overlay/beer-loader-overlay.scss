@@ -7,8 +7,18 @@ $rust: #dc8224;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+}
 
+// Exit animation, triggered by the OverlayHandle before disposal.
+:host(.leaving) {
+  animation: leave 0.3s ease-in forwards;
+}
 
+@keyframes leave {
+  to {
+    opacity: 0;
+    transform: translateY(-50dvh) scale(0.9);
+  }
 }
 
 // Positioning context for the bounce: the beer, its shadow and the glow ring.

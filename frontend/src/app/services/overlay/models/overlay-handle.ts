@@ -12,11 +12,12 @@ export const OVERLAY_DATA = new InjectionToken<unknown>('OVERLAY_DATA');
  */
 export class OverlayHandle<R = unknown> {
 
-  /** Resolves once, with the result (or undefined if cancelled). */
+  /** Resolves once the overlay is fully gone, with the result (or undefined). */
   readonly closed: Promise<R | undefined>;
 
   private resolveClosed!: (result: R | undefined) => void;
   private isClosed = false;
+  private leave?: () => Promise<void>;
 
   constructor(private readonly overlayRef: OverlayRef) {
     this.closed = new Promise<R | undefined>((resolve) => {
@@ -24,12 +25,26 @@ export class OverlayHandle<R = unknown> {
     });
   }
 
-  close(result?: R): void {
+  /**
+   * Register an exit animation, run by `close()` before the overlay is disposed.
+   * The overlay component calls this; the returned promise should resolve once
+   * the animation has finished.
+   */
+  registerLeave(leave: () => Promise<void>): void {
+    this.leave = leave;
+  }
+
+  async close(result?: R): Promise<void> {
     if (this.isClosed) {
       return; // guard: backdrop + button could both fire
     }
     this.isClosed = true;
-    this.resolveClosed(result);
-    this.overlayRef.dispose();
+
+    try {
+      await this.leave?.();
+    } finally {
+      this.resolveClosed(result);
+      this.overlayRef.dispose();
+    }
   }
 }
