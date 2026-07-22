@@ -66,10 +66,11 @@ export class LobbyPage implements OnInit {
       this.lobbyService.requestParticipantSettingsUpdate(result.sipsInABeer, result.canDrawAce, actualParticipant.id);
     })
   }
-
+  createJoinLink(){
+    return document.baseURI + '#/join/'+ this.lobbyService.lobbyId();
+  }
   showQrCode(){
-    console.log(document.baseURI);
-    const joinData: LobbyJoinData = {joinLink: document.baseURI, lobbyId: this.lobbyService.lobbyId()??'Ukendt'}
+    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId()??'Ukendt'}
     this.overlayService.openOverlay<QrCodeOverlay, LobbyJoinData, void>(QrCodeOverlay, joinData);
   }
 

@@ -16,8 +16,11 @@ import {MaterialIcon} from '../../../common/material-icon/material-icon';
 })
 export class LobbyInfoQuick {
 
-  readonly qrBtnClick = output<void>()
+  readonly qrBtnClick = output<void>();
 
   readonly lobbyId = input<string>('-');
+  readonly lobbyJoinLink = input<string>('-');
+
+
 
 }

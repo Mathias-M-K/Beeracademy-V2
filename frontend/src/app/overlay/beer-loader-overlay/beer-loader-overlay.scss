@@ -1,6 +1,6 @@
 $area: 200px;
 $lift: 55px;
-$rust: #dc8224;
+
 
 :host {
   display: flex;
@@ -94,7 +94,7 @@ $rust: #dc8224;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: $rust;
+  background: var(--primary);
   opacity: 0.35;
 
   animation: dot-pulse 1.4s ease-in-out infinite;
