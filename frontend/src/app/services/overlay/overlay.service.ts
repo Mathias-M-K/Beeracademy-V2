@@ -16,6 +16,7 @@ export class OverlayService {
 
     const overlayRef: OverlayRef = this.overlay.create({
       hasBackdrop: true,
+      backdropClass: 'overlay-backdrop',
       positionStrategy: this.overlay.position()
         .global()
         .centerHorizontally()

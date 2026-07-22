@@ -4,6 +4,8 @@ import {LobbyApi} from '../../services/lobby-api.service';
 import {LobbyDTO} from '../../../api-models/model/lobbyDTO';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {form, FormField, minLength, required} from '@angular/forms/signals';
+import {OverlayService} from '../../services/overlay/overlay.service';
+import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 
 @Component({
   selector: 'app-join-page',
@@ -19,6 +21,7 @@ export class JoinPage {
   readonly router = inject(Router);
   readonly lobbyApi = inject(LobbyApi);
   readonly destroyRef = inject(DestroyRef);
+  readonly overlayService = inject(OverlayService);
 
   readonly lobbyName = signal<string>('');
   readonly alreadyJoined = signal<number>(0);
@@ -32,6 +35,7 @@ export class JoinPage {
 
   constructor() {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => this.getLobbyInfo(params['lobby-id']));
+    this.overlayService.openOverlay<BeerLoaderOverlay,void,void>(BeerLoaderOverlay);
   }
 
   private getLobbyInfo(lobbyId: string){

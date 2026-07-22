@@ -1,0 +1,33 @@
+$area: 200px;
+
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+
+  background-color: white;
+  width: $area;
+  height: $area;
+
+  border-radius: 50%;
+
+  animation: hover 1.5s ease-in-out infinite;
+}
+
+@keyframes hover {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-50px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    animation: none;
+  }
+}
