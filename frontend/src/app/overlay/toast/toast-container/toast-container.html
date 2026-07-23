@@ -1,0 +1,3 @@
+@for (toast of toasts(); track toast.id) {
+  <app-toast class="toast" [toastData]="toast" [style.view-transition-name]="'toast-id:'+toast.id" (timerEnd)="onToastFinished(toast.id)"></app-toast>
+}

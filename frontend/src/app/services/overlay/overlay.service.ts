@@ -1,7 +1,14 @@
 import {inject, Injectable, Injector} from '@angular/core';
-import {ComponentType, Overlay, OverlayRef} from '@angular/cdk/overlay';
+import {ComponentType, GlobalPositionStrategy, Overlay, OverlayPositionBuilder, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal} from '@angular/cdk/portal';
 import {OVERLAY_DATA, OverlayHandle} from './models/overlay-handle';
+
+export interface OverlayConf<D> {
+  component: ComponentType<any>;
+  data?: D;
+  backdrop?: boolean;
+  position?: GlobalPositionStrategy;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -11,32 +18,31 @@ export class OverlayService {
   //TODO create a shared modal component, that other components can wire themselves into, to get a shared design across overlays
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
+  private readonly positionBuilder = inject(OverlayPositionBuilder);
 
-  public openOverlay<C, D, R>(component: ComponentType<C>, data?: D): OverlayHandle<R> {
+  public openOverlay<ReturnModel, D=unknown>(conf: OverlayConf<D>): OverlayHandle<ReturnModel> {
 
+    const position = conf.position ?? this.positionBuilder.global().centerVertically().centerHorizontally();
+
+    const hasBackdrop = conf.backdrop ?? true;
     const overlayRef: OverlayRef = this.overlay.create({
-      hasBackdrop: true,
-      backdropClass: 'overlay-backdrop',
-      positionStrategy: this.overlay.position()
-        .global()
-        .centerHorizontally()
-        .centerVertically(),
+      hasBackdrop: hasBackdrop,
+      backdropClass: hasBackdrop ? 'overlay-backdrop' : '',
+      positionStrategy: position,
       scrollStrategy: this.overlay.scrollStrategies.block()
     });
 
-    const handle = new OverlayHandle<R>(overlayRef)
+    const handle = new OverlayHandle<ReturnModel>(overlayRef)
 
     const injector = Injector.create({
       parent: this.injector,
       providers: [
-        {provide: OVERLAY_DATA, useValue: data},
+        {provide: OVERLAY_DATA, useValue: conf.data},
         {provide: OverlayHandle, useValue: handle},
       ]
     });
 
-    // overlayRef.backdropClick().subscribe(() => handle.close());
-
-    overlayRef.attach(new ComponentPortal(component, null, injector));
+    overlayRef.attach(new ComponentPortal(conf.component, null, injector));
 
     return handle;
   }

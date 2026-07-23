@@ -1,0 +1,24 @@
+:host{
+  view-transition-name: toast-container;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  transform: translateY(-20px);
+}
+
+.toast{
+  animation: toast-in 0.4s ease-in-out;
+}
+
+@keyframes toast-in {
+  from{
+    opacity: 0;
+    transform: translateX(200px);
+  }
+
+  to{
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

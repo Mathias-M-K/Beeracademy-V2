@@ -1,0 +1,68 @@
+$timer-bar-width : 3px;
+
+:host {
+  background-color: white;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  display: grid;
+  grid-template-areas:
+    'icon title'
+    'icon msg';
+
+  grid-template-rows: 20px 20px;
+  grid-template-columns: 40px 300px;
+
+  column-gap: 10px;
+  padding: 10px 10px 10px 10px;
+  border-radius: 5px;
+
+  align-items: center;
+}
+
+:host:hover .timer-bar{
+  animation-play-state: paused;
+}
+
+h4, p {
+  margin: 0;
+}
+p{
+  color: var(--color-grey-600);
+}
+
+#icon{
+  color: rgba(0,0,0,0.8);
+}
+
+.timer-bar {
+  position: absolute;
+  bottom: 0;
+  height: $timer-bar-width;
+  background-color: var(--toast-color);
+  animation: timer 5s linear;
+}
+
+$area: 30px;
+.icon-backdrop {
+  display: inherit;
+  background-color: rgb(from var(--toast-color) r g b / 0.3);
+  border-radius: 50%;
+
+  height: $area;
+  width: $area;
+
+  justify-content: center;
+}
+
+@keyframes timer {
+  from{
+    width: 100%;
+  }
+  to{
+    width: 0;
+  }
+}
+
+
+
+

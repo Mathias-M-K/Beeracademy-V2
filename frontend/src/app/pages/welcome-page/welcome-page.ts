@@ -35,5 +35,4 @@ export class WelcomePage {
   public navigateToLobbyPage(): void {
     this.router.navigate(['/lobby'], { state: { joinAuto: true } });
   }
-
 }

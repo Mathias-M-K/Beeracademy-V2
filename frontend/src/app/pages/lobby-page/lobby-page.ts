@@ -55,9 +55,9 @@ export class LobbyPage implements OnInit {
       return;
     }
 
-    const overlayHandle = this.overlayService
-      .openOverlay<ParticipantSettingsOverlay, LobbyParticipantDTO, ParticipantSettingsResult>
-      (ParticipantSettingsOverlay, actualParticipant);
+    const overlayHandle =
+      this.overlayService
+        .openOverlay<ParticipantSettingsResult, LobbyParticipantDTO>({component: ParticipantSettingsOverlay, data: actualParticipant});
 
     overlayHandle.closed.then(result => {
       if (!result) {
@@ -71,11 +71,11 @@ export class LobbyPage implements OnInit {
   }
   showQrCode(){
     const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId()??'Ukendt'}
-    this.overlayService.openOverlay<QrCodeOverlay, LobbyJoinData, void>(QrCodeOverlay, joinData);
+    this.overlayService.openOverlay<void>({component: QrCodeOverlay, data: joinData});
   }
 
   openNewParticipantOverlay(): void {
-    const overlayHandle = this.overlayService.openOverlay<NewParticipantOverlay, void, string>(NewParticipantOverlay);
+    const overlayHandle = this.overlayService.openOverlay<string>({component: NewParticipantOverlay});
     overlayHandle.closed.then(participantName => {
       if (participantName) {
         this.addParticipant(participantName)

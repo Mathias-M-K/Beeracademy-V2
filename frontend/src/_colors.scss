@@ -12,6 +12,12 @@
   --color-coffie-900: #6d2e1a;
   --color-coffie-950: #3e160a;
 
+  --color-emerald-500: #2ecc71;
+  --color-emerald-600: #27ae60;
+
+  --color-alizarin-500: #e74c3c;
+  --color-alizarin-600: #c0392b;
+
   --color-melon-500:    #fad390;
   --color-melon-600:    #f8c291;
   --color-indigo-500:   #4f46e5;
@@ -42,6 +48,6 @@
   --surface-muted:  var(--color-slate-100);
   --border:         var(--color-slate-300);
   --text:           var(--color-slate-700);
-  --danger:         var(--color-red-600);
-  --danger-hover:   var(--color-red-700);
+  --error:         var(--color-alizarin-600);
+  --success:         var(--color-emerald-500);
 }

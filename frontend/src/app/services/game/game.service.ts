@@ -143,8 +143,12 @@ export class GameService {
   private initiateChug(){
     this.pauseTimer(this.playerTimeReport);
     this.awaitingChugFromPlayer.set(this.currentPlayer());
-    this.overlayService.openOverlay<ChugOverlay, PlayerDto, number>(ChugOverlay,this.currentPlayer())
-      .closed.then((chugTime) => {this.dispatchChugAction(chugTime??0)})
+
+    // this.overlayService.openOverlay<PlayerDto, number>(ChugOverlay,this.currentPlayer())
+    //   .closed.then((chugTime) => {this.dispatchChugAction(chugTime??0)})
+
+    this.overlayService.openOverlay<number>({component: ChugOverlay,data: this.currentPlayer()})
+      .closed.then((chugTime)=>{this.dispatchChugAction(chugTime??0)})
   }
 
   private handleChugEvent(event: GameEventEnvelope) {

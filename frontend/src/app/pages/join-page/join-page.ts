@@ -8,6 +8,8 @@ import {OverlayService} from '../../services/overlay/overlay.service';
 import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {DotLoader} from '../../common/dot-loader/dot-loader';
+import {ToastService} from '../../services/toast/toast.service';
+import {ToastState} from '../../overlay/toast/models/toast-data';
 
 @Component({
   selector: 'app-join-page',
@@ -25,6 +27,7 @@ export class JoinPage {
   readonly lobbyApi = inject(LobbyApi);
   readonly destroyRef = inject(DestroyRef);
   readonly overlayService = inject(OverlayService);
+  readonly toastService = inject(ToastService);
 
   readonly error = signal<string | undefined>(undefined);
   readonly loading = signal(true);
@@ -44,8 +47,8 @@ export class JoinPage {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => this.onNewPathParam(params));
   }
 
-  private onNewPathParam(params: Params){
-    this.handle = this.overlayService.openOverlay<BeerLoaderOverlay, void, void>(BeerLoaderOverlay);
+  private onNewPathParam(params: Params) {
+    this.handle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay});
     this.loading.set(true);
     this.lobbyId.set(params['lobby-id'])
     this.lobbyName.set('');
@@ -55,10 +58,11 @@ export class JoinPage {
     this.getLobbyInfo(this.lobbyId());
   }
 
-  private onLoadingComplete(){
+  private onLoadingComplete() {
 
     this.handle.close().then(() => {
-      if (this.error()){
+      if (this.error()) {
+        this.toastService.showToast("Miv :(", "Kunne ikke finde lobbyen", "close", ToastState.error);
         this.router.navigate(['/']);
       }
       this.loading.set(false)
@@ -71,11 +75,11 @@ export class JoinPage {
         this.lobbyName.set(data.name ?? '');
         this.alreadyJoined.set(data.participants?.length ?? 0);
         this.onLoadingComplete();
-      },error: err => {
+      }, error: err => {
         const exception = err.error.exception;
-        if (exception === 'LobbyNotFoundException'){
+        if (exception === 'LobbyNotFoundException') {
           this.error.set('Den søgte lobby kunnet ikke findes');
-        }else{
+        } else {
           console.warn('Unknown exception →', err);
           this.error.set('Der er sket en ukendt fejl');
         }
