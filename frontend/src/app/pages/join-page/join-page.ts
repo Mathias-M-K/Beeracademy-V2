@@ -7,15 +7,13 @@ import {form, FormField, minLength, required} from '@angular/forms/signals';
 import {OverlayService} from '../../services/overlay/overlay.service';
 import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
-import {DotLoader} from '../../common/dot-loader/dot-loader';
 import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 
 @Component({
   selector: 'app-join-page',
   imports: [
-    FormField,
-    DotLoader
+    FormField
   ],
   templateUrl: './join-page.html',
   styleUrl: './join-page.scss',

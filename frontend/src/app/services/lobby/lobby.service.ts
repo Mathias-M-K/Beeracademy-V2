@@ -45,6 +45,8 @@ import {
 import {
   ParticipantsRearrangedEvent
 } from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
+import {ToastService} from '../toast/toast.service';
+import {ToastState} from '../../overlay/toast/models/toast-data';
 
 @Injectable({
   providedIn: 'root',
@@ -54,6 +56,7 @@ export class LobbyService {
   private readonly appRef = inject(ApplicationRef);
   private readonly router: Router = inject(Router);
   private readonly websocketService: WebsocketService = inject(WebsocketService);
+  private readonly toastService: ToastService = inject(ToastService);
 
   public readonly websocketConnectionStatus = this.websocketService.connectionStatus;
 
@@ -242,12 +245,12 @@ export class LobbyService {
    * browser lacks the View Transitions API. The `appRef.tick()` flushes the
    * DOM synchronously (zoneless) so the transition captures the new state.
    */
-  private animateStateChange(update: () => void): void {
+  private animateStateChange(update: () => void): ViewTransition | undefined {
     if (!document.startViewTransition) {
       update();
-      return;
+      return undefined;
     }
-    document.startViewTransition(() => {
+    return document.startViewTransition(() => {
       update();
       this.appRef.tick();
     });
@@ -306,13 +309,38 @@ export class LobbyService {
 
   //UI
   public addParticipant(newParticipant: LobbyParticipantDTO): void {
+
+    if(newParticipant.active){
+      this.toastService.showToast("Ny spiller forbundet!","Velkommen " + newParticipant.name, "person_add", ToastState.success);
+    }else{
+      this.toastService.showToast("Ny spiller tilføjet","Velkommen " + newParticipant.name, "person_add", ToastState.success);
+    }
+
     this._participants.update(current => [...current, newParticipant]);
   }
 
   public removeParticipant(participantId: string): void {
-    this.animateStateChange(() =>
+    const participant = this.getParticipant(participantId);
+    const participantActive = participant?.active;
+    const participantName = participant?.name??"Ukendt";
+
+    const showToast = () =>{
+      if(participantActive){
+        this.toastService.showToast("Spiller forlod lobbyen", participantName+ " forlod lobbyen", "person_remove");
+      }else{
+        this.toastService.showToast("Spiller fjernet", participantName+ " blev fjernet", "person_remove");
+      }
+    }
+
+    const transition = this.animateStateChange(() =>
       this._participants.update(current => current.filter(participant => participant.id !== participantId)),
     );
+
+    if (transition) {
+      transition.finished.finally(showToast);
+    } else {
+      showToast();
+    }
   }
 
   //Helper

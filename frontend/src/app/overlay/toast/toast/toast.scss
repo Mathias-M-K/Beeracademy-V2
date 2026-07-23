@@ -39,7 +39,7 @@ p{
   bottom: 0;
   height: $timer-bar-width;
   background-color: var(--toast-color);
-  animation: timer 5s linear;
+  animation: timer 4s linear;
 }
 
 $area: 30px;
@@ -61,6 +61,13 @@ $area: 30px;
   to{
     width: 0;
   }
+}
+
+@media (max-width: 500px) {
+  :host{
+    width: 95dvw;
+  }
+
 }
 
 
