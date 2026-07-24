@@ -1,4 +1,4 @@
-import {ApplicationRef, inject, Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {OverlayConf, OverlayService} from '../overlay/overlay.service';
 import {OverlayPositionBuilder} from '@angular/cdk/overlay';
 import {ToastData, ToastState} from '../../overlay/toast/models/toast-data';
@@ -12,7 +12,6 @@ export class ToastService {
 
   private readonly overlayService = inject(OverlayService);
   private readonly posBuilder = inject(OverlayPositionBuilder);
-  private readonly appRef = inject(ApplicationRef);
 
   private readonly _toasts = signal<ToastData[]>([])
   public readonly toasts = this._toasts.asReadonly();
@@ -32,26 +31,13 @@ export class ToastService {
   }
 
   public removeToast(toastId: string): void {
+    this._toasts.update((toasts) => {
+      return toasts.filter((toast) => toast.id !== toastId);
+    })
 
-    const remove = () => {
-      this._toasts.update((toasts) => {
-        return toasts.filter((toast) => toast.id !== toastId);
-      })
-
-      if (this.overlayActive() && this._toasts().length === 0) {
-        this.overlayActive.set(false);
-        this.overlayHandle.close();
-      }
-    };
-
-
-    if (!document.startViewTransition) {
-      return remove();
-    }else{
-      document.startViewTransition(()=>{
-        remove();
-        this.appRef.tick();
-      })
+    if (this.overlayActive() && this._toasts().length === 0) {
+      this.overlayActive.set(false);
+      this.overlayHandle.close();
     }
   }
 
