@@ -18,6 +18,10 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
   selector: 'app-lobby-page',
   templateUrl: './lobby-page.html',
   styleUrl: './lobby-page.scss',
+  host: {
+    'tabindex': '-1',
+    '(keydown.n)': 'onEnterKeyDown()',
+  },
   imports: [
     ParticipantOverview,
     LobbyInfoQuick,
@@ -87,6 +91,10 @@ export class LobbyPage implements OnInit {
 
   public goHome() {
     this.router.navigate(['/']);
+  }
+
+  onEnterKeyDown() {
+    this.openNewParticipantOverlay()
   }
 
   addUsualSuspects() {

@@ -11,6 +11,11 @@
     'participant-list chat';
 }
 
+:host:focus,
+:host:focus-visible{
+  outline: none;
+}
+
 .header{
   display: flex;
   justify-content: space-between;
