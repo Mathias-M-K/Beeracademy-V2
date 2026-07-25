@@ -12,6 +12,7 @@ import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-p
 import {Router} from '@angular/router';
 import {QrCodeOverlay} from '../../overlay/qr-code-overlay/qr-code-overlay';
 import {LobbyJoinData} from '../../services/lobby/models/lobby-join-data';
+import {DotLoader} from '../../common/dot-loader/dot-loader';
 
 @Component({
   selector: 'app-lobby-page',
@@ -20,7 +21,8 @@ import {LobbyJoinData} from '../../services/lobby/models/lobby-join-data';
   imports: [
     ParticipantOverview,
     LobbyInfoQuick,
-    Chat
+    Chat,
+    DotLoader
   ]
 })
 export class LobbyPage implements OnInit {

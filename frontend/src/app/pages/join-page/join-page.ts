@@ -9,11 +9,14 @@ import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-o
 import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
+import {DotLoader} from '../../common/dot-loader/dot-loader';
+import {finalize} from 'rxjs';
 
 @Component({
   selector: 'app-join-page',
   imports: [
-    FormField
+    FormField,
+    DotLoader
   ],
   templateUrl: './join-page.html',
   styleUrl: './join-page.scss',
@@ -27,8 +30,10 @@ export class JoinPage {
   readonly overlayService = inject(OverlayService);
   readonly toastService = inject(ToastService);
 
-  readonly error = signal<string | undefined>(undefined);
   readonly loading = signal(true);
+  readonly joining = signal(false);
+
+  readonly error = signal<string | undefined>(undefined);
   readonly lobbyName = signal<string>('');
   private readonly lobbyId = signal<string>('');
   readonly alreadyJoined = signal<number>(0);
@@ -57,10 +62,9 @@ export class JoinPage {
   }
 
   private onLoadingComplete() {
-
     this.handle.close().then(() => {
       if (this.error()) {
-        this.toastService.showToast("Miv :(", "Kunne ikke finde lobbyen", "close", ToastState.error);
+        this.toastService.showToast("Miv :(", this.error() ?? 'Ukendt fejl', "error", ToastState.error);
         this.router.navigate(['/']);
       }
       this.loading.set(false)
@@ -89,12 +93,20 @@ export class JoinPage {
   getParticipantToken(participantName: string) {
 
     if (this.nameForm().invalid()) {
-      console.warn("Can't join a lobby when no participant-name is provided");
+      this.toastService.showToast("Wtf", "Du skal angive deltagernavn", "error");
       return;
     }
 
-    this.lobbyApi.fetchParticipantToken(this.lobbyId(), participantName).subscribe({
-      next: () => this.router.navigate(['/lobby']),
-    })
+    this.joining.set(true);
+    this.lobbyApi.fetchParticipantToken(this.lobbyId(), participantName)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(()=>this.joining.set(false))
+      )
+      .subscribe({
+        next: () => this.router.navigate(['/lobby'],),
+        error: () => this.toastService.showToast("Der skete en fejl","Kunne ikke deltage i lobbyen","error")
+      })
   }
+
 }

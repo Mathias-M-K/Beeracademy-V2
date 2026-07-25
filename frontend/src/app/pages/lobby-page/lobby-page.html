@@ -21,8 +21,12 @@
     @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
       <button
         class="start-btn"
-        (click)="lobbyService.startGame()" [style.view-transition-name]="'start-btn'">Start spil • {{ lobbyService.participants().length }}
-        Spillere
+        (click)="lobbyService.startGame()" [style.view-transition-name]="'start-btn'">
+        @if (lobbyService.creatingGame()) {
+          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+        } @else {
+          Start spil • {{ lobbyService.participants().length }} Spillere
+        }
       </button>
     }
   </div>

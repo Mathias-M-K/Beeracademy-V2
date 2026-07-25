@@ -23,9 +23,13 @@
           autocomplete="new-password"
           data-dashlane-disabled-on-field="true">
       </div>
-      <button (click)="getParticipantToken(nameModel().participantName)" [disabled]="nameForm().invalid()">Deltag</button>
-
+      <button (click)="getParticipantToken(nameModel().participantName)" [disabled]="nameForm().invalid()">
+        @if (joining()) {
+          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+        } @else {
+          Deltag
+        }
+      </button>
     </div>
-
   </div>
 }

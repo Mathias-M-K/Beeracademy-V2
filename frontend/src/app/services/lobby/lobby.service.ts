@@ -83,8 +83,10 @@ export class LobbyService {
   public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''));
   public readonly isHost = computed(() => this.role() === Role.GameClient);
 
-  private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();
+  private readonly _creatingGame = signal<boolean>(false);
+  public readonly creatingGame = this._creatingGame.asReadonly();
 
+  private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();
 
   private readonly _chatMessages = new Subject<MessageInfo>()
   public readonly chatMessages = this._chatMessages.asObservable();
@@ -108,6 +110,7 @@ export class LobbyService {
   }
 
   public startGame(): void {
+    this._creatingGame.set(true);
     this.dispatchLobbyAction(startGameAction())
   }
 
