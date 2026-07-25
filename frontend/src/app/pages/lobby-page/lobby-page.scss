@@ -49,7 +49,8 @@
 
     width: 90%;
     grid-template-columns: auto;
-    grid-template-rows: minmax(15dvh,auto) minmax(85dvh,auto) 100dvh;
+    grid-template-rows: minmax(15dvh,auto) 1fr 100dvh;
+    min-height: 200dvh;
     grid-template-areas:
     'header'
     'participant-list'
