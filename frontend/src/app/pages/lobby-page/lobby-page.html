@@ -17,7 +17,9 @@
       (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
       (participantsRearranged)="onParticipantsRearranged($event)"
       (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
-
+    @if (participants().length === 0) {
+      <button (click)="addUsualSuspects()">Auto tilføj spillere (TEST)</button> <!--TODO remove me-->
+    }
     @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
       <button
         class="start-btn"
@@ -32,7 +34,6 @@
   </div>
 
   <app-chat style="grid-area: chat"></app-chat>
-  <button (click)="addUsualSuspects()">Auto tilføj spillere (TEST)</button>
 
 } @else {
   <div class="connection-scren">
