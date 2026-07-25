@@ -1,6 +1,6 @@
 import {Component, computed, input} from '@angular/core';
 import {ParticipantBadge} from '../../lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {PlayerDto} from '../../../../api-models/model/playerDto';
+import {Player} from '../../../services/game/models/player';
 
 @Component({
   selector: 'app-podium',
@@ -11,7 +11,7 @@ import {PlayerDto} from '../../../../api-models/model/playerDto';
   styleUrl: './podium.component.scss',
 })
 export class PodiumComponent {
-  readonly players = input<PlayerDto[]>();
+  readonly players = input<Player[]>();
 
   readonly topThreePlayers = computed(() =>
     [...(this.players() ?? [])]
@@ -30,7 +30,7 @@ export class PodiumComponent {
     ),
   );
 
-  private bestChugTime(player: PlayerDto): number {
+  private bestChugTime(player: Player): number {
     const times = player.stats?.chugs?.map((chug) => chug.chugTimeMillis ?? Infinity) ?? [];
     return times.length ? Math.min(...times) : Infinity;
   }

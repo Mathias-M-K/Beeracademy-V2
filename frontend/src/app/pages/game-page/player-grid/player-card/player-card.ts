@@ -1,6 +1,6 @@
 import {Component, computed, effect, input, Signal} from '@angular/core';
-import {PlayerDto} from '../../../../../api-models/model/playerDto';
 import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle';
+import {Player} from '../../../../services/game/models/player';
 
 @Component({
   selector: 'app-player-card',
@@ -10,13 +10,12 @@ import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle'
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
   host:{
-    '[style.--player-color]': 'playerColor()'
+    '[style.--player-color]': 'player().color'
   }
 })
 export class PlayerCard {
 
-  readonly player = input.required<PlayerDto>();
-  readonly playerColor = input('#ff6b81');
+  readonly player = input.required<Player>();
 
   readonly totalSips = computed(() =>
     this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0

@@ -1,9 +1,8 @@
-import {effect, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {computed, effect, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameClientConnectedEvent} from '../models/categories/events/game/game-client-event/game-client-connected.event';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
-import {PlayerDto} from '../../../api-models/model/playerDto';
 import {Turn} from '../../../api-models/model/turn';
 import {GameInfo} from './models/game-info';
 import {drawCardAction} from '../models/categories/actions/game/game-client-action/draw-card-action';
@@ -25,6 +24,8 @@ import {startGameAction} from '../models/categories/actions/game/game-client-act
 import {gameClientActionEnvelope} from '../models/categories/actions/game/game-action-envelope';
 import {OverlayService} from '../overlay/overlay.service';
 import {ChugOverlay} from '../../overlay/chug-overlay/chug-overlay';
+import {Player} from './models/player';
+import {playerColor} from '../../common/theme/player-colors';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -39,7 +40,15 @@ export class GameService {
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
   public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
 
-  public players = linkedSignal(() => this.gameStateObj()?.players ?? []);
+  private readonly playerDTOs = linkedSignal(() => this.gameStateObj()?.players ?? []);
+  public players = computed(()=>{
+
+    return this.playerDTOs().map((dto, index) => {
+      const player = Player.fromPlayerDto(dto);
+      player.color = playerColor(index);
+      return player;
+    })
+  })
   public gameInfo
   public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
 
@@ -246,12 +255,12 @@ export class GameService {
     });
   }
 
-  private getPlayer(playerId: string): PlayerDto | undefined {
+  private getPlayer(playerId: string): Player | undefined {
     return this.players().find((player) => player.id === playerId);
   }
 
   public addChugToPlayer(chug: Chug, playerId: string): void {
-    this.players.update(players => players.map(player =>
+    this.playerDTOs.update(players => players.map(player =>
       player.id === playerId ? {
         ...player,
         stats: {
@@ -264,7 +273,7 @@ export class GameService {
   }
 
   public addTurnToPlayer(turn: Turn, playerId: string): void {
-    this.players.update(players => players.map(player =>
+    this.playerDTOs.update(players => players.map(player =>
       player.id === playerId ? {
         ...player,
         stats: {

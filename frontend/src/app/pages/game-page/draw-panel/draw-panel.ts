@@ -1,9 +1,9 @@
 import {Component, input, output} from '@angular/core';
 import {CardComponent} from './card/card.component';
 import {Card} from '../../../../api-models/model/card';
-import {PlayerDto} from '../../../../api-models/model/playerDto';
 import {last} from 'rxjs';
 import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
+import {Player} from '../../../services/game/models/player';
 
 @Component({
   selector: 'app-draw-panel',
@@ -17,7 +17,7 @@ import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 export class DrawPanel {
 
   readonly currentCard = input<Card | undefined>();
-  readonly currentPlayer = input<PlayerDto | undefined>();
+  readonly currentPlayer = input<Player | undefined>();
   readonly currentPlayerTime = input<number>(0);
   readonly drawCardClick = output<void>();
 

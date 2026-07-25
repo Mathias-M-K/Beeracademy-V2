@@ -1,7 +1,6 @@
 import {Component, input} from '@angular/core';
 import {PlayerCard} from './player-card/player-card';
-import {PlayerDto} from '../../../../api-models/model/playerDto';
-import {playerColor} from '../../../common/theme/player-colors';
+import {Player} from '../../../services/game/models/player';
 
 @Component({
   selector: 'app-player-grid',
@@ -13,7 +12,5 @@ import {playerColor} from '../../../common/theme/player-colors';
 })
 export class PlayerGrid {
 
-  readonly players = input.required<PlayerDto[] | undefined>();
-
-  protected readonly playerColor = playerColor;
+  readonly players = input.required<Player[] | undefined>();
 }

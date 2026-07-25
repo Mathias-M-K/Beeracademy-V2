@@ -1,12 +1,12 @@
 <h3>Podiet - hurtigste bunde-tider</h3>
 
 <div class="columns">
-  @for (participant of topThreePlayers(); track participant.id){
+  @for (player of topThreePlayers(); track player.id){
       <div>
           <app-participant-badge
-            [initials]="participant?.name?.substring(0,1)??''" size="s"
-            backgroundColor=""></app-participant-badge>
-          <p>{{ participant.name }}</p>
+            [initials]="player?.name?.substring(0,1)??''" size="s"
+            [backgroundColor]="player.color"></app-participant-badge>
+          <p>{{ player.name }}</p>
           <div class="podium-shape"><h2>{{$index+1}}</h2></div>
         </div>
   }
