@@ -15,7 +15,7 @@
   justify-self: end;
 }
 
-.badge {
+.left {
   justify-self: center;
 }
 .compact-title{
@@ -34,20 +34,20 @@
   transform: rotate(180deg);
 }
 
-
+.drag-indicator{
+  color: var(--color-grey-500);
+}
 
 @media (max-width: 500px) {
   :host{
-    grid-template-columns: auto auto;
+    grid-template-columns: 30px 1fr auto;
+    gap: 5px;
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
     padding: 10px;
     border-radius: 10px;
   }
   .compact-status{
     display: unset;
-  }
-  .badge{
-    display: none;
   }
   .compact-subtitle{
     display: unset;

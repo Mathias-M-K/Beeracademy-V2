@@ -55,6 +55,9 @@
   .buttons > button{
     width: 100%;
   }
+  .cdk-drag-preview{
+    border-radius: 10px !important;
+  }
 }
 
 .participants.cdk-drop-list-dragging,

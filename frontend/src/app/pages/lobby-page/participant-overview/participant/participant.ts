@@ -3,6 +3,7 @@ import {LobbyParticipantDTO} from '../../../../../api-models/model/lobbyParticip
 import {ParticipantBadge} from './participant-badge/participant-badge';
 import {EmojiInfo} from '../../../../services/chat/models/emoji-info';
 import {MaterialIcon} from '../../../../common/material-icon/material-icon';
+import {CdkDragHandle} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-participant',
@@ -10,7 +11,8 @@ import {MaterialIcon} from '../../../../common/material-icon/material-icon';
   styleUrl: './participant.scss',
   imports: [
     ParticipantBadge,
-    MaterialIcon
+    MaterialIcon,
+    CdkDragHandle
   ]
 })
 export class Participant {
