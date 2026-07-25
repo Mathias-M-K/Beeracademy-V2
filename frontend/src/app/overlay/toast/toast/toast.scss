@@ -17,6 +17,8 @@ $timer-bar-width : 3px;
   border-radius: 5px;
 
   align-items: center;
+
+  user-select: none;
 }
 
 :host:hover .timer-bar{
