@@ -5,11 +5,23 @@
 <div class="content">
   <input aria-label="lobby id" #lobbyIdInput id="lobby-id-input" placeholder="LOBBY ID" mask="AAA-AAA-AAA">
   <input aria-label="participant name" #participantNameInput placeholder="DELTAGER NAVN">
-  <button (click)="onRegisterParticipant(participantNameInput.value,lobbyIdInput.value)">Deltag</button>
+  <button (click)="registerParticipant(participantNameInput.value,lobbyIdInput.value)" class="btn-primary">
+    @if (joiningLobby()) {
+      <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+    } @else {
+      Deltag
+    }
+  </button>
   <div class="horizontal_line"><span>eller</span></div>
   <input aria-label="lobbyNameInput" #lobbyNameInput placeholder="LOBBY NAVN"
-         (keyup.enter)="onCreateLobby(lobbyNameInput.value)">
-  <button (click)="onCreateLobby(lobbyNameInput.value)" class="btn-secondary">Opret en ny lobby</button>
+         (keyup.enter)="createLobby(lobbyNameInput.value)">
+  <button (click)="createLobby(lobbyNameInput.value)" class="btn-secondary">
+    @if (creatingLobby()) {
+      <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+    } @else {
+      Opret en ny lobby
+    }
+  </button>
   <button (click)="showToasts()" class="btn-secondary">TOAST</button>
 </div>
 

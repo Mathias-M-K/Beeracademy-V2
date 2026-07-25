@@ -5,6 +5,8 @@ export enum ToastState {
 }
 
 export class ToastData {
+  private static nextId = 0;
+
   readonly title!: string;
   readonly message!: string;
   readonly icon!: string;
@@ -17,6 +19,6 @@ export class ToastData {
     this.icon = icon;
 
     this.toastState = toastState ?? this.toastState;
-    this.id = crypto.randomUUID();
+    this.id = `toast-${ToastData.nextId++}`;
   }
 }

@@ -9,7 +9,7 @@ $timer-bar-width : 3px;
     'icon title'
     'icon msg';
 
-  grid-template-rows: 20px 20px;
+  grid-template-rows: 20px auto;
   grid-template-columns: 40px 300px;
 
   column-gap: 10px;

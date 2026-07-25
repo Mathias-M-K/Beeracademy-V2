@@ -7,7 +7,7 @@
   <button class="btn-tertiary btn-icon" (click)="qrBtnClick.emit()">
     <material-icon icon="qr_code"></material-icon>
   </button>
-  <button class="btn-tertiary btn-icon" [cdkCopyToClipboard]="lobbyJoinLink()">
+  <button class="btn-tertiary btn-icon" [cdkCopyToClipboard]="lobbyJoinLink()" (cdkCopyToClipboardCopied)="onJoinLinkCopied($event)">
     <material-icon icon="content_copy"></material-icon>
   </button>
 </div>

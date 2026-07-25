@@ -78,10 +78,12 @@ export class LobbyService {
       default :
         return 'Ukendt'
     }
-  })
+  });
   public readonly selfId = computed(() => this._identity()?.id);
-  public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''))
-  public readonly isHost = computed(() => this.role() === Role.GameClient)
+  public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''));
+  public readonly isHost = computed(() => this.role() === Role.GameClient);
+
+  private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();
 
 
   private readonly _chatMessages = new Subject<MessageInfo>()
@@ -140,13 +142,10 @@ export class LobbyService {
       case "EMOJI_SENT" :
         return this.handleNewEmojiEvent(event);
       case "PARTICIPANT_REMOVED" : {
-        const participantRemovedEvent = event.payload as ParticipantRemovedEvent;
-        this.removeParticipant(participantRemovedEvent.participantId);
-        break;
+        return this.handleParticipantRemoved(event);
       }
       case "PARTICIPANT_DISCONNECTED" : {
-        const participantDisconnectedEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
-        return this.removeParticipant(participantDisconnectedEvent.participantId)
+        return this.handleParticipantDisconnected(event);
       }
       case "SETTINGS_UPDATED" : {
         return this.handleParticipantSettingsUpdate(event);
@@ -239,6 +238,33 @@ export class LobbyService {
     );
   }
 
+  private handleParticipantRemoved(event: LobbyEventEnvelope) {
+    const participantRemovedEvent = event.payload as ParticipantRemovedEvent;
+    this.participantsQueuedForRemoval.add(participantRemovedEvent.participantId);
+
+    const participant = this.getParticipant(participantRemovedEvent.participantId)
+    if(participant){
+      this.toastService.showToast("Spiller fjernet",`${participant.name} blev fjernet fra spillet`, 'person_remove');
+    }
+
+    this.removeParticipant(participantRemovedEvent.participantId);
+  }
+
+  private handleParticipantDisconnected(event: LobbyEventEnvelope){
+    const participantDisconnectedEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
+
+    if (this.participantsQueuedForRemoval.has(participantDisconnectedEvent.participantId)) {
+      this.participantsQueuedForRemoval.delete(participantDisconnectedEvent.participantId);
+      return;
+    }
+
+    const participant = this.getParticipant(participantDisconnectedEvent.participantId)
+    if(participant){
+      this.toastService.showToast("Spiller forlod lobbyen",`${participant.name} forlod lobbyen`, 'person_remove', ToastState.error);
+    }
+    return this.removeParticipant(participantDisconnectedEvent.participantId)
+  }
+
   /**
    * Applies a state change inside a view transition so the affected list
    * animates into its new layout. Falls back to a plain update when the
@@ -320,27 +346,9 @@ export class LobbyService {
   }
 
   public removeParticipant(participantId: string): void {
-    const participant = this.getParticipant(participantId);
-    const participantActive = participant?.active;
-    const participantName = participant?.name??"Ukendt";
-
-    const showToast = () =>{
-      if(participantActive){
-        this.toastService.showToast("Spiller forlod lobbyen", participantName+ " forlod lobbyen", "person_remove");
-      }else{
-        this.toastService.showToast("Spiller fjernet", participantName+ " blev fjernet", "person_remove");
-      }
-    }
-
-    const transition = this.animateStateChange(() =>
+    this.animateStateChange(() =>
       this._participants.update(current => current.filter(participant => participant.id !== participantId)),
     );
-
-    if (transition) {
-      transition.finished.finally(showToast);
-    } else {
-      showToast();
-    }
   }
 
   //Helper

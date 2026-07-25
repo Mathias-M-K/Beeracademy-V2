@@ -7,9 +7,7 @@
 
 :root {
   --btn-background: var(--primary);
-  --btn-background-hover: var(--primary-hover);
   --btn-foreground: var(--color-white);
-  --btn-foreground-hover: var(--color-white);
 
   --font: "Archivo", sans-serif;
 }
@@ -66,27 +64,33 @@ button > material-icon{
 
 
 button:hover {
-  background-color: var(--btn-background-hover);
-  color: var(--btn-foreground-hover);
+  --btn-background: var(--primary-hover);
+  --btn-foreground: var(--color-white);
 }
+
 button:active {
   background-color: color-mix(in oklab, var(--btn-background), black 30%);
 }
 
 .btn-secondary{
   --btn-background: var(--color-black);
-  --btn-background-hover: var(--color-white);
   --btn-foreground: var(--color-white);
-  --btn-foreground-hover: var(--color-black);
-  border: 1px solid var(--btn-background);
+  border: 1px solid var(--btn-foreground);
 }
+.btn-secondary:hover {
+  --btn-background: var(--color-white);
+  --btn-foreground: var(--color-black);
+}
+
 
 .btn-tertiary{
   --btn-background: var(--color-white);
-  --btn-background-hover: var(--color-black);
   --btn-foreground: var(--color-black);
-  --btn-foreground-hover: var(--color-white);
   border: 1px solid var(--color-silver);
+}
+.btn-tertiary:hover{
+  --btn-background: var(--color-black);
+  --btn-foreground: var(--color-white);
 }
 
 .btn-warning{
