@@ -37,7 +37,7 @@ export class Toast {
       const classList = (a.target as HTMLElement).classList;
 
       if(classList.contains('timer-bar')){
-        this.timerEnd.emit()
+        this.timerEnd.emit();
       }
     })
   }
