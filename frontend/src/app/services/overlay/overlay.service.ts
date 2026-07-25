@@ -29,7 +29,7 @@ export class OverlayService {
       hasBackdrop: hasBackdrop,
       backdropClass: hasBackdrop ? 'overlay-backdrop' : '',
       positionStrategy: position,
-      scrollStrategy: this.overlay.scrollStrategies.block()
+      scrollStrategy: hasBackdrop ? this.overlay.scrollStrategies.block() : this.overlay.scrollStrategies.noop()
     });
 
     const handle = new OverlayHandle<ReturnModel>(overlayRef)
