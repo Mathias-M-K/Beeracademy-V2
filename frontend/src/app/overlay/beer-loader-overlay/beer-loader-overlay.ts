@@ -1,7 +1,7 @@
 import { Component, computed, ElementRef, inject, OnDestroy, signal } from '@angular/core';
-import { MaterialIcon } from '../../common/material-icon/material-icon';
+import { MaterialIcon } from '../../common/components/material-icon/material-icon';
 import { OverlayHandle } from '../../services/overlay/models/overlay-handle';
-import {DotLoader} from '../../common/dot-loader/dot-loader';
+import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 
 @Component({
   selector: 'app-beer-loader-overlay',

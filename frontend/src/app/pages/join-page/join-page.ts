@@ -9,7 +9,7 @@ import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-o
 import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
-import {DotLoader} from '../../common/dot-loader/dot-loader';
+import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 import {finalize} from 'rxjs';
 
 @Component({

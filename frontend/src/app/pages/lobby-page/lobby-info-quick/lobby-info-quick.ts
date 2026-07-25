@@ -1,7 +1,7 @@
 import {Component, inject, input, output} from '@angular/core';
 import {NgxMaskPipe} from 'ngx-mask';
 import {CdkCopyToClipboard} from '@angular/cdk/clipboard';
-import {MaterialIcon} from '../../../common/material-icon/material-icon';
+import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
 import {ToastService} from '../../../services/toast/toast.service';
 
 @Component({

@@ -1,6 +1,6 @@
 import {Component, computed, ElementRef, inject, input, output} from '@angular/core';
 import {ToastData, ToastState} from '../models/toast-data';
-import {MaterialIcon} from '../../../common/material-icon/material-icon';
+import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
 
 @Component({
   selector: 'app-toast',

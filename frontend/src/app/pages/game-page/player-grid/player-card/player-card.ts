@@ -1,6 +1,6 @@
 import {Component, computed, effect, input, Signal} from '@angular/core';
 import {PlayerDto} from '../../../../../api-models/model/playerDto';
-import {BeerBottle} from '../../../../common/beer-bottle/beer-bottle';
+import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle';
 
 @Component({
   selector: 'app-player-card',

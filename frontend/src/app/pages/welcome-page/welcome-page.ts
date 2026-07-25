@@ -4,7 +4,7 @@ import {NgxMaskDirective} from 'ngx-mask';
 import {LobbyApi} from '../../services/lobby-api.service';
 import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
-import {DotLoader} from '../../common/dot-loader/dot-loader';
+import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs';
 
