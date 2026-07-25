@@ -4,7 +4,7 @@
 </div>
 
 <div id="center">
-  <app-beer-bottle [fillLevel]="sipsLeftInBeerAsPercentage()">{{ sipsLeftInBeer() }}</app-beer-bottle>
+  <app-beer-bottle [fillLevel]="sipsLeftInBeerAsPercentage()" [color]="playerColor()">{{ sipsLeftInBeer() }}</app-beer-bottle>
   <div class="player-stats">
     <div>
       <p class="upper_subtitle">Øl</p>
@@ -34,6 +34,7 @@
   <div class="beer-rack">
     @for (_ of beersConsumed; track $index) {
       <app-beer-bottle
+        [color]="playerColor()"
         class="consumed-beer-container"
         [style.animation-delay.ms]="$index * 60"></app-beer-bottle>
     }

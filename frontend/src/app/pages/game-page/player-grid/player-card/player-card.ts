@@ -9,10 +9,15 @@ import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle'
   ],
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
+  host:{
+    '[style.--player-color]': 'playerColor()'
+  }
 })
 export class PlayerCard {
 
   readonly player = input.required<PlayerDto>();
+  readonly playerColor = input('#ff6b81');
+
   readonly totalSips = computed(() =>
     this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
   );
