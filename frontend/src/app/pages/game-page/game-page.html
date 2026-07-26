@@ -8,7 +8,7 @@
             (resumeClick)="resumeGame()">
 </app-header>
 
-<app-card-count style="grid-area: card-count"></app-card-count>
+<app-card-count style="grid-area: card-count" [cards]="remainingCardsCount()" [maxCardsPrRank]="players().length"></app-card-count>
 
 <app-draw-panel id="draw-panel" style="grid-area: draw-panel"
                 (drawCardClick)="drawCard()"

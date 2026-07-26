@@ -1,5 +1,6 @@
-import {Component} from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 import {RANK_DISPLAY} from '../../../services/game/models/rank-display';
+import {RankCountDto} from '../../../../api-models/model/rankCountDto';
 
 @Component({
   selector: 'app-card-count',
@@ -9,15 +10,17 @@ import {RANK_DISPLAY} from '../../../services/game/models/rank-display';
 })
 export class CardCount {
 
-  private readonly ranks: number[] = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-  readonly cardCount: Map<number, number> = new Map();
+  cards = input.required<RankCountDto[]>();
+  maxCardsPrRank = input.required<number>();
 
-  constructor() {
+  protected maxNrOfCards = computed(() => {
+    const nrOfCardsInASuit = 13;
+    return this.maxCardsPrRank() * nrOfCardsInASuit;
+  });
 
-    this.ranks.forEach(rank => {
-      this.cardCount.set(rank,14);
-    })
-  }
+  protected cardsLeft = computed(() =>
+    this.cards().reduce((sum, card) => sum + (card.count ?? 0), 0),
+  );
 
   protected readonly RANK_DISPLAY = RANK_DISPLAY;
 }

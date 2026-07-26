@@ -51,8 +51,11 @@ export class GamePage implements OnInit, OnDestroy {
   protected gameState = this.gameService.gameState;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
 
+
   protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
+
+  remainingCardsCount = this.gameService.remainingCardsCount;
 
 
   ngOnDestroy(): void {

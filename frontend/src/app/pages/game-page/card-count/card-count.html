@@ -1,8 +1,21 @@
-@for (card of cardCount; track $index){
-  <div class="panel">
-    <p>{{RANK_DISPLAY[card[0]]}}</p>
-    <div class="horizontal_line"></div>
-    <p>{{card[1]}}</p>
-  </div>
 
+<div class="counter">
+  <label for="cards-left">Kort tilbage</label>
+  <h3 id="cards-left">
+    <div>{{cardsLeft()}}</div>/<div>{{maxNrOfCards()}}</div>
+  </h3>
+</div>
+
+@for (card of cards(); track card.rank) {
+  @let progress = (((card.count??1)/maxCardsPrRank()))*100;
+  <div class="panel" [style.--progress-bar-value.%]="progress" [class.empty]="card.count === 0">
+    <p>{{RANK_DISPLAY[card.rank??0]}}</p>
+
+    <div class="progress-bar">
+      <div class="backdrop"></div>
+      <div class="primary"></div>
+    </div>
+
+    <p>{{ card.count }}</p>
+  </div>
 }

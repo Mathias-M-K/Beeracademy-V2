@@ -26,6 +26,7 @@ import {OverlayService} from '../overlay/overlay.service';
 import {ChugOverlay} from '../../overlay/chug-overlay/chug-overlay';
 import {Player} from './models/player';
 import {playerColor} from '../../common/theme/player-colors';
+import {RankCountDto} from '../../../api-models/model/rankCountDto';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -53,26 +54,39 @@ export class GameService {
   public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
 
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
+
   public currentPlayer = linkedSignal(() => {
-    const players = this.gameStateObj()?.players;
+    const players = this.players();
     const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw;
 
     if (!players || !currentPlayerId) return;
 
     return players.find((player) => player.id === currentPlayerId);
-  })
+  });
 
   public awaitingChugFromPlayer = linkedSignal(() => {
     if (this.gameState() === GameState.AwaitingChug) {
       return this.currentPlayer();
     }
     return undefined;
-  })
+  });
 
+  private readonly _remainingCardsCount = linkedSignal(() => {
+    const list = this.gameStateObj()?.remainingCardsCount;
+
+    if (list){
+      return list;
+    }else{
+      const otherList: RankCountDto[] = [];
+      return otherList;
+    }
+  });
+  public readonly remainingCardsCount = this._remainingCardsCount.asReadonly();
 
   constructor() {
     effect(() => {
       if (this.gameState() === GameState.AwaitingChug){
+
         this.initiateChug();
       }
     });
@@ -134,9 +148,15 @@ export class GameService {
   private handleDrawCardEvent(event: GameEventEnvelope) {
     const drawCardEvent: DrawCardEvent = event.payload as DrawCardEvent;
 
-    const card = drawCardEvent.turn.card;
+    const card = drawCardEvent.turn.card!;
     const isChugCard = card?.rank === 14;
     this.currentCard.set(card);
+
+    this._remainingCardsCount.update((counts) =>
+      counts.map((entry) =>
+        entry.rank === card.rank ? {...entry, count: (entry.count ?? 1) - 1} : entry,
+      ),
+    );
 
     const currentPlayerId = isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
     this.currentPlayer.set(this.getPlayer(currentPlayerId));

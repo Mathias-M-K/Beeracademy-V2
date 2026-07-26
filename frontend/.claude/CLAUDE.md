@@ -6,6 +6,8 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use strict type checking
 - Prefer type inference when the type is obvious
 - Avoid the `any` type; use `unknown` when type is uncertain
+- Use the strictest possible access modifier on every class member. Default to `private`; use `protected` only when a subclass or the component's own template needs access; use `public` only when the member is genuinely part of the class's external API. Never leave a member public by omission — choose the modifier deliberately.
+  - Members referenced in a component's template MUST be at least `protected` (`private` members are not accessible from templates under strict template type checking).
 
 ## Angular Best Practices
 

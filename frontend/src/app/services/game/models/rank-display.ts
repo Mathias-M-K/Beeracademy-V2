@@ -1,5 +1,3 @@
-
-
 export const RANK_DISPLAY: Record<number, string> = {
   [2]: '2',
   [3]: '3',
@@ -14,5 +12,4 @@ export const RANK_DISPLAY: Record<number, string> = {
   [12]: 'D',
   [13]: 'K',
   [14]: 'A',
-
 };
