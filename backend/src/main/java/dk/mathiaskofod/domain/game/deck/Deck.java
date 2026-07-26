@@ -4,6 +4,8 @@ import dk.mathiaskofod.domain.game.deck.exceptions.NotEnoughSuitesAvailableExcep
 import dk.mathiaskofod.domain.game.deck.exceptions.OutOfCardsException;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.deck.models.Suit;
+import lombok.Getter;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,19 +14,29 @@ public class Deck {
 
     private static final SecureRandom random = new SecureRandom();
 
+    @Getter
     List<Card> unusedCards;
+
+    @Getter
+    List<Card> cards;
+
     List<Card> usedCards = new ArrayList<>();
 
     public Deck(int nrOfSuits) {
         if (nrOfSuits > Suit.values().length) {
             throw new NotEnoughSuitesAvailableException(nrOfSuits);
         }
-        unusedCards = generateDeck(nrOfSuits);
+        cards = generateDeck(nrOfSuits);
+        unusedCards = new ArrayList<>(cards);
     }
 
     public Deck(DeckSnapshot snapshot) {
         this.unusedCards = snapshot.unusedCards();
         this.usedCards = snapshot.usedCards();
+
+        this.cards = new ArrayList<>();
+        this.cards.addAll(unusedCards);
+        this.cards.addAll(usedCards);
     }
 
     public Card drawCard() {

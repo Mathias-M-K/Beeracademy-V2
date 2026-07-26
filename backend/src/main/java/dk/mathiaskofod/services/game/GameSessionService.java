@@ -41,7 +41,7 @@ public class GameSessionService {
 
         List<PlayerDto> playerDtos = assemblePlayers(game);
 
-        return GameDto.create(game, gameSession, playerDtos);
+        return GameDto.create(game, gameSession, playerDtos, game.getDeck());
     }
 
     public List<PlayerDto> getPlayerViews(String gameId) {
