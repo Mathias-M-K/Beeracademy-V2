@@ -8,13 +8,12 @@
   'header header header header'
   'card-count card-count card-count card-count'
   'draw-panel draw-panel draw-panel podium'
-  'players players players podium'
-  'old old old old'
-;
+  'players players players podium';
 
   justify-self: center;
 
   width: 80vw;
+  margin-bottom: 20px;
 }
 
 .unmigrated-content {
@@ -29,7 +28,6 @@
 }
 
 
-
 .action_buttons {
   display: flex;
 }
@@ -38,14 +36,6 @@
   width: fit-content;
   display: flex;
   gap: 20px;
-}
-
-.player {
-  background-color: burlywood;
-
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
 }
 
 .active {
@@ -82,21 +72,18 @@
   user-select: none;
 }
 
-.testing{
-  position: relative;   // anchors the `fill` image to this box
-  width: 40px;
-  height: 140px;
-  border: 1px solid var(--color-silver);
+@media (max-width: 850px) {
+  :host {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      'header'
+      'card-count'
+      'draw-panel'
+      'players'
+      'podium';
+  }
 }
 
 
-
-.testing-two{
-  background-color: #4caf50;
-
-  mask: url("/beer-bottle.png") center / contain no-repeat;
-  position: relative;   // anchors the `fill` image to this box
-  width: 30px;
-  border: 1px solid var(--color-silver);
-}
 

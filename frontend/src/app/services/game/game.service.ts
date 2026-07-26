@@ -1,6 +1,5 @@
 import {computed, effect, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
-import {GameClientConnectedEvent} from '../models/categories/events/game/game-client-event/game-client-connected.event';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
 import {Turn} from '../../../api-models/model/turn';
@@ -27,6 +26,12 @@ import {ChugOverlay} from '../../overlay/chug-overlay/chug-overlay';
 import {Player} from './models/player';
 import {playerColor} from '../../common/theme/player-colors';
 import {RankCountDto} from '../../../api-models/model/rankCountDto';
+import {ToastService} from '../toast/toast.service';
+import {ToastState} from '../../overlay/toast/models/toast-data';
+import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
+import {identifyFromEvent, Identity} from '../models/identity';
+import {Role} from '../../../api-models/model/role';
+import {IdentityEvent} from '../models/categories/events/common/identity-event';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -36,13 +41,14 @@ export class GameService {
 
   private readonly websocketService = inject(WebsocketService);
   private readonly overlayService = inject(OverlayService);
+  private readonly toastService = inject(ToastService);
 
   private readonly gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
   public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
 
   private readonly playerDTOs = linkedSignal(() => this.gameStateObj()?.players ?? []);
-  public players = computed(()=>{
+  public players = computed(() => {
 
     return this.playerDTOs().map((dto, index) => {
       const player = Player.fromPlayerDto(dto);
@@ -74,19 +80,21 @@ export class GameService {
   private readonly _remainingCardsCount = linkedSignal(() => {
     const list = this.gameStateObj()?.remainingCardsCount;
 
-    if (list){
+    if (list) {
       return list;
-    }else{
+    } else {
       const otherList: RankCountDto[] = [];
       return otherList;
     }
   });
   public readonly remainingCardsCount = this._remainingCardsCount.asReadonly();
 
+  private readonly identity = signal<Identity | undefined>(undefined)
+  private readonly role = computed(() => this.identity()?.role);
+
   constructor() {
     effect(() => {
-      if (this.gameState() === GameState.AwaitingChug){
-
+      if (this.gameState() === GameState.AwaitingChug && this.role() === Role.GameClient) {
         this.initiateChug();
       }
     });
@@ -110,7 +118,7 @@ export class GameService {
 
   public handleWebsocketMessage(msg: WebsocketEnvelope) {
 
-    const supportedEventCategories: string[] = ['GAME_EVENT', 'GAME_CLIENT_EVENT'];
+    const supportedEventCategories: string[] = ['GAME_EVENT', 'GAME_CLIENT_EVENT', 'PLAYER_CLIENT_EVENT'];
 
     if (!supportedEventCategories.includes(msg.category)) {
       console.error("Can't handle message", msg);
@@ -122,6 +130,10 @@ export class GameService {
     const event: GameEventEnvelope = msg as GameEventEnvelope;
 
     switch (event.payload.type) {
+      case 'HELLO_GAME_SNAPSHOT' :
+        return this.handleGameSnapshot(event);
+      case 'HELLO_IDENTITY' :
+        return this.handleIdentity(event);
       case 'CLIENT_CONNECTED' :
         return this.handleGameClientConnected(event);
       case 'DRAW_CARD':
@@ -140,9 +152,18 @@ export class GameService {
   }
 
   /**Handle websocket messages**/
+  private handleIdentity(event: GameEventEnvelope) {
+    const identityEvent: IdentityEvent = event.payload as IdentityEvent;
+    this.identity.set(identifyFromEvent(identityEvent));
+  }
+
   private handleGameClientConnected(event: GameEventEnvelope) {
-    const gameClientConnectedEvent = event.payload as GameClientConnectedEvent;
-    this.gameStateObj.set(gameClientConnectedEvent.game);
+    this.toastService.showToast("Client connected", "Good", "error", ToastState.success);
+  }
+
+  private handleGameSnapshot(event: GameEventEnvelope) {
+    const stateEvent: GameStateEvent = event.payload as GameStateEvent;
+    this.gameStateObj.set(stateEvent.gameState);
   }
 
   private handleDrawCardEvent(event: GameEventEnvelope) {
@@ -169,15 +190,14 @@ export class GameService {
     }
   }
 
-  private initiateChug(){
+  private initiateChug() {
     this.pauseTimer(this.playerTimeReport);
     this.awaitingChugFromPlayer.set(this.currentPlayer());
 
-    // this.overlayService.openOverlay<PlayerDto, number>(ChugOverlay,this.currentPlayer())
-    //   .closed.then((chugTime) => {this.dispatchChugAction(chugTime??0)})
-
-    this.overlayService.openOverlay<number>({component: ChugOverlay,data: this.currentPlayer()})
-      .closed.then((chugTime)=>{this.dispatchChugAction(chugTime??0)})
+    this.overlayService.openOverlay<number>({component: ChugOverlay, data: this.currentPlayer()})
+      .closed.then((chugTime) => {
+      this.dispatchChugAction(chugTime ?? 0)
+    })
   }
 
   private handleChugEvent(event: GameEventEnvelope) {
@@ -193,6 +213,8 @@ export class GameService {
     this.startTimer(this.gameTimeReport);
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
+
+    this.toastService.showToast("Spillet er igang!", "test test", "sports_bar")
   }
 
   private handleGamePausedEvent(event: GameEventEnvelope) {
@@ -241,7 +263,6 @@ export class GameService {
     const chug: Chug = {suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis};
     this.dispatchGameAction(chugAction(chug));
   }
-
 
 
   private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {

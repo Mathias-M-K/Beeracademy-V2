@@ -4,7 +4,7 @@ import {LobbyDTO} from '../../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {LobbyStateEvent} from '../models/categories/events/lobby/common/lobby-state-event';
 import {Role} from '../../../api-models/model/role';
-import {LobbyIdentityEvent} from '../models/categories/events/lobby/common/lobby-identity-event';
+import {IdentityEvent} from '../models/categories/events/common/identity-event';
 import {newPlayerAction} from '../models/categories/actions/lobby/lobby-client-action/new-player-action';
 import {LobbyAction} from '../models/categories/actions/lobby/lobby-action';
 import {
@@ -136,7 +136,7 @@ export class LobbyService {
     switch (event.payload.type) {
       case "HELLO_LOBBY_SNAPSHOT" :
         return this.handleHelloLobbySnapshotEvent(event);
-      case "HELLO_LOBBY_IDENTITY" :
+      case "HELLO_IDENTITY" :
         return this.handleHelloLobbyIdentityEvent(event);
       case "NEW_PARTICIPANT" :
         return this.handleNewParticipantEvent(event);
@@ -221,7 +221,7 @@ export class LobbyService {
   }
 
   private handleHelloLobbyIdentityEvent(event: LobbyEventEnvelope) {
-    const lobbyIdentityEvent = event.payload as LobbyIdentityEvent;
+    const lobbyIdentityEvent = event.payload as IdentityEvent;
     this._identity.set(identifyFromEvent(lobbyIdentityEvent));
   }
 

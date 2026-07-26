@@ -25,7 +25,9 @@ export class PlayerCard {
   })
   readonly sipsAvg = computed(() =>{
     const turns = this.player().stats?.turns?.length ?? 0;
-    return (this.totalSips() / turns).toFixed(1);
+    const result = (this.totalSips() / turns);
+
+    return Number.isNaN(result) ? 0 : result.toFixed(1);
   });
   readonly sipsLeftInBeer = computed(() =>{
     if (this.totalSips() === 0) return 0;
