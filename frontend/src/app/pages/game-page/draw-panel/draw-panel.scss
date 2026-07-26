@@ -1,6 +1,6 @@
 :host {
   display: grid;
-  grid-template-columns: 1fr 1fr 4fr;
+  grid-template-columns: auto auto 1fr;
   gap: 20px;
   justify-items: baseline;
   background-color: white;
