@@ -33,4 +33,15 @@ public class TokenInfo {
         return Optional.ofNullable(playerId)
                 .orElseThrow(() -> new TokenException("Token doesn't contain Player-ID", 500));
     }
+
+    /**
+     * Returns the ID of the client, whether is a game- or player-client
+     * @return client ID
+     */
+    public String getClientId(){
+        return switch (role) {
+            case GAME_CLIENT -> this.gameId;
+            case PLAYER_CLIENT -> this.playerId;
+        };
+    }
 }

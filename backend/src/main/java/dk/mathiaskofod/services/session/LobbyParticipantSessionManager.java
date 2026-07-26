@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session;
 
-import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyParticipantDTO;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.models.Emoji;
@@ -13,8 +12,6 @@ import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
-import dk.mathiaskofod.services.session.events.common.IdentityEvent;
-import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
@@ -48,14 +45,11 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
         sessionRegistry.registerSession(participantSession);
 
         NewParticipantEvent event = new NewParticipantEvent(LobbyParticipantDTO.fromLobbyParticipant(lobbyParticipant));
-        broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(participantId));
+        broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event));
 
-        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId));
-        LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
-        sendMessage(participantId, new LobbyParticipantEventEnvelope(lobbySnapshotEvent));
+        provideLobbySnapshotToClient(tokenInfo, LobbyParticipantEventEnvelope::new);
+        provideIdentityToClient(tokenInfo, LobbyParticipantEventEnvelope::new);
 
-        IdentityEvent roleEvent = new IdentityEvent(tokenInfo.getRole(), participantId);
-        sendMessage(participantId, new LobbyParticipantEventEnvelope(roleEvent));
     }
 
     @Override

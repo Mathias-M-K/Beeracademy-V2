@@ -17,8 +17,6 @@ import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantRemovedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantsRearrangedEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
-import dk.mathiaskofod.services.session.events.common.IdentityEvent;
-import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantEvent;
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
@@ -37,15 +35,11 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
         String lobbyId = tokenInfo.getGameId();
-        log.info("Registering new client connected with websocket connection id: {}", websocketConnectionId);
+        log.info("Registering new lobby client connected with websocket connection id: {}", websocketConnectionId);
         sessionRegistry.setConnectionId(lobbyId, websocketConnectionId);
 
-        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId));
-        LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
-        sendMessage(lobbyId, new LobbyClientEventEnvelope(lobbySnapshotEvent));
-
-        IdentityEvent roleEvent = new IdentityEvent(tokenInfo.getRole(), lobbyId);
-        sendMessage(lobbyId, new LobbyClientEventEnvelope(roleEvent));
+        provideLobbySnapshotToClient(tokenInfo, LobbyClientEventEnvelope::new);
+        provideIdentityToClient(tokenInfo, LobbyClientEventEnvelope::new);
     }
 
     // TODO could probably also benefit from strategy pattern

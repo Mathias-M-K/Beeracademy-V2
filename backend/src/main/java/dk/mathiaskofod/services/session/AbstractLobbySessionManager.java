@@ -1,15 +1,19 @@
 package dk.mathiaskofod.services.session;
 
+import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
+import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.SettingsUpdatedEvent;
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.repository.Session;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
@@ -44,5 +48,11 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
         if (!excluded.contains(lobbyId)) {
             sendMessage(lobbyClientSession.getSessionId(), envelope);
         }
+    }
+
+    protected void provideLobbySnapshotToClient(TokenInfo tokenInfo, Function<LobbySnapshotEvent,WebsocketEnvelope<?>> envelope){
+        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(tokenInfo.getGameId()));
+        LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
+        sendMessage(tokenInfo.getClientId(), envelope.apply(lobbySnapshotEvent));
     }
 }

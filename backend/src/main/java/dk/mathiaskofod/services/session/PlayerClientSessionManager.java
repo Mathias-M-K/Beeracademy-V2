@@ -29,8 +29,11 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
         sessionRegistry.setConnectionId(playerId, websocketConnectionId);
 
-        PlayerConnectedEvent event = new PlayerConnectedEvent(playerId,gameId);
+        PlayerConnectedEvent event = new PlayerConnectedEvent(playerId, gameId);
         broadcastToParty(gameId, new PlayerClientEventEnvelope(event));
+
+        provideGameSnapshotToClient(tokenInfo, PlayerClientEventEnvelope::new);
+        provideIdentityToClient(tokenInfo, PlayerClientEventEnvelope::new);
 
         log.info(
                 "Websocket Connection: Type:New player connection, PlayerID:{}, GameID:{}, WebsocketConnID:{}",
@@ -83,12 +86,11 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
         switch (payload) {
             case DrawCardAction(long duration) -> onDrawCardAction(duration, gameId, playerId);
             case RelinquishPlayerAction() -> relinquishPlayer(gameId, playerId);
-            default ->
-                throw new BaseException(
-                        String.format(
-                                "Action type %s not yet supported",
-                                payload.getClass().getSimpleName()),
-                        400);
+            default -> throw new BaseException(
+                    String.format(
+                            "Action type %s not yet supported",
+                            payload.getClass().getSimpleName()),
+                    400);
         }
     }
 

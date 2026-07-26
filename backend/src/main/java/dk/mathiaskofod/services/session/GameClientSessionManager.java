@@ -1,15 +1,12 @@
 package dk.mathiaskofod.services.session;
 
-import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
-import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
-import dk.mathiaskofod.services.session.events.common.IdentityEvent;
 import dk.mathiaskofod.services.session.events.game.game.*;
 import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
@@ -18,15 +15,11 @@ import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class GameClientSessionManager extends AbstractGameSessionManager {
-
-    @Inject
-    GameSessionService gameSessionService;
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
@@ -43,12 +36,10 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
                 gameId,
                 websocketConnectionId);
 
-        GameDto game = gameSessionService.getGameView(gameId);
-        GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
-        sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
+        broadcastToParty(gameId, new GameClientEventEnvelope(new GameClientConnectedEvent()));
 
-        IdentityEvent event = new IdentityEvent(tokenInfo.getRole(), gameId);
-        sendMessage(gameId, new GameClientEventEnvelope(event));
+        provideGameSnapshotToClient(tokenInfo, GameClientEventEnvelope::new);
+        provideIdentityToClient(tokenInfo, GameClientEventEnvelope::new);
     }
 
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
