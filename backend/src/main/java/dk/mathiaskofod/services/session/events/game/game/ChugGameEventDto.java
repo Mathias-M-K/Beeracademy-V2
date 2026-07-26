@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.events.game;
+package dk.mathiaskofod.services.session.events.game.game;
 
 import dk.mathiaskofod.domain.game.events.ChugEvent;
 import dk.mathiaskofod.domain.game.models.Chug;

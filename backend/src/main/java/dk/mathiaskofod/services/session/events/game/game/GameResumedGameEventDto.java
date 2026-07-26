@@ -1,4 +1,4 @@
-package dk.mathiaskofod.services.session.events.game;
+package dk.mathiaskofod.services.session.events.game.game;
 
 import dk.mathiaskofod.domain.game.events.ResumeGameEvent;
 import dk.mathiaskofod.domain.game.timer.TimerReports;

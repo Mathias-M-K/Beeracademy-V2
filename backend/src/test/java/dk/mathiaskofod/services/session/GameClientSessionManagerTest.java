@@ -32,7 +32,6 @@ import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
@@ -246,21 +245,6 @@ class GameClientSessionManagerTest {
     @DisplayName("Observer Events Tests")
     class ObserverEvents {
 
-        @DisplayName("onPlayerClientEvent should wrap event in envelope and send to game client")
-        @Test
-        void playerClientEventObserved() {
-            // Arrange
-            PlayerClientEvent playerEvent = mock(PlayerClientEvent.class);
-            when(playerEvent.gameId()).thenReturn(GAME_ID);
-
-            mockActiveWebsocketConnection(GAME_ID);
-
-            // Act
-            sessionManager.onPlayerClientEvent(playerEvent);
-
-            // Assert
-            verify(connections).findByConnectionId(CONN_ID);
-        }
 
         @DisplayName("onGameEvent should map StartGameEvent and broadcast envelope")
         @Test

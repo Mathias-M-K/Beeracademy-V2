@@ -17,7 +17,7 @@ import dk.mathiaskofod.services.session.events.lobby.client.GameStartedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantRemovedEvent;
 import dk.mathiaskofod.services.session.events.lobby.client.ParticipantsRearrangedEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
-import dk.mathiaskofod.services.session.events.lobby.common.LobbyIdentityEvent;
+import dk.mathiaskofod.services.session.events.common.IdentityEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantEvent;
@@ -44,7 +44,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
         sendMessage(lobbyId, new LobbyClientEventEnvelope(lobbySnapshotEvent));
 
-        LobbyIdentityEvent roleEvent = new LobbyIdentityEvent(tokenInfo.getRole(), lobbyId);
+        IdentityEvent roleEvent = new IdentityEvent(tokenInfo.getRole(), lobbyId);
         sendMessage(lobbyId, new LobbyClientEventEnvelope(roleEvent));
     }
 

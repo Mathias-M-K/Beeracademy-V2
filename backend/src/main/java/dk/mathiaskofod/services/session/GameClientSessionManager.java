@@ -9,9 +9,9 @@ import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
-import dk.mathiaskofod.services.session.events.game.*;
-import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
-import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
+import dk.mathiaskofod.services.session.events.common.IdentityEvent;
+import dk.mathiaskofod.services.session.events.game.game.*;
+import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class GameClientSessionManager extends AbstractSessionManager {
+public class GameClientSessionManager extends AbstractGameSessionManager {
 
     @Inject
     GameSessionService gameSessionService;
@@ -46,6 +46,9 @@ public class GameClientSessionManager extends AbstractSessionManager {
         GameDto game = gameSessionService.getGameView(gameId);
         GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
         sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
+
+        IdentityEvent event = new IdentityEvent(tokenInfo.getRole(), gameId);
+        sendMessage(gameId, new GameClientEventEnvelope(event));
     }
 
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
@@ -75,11 +78,6 @@ public class GameClientSessionManager extends AbstractSessionManager {
         }
     }
 
-    /** Player Events */
-    void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
-        sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
-    }
-
     /** Game Events */
     void onGameEvent(@Observes GameEvent gameEvent) {
 
@@ -98,6 +96,6 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        sendMessage(gameEvent.gameId(), envelope);
+        broadcastToParty(gameEvent.gameId(), envelope);
     }
 }

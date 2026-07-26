@@ -13,7 +13,7 @@ import dk.mathiaskofod.services.session.envelopes.LobbyParticipantActionEnvelope
 import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
-import dk.mathiaskofod.services.session.events.lobby.common.LobbyIdentityEvent;
+import dk.mathiaskofod.services.session.events.common.IdentityEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
@@ -54,7 +54,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
         LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
         sendMessage(participantId, new LobbyParticipantEventEnvelope(lobbySnapshotEvent));
 
-        LobbyIdentityEvent roleEvent = new LobbyIdentityEvent(tokenInfo.getRole(), participantId);
+        IdentityEvent roleEvent = new IdentityEvent(tokenInfo.getRole(), participantId);
         sendMessage(participantId, new LobbyParticipantEventEnvelope(roleEvent));
     }
 
