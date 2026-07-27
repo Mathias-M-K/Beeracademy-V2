@@ -1,26 +1,25 @@
 package dk.mathiaskofod.services.session;
 
-import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
-import dk.mathiaskofod.services.session.actions.shared.DrawCardAction;
+import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
-import dk.mathiaskofod.services.session.events.game.*;
-import dk.mathiaskofod.services.session.events.gameclient.GameClientConnectedEvent;
-import dk.mathiaskofod.services.session.events.playerclient.PlayerClientEvent;
+import dk.mathiaskofod.services.session.events.game.game.*;
+import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
+import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class GameClientSessionManager extends AbstractSessionManager {
+public class GameClientSessionManager extends AbstractGameSessionManager {
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
@@ -37,12 +36,13 @@ public class GameClientSessionManager extends AbstractSessionManager {
                 gameId,
                 websocketConnectionId);
 
-        GameDto game = lobbyService.getGame(gameId);
-        GameClientConnectedEvent gameClientConnectedEvent = new GameClientConnectedEvent(game);
-        sendMessage(gameId, new GameClientEventEnvelope(gameClientConnectedEvent));
+        broadcastToParty(gameId, new GameClientEventEnvelope(new GameClientConnectedEvent()));
+
+        provideGameSnapshotToClient(tokenInfo, GameClientEventEnvelope::new);
+        provideIdentityToClient(tokenInfo, GameClientEventEnvelope::new);
     }
 
-    public void onConnectionClosed(TokenInfo tokenInfo) {
+    public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
         String gameId = tokenInfo.getGameId();
 
@@ -51,7 +51,8 @@ public class GameClientSessionManager extends AbstractSessionManager {
         log.info("Game client disconnected. GameID:{}", gameId);
     }
 
-    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope envelope) {
+
+    public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for game client action", 400);
@@ -67,11 +68,6 @@ public class GameClientSessionManager extends AbstractSessionManager {
             case RegisterChugAction(Chug chug) -> gameService.registerChug(chug, gameId);
             default -> throw new UnknownActionException(action.getClass().getSimpleName(), 500);
         }
-    }
-
-    /** Player Events */
-    void onPlayerClientEvent(@Observes PlayerClientEvent playerClientEvent) {
-        sendMessage(playerClientEvent.gameId(), new PlayerClientEventEnvelope(playerClientEvent));
     }
 
     /** Game Events */
@@ -92,6 +88,6 @@ public class GameClientSessionManager extends AbstractSessionManager {
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);
 
-        sendMessage(gameEvent.gameId(), envelope);
+        broadcastToParty(gameEvent.gameId(), envelope);
     }
 }

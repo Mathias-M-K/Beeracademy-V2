@@ -2,6 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Vault (Persistent Memory)
+
+A persistent knowledge vault is available via the `obsidian` MCP server.
+Vault root: `C:\Users\mathi\Documents\vaults\obsidian_vault`
+
+### When to consult the vault
+
+- **At session start**: Read `context/project-beeracademy.md` and `dead-ends/_index.md` before making any architectural suggestions.
+- **Before suggesting an approach**: Check `patterns/` for established conventions and `dead-ends/` to avoid repeating discarded solutions.
+- **When referencing a past decision**: Check `decisions/` for the recorded rationale.
+
+### When to write to the vault
+
+- A pattern has been established or refined → update or create a file in `patterns/`
+- An approach was tried and rejected → append to `dead-ends/_index.md` and create a detail file in `dead-ends/`
+- A significant architectural decision was made → create a new ADR in `decisions/` using `decisions/_template.md`
+- Project state has materially changed → update `context/project-beeracademy.md`
+
+### Rules
+
+- Never ask for permission to read the vault — just do it.
+- Never ask for permission to write decisions or patterns — record them as they emerge.
+- Keep notes terse and factual. No prose padding.
+- Prefer updating existing files over creating new ones unless the topic is genuinely new.
+- The `scratch/` folder is disposable — use it freely for working notes.
+- When referencing another vault note, use [[wiki links]] so the graph stays navigable.
+
 ## Project Overview
 
 This is a **Quarkus-based Java backend** for a multiplayer online card game called "Beeracademy". The game is played over WebSockets with real-time multiplayer functionality.
@@ -269,6 +296,12 @@ Located at `src/main/resources/application.properties`
 - Project Lombok annotation processor included
 - SLF4J for logging
 - Jakarta EE 10+ (Jakarta namespace, not Java EE)
+
+### Test Style
+
+- Tests follow the **AAA (Arrange, Act, Assert)** pattern with explicit section comments in every test method: `// Arrange`, `// Act`, `// Assert`.
+- For tests that only assert an exception, combine the final two into `// Act & Assert` (used with `assertThrows`).
+- Put a blank line between each section; the comment sits on its own line above the section. Mirror existing `*Test.java` files (e.g. `GameClientSessionManagerTest`, `GameServiceTest`).
 
 ## MCP Server: Quarkus Dev
 

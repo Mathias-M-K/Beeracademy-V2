@@ -1,0 +1,34 @@
+<div id="left">
+  <h2>{{gameInfo()?.name}}</h2>
+  <p>Runde <span>4</span></p>
+  <p>Spillere <span>12</span></p>
+</div>
+
+<div id="right">
+  <h3 [style.grid-area]="'clock'">{{gameTime() | gameTimeFormat: 'HH:mm:ss'}}</h3>
+
+  <div [style.grid-area]="'time-btn'">
+    @if (timerState() === TimerState.Paused) {
+      <button class="btn-tertiary btn-icon" (click)="resumeClick.emit()">
+        <material-icon icon="play_arrow"></material-icon>
+      </button>
+    } @else if (timerState() === TimerState.NotStarted) {
+      <button (click)="startClick.emit()">Start!</button>
+    } @else {
+      <button class="btn-tertiary btn-icon" (click)="pauseClick.emit()">
+        <material-icon icon="pause"></material-icon>
+      </button>
+    }
+  </div>
+
+
+  <button [style.grid-area]="'share-btn'" class="btn-secondary btn-icon">
+    <material-icon icon="share"></material-icon>
+  </button>
+</div>
+
+
+
+
+
+

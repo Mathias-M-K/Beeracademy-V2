@@ -1,0 +1,9 @@
+@for (toast of toasts(); track toast.id) {
+  <app-toast class="toast"
+             [toastData]="toast"
+             animate.enter="toast-enter"
+             animate.leave="toast-leave"
+             (timerEnd)="onToastFinished(toast.id)"
+             (click)="onToastFinished(toast.id)"
+             (keydown)="onToastFinished(toast.id)"></app-toast>
+}

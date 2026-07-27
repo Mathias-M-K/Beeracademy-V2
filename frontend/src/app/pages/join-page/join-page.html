@@ -1,0 +1,35 @@
+@if (!loading() && lobbyName()) {
+  <div class="content">
+    <h2>
+      <div>BEER</div>
+      <div>ACADEMY</div>
+    </h2>
+
+    <div>
+      <span>Du er ved at deltage i</span>
+      <h1>{{ lobbyName() }}</h1>
+      <span>{{ alreadyJoined() }} er allerede med</span>
+    </div>
+
+
+    <div>
+      <div id="input">
+        <label for="participant-name">dit navn</label>
+        <input
+          id="participant-name"
+          [formField]="nameForm.participantName"
+          (keyup.enter)="getParticipantToken(nameModel().participantName)"
+          placeholder="fx. Anders"
+          autocomplete="new-password"
+          data-dashlane-disabled-on-field="true">
+      </div>
+      <button (click)="getParticipantToken(nameModel().participantName)" [disabled]="nameForm().invalid()">
+        @if (joining()) {
+          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+        } @else {
+          Deltag
+        }
+      </button>
+    </div>
+  </div>
+}

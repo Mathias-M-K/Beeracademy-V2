@@ -1,0 +1,26 @@
+package dk.mathiaskofod.services.lobby.repository;
+
+import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
+import dk.mathiaskofod.services.lobby.models.Lobby;
+import jakarta.enterprise.context.ApplicationScoped;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+@ApplicationScoped
+public class LobbyRepository {
+
+    private final Map<String, Lobby> lobbies = new HashMap<>();
+
+    public void addLobby(Lobby lobby) {
+        lobbies.put(lobby.getId(), lobby);
+    }
+
+    public Lobby getLobby(String lobbyId) {
+        return Optional.ofNullable(lobbies.get(lobbyId)).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
+    }
+
+    public void removeLobby(String lobbyId) {
+        lobbies.remove(lobbyId);
+    }
+}

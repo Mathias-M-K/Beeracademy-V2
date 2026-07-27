@@ -1,0 +1,49 @@
+<div class="left">
+  @if (compact()) {
+    <material-icon icon="drag_indicator" cdkDragHandle></material-icon>
+  } @else {
+    <app-participant-badge
+      [initials]="participantNameShort()"
+      [style]="participant().active ? 'active' : 'local'"
+      [reaction]="emojiReaction()">
+    </app-participant-badge>
+  }
+
+</div>
+
+<div>
+  <h3>{{ participant().name }}
+    @if (compact()) {
+      <ng-container>
+        - <span class="compact-title">{{ participant().active ? 'Aktiv' : 'Lokal' }}</span>
+      </ng-container>
+
+    }
+  </h3>
+  @let aceText = participant().canDrawAce ? 'Kan trække es' : 'Kan IKKE trække es';
+  @if (compact()) {
+    <p class="header_subtitle">{{ participant().title }}<br>{{ participant().sipsInABeer }} slurke i en
+      øl<br>{{ aceText }}</p>
+  } @else {
+    <p class="header_subtitle">{{ participant().title }} • {{ participant().sipsInABeer }} slurke i en øl
+      • {{ aceText }}</p>
+  }
+</div>
+
+<div class="btn-row">
+  @if (inLineEditing()) {
+    <button class="btn-tertiary btn-icon animated-icon-btn" (click)="editSettings.emit(participant())">
+      <material-icon class="settings-icon" icon="settings" [weight]="300"></material-icon>
+    </button>
+    <button class="btn-tertiary btn-icon animated-icon-btn" (click)="remove.emit(participant().id!)">
+      <material-icon icon="person_remove" [weight]="300"></material-icon>
+    </button>
+    @if (!compact()) {
+      <material-icon class="drag-indicator" icon="drag_indicator"></material-icon>
+    }
+
+  }
+</div>
+
+
+

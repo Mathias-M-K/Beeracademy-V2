@@ -1,0 +1,24 @@
+<div>
+  <h3>Chat</h3>
+  <div class="horizontal_line"></div>
+</div>
+<div class="message-container" #message_container>
+  <app-messages [messages]="chatService.messages()"></app-messages>
+</div>
+
+<div class="message-creation">
+  <div class="emoji-row">
+    <div (keydown.enter)="sendEmojiAction(Emoji.Beer)" (click)="sendEmoji(Emoji.Beer)">🍺</div>
+    <div (keydown.enter)="sendEmojiAction(Emoji.Vomit)" (click)="sendEmoji(Emoji.Vomit)">🤮</div>
+    <div (keydown.enter)="sendEmojiAction(Emoji.Confetti)" (click)="sendEmoji(Emoji.Confetti)">🎊</div>
+    <div (keydown.enter)="sendEmojiAction(Emoji.CryLaugh)" (click)="sendEmoji(Emoji.CryLaugh)">😂</div>
+    <div (keydown.enter)="sendEmojiAction(Emoji.Fire)" (click)="sendEmoji(Emoji.Fire)">🔥</div>
+    <div (keydown.enter)="sendEmojiAction(Emoji.Skull)" (click)="sendEmoji(Emoji.Skull)">💀</div>
+  </div>
+  <div class="msg-input">
+    <input #messageField aria-label="message-field" placeholder="Skriv en besked" (keydown.enter)="sendMessage(messageField)">
+    <button class="btn-secondary" (click)="sendMessage(messageField)">Send</button>
+  </div>
+
+</div>
+

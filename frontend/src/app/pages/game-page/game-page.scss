@@ -1,36 +1,48 @@
-:host{
+:host {
+  position: relative;
   display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: auto auto 250px;
+  grid-template-areas:
+  'header header header header'
+  'card-count card-count card-count card-count'
+  'draw-panel draw-panel draw-panel podium'
+  'players players players podium';
+
+  justify-self: center;
+
+  width: 80vw;
+  margin-bottom: 20px;
+}
+
+.unmigrated-content {
+  display: none;
   height: 100%;
   width: 100%;
+  overflow: hidden;
 
   justify-items: center;
   align-content: flex-start;
   gap: 25px;
 }
 
-.action_buttons{
+
+.action_buttons {
   display: flex;
 }
 
-.players{
+.players {
   width: fit-content;
   display: flex;
   gap: 20px;
 }
 
-.player{
-  background-color: burlywood;
-
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-}
-.active{
+.active {
   background-color: #9c7d52;
 }
 
-
-.draw_card_area{
+.draw_card_area {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,7 +51,8 @@
   height: 300px;
   width: 400px;
 }
-.card{
+
+.card {
   display: flex;
   background-color: grey;
   width: 150px;
@@ -53,8 +66,29 @@
   user-select: none;
 }
 
-.deck{
+.deck {
   box-shadow: 2px 2px 4px #222222;
   cursor: pointer;
   user-select: none;
 }
+
+@media (max-width: 850px) {
+  :host {
+    overflow: auto;
+    height: 100dvh;
+    width: 100dvw;
+    padding: 5dvw;
+    margin: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      'header'
+      'card-count'
+      'draw-panel'
+      'players'
+      'podium';
+  }
+}
+
+
+

@@ -1,0 +1,43 @@
+@if (lobbyService.title() && lobbyService.websocketConnectionStatus() === ConnectionStatus.CONNECTED) {
+  <div class="header" style="grid-area: header">
+    <div>
+      <h1>{{ lobbyService.title() }}</h1>
+      <p class="header_subtitle">Du er {{ lobbyService.readableRole() }}</p>
+    </div>
+
+    <app-lobby-info-quick [lobbyId]="lobbyService.lobbyId() ?? ''" [lobbyJoinLink]="createJoinLink()" (qrBtnClick)="showQrCode()"></app-lobby-info-quick>
+  </div>
+
+  <div style="grid-area: participant-list" class="participant-list">
+    <app-participant-overview
+      [participants]="this.participants()"
+      [isLobbyOwner]="lobbyService.isHost()"
+      (addParticipant)="openNewParticipantOverlay()"
+      (removeParticipant)="onRemoveParticipant($event)"
+      (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
+      (participantsRearranged)="onParticipantsRearranged($event)"
+      (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
+    @if (participants().length === 0) {
+      <button (click)="addUsualSuspects()">Auto tilføj spillere (TEST)</button> <!--TODO remove me-->
+    }
+    @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
+      <button
+        class="start-btn"
+        (click)="lobbyService.startGame()" [style.view-transition-name]="'start-btn'">
+        @if (lobbyService.creatingGame()) {
+          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+        } @else {
+          Start spil • {{ lobbyService.participants().length }} Spillere
+        }
+      </button>
+    }
+  </div>
+
+  <app-chat style="grid-area: chat"></app-chat>
+
+} @else {
+  <div class="connection-scren">
+    <h2>{{ lobbyService.websocketConnectionStatus() }}</h2>
+    <button class="btn-secondary" (click)="goHome()">Tilbage</button>
+  </div>
+}

@@ -35,6 +35,12 @@ public class GameService {
         gameSnapshots = redisDataSource.value(GameSnapshot.class);
     }
 
+    public void createGame(String name, String id, List<Player> players) {
+        GameImpl game = new GameImpl(name, id, players, gameEventEmitterImpl);
+        saveGame(game);
+    }
+
+    @Deprecated(forRemoval = true)
     public String createGame(String name, List<Player> players) {
 
         String gameId = IdGenerator.generateGameId();

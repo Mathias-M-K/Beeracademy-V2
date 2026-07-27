@@ -52,7 +52,6 @@ public class SessionRegistry {
      * @throws SessionStateException if the transaction keeps failing after retries
      */
     public void setConnectionId(String sessionId, String connectionId) {
-        log.info("Setting connection id for session {}", sessionId);
         String sessionCacheId = getSessionCacheId(sessionId);
 
         for (int attempt = 0; attempt < SET_CONNECTION_MAX_RETRIES; attempt++) {

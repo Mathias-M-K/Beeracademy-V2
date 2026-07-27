@@ -13,4 +13,9 @@ public class BaseException extends RuntimeException {
 
         log.warn("{} - Message: {}", this.getClass().getSimpleName(), message);
     }
+
+    public BaseException(String message, int httpStatus, Throwable cause) {
+        super(message, cause);
+        this.httpStatus = httpStatus;
+    }
 }

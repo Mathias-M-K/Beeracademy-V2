@@ -1,0 +1,13 @@
+<div class="icon-backdrop" [style.grid-area]="'icon'">
+  <material-icon [icon]="toastData().icon" id="icon" [size]="20"></material-icon>
+</div>
+
+
+<h4 [style.grid-area]="'title'">{{ toastData().title }}</h4>
+<p [style.grid-area]="'msg'">{{ toastData().message }}</p>
+
+
+<div class="timer-bar"></div>
+
+
+

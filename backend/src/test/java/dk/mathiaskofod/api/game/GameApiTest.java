@@ -4,14 +4,12 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.api.game.models.CreatePlayerDto;
 import dk.mathiaskofod.common.dto.game.GameDto;
-import dk.mathiaskofod.common.dto.game.GameIdDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
-import dk.mathiaskofod.services.lobby.LobbyService;
+import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.services.game.GameService;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -21,45 +19,27 @@ import org.junit.jupiter.api.Test;
 class GameApiTest {
 
     @Inject
-    LobbyService lobbyService;
+    GameService gameService;
 
-    private List<CreatePlayerDto> createTwoPlayers() {
-        return List.of(new CreatePlayerDto("Alice", 2, true), new CreatePlayerDto("Bob", 3, true));
-    }
-
-    @DisplayName("Create game returns game ID")
-    @Test
-    void createGameReturnsId() {
-        // Arrange
-        CreateGameRequest request = new CreateGameRequest("Test Game", createTwoPlayers());
-
-        // Act
-        GameIdDto response = given().contentType(ContentType.JSON)
-                .body(request)
-                .when()
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(GameIdDto.class);
-
-        // Assert
-        assertThat(response.gameId(), is(notNullValue()));
-        assertThat(response.gameId().length(), is(9));
+    /**
+     * Creates a game directly via {@link GameService} (no session registered), mirroring what the old {@code POST
+     * /api/games} endpoint did. A game created this way is unclaimed, so the claim-game/claim-player endpoints can be
+     * exercised.
+     *
+     * @return the generated game ID
+     */
+    private String createGameWithTwoPlayers(String name) {
+        String gameId = IdGenerator.generateGameId();
+        List<Player> players = List.of(Player.create("Alice", 2, true), Player.create("Bob", 3, true));
+        gameService.createGame(name, gameId, players);
+        return gameId;
     }
 
     @DisplayName("Get game returns game details")
     @Test
     void getGameReturnsDetails() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Get Game Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Get Game Test");
 
         // Act
         GameDto response = given().pathParam("gameId", gameId)
@@ -79,14 +59,7 @@ class GameApiTest {
     @Test
     void claimGameReturnsCookie() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Claim Game Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Claim Game Test");
 
         // Act & Assert
         given().pathParam("gameId", gameId)
@@ -101,14 +74,7 @@ class GameApiTest {
     @Test
     void getPlayersInGameReturnsList() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Players List Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Players List Test");
 
         // Act
         List<PlayerDto> response = given().pathParam("gameId", gameId)
@@ -130,14 +96,7 @@ class GameApiTest {
     @Test
     void claimPlayerReturnsCookie() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Claim Player Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Claim Player Test");
 
         List<PlayerDto> players = given().pathParam("gameId", gameId)
                 .get("/api/games/{gameId}/players")
@@ -163,14 +122,7 @@ class GameApiTest {
     @Test
     void getGameReportReturnsReport() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Game Report Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Game Report Test");
 
         // Act & Assert
         given().pathParam("gameId", gameId)
@@ -185,14 +137,7 @@ class GameApiTest {
     @Test
     void getPlayerReportsReturnsList() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Player Reports Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Player Reports Test");
 
         // Act & Assert
         given().pathParam("gameId", gameId)
@@ -207,14 +152,7 @@ class GameApiTest {
     @Test
     void getTimeReportReturnsReport() {
         // Arrange
-        CreateGameRequest request = new CreateGameRequest("Time Report Test", createTwoPlayers());
-        String gameId = given().contentType(ContentType.JSON)
-                .body(request)
-                .post("/api/games")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("gameId");
+        String gameId = createGameWithTwoPlayers("Time Report Test");
 
         // Act & Assert
         given().pathParam("gameId", gameId)

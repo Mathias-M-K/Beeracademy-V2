@@ -1,0 +1,73 @@
+:host{
+  height: fit-content;
+  display: grid;
+  grid-template-rows: 50px 200px auto;
+
+  padding: 10px;
+  background-color: white;
+  border: 1px solid var(--color-cloud);
+  border-radius: 10px;
+}
+
+.columns{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: space-around;
+  margin-bottom: 5px;
+}
+
+.columns > div {
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  width: 100%;
+  max-width: 150px;
+}
+
+.podium-shape{
+  display: grid;
+  justify-items: center;
+  align-items: end;
+
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  color: var(--color-white);
+  padding: 10px 0;
+}
+
+.columns > div:nth-child(1) > .podium-shape{
+  background-color: goldenrod;
+  height: 100px;
+}
+.columns > div:nth-child(2) > .podium-shape{
+  background-color: silver;
+  height: 80px;
+}
+.columns > div:nth-child(3) > .podium-shape{
+  background-color: sandybrown;
+  height: 65px;
+}
+
+.columns > div > p{
+  margin: 0;
+}
+.columns > div > div > h2{
+  margin: 0;
+}
+
+.chug-time{
+  display: grid;
+  grid-template-areas: 'color-dot text' 'divider divider';
+  grid-template-columns: 20px auto;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.dot{
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-black);
+  border-radius: 10px;
+}

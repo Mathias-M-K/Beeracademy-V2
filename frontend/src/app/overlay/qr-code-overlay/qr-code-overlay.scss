@@ -1,0 +1,20 @@
+:host {
+  width: 400px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
+  gap: 10px;
+  display: grid;
+
+  justify-items: center;
+}
+
+@media(max-width: 600px) {
+  :host{
+    align-content: start;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}

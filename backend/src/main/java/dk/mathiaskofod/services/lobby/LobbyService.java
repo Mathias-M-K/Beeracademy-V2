@@ -1,20 +1,21 @@
 package dk.mathiaskofod.services.lobby;
 
-import dk.mathiaskofod.api.game.models.CreateGameRequest;
-import dk.mathiaskofod.common.dto.game.GameDto;
-import dk.mathiaskofod.common.dto.player.PlayerDto;
-import dk.mathiaskofod.common.dto.session.SessionDto;
-import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.services.auth.AuthService;
 import dk.mathiaskofod.services.game.GameService;
-import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
+import dk.mathiaskofod.services.game.id.generator.IdGenerator;
+import dk.mathiaskofod.services.lobby.exceptions.LobbyNotEmptyException;
+import dk.mathiaskofod.services.lobby.models.Lobby;
+import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
+import dk.mathiaskofod.services.lobby.repository.LobbyRepository;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class LobbyService {
 
@@ -22,83 +23,93 @@ public class LobbyService {
     GameService gameService;
 
     @Inject
-    AuthService authService;
-
-    @Inject
     SessionRegistry sessionRegistry;
 
-    public String createGame(CreateGameRequest createGameRequest) {
+    @Inject
+    LobbyRepository lobbyRepository;
 
-        List<Player> newPlayers = createGameRequest.players().stream()
-                .map(createPlayerDto -> Player.create(
-                        createPlayerDto.playerName(), createPlayerDto.sipsInABeer(), createPlayerDto.canDrawChugCard()))
+    /**
+     * Creates a lobby and returns lobby-id
+     *
+     * @param name Name of lobby, will persist as Game name
+     * @return Lobby ID, which will persist as Game ID
+     */
+    public String createLobby(String name) {
+        String lobbyId = IdGenerator.generateGameId();
+        Lobby newLobby = new Lobby(name, lobbyId);
+
+        lobbyRepository.addLobby(newLobby);
+        sessionRegistry.registerSession(new Session(lobbyId));
+
+        return lobbyId;
+    }
+
+    public Lobby getLobby(String lobbyId) {
+        return lobbyRepository.getLobby(lobbyId);
+    }
+
+    public void deleteLobby(String lobbyId, boolean preserveSession) {
+        boolean isEmpty =
+                lobbyRepository.getLobby(lobbyId).getParticipants().stream().noneMatch(LobbyParticipant::isActive);
+
+        if (!isEmpty) {
+            throw new LobbyNotEmptyException(lobbyId);
+        }
+
+        lobbyRepository.removeLobby(lobbyId);
+
+        if (preserveSession) {
+            sessionRegistry.clearConnectionId(lobbyId);
+        } else {
+            sessionRegistry.removeSession(lobbyId);
+        }
+
+        log.info("Lobby deleted: {}, Session preserved: {}", lobbyId, preserveSession);
+    }
+
+    public void markLobbyAsAbandoned(String lobbyId) {
+        getLobby(lobbyId).markAsAbandoned();
+    }
+
+    public void markLobbyAsTransitioning(String lobbyId) {
+        getLobby(lobbyId).markAsTransitioning();
+    }
+
+    public LobbyParticipant registerParticipant(String lobbyId, String name, String id, boolean active) {
+        int participantPosition = getLobby(lobbyId).getParticipants().size();
+        LobbyParticipant newLobbyParticipant =
+                new LobbyParticipant(name, "Funny title", id, active, participantPosition);
+        getLobby(lobbyId).addParticipant(newLobbyParticipant);
+        return newLobbyParticipant;
+    }
+
+    public void removeDisconnectedParticipant(String lobbyId, String participantId) {
+        Lobby lobby = getLobby(lobbyId);
+        lobby.removeParticipant(participantId);
+
+        boolean isEmpty = lobby.getParticipants().stream().noneMatch(LobbyParticipant::isActive);
+
+        if (isEmpty && lobby.isAbandoned()) {
+            deleteLobby(lobbyId, false);
+        } else if (isEmpty && lobby.isTransitioning()) {
+            deleteLobby(lobbyId, true);
+        }
+    }
+
+    public void changeParticipantPosition(String lobbyId, String participantId, int newPosition) {
+        getLobby(lobbyId)
+                .getParticipant(participantId)
+                .orElseThrow(() -> new CannotIdentifyPlayer(
+                        "Participant ID: " + participantId + ", didn't match any participants", 400))
+                .setPosition(newPosition);
+    }
+
+    public void createGame(String lobbyId) {
+        Lobby lobby = getLobby(lobbyId);
+        List<Player> players = getLobby(lobbyId).getParticipants().stream()
+                .map(Player::fromParticipant)
                 .toList();
 
-        return gameService.createGame(createGameRequest.name(), newPlayers);
-    }
-
-    public GameDto getGame(String gameId) {
-
-        Game game = gameService.getGame(gameId);
-
-        SessionDto gameSession =
-                sessionRegistry.getSession(gameId).map(SessionDto::create).orElseGet(SessionDto::createEmpty);
-
-        List<PlayerDto> playerDtos = getPlayerDtos(game);
-
-        return GameDto.create(game, gameSession, playerDtos);
-    }
-
-    private List<PlayerDto> getPlayerDtos(Game game) {
-        return game.getPlayers().stream()
-                .map(player -> {
-                    SessionDto playerSessionDto = sessionRegistry
-                            .getSession(player.id())
-                            .map(SessionDto::create)
-                            .orElseGet(SessionDto::createEmpty);
-
-                    return PlayerDto.create(player, playerSessionDto);
-                })
-                .toList();
-    }
-
-    public List<PlayerDto> getPlayerDtos(String gameId) {
-        Game game = gameService.getGame(gameId);
-        return getPlayerDtos(game);
-    }
-
-    public String claimGame(String gameId) {
-
-        if (!gameService.gameExists(gameId)) {
-            throw new ResourceClaimException("Game does not exist");
-        }
-
-        if (sessionRegistry.getSession(gameId).isPresent()) {
-            String msg = String.format("The game with id %s is already claimed.", gameId);
-            throw new ResourceClaimException(msg);
-        }
-
-        sessionRegistry.registerSession(new Session(gameId));
-
-        return authService.createGameClientToken(gameId);
-    }
-
-    public String claimPlayer(String gameId, String playerId) {
-
-        if (!gameService.gameExists(gameId)) {
-            throw new ResourceClaimException("Game does not exist");
-        }
-
-        if (sessionRegistry.getSession(playerId).isPresent()) {
-            String msg =
-                    String.format("Player with ID: %s, from game: %s, has already been claimed.", playerId, gameId);
-            throw new ResourceClaimException(msg);
-        }
-
-        Player player = gameService.getPlayer(gameId, playerId);
-
-        sessionRegistry.registerSession(new Session(playerId));
-
-        return authService.createPlayerClientToken(player, gameId);
+        gameService.createGame(lobby.getName(), lobbyId, players);
     }
 }

@@ -1,0 +1,7 @@
+<h3>{{ initials() }}</h3>
+@if (style() === 'active'){
+  <div class="active-indicator"></div>
+}
+<div class="emoji-clip" [class.emoji-active]="showEmoji()">
+  <div class="emoji">{{ emoji() }}</div>
+</div>

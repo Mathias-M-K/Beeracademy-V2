@@ -1,0 +1,18 @@
+<h2>{{overlayData.name}}</h2>
+<div class="time">
+  <h1>{{elapsedTime() | gameTimeFormat: 'mm:ss.SSS'}}</h1>
+</div>
+
+<div class="buttons">
+  @if (!timerRunning() && elapsedTime()===0) {
+    <button (click)="startTimer()">Start</button>
+  } @else if (!timerRunning() && elapsedTime() > 0){
+    <button (click)="startTimer()">Prøv igen</button>
+    <button (click)="overlayHandle.close(elapsedTime())">Afslut</button>
+  } @else {
+    <button (click)="stopTimer()">Stop</button>
+  }
+
+
+</div>
+

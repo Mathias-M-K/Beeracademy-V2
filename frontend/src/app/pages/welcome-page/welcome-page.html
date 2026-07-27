@@ -1,1 +1,27 @@
-<div id="create_game_btn" (click)="onCreateGameBtnClicked()">NYT SPIL</div>
+<h1 id="header" (click)="onTitleClick()" (keydown.space)="onTitleClick()">
+  <span>BEER</span><span style="color: var(--primary)">ACADEMY</span>
+</h1>
+
+<div class="content">
+  <input aria-label="lobby id" #lobbyIdInput id="lobby-id-input" placeholder="LOBBY ID" mask="AAA-AAA-AAA">
+  <input aria-label="participant name" #participantNameInput placeholder="DELTAGER NAVN">
+  <button (click)="registerParticipant(participantNameInput.value,lobbyIdInput.value)" class="btn-primary">
+    @if (joiningLobby()) {
+      <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+    } @else {
+      Deltag
+    }
+  </button>
+  <div class="horizontal_line"><span>eller</span></div>
+  <input aria-label="lobbyNameInput" #lobbyNameInput placeholder="LOBBY NAVN"
+         (keyup.enter)="createLobby(lobbyNameInput.value)">
+  <button (click)="createLobby(lobbyNameInput.value)" class="btn-secondary">
+    @if (creatingLobby()) {
+      <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+    } @else {
+      Opret en ny lobby
+    }
+  </button>
+</div>
+
+

@@ -1,0 +1,31 @@
+<div style="grid-area: header">
+  <p class="upper_subtitle">INDSTILLINGER</p>
+  <h2>{{ name }}</h2>
+  <div class="horizontal_line"></div>
+</div>
+
+
+<div style="grid-area: beer-text">
+  <h3>Slurke pr øl</h3>
+  <p class="header_subtitle">Hvor mange slurke tæller for en øl</p>
+</div>
+<div style="grid-area: beer-actions" class="action">
+  <button class="btn-secondary" (click)="decreaseSips()">-</button>
+  <h4>{{ sipsInABeer() }}</h4>
+  <button class="btn-secondary" (click)="increaseSips()">+</button>
+</div>
+
+
+<div style="grid-area: ace-text">
+  <h3>Kan trække es'?</h3>
+  <p class="header_subtitle">Tillad at trække et es fra bunken (bundekortet)</p>
+</div>
+
+<div style="grid-area: ace-actions" class="action">
+  <button class="btn-secondary" (click)="toggleAce()">{{ canDrawAce() ? 'Ja' : 'Nej' }}</button>
+</div>
+
+<div class="action_buttons" style="grid-area: action-btn">
+  <button class="btn-secondary" (click)="isChanged() ? save() : close()">{{ isChanged() ? 'Gem' : 'Tilbage' }}</button>
+</div>
+

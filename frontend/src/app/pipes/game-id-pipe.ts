@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'gameId',
+  standalone: true
 })
 export class GameIdPipe implements PipeTransform {
 
