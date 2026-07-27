@@ -119,22 +119,22 @@ class GameServiceTest {
     @DisplayName("Create Game Tests")
     class CreateGame {
 
-//        @DisplayName("createGame should instantiate and save game correctly")
-//        @Test
-//        void createGameSuccessfully() {
-//            // Arrange
-//            String name = "New Beer Game";
-//            Player p1 = new Player("Alice", "p1", 10, true, new Stats());
-//            Player p2 = new Player("Bob", "p2", 10, true, new Stats());
-//            List<Player> players = List.of(p1, p2);
-//
-//            // Act
-//            gameService.createGame(name,"", players);
-//
-//            // Assert
-//            assertThat(generatedId, is(notNullValue()));
-//            verify(gameSnapshots).set(eq(generatedId), any(GameSnapshot.class));
-//        }
+        //        @DisplayName("createGame should instantiate and save game correctly")
+        //        @Test
+        //        void createGameSuccessfully() {
+        //            // Arrange
+        //            String name = "New Beer Game";
+        //            Player p1 = new Player("Alice", "p1", 10, true, new Stats());
+        //            Player p2 = new Player("Bob", "p2", 10, true, new Stats());
+        //            List<Player> players = List.of(p1, p2);
+        //
+        //            // Act
+        //            gameService.createGame(name,"", players);
+        //
+        //            // Assert
+        //            assertThat(generatedId, is(notNullValue()));
+        //            verify(gameSnapshots).set(eq(generatedId), any(GameSnapshot.class));
+        //        }
     }
 
     @Nested

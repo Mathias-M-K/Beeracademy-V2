@@ -36,9 +36,10 @@ public class TokenInfo {
 
     /**
      * Returns the ID of the client, whether is a game- or player-client
+     *
      * @return client ID
      */
-    public String getClientId(){
+    public String getClientId() {
         return switch (role) {
             case GAME_CLIENT -> this.gameId;
             case PLAYER_CLIENT -> this.playerId;

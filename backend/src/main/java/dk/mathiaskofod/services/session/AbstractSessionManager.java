@@ -12,9 +12,8 @@ import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractSessionManager implements WebsocketSessionManager {
@@ -67,7 +66,8 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
         }
     }
 
-    protected void provideIdentityToClient(TokenInfo tokenInfo, Function<IdentityEvent, WebsocketEnvelope<?>> envelope) {
+    protected void provideIdentityToClient(
+            TokenInfo tokenInfo, Function<IdentityEvent, WebsocketEnvelope<?>> envelope) {
         IdentityEvent event = new IdentityEvent(tokenInfo.getRole(), tokenInfo.getClientId());
         sendMessage(tokenInfo.getClientId(), envelope.apply(event));
     }

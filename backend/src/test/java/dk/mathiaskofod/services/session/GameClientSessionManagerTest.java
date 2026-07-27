@@ -256,7 +256,6 @@ class GameClientSessionManagerTest {
     @DisplayName("Observer Events Tests")
     class ObserverEvents {
 
-
         @DisplayName("onGameEvent should map StartGameEvent and broadcast envelope")
         @Test
         void startGameEventObserved() {

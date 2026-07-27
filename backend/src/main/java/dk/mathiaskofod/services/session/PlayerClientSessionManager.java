@@ -86,11 +86,12 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
         switch (payload) {
             case DrawCardAction(long duration) -> onDrawCardAction(duration, gameId, playerId);
             case RelinquishPlayerAction() -> relinquishPlayer(gameId, playerId);
-            default -> throw new BaseException(
-                    String.format(
-                            "Action type %s not yet supported",
-                            payload.getClass().getSimpleName()),
-                    400);
+            default ->
+                throw new BaseException(
+                        String.format(
+                                "Action type %s not yet supported",
+                                payload.getClass().getSimpleName()),
+                        400);
         }
     }
 

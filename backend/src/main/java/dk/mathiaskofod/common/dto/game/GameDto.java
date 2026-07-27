@@ -52,7 +52,8 @@ public record GameDto(
                 lastPlayerToDraw,
                 players,
                 remainingCardsCount,
-                new TimerReports(TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer())),
+                new TimerReports(
+                        TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer())),
                 gameSession);
     }
 }

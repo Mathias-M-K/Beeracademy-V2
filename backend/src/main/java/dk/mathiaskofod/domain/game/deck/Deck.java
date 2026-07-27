@@ -4,11 +4,10 @@ import dk.mathiaskofod.domain.game.deck.exceptions.NotEnoughSuitesAvailableExcep
 import dk.mathiaskofod.domain.game.deck.exceptions.OutOfCardsException;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.deck.models.Suit;
-import lombok.Getter;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 
 public class Deck {
 

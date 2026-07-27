@@ -9,7 +9,6 @@ import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.game.common.GameSnapshotEvent;
 import dk.mathiaskofod.services.session.repository.Session;
 import jakarta.inject.Inject;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,10 +41,10 @@ public abstract class AbstractGameSessionManager extends AbstractSessionManager 
         }
     }
 
-    protected void provideGameSnapshotToClient(TokenInfo tokenInfo, Function<GameSnapshotEvent, WebsocketEnvelope<?>> envelope) {
+    protected void provideGameSnapshotToClient(
+            TokenInfo tokenInfo, Function<GameSnapshotEvent, WebsocketEnvelope<?>> envelope) {
         GameDto game = gameSessionService.getGameView(tokenInfo.getGameId());
         GameSnapshotEvent gameSnapshotEvent = new GameSnapshotEvent(game);
         sendMessage(tokenInfo.getClientId(), envelope.apply(gameSnapshotEvent));
     }
-
 }

@@ -132,7 +132,8 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                 positions.forEach(participantPosition -> this.lobbyService.changeParticipantPosition(
                         lobbyId, participantPosition.participantId(), participantPosition.newPosition()));
 
-                List<LobbyParticipantDTO> participants = LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId)).participants();
+                List<LobbyParticipantDTO> participants =
+                        LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId)).participants();
                 ParticipantsRearrangedEvent event = new ParticipantsRearrangedEvent(participants);
                 broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
             }

@@ -1,10 +1,9 @@
 package dk.mathiaskofod.api.lobby.models.dto;
 
 import dk.mathiaskofod.services.lobby.models.Lobby;
+import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import java.util.Comparator;
 import java.util.List;
-
-import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "Data transfer object representing a game lobby and its participants")

@@ -50,7 +50,8 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
         }
     }
 
-    protected void provideLobbySnapshotToClient(TokenInfo tokenInfo, Function<LobbySnapshotEvent,WebsocketEnvelope<?>> envelope){
+    protected void provideLobbySnapshotToClient(
+            TokenInfo tokenInfo, Function<LobbySnapshotEvent, WebsocketEnvelope<?>> envelope) {
         LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(tokenInfo.getGameId()));
         LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
         sendMessage(tokenInfo.getClientId(), envelope.apply(lobbySnapshotEvent));

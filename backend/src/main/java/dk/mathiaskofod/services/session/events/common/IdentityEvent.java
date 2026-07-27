@@ -8,4 +8,5 @@ import dk.mathiaskofod.services.session.events.lobby.participant.LobbyParticipan
 import dk.mathiaskofod.services.session.models.annotations.EventType;
 
 @EventType("HELLO_IDENTITY")
-public record IdentityEvent(Role role, String id) implements LobbyParticipantEvent, LobbyClientEvent, GameClientEvent, PlayerClientEvent {}
+public record IdentityEvent(Role role, String id)
+        implements LobbyParticipantEvent, LobbyClientEvent, GameClientEvent, PlayerClientEvent {}

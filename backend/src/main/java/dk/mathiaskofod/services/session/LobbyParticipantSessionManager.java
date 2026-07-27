@@ -49,7 +49,6 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
 
         provideLobbySnapshotToClient(tokenInfo, LobbyParticipantEventEnvelope::new);
         provideIdentityToClient(tokenInfo, LobbyParticipantEventEnvelope::new);
-
     }
 
     @Override

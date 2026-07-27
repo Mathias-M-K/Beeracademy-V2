@@ -24,7 +24,6 @@ import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
-
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -250,31 +249,31 @@ class PlayerClientSessionManagerTest {
     @DisplayName("Observer & Broadcast Events Tests")
     class ObserverBroadcasts {
 
-//        private void setupActiveGameWithPlayers() {
-//            Game game = mock(Game.class);
-//            Player p1 = mock(Player.class);
-//            when(p1.id()).thenReturn("p1");
-//            Player p2 = mock(Player.class);
-//            when(p2.id()).thenReturn("p2");
-//
-//            when(game.getPlayers()).thenReturn(List.of(p1, p2));
-//            when(gameService.getGame(GAME_ID)).thenReturn(game);
-//
-//            // Setup active connections for both players
-//            Session s1 = mock(Session.class);
-//            when(s1.getConnectionId()).thenReturn(Optional.of("conn-p1"));
-//            when(s1.getSessionId()).thenReturn("p1");
-//            when(sessionRegistry.getSession("p1")).thenReturn(Optional.of(s1));
-//
-//            Session s2 = mock(Session.class);
-//            when(s2.getConnectionId()).thenReturn(Optional.of("conn-p2"));
-//            when(s2.getSessionId()).thenReturn("p2");
-//            when(sessionRegistry.getSession("p2")).thenReturn(Optional.of(s2));
-//
-//            WebSocketConnection c1 = mock(WebSocketConnection.class);
-//            WebSocketConnection c2 = mock(WebSocketConnection.class);
-//            when(connections.findByConnectionId("conn-p1")).thenReturn(Optional.of(c1));
-//            when(connections.findByConnectionId("conn-p2")).thenReturn(Optional.of(c2));
-//        }
+        //        private void setupActiveGameWithPlayers() {
+        //            Game game = mock(Game.class);
+        //            Player p1 = mock(Player.class);
+        //            when(p1.id()).thenReturn("p1");
+        //            Player p2 = mock(Player.class);
+        //            when(p2.id()).thenReturn("p2");
+        //
+        //            when(game.getPlayers()).thenReturn(List.of(p1, p2));
+        //            when(gameService.getGame(GAME_ID)).thenReturn(game);
+        //
+        //            // Setup active connections for both players
+        //            Session s1 = mock(Session.class);
+        //            when(s1.getConnectionId()).thenReturn(Optional.of("conn-p1"));
+        //            when(s1.getSessionId()).thenReturn("p1");
+        //            when(sessionRegistry.getSession("p1")).thenReturn(Optional.of(s1));
+        //
+        //            Session s2 = mock(Session.class);
+        //            when(s2.getConnectionId()).thenReturn(Optional.of("conn-p2"));
+        //            when(s2.getSessionId()).thenReturn("p2");
+        //            when(sessionRegistry.getSession("p2")).thenReturn(Optional.of(s2));
+        //
+        //            WebSocketConnection c1 = mock(WebSocketConnection.class);
+        //            WebSocketConnection c2 = mock(WebSocketConnection.class);
+        //            when(connections.findByConnectionId("conn-p1")).thenReturn(Optional.of(c1));
+        //            when(connections.findByConnectionId("conn-p2")).thenReturn(Optional.of(c2));
+        //        }
     }
 }
