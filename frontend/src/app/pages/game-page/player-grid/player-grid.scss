@@ -6,3 +6,20 @@
   border-radius: 10px;
   justify-content: space-around;
 }
+
+@media (max-width: 500px) {
+  :host{
+    scroll-snap-type: x mandatory;
+    height: 300px;
+    display: grid;
+    width: 100%;
+    overflow: auto;
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+  }
+
+  app-player-card{
+    scroll-snap-align: start;
+  }
+}

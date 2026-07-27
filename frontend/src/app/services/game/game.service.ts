@@ -62,7 +62,7 @@ export class GameService {
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
   public currentPlayer = linkedSignal(() => {
-    const players = this.players();
+    const players = this.gameStateObj()?.players;
     const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw;
 
     if (!players || !currentPlayerId) return;
