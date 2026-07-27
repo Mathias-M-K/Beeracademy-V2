@@ -74,6 +74,11 @@
 
 @media (max-width: 850px) {
   :host {
+    overflow: auto;
+    height: 100dvh;
+    width: 100dvw;
+    padding: 5dvw;
+    margin: 0;
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     grid-template-areas:

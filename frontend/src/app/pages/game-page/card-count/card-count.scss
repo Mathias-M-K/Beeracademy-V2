@@ -1,14 +1,21 @@
 :host {
-  display: flex;
-  position: relative;
+  display: grid;
   gap: 10px;
+  grid-template-columns: auto 1fr;
+
   background-color: white;
-  justify-content: space-between;
 
   border: 1px solid lightgray;
   border-radius: 10px;
 
   padding: 5px;
+}
+
+.ranks{
+  display: grid;
+  grid-template-columns: repeat(13,minmax(auto, 100px));
+  justify-content: space-between;
+  gap: 5px;
 }
 
 .panel {
@@ -84,4 +91,13 @@ h3{
 }
 h3 > div:nth-child(2) {
   color: var(--color-grey-500);
+}
+
+@media (max-width: 700px) {
+  :host{
+    grid-template-columns: auto;
+  }
+  .ranks{
+    grid-template-columns: repeat(7,minmax(20px, 100px));
+  }
 }

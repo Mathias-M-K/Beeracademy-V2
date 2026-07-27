@@ -18,4 +18,35 @@
   gap: 20px;
 }
 
+.compact-card{
+  display: grid;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-stats > div > h4{
+  margin-top: 7px;
+}
+
+@media (max-width: 650px){
+  :host{
+    padding: 15px;
+    grid-template-columns: auto 3fr;
+    grid-template-rows: 1fr;
+  }
+
+  .player-stats{
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .compact-card > app-card{
+    width: 120px;
+  }
+
+  .compact-card > button{
+    width: 100%;
+  }
+}
+
 

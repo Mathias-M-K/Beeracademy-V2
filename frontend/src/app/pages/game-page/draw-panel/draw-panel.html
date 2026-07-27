@@ -1,5 +1,14 @@
-<app-card (keydown)="drawCardClick.emit()" (click)="drawCardClick.emit()" [isBackside]="true"></app-card>
-<app-card [card]="currentCard()"></app-card>
+@if (isCompact()) {
+  <div class="compact-card">
+    <app-card [card]="currentCard()"></app-card>
+    <button (click)="drawCardClick.emit()">Draw!</button>
+  </div>
+} @else {
+  <app-card (keydown)="drawCardClick.emit()" (click)="drawCardClick.emit()" [isBackside]="true"></app-card>
+  <app-card [card]="currentCard()"></app-card>
+}
+
+
 
 <div class="player-info">
   <p class="upper_subtitle">Nu trækker</p>
@@ -10,7 +19,6 @@
     @let lastCard = currentPlayer()?.stats?.turns?.at(-1)?.card;
     <div>
       <p class="upper_subtitle">Sidste kort</p>
-
       <h4>{{lastCard?.rank}} - {{lastCard?.suit}}</h4>
     </div>
     <div>

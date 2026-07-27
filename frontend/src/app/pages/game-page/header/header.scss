@@ -1,10 +1,14 @@
+
+
 :host{
   display: grid;
-  grid-template-columns:repeat(auto-fit,minmax(100px, 1fr));
+  grid-template-columns:1fr auto;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
+
+
 
 button{
   height: 40px;
@@ -22,18 +26,47 @@ button{
   gap: inherit;
 }
 
-#center{
-  display: grid;
-  align-items: inherit;
-  justify-content: center;
-  gap: inherit;
-}
+
 
 #right{
   display: grid;
-  grid-template-columns:repeat(3,auto);
+  grid-template-areas: 'clock time-btn share-btn';
   align-items: inherit;
   justify-content: end;
   gap: inherit;
+}
+
+@media (max-width: 500px) {
+  h2,h3{
+    margin: 0;
+  }
+
+  :host{
+    grid-template-columns: 1fr auto;
+    column-gap: 20px;
+    justify-content: start;
+    align-items: start;
+  }
+
+  #left{
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: start;
+    justify-items: start;
+  }
+  #left h2{
+    grid-column: 1/-1;
+  }
+
+  #right{
+    grid-template-areas:
+      'clock clock'
+      'time-btn share-btn';
+
+    gap: 5px;
+    grid-template-columns: auto;
+    justify-content: end;
+    text-align: end;
+  }
 }
 

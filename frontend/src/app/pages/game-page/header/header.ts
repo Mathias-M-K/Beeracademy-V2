@@ -2,11 +2,13 @@ import {Component, input, output} from '@angular/core';
 import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 import {TimerState} from '../../../../api-models/model/timerState';
 import {GameInfo} from '../../../services/game/models/game-info';
+import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
 
 @Component({
   selector: 'app-header',
   imports: [
-    GameTimeFormatPipe
+    GameTimeFormatPipe,
+    MaterialIcon
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss',

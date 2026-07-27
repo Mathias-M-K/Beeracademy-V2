@@ -4,20 +4,27 @@
   <p>Spillere <span>12</span></p>
 </div>
 
-<div id="center"></div>
-
 <div id="right">
-  <p>{{gameTime() | gameTimeFormat: 'HH:mm:ss'}}</p>
+  <h3 [style.grid-area]="'clock'">{{gameTime() | gameTimeFormat: 'HH:mm:ss'}}</h3>
 
-  @if (timerState() === TimerState.Paused) {
-    <button class="btn-tertiary btn-icon" (click)="resumeClick.emit()">▶</button>
-  } @else if (timerState() === TimerState.NotStarted) {
-    <button (click)="startClick.emit()">Start!</button>
-  } @else {
-    <button class="btn-tertiary btn-icon" (click)="pauseClick.emit()">⏸</button>
-  }
+  <div [style.grid-area]="'time-btn'">
+    @if (timerState() === TimerState.Paused) {
+      <button class="btn-tertiary btn-icon" (click)="resumeClick.emit()">
+        <material-icon icon="play_arrow"></material-icon>
+      </button>
+    } @else if (timerState() === TimerState.NotStarted) {
+      <button (click)="startClick.emit()">Start!</button>
+    } @else {
+      <button class="btn-tertiary btn-icon" (click)="pauseClick.emit()">
+        <material-icon icon="pause"></material-icon>
+      </button>
+    }
+  </div>
 
-  <button class="btn-secondary">Del</button>
+
+  <button [style.grid-area]="'share-btn'" class="btn-secondary btn-icon">
+    <material-icon icon="share"></material-icon>
+  </button>
 </div>
 
 
