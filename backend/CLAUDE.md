@@ -297,6 +297,12 @@ Located at `src/main/resources/application.properties`
 - SLF4J for logging
 - Jakarta EE 10+ (Jakarta namespace, not Java EE)
 
+### Test Style
+
+- Tests follow the **AAA (Arrange, Act, Assert)** pattern with explicit section comments in every test method: `// Arrange`, `// Act`, `// Assert`.
+- For tests that only assert an exception, combine the final two into `// Act & Assert` (used with `assertThrows`).
+- Put a blank line between each section; the comment sits on its own line above the section. Mirror existing `*Test.java` files (e.g. `GameClientSessionManagerTest`, `GameServiceTest`).
+
 ## MCP Server: Quarkus Dev
 
 The Quarkus MCP server provides access to the running Quarkus Dev Mode application at `http://localhost:8080/q/dev-mcp`.

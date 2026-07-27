@@ -1,0 +1,119 @@
+package dk.mathiaskofod.websocket.lobby;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
+import dk.mathiaskofod.services.auth.models.Role;
+import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.session.LobbyClientSessionManager;
+import dk.mathiaskofod.services.session.LobbyParticipantSessionManager;
+import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import io.quarkus.websockets.next.CloseReason;
+import io.quarkus.websockets.next.WebSocketConnection;
+import java.util.Set;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class LobbyWebsocketTest {
+
+    @Mock
+    JsonWebToken jwt;
+
+    @Mock
+    LobbyClientSessionManager lobbyClientSessionManager;
+
+    @Mock
+    LobbyParticipantSessionManager lobbyParticipantSessionManager;
+
+    @Mock
+    WebSocketConnection connection;
+
+    LobbyWebsocket websocket;
+
+    private static final String CONN_ID = "conn-1";
+    private static final String GAME_ID = "lobby-1";
+
+    @BeforeEach
+    void setUp() {
+        websocket = new LobbyWebsocket();
+        websocket.jwt = jwt;
+        websocket.lobbyClientSessionManager = lobbyClientSessionManager;
+        websocket.lobbyParticipantSessionManager = lobbyParticipantSessionManager;
+        websocket.connection = connection;
+
+        when(connection.id()).thenReturn(CONN_ID);
+        when(jwt.<String>getClaim(CustomJwtClaims.GAME_ID.getName())).thenReturn(GAME_ID);
+    }
+
+    private void asRole(Role role) {
+        when(jwt.getGroups()).thenReturn(Set.of(role.toString()));
+        when(jwt.<String>getClaim(CustomJwtClaims.PLAYER_ID.getName())).thenReturn("player-1");
+    }
+
+    @DisplayName("onOpen routes a lobby-client connection to the client session manager")
+    @Test
+    void onOpenClient() {
+        // Arrange
+        asRole(Role.GAME_CLIENT);
+
+        // Act
+        websocket.onOpen();
+
+        // Assert
+        verify(lobbyClientSessionManager).onNewConnection(eq(CONN_ID), any(TokenInfo.class));
+    }
+
+    @DisplayName("onOpen routes a participant connection to the participant session manager")
+    @Test
+    void onOpenParticipant() {
+        // Arrange
+        asRole(Role.PLAYER_CLIENT);
+
+        // Act
+        websocket.onOpen();
+
+        // Assert
+        verify(lobbyParticipantSessionManager).onNewConnection(eq(CONN_ID), any(TokenInfo.class));
+    }
+
+    @DisplayName("onClose delegates to the resolved session manager")
+    @Test
+    void onClose() {
+        // Arrange
+        asRole(Role.GAME_CLIENT);
+        CloseReason reason = new CloseReason(3000, "bye");
+
+        // Act
+        websocket.onClose(reason);
+
+        // Assert
+        verify(lobbyClientSessionManager).onConnectionClosed(any(TokenInfo.class), eq(reason));
+    }
+
+    @DisplayName("onMessage delegates to the resolved session manager")
+    @Test
+    void onMessage() {
+        // Arrange
+        asRole(Role.PLAYER_CLIENT);
+        WebsocketEnvelope<?> message = mock(WebsocketEnvelope.class);
+
+        // Act
+        websocket.onMessage(message);
+
+        // Assert
+        verify(lobbyParticipantSessionManager).onMessage(any(TokenInfo.class), eq(message));
+    }
+}

@@ -51,6 +51,7 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
         log.info("Game client disconnected. GameID:{}", gameId);
     }
 
+
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
