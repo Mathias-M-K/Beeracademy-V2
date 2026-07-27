@@ -6,27 +6,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dk.mathiaskofod.common.dto.game.GameDto;
+import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.GameService;
+import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.actions.game.player.RelinquishPlayerAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.services.session.events.game.playerclient.PlayerClientEvent;
-import dk.mathiaskofod.services.session.events.game.playerclient.PlayerConnectedEvent;
-import dk.mathiaskofod.services.session.events.game.playerclient.PlayerDisconnectedEvent;
-import dk.mathiaskofod.services.session.events.game.playerclient.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
-import jakarta.enterprise.event.Event;
 
+import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -52,7 +51,7 @@ class PlayerClientSessionManagerTest {
     OpenConnections connections;
 
     @Mock
-    Event<PlayerClientEvent> eventBus;
+    GameSessionService gameSessionService;
 
     @Mock
     TokenInfo tokenInfo;
@@ -62,6 +61,7 @@ class PlayerClientSessionManagerTest {
     private static final String GAME_ID = "game-123";
     private static final String PLAYER_ID = "player-p1";
     private static final String CONN_ID = "websocket-conn-456";
+    private static final String GAME_CONN_ID = "websocket-conn-game";
 
     @BeforeEach
     void setUp() {
@@ -70,6 +70,7 @@ class PlayerClientSessionManagerTest {
         sessionManager.gameService = gameService;
         sessionManager.lobbyService = lobbyService;
         sessionManager.connections = connections;
+        sessionManager.gameSessionService = gameSessionService;
     }
 
     private void mockActiveWebsocketConnection(String sessionId) {
@@ -81,38 +82,66 @@ class PlayerClientSessionManagerTest {
         when(connections.findByConnectionId(CONN_ID)).thenReturn(Optional.of(connection));
     }
 
+    /**
+     * Sets up a connected game-client as the sole party member so broadcastToParty delivers to it.
+     *
+     * @return the game-client's websocket connection, for verifying the broadcast was delivered
+     */
+    private WebSocketConnection mockConnectedGameClient() {
+        Session gameClientSession = mock(Session.class);
+        when(sessionRegistry.getSession(GAME_ID)).thenReturn(Optional.of(gameClientSession));
+        when(gameClientSession.isConnected()).thenReturn(true);
+        when(gameClientSession.getSessionId()).thenReturn(GAME_ID);
+        when(gameClientSession.getConnectionId()).thenReturn(Optional.of(GAME_CONN_ID));
+
+        Game game = mock(Game.class);
+        when(game.getPlayers()).thenReturn(Collections.emptyList());
+        when(gameService.getGame(GAME_ID)).thenReturn(game);
+
+        WebSocketConnection gameClientConnection = mock(WebSocketConnection.class);
+        when(connections.findByConnectionId(GAME_CONN_ID)).thenReturn(Optional.of(gameClientConnection));
+        return gameClientConnection;
+    }
+
     @Nested
     @DisplayName("Connection Lifecycle Tests")
     class ConnectionLifecycle {
 
-        @DisplayName("onNewConnection stages connection and fires player event")
+        @DisplayName("onNewConnection stages connection and broadcasts player event")
         @Test
         void newConnectionSuccessfully() {
             // Arrange
             when(tokenInfo.getGameId()).thenReturn(GAME_ID);
             when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
+            when(tokenInfo.getClientId()).thenReturn(PLAYER_ID);
+            when(gameSessionService.getGameView(GAME_ID)).thenReturn(mock(GameDto.class));
+
+            WebSocketConnection gameClientConnection = mockConnectedGameClient();
+            mockActiveWebsocketConnection(PLAYER_ID);
 
             // Act
             sessionManager.onNewConnection(CONN_ID, tokenInfo);
 
             // Assert
             verify(sessionRegistry).setConnectionId(PLAYER_ID, CONN_ID);
-            verify(eventBus).fire(any(PlayerConnectedEvent.class));
+            verify(gameClientConnection).sendTextAndAwait(any(WebsocketEnvelope.class));
         }
 
-        @DisplayName("onConnectionClosed clears connection and fires player event")
+        @DisplayName("onConnectionClosed clears connection and broadcasts player event")
         @Test
         void connectionClosedSuccessfully() {
             // Arrange
             when(tokenInfo.getGameId()).thenReturn(GAME_ID);
             when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
 
+            WebSocketConnection gameClientConnection = mockConnectedGameClient();
+
             // Act
             sessionManager.onConnectionClosed(tokenInfo, null);
 
             // Assert
             verify(sessionRegistry).clearConnectionId(PLAYER_ID);
-            verify(eventBus).fire(any(PlayerDisconnectedEvent.class));
+            verify(gameClientConnection).sendTextAndAwait(any(WebsocketEnvelope.class));
         }
     }
 
@@ -130,18 +159,19 @@ class PlayerClientSessionManagerTest {
             assertThrows(SessionNotFoundException.class, () -> sessionManager.relinquishPlayer(GAME_ID, PLAYER_ID));
         }
 
-        @DisplayName("relinquishPlayer closes connection, removes session, and fires event")
+        @DisplayName("relinquishPlayer closes connection, removes session, and broadcasts event")
         @Test
         void relinquishPlayerSuccessfully() {
             // Arrange
             mockActiveWebsocketConnection(PLAYER_ID);
+            WebSocketConnection gameClientConnection = mockConnectedGameClient();
 
             // Act
             sessionManager.relinquishPlayer(GAME_ID, PLAYER_ID);
 
             // Assert
             verify(sessionRegistry).removeSession(PLAYER_ID);
-            verify(eventBus).fire(any(PlayerRelinquishedEvent.class));
+            verify(gameClientConnection).sendTextAndAwait(any(WebsocketEnvelope.class));
         }
     }
 
@@ -167,6 +197,7 @@ class PlayerClientSessionManagerTest {
             when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
 
             mockActiveWebsocketConnection(PLAYER_ID);
+            mockConnectedGameClient();
 
             PlayerClientActionEnvelope envelope = new PlayerClientActionEnvelope(new RelinquishPlayerAction());
 

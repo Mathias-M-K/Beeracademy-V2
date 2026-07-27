@@ -61,13 +61,14 @@ export class GameService {
 
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
-  public currentPlayer = linkedSignal(() => {
-    const players = this.gameStateObj()?.players;
-    const currentPlayerId = this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw;
+  private readonly currentPlayerId = linkedSignal(() =>
+    this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,
+  );
 
-    if (!players || !currentPlayerId) return;
-
-    return players.find((player) => player.id === currentPlayerId);
+  public readonly currentPlayer = computed(() => {
+    const id = this.currentPlayerId();
+    if (!id) return undefined;
+    return this.players().find((player) => player.id === id);
   });
 
   public awaitingChugFromPlayer = linkedSignal(() => {
@@ -179,8 +180,7 @@ export class GameService {
       ),
     );
 
-    const currentPlayerId = isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw;
-    this.currentPlayer.set(this.getPlayer(currentPlayerId));
+    this.currentPlayerId.set(isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw);
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
     this.resetTimer(this.playerTimeReport);
@@ -203,7 +203,7 @@ export class GameService {
   private handleChugEvent(event: GameEventEnvelope) {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
-    this.currentPlayer.set(this.getPlayer(chugEvent.nextToDraw));
+    this.currentPlayerId.set(chugEvent.nextToDraw);
     this.awaitingChugFromPlayer.set(undefined);
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
@@ -294,10 +294,6 @@ export class GameService {
         state: TimerState.Paused,
       };
     });
-  }
-
-  private getPlayer(playerId: string): Player | undefined {
-    return this.players().find((player) => player.id === playerId);
   }
 
   public addChugToPlayer(chug: Chug, playerId: string): void {

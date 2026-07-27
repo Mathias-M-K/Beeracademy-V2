@@ -1,11 +1,13 @@
 package dk.mathiaskofod.services.session;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
+import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.deck.models.Card;
 import dk.mathiaskofod.domain.game.deck.models.Suit;
 import dk.mathiaskofod.domain.game.events.ChugEvent;
@@ -87,9 +89,16 @@ class GameClientSessionManagerTest {
         Session session = mock(Session.class);
         when(sessionRegistry.getSession(sessionId)).thenReturn(Optional.of(session));
         when(session.getConnectionId()).thenReturn(Optional.of(CONN_ID));
+        when(session.isConnected()).thenReturn(true);
+        when(session.getSessionId()).thenReturn(sessionId);
 
         WebSocketConnection connection = mock(WebSocketConnection.class);
         when(connections.findByConnectionId(CONN_ID)).thenReturn(Optional.of(connection));
+
+        // broadcastToParty iterates the game's players; an empty roster keeps the party to the game client only
+        Game game = mock(Game.class);
+        when(game.getPlayers()).thenReturn(Collections.emptyList());
+        when(gameService.getGame(GAME_ID)).thenReturn(game);
     }
 
     @Nested
@@ -101,6 +110,7 @@ class GameClientSessionManagerTest {
         void newConnectionSuccessfully() {
             // Arrange
             when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getClientId()).thenReturn(GAME_ID);
             when(gameService.gameExists(GAME_ID)).thenReturn(true);
 
             GameDto gameDto = mock(GameDto.class);
@@ -113,7 +123,8 @@ class GameClientSessionManagerTest {
 
             // Assert
             verify(sessionRegistry).setConnectionId(GAME_ID, CONN_ID);
-            verify(connections).findByConnectionId(CONN_ID);
+            // Called for the broadcast plus the game-snapshot and identity messages
+            verify(connections, atLeastOnce()).findByConnectionId(CONN_ID);
         }
 
         @DisplayName("onNewConnection throws GameNotFoundException if game does not exist")
