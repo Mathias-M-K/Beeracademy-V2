@@ -98,6 +98,9 @@ h3 > div:nth-child(2) {
     grid-template-columns: auto;
   }
   .ranks{
-    grid-template-columns: repeat(7,minmax(20px, 100px));
+    padding-bottom: 10px;
+    grid-template-columns: repeat(13,55px);
+    width: 100%;
+    overflow: auto;
   }
 }
