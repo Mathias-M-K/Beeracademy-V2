@@ -3,7 +3,7 @@ plugins {
     id 'io.quarkus'
     id "org.sonarqube" version "7.2.2.6593"
     id 'jacoco'
-    id "com.diffplug.spotless" version "8.4.0"
+//    id "com.diffplug.spotless" version "8.4.0"
 }
 java {
     toolchain {
@@ -148,37 +148,37 @@ tasks.register('manual_deploy') {
     dockerBuild.mustRunAfter build
 }
 
-spotless {
-    java {
-
-        target('src/**/*.java')
-
-        removeUnusedImports()
-
-        // apply a specific flavor of google-java-format
-        palantirJavaFormat().formatJavadoc(true)
-
-        // fix formatting of type annotations
-        formatAnnotations()
-
-        //TODO fix spotless. Either it works and does what I want or it's out
-
-        // palantir-java-format 2.80.0 cannot tokenize record deconstruction patterns inside
-        // instanceof (e.g. `x instanceof Envelope(Action a)`), so it fails to parse these whole
-        // files. Suppress that specific parse-failure lint for them until the formatter supports it.
-        def recordPatternFiles = [
-            'src/main/java/dk/mathiaskofod/services/session/GameClientSessionManager.java',
-            'src/main/java/dk/mathiaskofod/services/session/PlayerClientSessionManager.java',
-            'src/main/java/dk/mathiaskofod/services/session/LobbyClientSessionManager.java',
-            'src/main/java/dk/mathiaskofod/services/session/LobbyParticipantSessionManager.java',
-        ]
-        recordPatternFiles.each { file ->
-            suppressLintsFor {
-                step = 'palantir-java-format'
-                path = file
-            }
-        }
-    }
-}
+//spotless {
+//    java {
+//
+//        target('src/**/*.java')
+//
+//        removeUnusedImports()
+//
+//        // apply a specific flavor of google-java-format
+//        palantirJavaFormat().formatJavadoc(true)
+//
+//        // fix formatting of type annotations
+//        formatAnnotations()
+//
+//        //TODO fix spotless. Either it works and does what I want or it's out
+//
+//        // palantir-java-format 2.80.0 cannot tokenize record deconstruction patterns inside
+//        // instanceof (e.g. `x instanceof Envelope(Action a)`), so it fails to parse these whole
+//        // files. Suppress that specific parse-failure lint for them until the formatter supports it.
+//        def recordPatternFiles = [
+//            'src/main/java/dk/mathiaskofod/services/session/GameClientSessionManager.java',
+//            'src/main/java/dk/mathiaskofod/services/session/PlayerClientSessionManager.java',
+//            'src/main/java/dk/mathiaskofod/services/session/LobbyClientSessionManager.java',
+//            'src/main/java/dk/mathiaskofod/services/session/LobbyParticipantSessionManager.java',
+//        ]
+//        recordPatternFiles.each { file ->
+//            suppressLintsFor {
+//                step = 'palantir-java-format'
+//                path = file
+//            }
+//        }
+//    }
+//}
 
 
