@@ -1,4 +1,4 @@
-import {Component, inject, linkedSignal, OnInit} from '@angular/core';
+import {Component, inject, linkedSignal} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {ConnectionStatus} from '../../services/models/connection-status';
@@ -29,7 +29,7 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
     DotLoader
   ]
 })
-export class LobbyPage implements OnInit {
+export class LobbyPage {
 
   public readonly lobbyService = inject(LobbyService)
   private readonly overlayService = inject(OverlayService);
@@ -63,7 +63,10 @@ export class LobbyPage implements OnInit {
 
     const overlayHandle =
       this.overlayService
-        .openOverlay<ParticipantSettingsResult, LobbyParticipantDTO>({component: ParticipantSettingsOverlay, data: actualParticipant});
+        .openOverlay<ParticipantSettingsResult, LobbyParticipantDTO>({
+          component: ParticipantSettingsOverlay,
+          data: actualParticipant
+        });
 
     overlayHandle.closed.then(result => {
       if (!result) {
@@ -72,11 +75,13 @@ export class LobbyPage implements OnInit {
       this.lobbyService.requestParticipantSettingsUpdate(result.sipsInABeer, result.canDrawAce, actualParticipant.id);
     })
   }
-  createJoinLink(){
-    return document.baseURI + '#/join/'+ this.lobbyService.lobbyId();
+
+  createJoinLink() {
+    return document.baseURI + '#/join/' + this.lobbyService.lobbyId();
   }
-  showQrCode(){
-    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId()??'Ukendt'}
+
+  showQrCode() {
+    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId() ?? 'Ukendt'}
     this.overlayService.openOverlay<void>({component: QrCodeOverlay, data: joinData});
   }
 

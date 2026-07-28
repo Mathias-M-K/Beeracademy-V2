@@ -1,6 +1,6 @@
 import { Component, computed, ElementRef, inject, OnDestroy, signal } from '@angular/core';
 import { MaterialIcon } from '../../common/components/material-icon/material-icon';
-import { OverlayHandle } from '../../services/overlay/models/overlay-handle';
+import {OVERLAY_DATA, OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 
 @Component({
@@ -13,10 +13,11 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
   },
 })
 export class BeerLoaderOverlay implements OnDestroy {
+  private readonly loaderMessages = inject(OVERLAY_DATA) as string[];
   private readonly handle = inject(OverlayHandle);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  private readonly messages = ['Henter lobby…', 'Tapper øl…', 'Pakker kortene…'];
+  private readonly messages = this.loaderMessages ?? ['Henter lobby…', 'Tapper øl…', 'Pakker kortene…'];
   private readonly index = signal(0);
 
   protected readonly statusText = computed(() => this.messages[this.index()]);
@@ -75,7 +76,7 @@ export class BeerLoaderOverlay implements OnDestroy {
 
       el.addEventListener('animationend', onEnd);
       // Safety net in case animationend never fires (e.g. reduced motion).
-      const fallback = setTimeout(done, 500);
+      const fallback = setTimeout(done, 5000);
 
       this.leaving.set(true);
     });

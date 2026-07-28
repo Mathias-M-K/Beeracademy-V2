@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  computed, effect,
   inject,
   OnDestroy,
   OnInit
@@ -16,6 +16,8 @@ import {CardCount} from './card-count/card-count';
 import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
+import {OverlayService} from '../../services/overlay/overlay.service';
+import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 
 @Component({
   selector: 'app-game-page',
@@ -40,8 +42,8 @@ export class GamePage implements OnInit, OnDestroy {
   private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
   private readonly websocketService = inject(WebsocketService);
   private readonly gameService: GameService = inject(GameService);
+  private readonly overlayService = inject(OverlayService);
 
-  protected connectionStatus = computed(() => this.websocketService.connectionStatus());
   protected players = this.gameService.players;
   protected gameInfo = this.gameService.gameInfo;
   protected currentCard = this.gameService.currentCard;
@@ -57,6 +59,16 @@ export class GamePage implements OnInit, OnDestroy {
 
   remainingCardsCount = this.gameService.remainingCardsCount;
 
+  constructor() {
+    const loaderMsg = ['Henter øl','Blander kort','Varmer serveren op','Tjekker vejeret','Drikker en øl']
+    const overlayHandle = this.overlayService.openOverlay<void>({component:BeerLoaderOverlay, data:loaderMsg});
+
+    effect(() => {
+      if (this.players().length > 0) {
+        overlayHandle.close();
+      }
+    });
+  }
 
   ngOnDestroy(): void {
     this.websocketService.disconnect();
@@ -64,6 +76,7 @@ export class GamePage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
     this.websocketService.connectToGameWebsocket();
   }
 

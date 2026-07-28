@@ -55,7 +55,7 @@ export class LobbyService {
 
   private readonly appRef = inject(ApplicationRef);
   private readonly router: Router = inject(Router);
-  private readonly websocketService: WebsocketService = inject(WebsocketService);
+  private readonly websocketService = inject(WebsocketService);
   private readonly toastService: ToastService = inject(ToastService);
 
   public readonly websocketConnectionStatus = this.websocketService.connectionStatus;
@@ -246,14 +246,14 @@ export class LobbyService {
     this.participantsQueuedForRemoval.add(participantRemovedEvent.participantId);
 
     const participant = this.getParticipant(participantRemovedEvent.participantId)
-    if(participant){
-      this.toastService.showToast("Spiller fjernet",`${participant.name} blev fjernet fra spillet`, 'person_remove');
+    if (participant) {
+      this.toastService.showToast("Spiller fjernet", `${participant.name} blev fjernet fra spillet`, 'person_remove');
     }
 
     this.removeParticipant(participantRemovedEvent.participantId);
   }
 
-  private handleParticipantDisconnected(event: LobbyEventEnvelope){
+  private handleParticipantDisconnected(event: LobbyEventEnvelope) {
     const participantDisconnectedEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
 
     if (this.participantsQueuedForRemoval.has(participantDisconnectedEvent.participantId)) {
@@ -262,8 +262,8 @@ export class LobbyService {
     }
 
     const participant = this.getParticipant(participantDisconnectedEvent.participantId)
-    if(participant){
-      this.toastService.showToast("Spiller forlod lobbyen",`${participant.name} forlod lobbyen`, 'person_remove', ToastState.error);
+    if (participant) {
+      this.toastService.showToast("Spiller forlod lobbyen", `${participant.name} forlod lobbyen`, 'person_remove', ToastState.error);
     }
     return this.removeParticipant(participantDisconnectedEvent.participantId)
   }
@@ -339,10 +339,10 @@ export class LobbyService {
   //UI
   public addParticipant(newParticipant: LobbyParticipantDTO): void {
 
-    if(newParticipant.active){
-      this.toastService.showToast("Ny spiller forbundet!","Velkommen " + newParticipant.name, "person_add", ToastState.success);
-    }else{
-      this.toastService.showToast("Ny spiller tilføjet","Velkommen " + newParticipant.name, "person_add", ToastState.success);
+    if (newParticipant.active) {
+      this.toastService.showToast("Ny spiller forbundet!", "Velkommen " + newParticipant.name, "person_add", ToastState.success);
+    } else {
+      this.toastService.showToast("Ny spiller tilføjet", "Velkommen " + newParticipant.name, "person_add", ToastState.success);
     }
 
     this._participants.update(current => [...current, newParticipant]);

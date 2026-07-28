@@ -18,7 +18,7 @@ import {finalize} from 'rxjs';
 export class WelcomePage {
 
   private readonly router: Router = inject(Router);
-  private readonly lobbyService: LobbyApi = inject(LobbyApi);
+  private readonly lobbyApi: LobbyApi = inject(LobbyApi);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly toastService = inject(ToastService);
@@ -39,7 +39,7 @@ export class WelcomePage {
 
     this.creatingLobby.set(true);
 
-    this.lobbyService.createLobby(lobbyName)
+    this.lobbyApi.createLobby(lobbyName)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.creatingLobby.set(false))
@@ -68,7 +68,7 @@ export class WelcomePage {
 
     const cleanLobbyId = lobbyId.replaceAll('-', '');
 
-    this.lobbyService.fetchParticipantToken(cleanLobbyId, participantName)
+    this.lobbyApi.fetchParticipantToken(cleanLobbyId, participantName)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.joiningLobby.set(false))

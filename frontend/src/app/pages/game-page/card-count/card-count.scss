@@ -1,7 +1,7 @@
 :host {
   display: grid;
   gap: 10px;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: minmax(100px, 10dvw) 1fr;
 
   background-color: white;
 
@@ -13,7 +13,7 @@
 
 .ranks{
   display: grid;
-  grid-template-columns: repeat(13,minmax(auto, 100px));
+  grid-template-columns: repeat(13,minmax(auto, 1fr));
   justify-content: space-between;
   gap: 5px;
 }
