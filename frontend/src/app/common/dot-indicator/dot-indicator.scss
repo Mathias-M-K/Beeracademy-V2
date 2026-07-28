@@ -1,0 +1,12 @@
+:host{
+  display: flex;
+  gap: 20px;
+}
+
+$area: 10px;
+.dot{
+  height: $area;
+  width: $area;
+  background-color: var(--color-grey-500);
+  border-radius: 50%;
+}

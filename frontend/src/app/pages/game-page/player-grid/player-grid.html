@@ -1,3 +1,9 @@
-@for (player of players(); track player.id){
-  <app-player-card [player]="player"></app-player-card>
-}
+<div class="players">
+  @for (player of players(); track player.id){
+    <app-player-card [player]="player"></app-player-card>
+  }
+</div>
+
+<div class="dot-indicator">
+  <app-dot-indicator [dotCount]="4"></app-dot-indicator>
+</div>
