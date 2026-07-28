@@ -56,14 +56,15 @@ export class GameService {
       return player;
     })
   })
-  public gameInfo
+  public gameInfo;
   public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
-
+  private readonly _currentRound = linkedSignal(() => this.gameStateObj()?.currentRound ?? 0);
+  public readonly currentRound = computed(()=>{
+    return Math.min(13,this._currentRound());
+  })
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
-  private readonly currentPlayerId = linkedSignal(() =>
-    this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,
-  );
+  private readonly currentPlayerId = linkedSignal(() => this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,);
 
   public readonly currentPlayer = computed(() => {
     const id = this.currentPlayerId();
@@ -180,7 +181,12 @@ export class GameService {
       ),
     );
 
+    if (drawCardEvent.nextToDraw === this.players().at(0)?.id) {
+      this._currentRound.update(currentRound => currentRound + 1);
+    }
+
     this.currentPlayerId.set(isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw);
+
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
     this.resetTimer(this.playerTimeReport);

@@ -17,12 +17,23 @@
 
 @media (max-width: 500px) {
 
+  :host{
+    background-color: var(--color-white);
+    padding-bottom: 10px;
+    border-radius: 10px;
+  }
+
   .players{
+    gap: 5px;
     scroll-snap-type: x mandatory;
+    scroll-behavior: auto;
     overflow: auto;
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: 100%;
+  }
+  .players::-webkit-scrollbar {
+    display: none;
   }
   .dot-indicator{
     display: flex;

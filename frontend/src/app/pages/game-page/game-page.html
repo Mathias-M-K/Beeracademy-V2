@@ -3,9 +3,13 @@
             [gameInfo]="gameInfo()"
             [gameTime]="formattedGameTime()??0"
             [timerState]="timerState()??TimerState.NotStarted"
+            [currentRound]="currentRound()"
+            [nrOfPlayers]="players().length"
             (startClick)="startGame()"
             (pauseClick)="pauseGame()"
-            (resumeClick)="resumeGame()">
+            (resumeClick)="resumeGame()"
+
+>
 </app-header>
 
 <app-card-count style="grid-area: card-count" [cards]="remainingCardsCount()" [maxCardsPrRank]="players().length"></app-card-count>
@@ -19,4 +23,4 @@
 
 <app-podium style="grid-area: podium" [players]="players()"></app-podium>
 
-<app-player-grid style="grid-area: players" [players]="players()"></app-player-grid>
+<app-player-grid style="grid-area: players" [players]="players()" [activePlayerId]="currentPlayer()?.id??''"></app-player-grid>

@@ -18,6 +18,8 @@ export class Header {
   readonly gameInfo = input<GameInfo | undefined>();
   readonly gameTime = input<number>(0);
   readonly timerState = input<TimerState>(TimerState.NotStarted);
+  readonly nrOfPlayers = input<number>(0);
+  readonly currentRound = input<number>(0);
 
   readonly startClick = output<void>()
   readonly pauseClick = output<void>();

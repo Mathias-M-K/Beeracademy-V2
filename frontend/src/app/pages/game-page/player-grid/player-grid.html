@@ -1,9 +1,17 @@
-<div class="players">
+<div
+  class="players" #scroller
+  (scrollend)="onScrollEnd()"
+  (scroll)="onScroll()"
+  (pointerdown)="playerDragActive.set(true)">
   @for (player of players(); track player.id){
-    <app-player-card [player]="player"></app-player-card>
+    <app-player-card #playerElement [player]="player"></app-player-card>
   }
 </div>
 
 <div class="dot-indicator">
-  <app-dot-indicator [dotCount]="4"></app-dot-indicator>
+  <app-dot-indicator
+    [dotCount]="players()?.length ?? 0"
+    [activeIndex]="visiblePlayerIndex()"
+    (dotClick)="scrollToPlayerCard($event)">
+  </app-dot-indicator>
 </div>

@@ -1,11 +1,11 @@
 <div id="left">
-  <h2>{{gameInfo()?.name}}</h2>
-  <p>Runde <span>4</span></p>
-  <p>Spillere <span>12</span></p>
+  <h2>{{ gameInfo()?.name }}</h2>
+  <p>Runde <span>{{ currentRound() }}/13</span></p>
+  <p>Spillere <span>{{ nrOfPlayers() }}</span></p>
 </div>
 
 <div id="right">
-  <h3 [style.grid-area]="'clock'">{{gameTime() | gameTimeFormat: 'HH:mm:ss'}}</h3>
+  <h3 [style.grid-area]="'clock'">{{ gameTime() | gameTimeFormat: 'HH:mm:ss' }}</h3>
 
   <div [style.grid-area]="'time-btn'">
     @if (timerState() === TimerState.Paused) {

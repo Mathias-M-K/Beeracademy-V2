@@ -1,3 +1,9 @@
 @for (dot of dots(); track dot.id){
-  <div class="dot"></div>
+  <div
+    class="dot"
+    (click)="dotClick.emit(dot.id)"
+    (keyup)="dotClick.emit(dot.id)">
+  </div>
 }
+
+<div class="dot indicator"></div>
