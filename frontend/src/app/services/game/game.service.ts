@@ -137,7 +137,7 @@ export class GameService {
       case 'HELLO_IDENTITY' :
         return this.handleIdentity(event);
       case 'CLIENT_CONNECTED' :
-        return this.handleGameClientConnected(event);
+        return this.handleGameClientConnected();
       case 'DRAW_CARD':
         return this.handleDrawCardEvent(event);
       case 'CHUG':
@@ -159,7 +159,7 @@ export class GameService {
     this.identity.set(identifyFromEvent(identityEvent));
   }
 
-  private handleGameClientConnected(event: GameEventEnvelope) {
+  private handleGameClientConnected() {
     this.toastService.showToast("Client connected", "Good", "error", ToastState.success);
   }
 

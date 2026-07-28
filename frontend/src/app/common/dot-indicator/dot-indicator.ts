@@ -19,8 +19,6 @@ export class DotIndicator {
   readonly activeIndex = input<number>();
   readonly dotClick = output<number>();
 
-  private readonly offset = 30;
-
   readonly dots = computed(() => {
     const dots: DotData[] = [];
     for (let i = 0; i < this.dotCount(); i++) {
