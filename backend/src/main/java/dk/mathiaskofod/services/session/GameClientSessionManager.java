@@ -17,6 +17,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @ApplicationScoped
 public class GameClientSessionManager extends AbstractGameSessionManager {
@@ -36,8 +38,8 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
                 gameId,
                 websocketConnectionId);
 
-        broadcastToParty(gameId, new GameClientEventEnvelope(new GameClientConnectedEvent()));
-
+        confirmHandshake(tokenInfo, GameClientEventEnvelope::new);
+        broadcastToParty(gameId, new GameClientEventEnvelope(new GameClientConnectedEvent()), List.of(tokenInfo.getClientId()));
         provideGameSnapshotToClient(tokenInfo, GameClientEventEnvelope::new);
         provideIdentityToClient(tokenInfo, GameClientEventEnvelope::new);
     }
@@ -70,7 +72,9 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
         }
     }
 
-    /** Game Events */
+    /**
+     * Game Events
+     */
     void onGameEvent(@Observes GameEvent gameEvent) {
 
         GameEventDto dto =
@@ -82,8 +86,7 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
                     case PauseGameEvent pausedGameEvent -> GamePausedGameEventDto.fromGameEvent(pausedGameEvent);
                     case ResumeGameEvent resumeGameEvent -> GameResumedGameEventDto.fromGameEvent(resumeGameEvent);
 
-                    default ->
-                        throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
+                    default -> throw new UnknownEventException(gameEvent.getClass().getSimpleName(), 500);
                 };
 
         GameEventEnvelope envelope = new GameEventEnvelope(dto);

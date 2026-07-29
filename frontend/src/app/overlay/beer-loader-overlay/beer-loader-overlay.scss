@@ -11,7 +11,7 @@ $lift: 55px;
 
 // Exit animation, triggered by the OverlayHandle before disposal.
 :host(.leaving) {
-  animation: leave 0.3s ease-in forwards;
+  animation: leave .5s ease-in forwards;
 }
 
 @keyframes leave {

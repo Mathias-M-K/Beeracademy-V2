@@ -1,0 +1,8 @@
+@for (dot of dots(); track dot.id){
+  <div
+    class="dot"
+    (click)="dotClick.emit(dot.id)">
+  </div>
+}
+
+<div class="dot indicator"></div>

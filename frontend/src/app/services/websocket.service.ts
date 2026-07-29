@@ -1,10 +1,10 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {ConfigService} from '../../config.service';
-import {ConnectionStatus} from './models/connection-status';
 import {webSocket} from 'rxjs/webSocket';
 import {WebsocketEnvelope} from './models/websocket-envelope';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
+import {GameEventEnvelope} from './models/categories/events/game/game-event-envelope';
 
 @Injectable({
   providedIn: 'root',
@@ -14,58 +14,90 @@ export class WebsocketService {
   private readonly lobbyWebsocketUrl = this.applicationConfig.apiUrl + "/ws/lobby"
   private readonly gameWebsocketUrl = this.applicationConfig.apiUrl + "/ws/game"
 
-  private readonly _connectionStatus = signal<ConnectionStatus>(ConnectionStatus.DISCONNECTED);
-  public readonly connectionStatus = this._connectionStatus.asReadonly();
-
-  private readonly _messages = new Subject<WebsocketEnvelope>();
-  public readonly messages$ = this._messages.asObservable();
-
-  private readonly _lobbyLeaderStartedTheGame = new Subject<void>();
-  public readonly lobbyLeaderStartedTheGame = this._lobbyLeaderStartedTheGame.asObservable();
 
   private websocket?: WebSocketSubject<WebsocketEnvelope>;
 
-  private handleOpen(): void {
-    this._connectionStatus.set(ConnectionStatus.CONNECTED);
+  public connectToLobbyWebsocket() {
+    return this.connectToWebsocket(this.lobbyWebsocketUrl);
   }
 
-  private handleClose(closeEvent: CloseEvent): void {
-    this.disconnect();
-
-    if (closeEvent.code === 4030) {
-      this._lobbyLeaderStartedTheGame.next();
-    }
+  public connectToGameWebsocket() {
+    return this.connectToWebsocket(this.gameWebsocketUrl);
   }
 
-  public connectToLobbyWebsocket(){
-    this.connectToWebsocket(this.lobbyWebsocketUrl);
-  }
-  public connectToGameWebsocket(){
-    this.connectToWebsocket(this.gameWebsocketUrl);
-  }
-
-  private connectToWebsocket(url: string) {
+  private connectToWebsocket(url: string): Promise<Observable<WebsocketEnvelope>> {
     console.debug("Connecting to Websocket", url);
     this.disconnect();
-    this._connectionStatus.set(ConnectionStatus.CONNECTING)
 
-      this.websocket = webSocket<WebsocketEnvelope>({
+    const messages = new Subject<WebsocketEnvelope>();
+
+    let resolveConnection!: (messages$: Observable<WebsocketEnvelope>) => void;
+    let rejectConnection!: (reason: Error) => void;
+    const connection = new Promise<Observable<WebsocketEnvelope>>((resolve, reject): void => {
+      resolveConnection = resolve;
+      rejectConnection = reject;
+    });
+
+    const timeout = setTimeout(() => {
+      rejectConnection(new Error("Did not receive handshake", {cause: 0}));
+      this.disconnect();
+    }, 6000);
+
+    const socket = this.websocket = webSocket<WebsocketEnvelope>({
       url: url,
       openObserver: {
-        next: () => this.handleOpen(),
+        next: ()=> console.log("🟨 Connected! Waiting for handshake.")
       },
       closeObserver: {
-        next: (closeEvent: CloseEvent) => this.handleClose(closeEvent),
+        next: (closeEvent: CloseEvent) => {
+          console.log("⚠️ Websocket disconnected");
+          clearTimeout(timeout);
+
+          const error = new Error('Websocket was closed', {cause: closeEvent.code});
+          rejectConnection(error);
+
+          const isNormalClose = closeEvent.code === 1000 || closeEvent.code === 1005;
+
+          if (isNormalClose) {
+            messages.complete();
+          } else {
+            messages.error(error);
+          }
+
+          if(this.websocket === socket){
+            this.disconnect();
+          }
+
+        }
       },
     });
 
     this.websocket.subscribe({
-      next: message => this._messages.next(message),
-      error: error => {
-        this._connectionStatus.set(ConnectionStatus.DISCONNECTED)
-        console.error("Error when attempting to connect to websocket", error, "url", url);
+      next: message => {
+
+        console.debug("Websocket message received:", message);
+
+        if (this.isHandshake(message)) {
+          console.log("✅ Websocket handshake received");
+          clearTimeout(timeout);
+          resolveConnection(messages);
+          return;
+        }
+
+        messages.next(message);
+      },
+      error: (error: Event) => {
+        clearTimeout(timeout);
+        rejectConnection(new Error('Websocket disconnected', {cause: 1}));
+        console.error("Error when attempting to connect to websocket:", error, ", url:", url);
       }
     });
+
+    return connection;
+  }
+
+  private isHandshake(message: WebsocketEnvelope): boolean {
+    return (message as Partial<GameEventEnvelope>).payload?.type === 'HANDSHAKE';
   }
 
   public send(envelope: WebsocketEnvelope): void {
@@ -76,7 +108,6 @@ export class WebsocketService {
   public disconnect(): void {
     this.websocket?.complete()
     this.websocket = undefined;
-    this._connectionStatus.set(ConnectionStatus.DISCONNECTED);
   }
 
 }

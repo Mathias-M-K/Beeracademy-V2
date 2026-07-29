@@ -52,6 +52,7 @@ public class GameImpl implements Game {
     @Getter
     private int turnCounter = 0;
 
+    @Getter
     int round = 1;
 
     @Getter

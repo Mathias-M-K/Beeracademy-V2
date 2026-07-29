@@ -30,8 +30,12 @@ import {ToastService} from '../toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
 import {identifyFromEvent, Identity} from '../models/identity';
-import {Role} from '../../../api-models/model/role';
 import {IdentityEvent} from '../models/categories/events/common/identity-event';
+import {GameNotStartedOverlay} from '../../overlay/game-state-overlay/game-not-started-overlay.component';
+import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
+import {Role} from '../../../api-models/model/role';
+import {Router} from '@angular/router';
+import {OverlayHandle} from '../overlay/models/overlay-handle';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -42,6 +46,7 @@ export class GameService {
   private readonly websocketService = inject(WebsocketService);
   private readonly overlayService = inject(OverlayService);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
 
   private readonly gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
@@ -56,14 +61,27 @@ export class GameService {
       return player;
     })
   })
-  public gameInfo
-  public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
+  public gameInfo = linkedSignal<GameInfo | undefined>(() => {
+    const state = this.gameStateObj();
+    if (!state?.id || !state?.name) {
+      return undefined;
+    }
 
+    const gameInfo: GameInfo = {
+      id: state.id,
+      name: state.name
+    };
+
+    return gameInfo;
+  });
+  public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
+  private readonly _currentRound = linkedSignal(() => this.gameStateObj()?.currentRound ?? 0);
+  public readonly currentRound = computed(() => {
+    return Math.min(13, this._currentRound());
+  })
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
-  private readonly currentPlayerId = linkedSignal(() =>
-    this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,
-  );
+  private readonly currentPlayerId = linkedSignal(() => this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,);
 
   public readonly currentPlayer = computed(() => {
     const id = this.currentPlayerId();
@@ -93,28 +111,72 @@ export class GameService {
   private readonly identity = signal<Identity | undefined>(undefined)
   private readonly role = computed(() => this.identity()?.role);
 
+  private gameNotStartedOverlay!: OverlayHandle<void>;
+
   constructor() {
     effect(() => {
-      if (this.gameState() === GameState.AwaitingChug && this.role() === Role.GameClient) {
+      if (this.gameState() !== GameState.AwaitingChug) return;
+
+      if (this.role() === Role.GameClient) {
         this.initiateChug();
+      } else {
+        console.debug("Player client doesn't show chug-timer");
       }
     });
 
-    this.websocketService.messages$.subscribe(message => this.handleWebsocketMessage(message));
+    effect(() => {
+      const timerState = this.gameTimeReport()?.state;
+      if (!timerState) return;
 
-    this.gameInfo = linkedSignal<GameInfo | undefined>(() => {
-      const state = this.gameStateObj();
-      if (!state?.id || !state?.name) {
-        return undefined;
+      switch (timerState) {
+        case TimerState.Paused:
+          return console.log("GAME PAUSED");
+        case TimerState.Running:
+          return console.log("GAME UNPAUSED");
       }
-
-      const gameInfo: GameInfo = {
-        id: state.id,
-        name: state.name
-      };
-
-      return gameInfo;
     });
+  }
+
+  public connectToWebsocket() {
+    const loaderMsg = ['Henter øl', 'Blander kort', 'Varmer serveren op', 'Tjekker vejeret', 'Drikker en øl']
+    const overlayHandle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay, data: loaderMsg});
+
+    this.websocketService.connectToGameWebsocket().then(msgObs => {
+      msgObs.subscribe({
+        next: message => this.handleWebsocketMessage(message),
+        error: err => this.handleWebsocketConnectionDroppedWithError(err),
+        complete: () => this.handleWebsocketConnectionDroppedClean(),
+      });
+    }).catch(() => {
+      this.handleFailedToConnectToGame();
+    }).finally(() => {
+      overlayHandle.close().then(() => {
+        if (this.gameState() === GameState.AwaitingStart) {
+          this.gameNotStartedOverlay = this.overlayService.openOverlay<void>({component: GameNotStartedOverlay, data: this.role()});
+
+          if(this.role() === Role.GameClient) {
+            this.gameNotStartedOverlay.closed.then(()=>{
+              this.dispatchStartGameAction();
+            })
+          }
+        }
+      });
+    });
+  }
+
+  private handleWebsocketConnectionDroppedClean() {
+    // do nothing yet, but log the error. A game can be reconnected, implementation is soon
+    console.warn("Lost connection to game-websocket, no errors");
+  }
+
+  private handleWebsocketConnectionDroppedWithError(error?: unknown) {
+    // do nothing yet, but log the error. A game can be reconnected, implementation is soon
+    console.error("Lost connection to game-websocket, with errors", error);
+  }
+
+  private handleFailedToConnectToGame() {
+    this.toastService.showToast("Der skete en fejl", "Kunne ikke forbinde til spillet", "error", ToastState.error);
+    this.navigateToWelcome();
   }
 
   public handleWebsocketMessage(msg: WebsocketEnvelope) {
@@ -126,8 +188,6 @@ export class GameService {
       return;
     }
 
-    console.debug("Handling event:", msg);
-
     const event: GameEventEnvelope = msg as GameEventEnvelope;
 
     switch (event.payload.type) {
@@ -136,7 +196,7 @@ export class GameService {
       case 'HELLO_IDENTITY' :
         return this.handleIdentity(event);
       case 'CLIENT_CONNECTED' :
-        return this.handleGameClientConnected(event);
+        return this.handleGameClientConnected();
       case 'DRAW_CARD':
         return this.handleDrawCardEvent(event);
       case 'CHUG':
@@ -158,7 +218,7 @@ export class GameService {
     this.identity.set(identifyFromEvent(identityEvent));
   }
 
-  private handleGameClientConnected(event: GameEventEnvelope) {
+  private handleGameClientConnected() {
     this.toastService.showToast("Client connected", "Good", "error", ToastState.success);
   }
 
@@ -180,7 +240,12 @@ export class GameService {
       ),
     );
 
+    if (drawCardEvent.nextToDraw === this.players().at(0)?.id) {
+      this._currentRound.update(currentRound => currentRound + 1);
+    }
+
     this.currentPlayerId.set(isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw);
+
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
     this.resetTimer(this.playerTimeReport);
@@ -214,8 +279,12 @@ export class GameService {
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
 
-    this.toastService.showToast("Spillet er igang!", "test test", "sports_bar")
+    // this.toastService.showToast("Spillet er igang!", "test test", "sports_bar")
+    if(this.gameNotStartedOverlay){
+      this.gameNotStartedOverlay.close();
+    }
   }
+
 
   private handleGamePausedEvent(event: GameEventEnvelope) {
     const gamePausedEvent: GamePausedEvent = event.payload as GamePausedEvent;
@@ -330,6 +399,19 @@ export class GameService {
 
   public resetGameData() {
     this.gameStateObj.set(undefined);
+  }
+
+  public onGamePageDestroyed(){
+
+    if(this.gameNotStartedOverlay){
+      this.gameNotStartedOverlay.close();
+    }
+
+
+  }
+
+  private navigateToWelcome() {
+    this.router.navigate(['/']);
   }
 
 

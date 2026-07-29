@@ -1,7 +1,10 @@
 package dk.mathiaskofod.services.session;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,19 +36,25 @@ import dk.mathiaskofod.services.session.actions.game.client.ResumeGameAction;
 import dk.mathiaskofod.services.session.actions.game.client.StartGameAction;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.GameClientActionEnvelope;
+import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.common.Handshake;
+import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
+import dk.mathiaskofod.services.session.events.game.gameclient.GameClientEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -89,8 +98,10 @@ class GameClientSessionManagerTest {
         Session session = mock(Session.class);
         when(sessionRegistry.getSession(sessionId)).thenReturn(Optional.of(session));
         when(session.getConnectionId()).thenReturn(Optional.of(CONN_ID));
-        when(session.isConnected()).thenReturn(true);
-        when(session.getSessionId()).thenReturn(sessionId);
+        // Only exercised when the game client is included in a party broadcast; the game client
+        // is excluded from its own connected-event broadcast, so keep these stubs lenient.
+        lenient().when(session.isConnected()).thenReturn(true);
+        lenient().when(session.getSessionId()).thenReturn(sessionId);
 
         WebSocketConnection connection = mock(WebSocketConnection.class);
         when(connections.findByConnectionId(CONN_ID)).thenReturn(Optional.of(connection));
@@ -125,6 +136,36 @@ class GameClientSessionManagerTest {
             verify(sessionRegistry).setConnectionId(GAME_ID, CONN_ID);
             // Called for the broadcast plus the game-snapshot and identity messages
             verify(connections, atLeastOnce()).findByConnectionId(CONN_ID);
+        }
+
+        @DisplayName("onNewConnection confirms the handshake with the connecting client but excludes it from the connected broadcast")
+        @Test
+        void newConnectionConfirmsHandshake() {
+            // Arrange
+            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getClientId()).thenReturn(GAME_ID);
+            when(gameService.gameExists(GAME_ID)).thenReturn(true);
+            when(gameSessionService.getGameView(GAME_ID)).thenReturn(mock(GameDto.class));
+
+            mockActiveWebsocketConnection(GAME_ID);
+            WebSocketConnection clientConnection =
+                    connections.findByConnectionId(CONN_ID).orElseThrow();
+
+            // Act
+            sessionManager.onNewConnection(CONN_ID, tokenInfo);
+
+            // Assert
+            ArgumentCaptor<GameClientEventEnvelope> captor = ArgumentCaptor.forClass(GameClientEventEnvelope.class);
+            verify(clientConnection, atLeastOnce()).sendTextAndAwait(captor.capture());
+            List<GameClientEvent> payloads = captor.getAllValues().stream()
+                    .map(GameClientEventEnvelope::payload)
+                    .toList();
+            assertTrue(
+                    payloads.stream().anyMatch(Handshake.class::isInstance),
+                    "The connecting client should receive a handshake");
+            assertFalse(
+                    payloads.stream().anyMatch(GameClientConnectedEvent.class::isInstance),
+                    "The connecting client should not receive its own connected event");
         }
 
         @DisplayName("onNewConnection throws GameNotFoundException if game does not exist")

@@ -1,22 +1,42 @@
 :host{
   display: grid;
+  grid-template-columns:1fr;
+  gap: 10px;
+}
+
+.players{
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
-  border: 1px solid var(--color-cloud);
-  border-radius: 10px;
-  justify-content: space-around;
+}
+
+.dot-indicator{
+  display: none;
+  justify-content: center;
 }
 
 @media (max-width: 500px) {
+
   :host{
+    background-color: var(--color-white);
+    padding-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  .players{
+    gap: 5px;
     scroll-snap-type: x mandatory;
-    height: 300px;
-    display: grid;
-    width: 100%;
+    scroll-behavior: auto;
     overflow: auto;
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: 100%;
+  }
+  .players::-webkit-scrollbar {
+    display: none;
+  }
+  .dot-indicator{
+    display: flex;
   }
 
   app-player-card{

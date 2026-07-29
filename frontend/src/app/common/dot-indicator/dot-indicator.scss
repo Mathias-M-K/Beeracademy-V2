@@ -1,0 +1,25 @@
+$gap: 15px;
+:host{
+  display: flex;
+  position: relative;
+  gap: $gap;
+}
+
+$area: 10px;
+$offset: $gap + $area;
+.dot{
+  height: $area;
+  width: $area;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid var(--color-grey-500);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.indicator{
+  left: 0;
+  position: absolute;
+  background-color: var(--color-grey-600);
+  transform: translateX(calc($offset * var(--active-index)));
+  transition: transform .2s ease-out;
+}

@@ -1,0 +1,48 @@
+:host{
+  display: grid;
+  justify-items: center;
+
+  grid-template-rows: 60px auto;
+}
+
+:host(.leaving) {
+  animation: leave .5s ease-in forwards;
+}
+@keyframes leave {
+  to {
+    opacity: 0;
+    transform: translateY(-50dvh) scale(0.9);
+  }
+}
+
+.icons{
+  display: flex;
+  gap: 15px;
+}
+.icons material-icon{
+  animation: icon-wiggle 1s ease-in-out infinite;
+}
+.icons material-icon:nth-child(2){
+  animation-delay: 100ms;
+}
+.icons material-icon:nth-child(3){
+  animation-delay: 200ms;
+}
+.icons material-icon:nth-child(4){
+  animation-delay: 300ms;
+}
+
+
+@keyframes icon-wiggle {
+
+  0%{
+    transform: translateY(0);
+  }
+  30%{
+    transform: translateY(-50px);
+  }
+  60%{
+    transform: translateY(0);
+  }
+
+}

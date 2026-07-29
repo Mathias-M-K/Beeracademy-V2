@@ -63,7 +63,10 @@ export class LobbyPage implements OnInit {
 
     const overlayHandle =
       this.overlayService
-        .openOverlay<ParticipantSettingsResult, LobbyParticipantDTO>({component: ParticipantSettingsOverlay, data: actualParticipant});
+        .openOverlay<ParticipantSettingsResult, LobbyParticipantDTO>({
+          component: ParticipantSettingsOverlay,
+          data: actualParticipant
+        });
 
     overlayHandle.closed.then(result => {
       if (!result) {
@@ -72,11 +75,17 @@ export class LobbyPage implements OnInit {
       this.lobbyService.requestParticipantSettingsUpdate(result.sipsInABeer, result.canDrawAce, actualParticipant.id);
     })
   }
-  createJoinLink(){
-    return document.baseURI + '#/join/'+ this.lobbyService.lobbyId();
+
+  createJoinLink() {
+    const lobbyId = this.lobbyService.lobbyId();
+    return lobbyId ? `${document.baseURI}#/join/${encodeURIComponent(lobbyId)}` : '';
   }
-  showQrCode(){
-    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId()??'Ukendt'}
+
+  showQrCode() {
+    const lobbyId = this.lobbyService.lobbyId();
+    if(!lobbyId) return;
+
+    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId() ?? 'Ukendt'}
     this.overlayService.openOverlay<void>({component: QrCodeOverlay, data: joinData});
   }
 

@@ -1,5 +1,8 @@
 package dk.mathiaskofod.websocket.game.models;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+@Schema(description = "Custom websocket codes")
 public enum CustomWebsocketCodes {
     SESSION_NOT_FOUND(4000),
     LOBBY_LEADER_LEFT(4010),

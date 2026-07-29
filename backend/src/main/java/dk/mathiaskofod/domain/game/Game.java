@@ -127,4 +127,10 @@ public interface Game {
      * @return current turn counter
      */
     int getTurnCounter();
+
+    /**
+     * Return the current round
+     * @return current round counter
+     */
+    int getRound();
 }

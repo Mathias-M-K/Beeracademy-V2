@@ -26,8 +26,6 @@ button{
   gap: inherit;
 }
 
-
-
 #right{
   display: grid;
   grid-template-areas: 'clock time-btn share-btn';
@@ -37,11 +35,12 @@ button{
 }
 
 @media (max-width: 500px) {
-  h2,h3{
+  h1,h2,h3{
     margin: 0;
   }
 
   :host{
+    margin-top: 10px;
     grid-template-columns: 1fr auto;
     column-gap: 20px;
     justify-content: start;
@@ -54,7 +53,7 @@ button{
     align-items: start;
     justify-items: start;
   }
-  #left h2{
+  #left h1{
     grid-column: 1/-1;
   }
 

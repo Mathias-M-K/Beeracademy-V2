@@ -40,17 +40,6 @@ public class GameService {
         saveGame(game);
     }
 
-    @Deprecated(forRemoval = true)
-    public String createGame(String name, List<Player> players) {
-
-        String gameId = IdGenerator.generateGameId();
-
-        GameImpl game = new GameImpl(name, gameId, players, gameEventEmitterImpl);
-        saveGame(game);
-
-        return gameId;
-    }
-
     public boolean gameExists(String gameId) {
 
         try {

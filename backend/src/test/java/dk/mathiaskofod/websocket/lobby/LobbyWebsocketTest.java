@@ -3,12 +3,15 @@ package dk.mathiaskofod.websocket.lobby;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
 import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
 import dk.mathiaskofod.services.session.LobbyClientSessionManager;
 import dk.mathiaskofod.services.session.LobbyParticipantSessionManager;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
@@ -115,5 +118,33 @@ class LobbyWebsocketTest {
 
         // Assert
         verify(lobbyParticipantSessionManager).onMessage(any(TokenInfo.class), eq(message));
+    }
+
+    @DisplayName("onError reports the error and closes the connection when the lobby is not found")
+    @Test
+    void onErrorLobbyNotFound() {
+        // Arrange
+        LobbyNotFoundException error = new LobbyNotFoundException(GAME_ID);
+
+        // Act
+        websocket.onError(error);
+
+        // Assert
+        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
+        verify(connection).closeAndAwait(any(CloseReason.class));
+    }
+
+    @DisplayName("onError reports other errors (with a cause) without closing the connection")
+    @Test
+    void onErrorGeneric() {
+        // Arrange
+        RuntimeException error = new RuntimeException("boom", new IllegalStateException("root cause"));
+
+        // Act
+        websocket.onError(error);
+
+        // Assert
+        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
+        verify(connection, never()).closeAndAwait(any(CloseReason.class));
     }
 }

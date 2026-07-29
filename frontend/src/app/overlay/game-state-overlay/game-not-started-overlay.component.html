@@ -1,0 +1,19 @@
+@if (clientRole === Role.PlayerClient) {
+  <div class="icons">
+    @let size = 25;
+    <material-icon icon="sports_bar" [size]="size"></material-icon>
+    <material-icon icon="cheer" [size]="size"></material-icon>
+    <material-icon icon="playing_cards" [size]="size"></material-icon>
+    <material-icon icon="timer" [size]="size"></material-icon>
+  </div>
+
+  <h2>Venter på ejer</h2>
+  <p class="header_subtitle">Venter på at party lederen starter spillet</p>
+} @else {
+  <material-icon icon="sports_bar" [size]="40"></material-icon>
+  <h2>Spillet er ikke startet</h2>
+  <p class="header_subtitle">Venter på at du starter</p>
+
+  <button (click)="handle.close()" class="btn-secondary">Start spil</button>
+}
+
