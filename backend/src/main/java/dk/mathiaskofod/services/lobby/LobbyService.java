@@ -12,6 +12,8 @@ import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -107,6 +109,7 @@ public class LobbyService {
     public void createGame(String lobbyId) {
         Lobby lobby = getLobby(lobbyId);
         List<Player> players = getLobby(lobbyId).getParticipants().stream()
+                .sorted(Comparator.comparingInt(LobbyParticipant::getPosition))
                 .map(Player::fromParticipant)
                 .toList();
 
