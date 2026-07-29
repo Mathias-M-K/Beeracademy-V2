@@ -1,23 +1,19 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed, effect,
-  inject,
-  OnDestroy,
+  computed,
+  inject, OnDestroy,
   OnInit
 } from '@angular/core';
 import {GameService} from '../../services/game/game.service';
 import {TimerService} from '../../services/timer-service/timer.service';
 import {TimerState} from '../../../api-models/model/timerState';
 import {TimerType} from '../../services/timer-service/models/TimerType';
-import {WebsocketService} from '../../services/websocket.service';
 import {Header} from './header/header';
 import {CardCount} from './card-count/card-count';
 import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
-import {OverlayService} from '../../services/overlay/overlay.service';
-import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 
 @Component({
   selector: 'app-game-page',
@@ -40,9 +36,7 @@ export class GamePage implements OnInit, OnDestroy {
 
   private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
   private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
-  private readonly websocketService = inject(WebsocketService);
   private readonly gameService: GameService = inject(GameService);
-  private readonly overlayService = inject(OverlayService);
 
   protected players = this.gameService.players;
   protected gameInfo = this.gameService.gameInfo;
@@ -59,25 +53,12 @@ export class GamePage implements OnInit, OnDestroy {
 
   remainingCardsCount = this.gameService.remainingCardsCount;
 
-  constructor() {
-    const loaderMsg = ['Henter øl','Blander kort','Varmer serveren op','Tjekker vejeret','Drikker en øl']
-    const overlayHandle = this.overlayService.openOverlay<void>({component:BeerLoaderOverlay, data:loaderMsg});
-
-    effect(() => {
-      if (this.players().length > 0) {
-        overlayHandle.close();
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.websocketService.disconnect();
-    this.gameService.resetGameData();
-  }
-
   ngOnInit(): void {
+    this.gameService.connectToWebsocket();
+  }
 
-    this.websocketService.connectToGameWebsocket();
+  ngOnDestroy() {
+    this.gameService.onGamePageDestroyed();
   }
 
   protected startGame() {

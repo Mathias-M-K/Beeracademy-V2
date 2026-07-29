@@ -44,6 +44,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
         Session participantSession = new Session(participantId, websocketConnectionId);
         sessionRegistry.registerSession(participantSession);
 
+        confirmHandshake(tokenInfo, LobbyParticipantEventEnvelope::new);
         NewParticipantEvent event = new NewParticipantEvent(LobbyParticipantDTO.fromLobbyParticipant(lobbyParticipant));
         broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event));
 

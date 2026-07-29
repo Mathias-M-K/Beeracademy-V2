@@ -1,6 +1,9 @@
 <div class="left">
   @if (compact()) {
-    <material-icon icon="drag_indicator" cdkDragHandle></material-icon>
+    @if (inLineEditing()){
+      <material-icon icon="drag_indicator" cdkDragHandle></material-icon>
+    }
+
   } @else {
     <app-participant-badge
       [initials]="participantNameShort()"

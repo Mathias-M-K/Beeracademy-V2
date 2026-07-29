@@ -3,6 +3,7 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.actions.game.player.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.game.player.RelinquishPlayerAction;
@@ -27,8 +28,13 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
         String gameId = tokenInfo.getGameId();
         String playerId = tokenInfo.getPlayerId();
 
+        if (!gameService.gameExists(gameId)) {
+            throw new GameNotFoundException(gameId);
+        }
+
         sessionRegistry.setConnectionId(playerId, websocketConnectionId);
 
+        confirmHandshake(tokenInfo, PlayerClientEventEnvelope::new);
         PlayerConnectedEvent event = new PlayerConnectedEvent(playerId, gameId);
         broadcastToParty(gameId, new PlayerClientEventEnvelope(event));
 

@@ -38,6 +38,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         log.info("Registering new lobby client connected with websocket connection id: {}", websocketConnectionId);
         sessionRegistry.setConnectionId(lobbyId, websocketConnectionId);
 
+        confirmHandshake(tokenInfo, LobbyClientEventEnvelope::new);
         provideLobbySnapshotToClient(tokenInfo, LobbyClientEventEnvelope::new);
         provideIdentityToClient(tokenInfo, LobbyClientEventEnvelope::new);
     }

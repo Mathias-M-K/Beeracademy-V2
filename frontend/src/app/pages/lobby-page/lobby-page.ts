@@ -1,4 +1,4 @@
-import {Component, inject, linkedSignal} from '@angular/core';
+import {Component, inject, linkedSignal, OnInit} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {ConnectionStatus} from '../../services/models/connection-status';
@@ -29,7 +29,7 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
     DotLoader
   ]
 })
-export class LobbyPage {
+export class LobbyPage implements OnInit {
 
   public readonly lobbyService = inject(LobbyService)
   private readonly overlayService = inject(OverlayService);

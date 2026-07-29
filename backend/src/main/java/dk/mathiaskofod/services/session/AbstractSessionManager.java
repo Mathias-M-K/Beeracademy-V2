@@ -4,6 +4,7 @@ import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.common.Handshake;
 import dk.mathiaskofod.services.session.events.common.IdentityEvent;
 import dk.mathiaskofod.services.session.exceptions.NoConnectionIdException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
@@ -66,8 +67,11 @@ public abstract class AbstractSessionManager implements WebsocketSessionManager 
         }
     }
 
-    protected void provideIdentityToClient(
-            TokenInfo tokenInfo, Function<IdentityEvent, WebsocketEnvelope<?>> envelope) {
+    protected void confirmHandshake(TokenInfo tokenInfo, Function<Handshake, WebsocketEnvelope<?>> envelope) {
+        sendMessage(tokenInfo.getClientId(), envelope.apply(new Handshake()));
+    }
+
+    protected void provideIdentityToClient(TokenInfo tokenInfo, Function<IdentityEvent, WebsocketEnvelope<?>> envelope) {
         IdentityEvent event = new IdentityEvent(tokenInfo.getRole(), tokenInfo.getClientId());
         sendMessage(tokenInfo.getClientId(), envelope.apply(event));
     }

@@ -19,7 +19,7 @@ import {removePlayerAction} from '../models/categories/actions/lobby/lobby-clien
 import {ParticipantRemovedEvent} from '../models/categories/events/lobby/lobby-client-event/participant-removed-event';
 import {LobbyEventEnvelope} from '../models/categories/events/lobby/lobby-event-envelope';
 import {sendMessageAction} from '../models/categories/actions/lobby/common/send-message-action';
-import {Subject, Subscription} from 'rxjs';
+import {Subject} from 'rxjs';
 import {MessageInfo} from '../chat/models/message-info';
 import {NewMessageEvent} from '../models/categories/events/lobby/common/new-message-event';
 import {MessageDirection} from '../chat/models/message-direction';
@@ -47,6 +47,9 @@ import {
 } from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
 import {ToastService} from '../toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
+import {CustomWebsocketCodes} from '../../../api-models/model/customWebsocketCodes';
+import {OverlayService} from '../overlay/overlay.service';
+import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 
 @Injectable({
   providedIn: 'root',
@@ -57,14 +60,13 @@ export class LobbyService {
   private readonly router: Router = inject(Router);
   private readonly websocketService = inject(WebsocketService);
   private readonly toastService: ToastService = inject(ToastService);
+  private readonly overlayService = inject(OverlayService);
 
-  public readonly websocketConnectionStatus = this.websocketService.connectionStatus;
+  private readonly lobbyState = signal<LobbyDTO | undefined>(undefined);
 
-  private readonly lobbyState$ = signal<LobbyDTO | undefined>(undefined);
-
-  public readonly title = computed(() => this.lobbyState$()?.name);
-  public readonly lobbyId = computed(() => this.lobbyState$()?.id);
-  private readonly _participants = linkedSignal(() => this.lobbyState$()?.participants ?? []);
+  public readonly title = computed(() => this.lobbyState()?.name);
+  public readonly lobbyId = computed(() => this.lobbyState()?.id);
+  private readonly _participants = linkedSignal(() => this.lobbyState()?.participants ?? []);
   public readonly participants = this._participants.asReadonly();
 
   private readonly _identity = signal<Identity | undefined>(undefined);
@@ -97,16 +99,22 @@ export class LobbyService {
   private readonly _lobbyReset = new Subject<void>()
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
-  private readonly websocketSubscription: Subscription;
-
-
-  constructor() {
-    this.websocketSubscription = this.websocketService.messages$.subscribe(msg => this.handleWebsocketMessage(msg));
-    this.websocketService.lobbyLeaderStartedTheGame.subscribe(() => this.onGameStarted());
-  }
 
   public connectToWebsocket(): void {
-    this.websocketService.connectToLobbyWebsocket();
+
+    const handle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay});
+
+    this.websocketService.connectToLobbyWebsocket().then(msgObs => {
+      msgObs.subscribe({
+        next: msg => this.handleWebsocketMessage(msg),
+        error: err => this.onWebsocketConnectionDroppedWithError(err),
+        complete: () => this.onWebsocketConnectionDroppedClean()
+      })
+    }).catch(() => {
+      this.handleConnectionAttemptFailed();
+    }).finally(()=>{
+      handle.close();
+    });
   }
 
   public startGame(): void {
@@ -115,8 +123,49 @@ export class LobbyService {
   }
 
   public onGameStarted() {
-    this.websocketSubscription.unsubscribe();
     this.router.navigate(['/game']);
+  }
+
+  private onWebsocketConnectionDroppedClean() {
+    this.lobbyState.set(undefined);
+    console.log("Connection dropped");
+  }
+  private onWebsocketConnectionDroppedWithError(error: unknown): void {
+
+    if (!(error instanceof Error)) {
+      return;
+    }
+
+    switch (error.cause as number) {
+      case CustomWebsocketCodes.LobbyLeaderLeft:
+        return this.handleLobbyLeaderLeft();
+      case CustomWebsocketCodes.Kicked:
+        return this.handleKicked();
+      case CustomWebsocketCodes.SessionNotFound:
+        return this.handleSessionNotFound();
+      case CustomWebsocketCodes.Transitioning:
+        return this.onGameStarted();
+    }
+  }
+
+  private handleLobbyLeaderLeft() {
+    this.toastService.showToast("Leder forlod lobbyen","Lobby lederen har forladt lobbyen","door_open");
+    this.navigateToWelcomeScreen();
+  }
+
+  private handleKicked(){
+    this.toastService.showToast("Kicked","Du er blevet smidt ud af lobbyen","sports_martial_arts");
+    this.navigateToWelcomeScreen();
+  }
+
+  private handleSessionNotFound(){
+    this.toastService.showToast("Fejl","Kunne ikke finde lobbyen","exclamation", ToastState.error);
+    this.navigateToWelcomeScreen();
+  }
+
+  private handleConnectionAttemptFailed(){
+    this.toastService.showToast("Kunne ikke forbinde","Der skete en fejl da vi prøvede at forbinde til den valgte lobby","error",ToastState.error);
+    this.navigateToWelcomeScreen();
   }
 
   //Handle websocket messages
@@ -128,8 +177,6 @@ export class LobbyService {
       console.error("Can't handle message", msg);
       return;
     }
-
-    console.debug("Handling event", msg);
 
     const event: LobbyEventEnvelope = msg as LobbyEventEnvelope;
 
@@ -217,7 +264,7 @@ export class LobbyService {
 
   private handleHelloLobbySnapshotEvent(event: LobbyEventEnvelope) {
     const lobbyStateExchangeEvent = event.payload as LobbyStateEvent;
-    this.lobbyState$.set(lobbyStateExchangeEvent.lobby)
+    this.lobbyState.set(lobbyStateExchangeEvent.lobby)
   }
 
   private handleHelloLobbyIdentityEvent(event: LobbyEventEnvelope) {
@@ -368,5 +415,10 @@ export class LobbyService {
   //Disconnect
   public leaveLobby() {
     this.websocketService.disconnect();
+    this.navigateToWelcomeScreen();
+  }
+
+  private navigateToWelcomeScreen(): void {
+    this.router.navigate(["/"]);
   }
 }

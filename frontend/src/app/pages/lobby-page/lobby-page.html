@@ -1,4 +1,4 @@
-@if (lobbyService.title() && lobbyService.websocketConnectionStatus() === ConnectionStatus.CONNECTED) {
+@if (lobbyService.title()) {
   <div class="header" style="grid-area: header">
     <div>
       <h1>{{ lobbyService.title() }}</h1>
@@ -17,9 +17,6 @@
       (openParticipantSettings)="openEditParticipantSettingsOverlay($event)"
       (participantsRearranged)="onParticipantsRearranged($event)"
       (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
-    @if (participants().length === 0) {
-      <button (click)="addUsualSuspects()">Auto tilføj spillere (TEST)</button> <!--TODO remove me-->
-    }
     @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
       <button
         class="start-btn"
@@ -35,9 +32,4 @@
 
   <app-chat style="grid-area: chat"></app-chat>
 
-} @else {
-  <div class="connection-scren">
-    <h2>{{ lobbyService.websocketConnectionStatus() }}</h2>
-    <button class="btn-secondary" (click)="goHome()">Tilbage</button>
-  </div>
 }
