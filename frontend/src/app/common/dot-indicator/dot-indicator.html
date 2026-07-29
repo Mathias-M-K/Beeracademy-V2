@@ -1,8 +1,7 @@
 @for (dot of dots(); track dot.id){
   <div
     class="dot"
-    (click)="dotClick.emit(dot.id)"
-    (keyup)="dotClick.emit(dot.id)">
+    (click)="dotClick.emit(dot.id)">
   </div>
 }
 

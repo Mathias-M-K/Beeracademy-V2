@@ -153,15 +153,15 @@ export class GameService {
       overlayHandle.close().then(() => {
         if (this.gameState() === GameState.AwaitingStart) {
           this.gameNotStartedOverlay = this.overlayService.openOverlay<void>({component: GameNotStartedOverlay, data: this.role()});
-        }
 
-        if(this.role() === Role.GameClient) {
-          this.gameNotStartedOverlay.closed.then(()=>{
-            this.dispatchStartGameAction();
-          })
+          if(this.role() === Role.GameClient) {
+            this.gameNotStartedOverlay.closed.then(()=>{
+              this.dispatchStartGameAction();
+            })
+          }
         }
-      })
-    })
+      });
+    });
   }
 
   private handleWebsocketConnectionDroppedClean() {

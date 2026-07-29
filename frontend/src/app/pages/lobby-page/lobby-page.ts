@@ -77,10 +77,14 @@ export class LobbyPage implements OnInit {
   }
 
   createJoinLink() {
-    return document.baseURI + '#/join/' + this.lobbyService.lobbyId();
+    const lobbyId = this.lobbyService.lobbyId();
+    return lobbyId ? `${document.baseURI}#/join/${encodeURIComponent(lobbyId)}` : '';
   }
 
   showQrCode() {
+    const lobbyId = this.lobbyService.lobbyId();
+    if(!lobbyId) return;
+
     const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), lobbyId: this.lobbyService.lobbyId() ?? 'Ukendt'}
     this.overlayService.openOverlay<void>({component: QrCodeOverlay, data: joinData});
   }

@@ -76,7 +76,7 @@ export class BeerLoaderOverlay implements OnDestroy {
 
       el.addEventListener('animationend', onEnd);
       // Safety net in case animationend never fires (e.g. reduced motion).
-      const fallback = setTimeout(done, 5000);
+      const fallback = setTimeout(done, 500);
 
       this.leaving.set(true);
     });
