@@ -99,7 +99,6 @@ export class LobbyService {
   private readonly _lobbyReset = new Subject<void>()
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
-
   public connectToWebsocket(): void {
 
     const handle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay});
@@ -110,9 +109,12 @@ export class LobbyService {
         error: err => this.onWebsocketConnectionDroppedWithError(err),
         complete: () => this.onWebsocketConnectionDroppedClean()
       })
-    }).catch(() => {
-      this.handleConnectionAttemptFailed();
-    }).finally(()=>{
+    }).catch((error: Error) => {
+      handle.closed.then(() => {
+        this.onWebsocketConnectionDroppedWithError(error);
+      });
+
+    }).finally(() => {
       handle.close();
     });
   }
@@ -130,6 +132,7 @@ export class LobbyService {
     this.lobbyState.set(undefined);
     console.log("Connection dropped");
   }
+
   private onWebsocketConnectionDroppedWithError(error: unknown): void {
 
     if (!(error instanceof Error)) {
@@ -145,26 +148,28 @@ export class LobbyService {
         return this.handleSessionNotFound();
       case CustomWebsocketCodes.Transitioning:
         return this.onGameStarted();
+      default:
+        return this.handleUnknownError();
     }
   }
 
+  private handleUnknownError() {
+    this.toastService.showToast("Ukendt fejl", "Der skete en ukendt fejl", "error", ToastState.error);
+    this.navigateToWelcomeScreen();
+  }
+
   private handleLobbyLeaderLeft() {
-    this.toastService.showToast("Leder forlod lobbyen","Lobby lederen har forladt lobbyen","door_open");
+    this.toastService.showToast("Leder forlod lobbyen", "Lobby lederen har forladt lobbyen", "door_open");
     this.navigateToWelcomeScreen();
   }
 
-  private handleKicked(){
-    this.toastService.showToast("Kicked","Du er blevet smidt ud af lobbyen","sports_martial_arts");
+  private handleKicked() {
+    this.toastService.showToast("Kicked", "Du er blevet smidt ud af lobbyen", "sports_martial_arts");
     this.navigateToWelcomeScreen();
   }
 
-  private handleSessionNotFound(){
-    this.toastService.showToast("Fejl","Kunne ikke finde lobbyen","exclamation", ToastState.error);
-    this.navigateToWelcomeScreen();
-  }
-
-  private handleConnectionAttemptFailed(){
-    this.toastService.showToast("Kunne ikke forbinde","Der skete en fejl da vi prøvede at forbinde til den valgte lobby","error",ToastState.error);
+  private handleSessionNotFound() {
+    this.toastService.showToast("Fejl", "Kunne ikke finde lobbyen", "error", ToastState.error);
     this.navigateToWelcomeScreen();
   }
 

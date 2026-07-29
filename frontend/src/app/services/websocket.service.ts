@@ -5,6 +5,14 @@ import {WebsocketEnvelope} from './models/websocket-envelope';
 import {Observable, Subject} from 'rxjs';
 import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
 import {GameEventEnvelope} from './models/categories/events/game/game-event-envelope';
+import {ExceptionResponse} from '../../api-models/model/exceptionResponse';
+import {ExceptionEvent} from './models/categories/events/common/exception-event';
+
+
+export const LocalWebsocketCodes = {
+  Unknown: 0,
+  Exception: 1
+}
 
 @Injectable({
   providedIn: 'root',
@@ -46,11 +54,11 @@ export class WebsocketService {
     const socket = this.websocket = webSocket<WebsocketEnvelope>({
       url: url,
       openObserver: {
-        next: ()=> console.log("🟨 Connected! Waiting for handshake.")
+        next: () => console.log("🟨 Connected! Waiting for handshake.")
       },
       closeObserver: {
         next: (closeEvent: CloseEvent) => {
-          console.log("⚠️ Websocket disconnected");
+          console.log("⚠️ Websocket disconnected. Code:", closeEvent.code, ', clean:', closeEvent.wasClean);
           clearTimeout(timeout);
 
           const error = new Error('Websocket was closed', {cause: closeEvent.code});
@@ -64,7 +72,7 @@ export class WebsocketService {
             messages.error(error);
           }
 
-          if(this.websocket === socket){
+          if (this.websocket === socket) {
             this.disconnect();
           }
 
@@ -81,6 +89,10 @@ export class WebsocketService {
           console.log("✅ Websocket handshake received");
           clearTimeout(timeout);
           resolveConnection(messages);
+        } else if (this.isException(message)) {
+          const exception: ExceptionResponse = ((message as GameEventEnvelope).payload as ExceptionEvent).response;
+          console.debug("⚠️ Exception thrown from websocket", exception);
+          rejectConnection(new Error("Exception thrown from websocket", {cause: LocalWebsocketCodes.Exception}));
           return;
         }
 
@@ -88,8 +100,8 @@ export class WebsocketService {
       },
       error: (error: Event) => {
         clearTimeout(timeout);
-        rejectConnection(new Error('Websocket disconnected', {cause: 1}));
-        console.error("Error when attempting to connect to websocket:", error, ", url:", url);
+        rejectConnection(new Error('Websocket disconnected', {cause: LocalWebsocketCodes.Unknown}));
+        console.debug("⚠️ Error when attempting to connect to websocket:", error, ", url:", url);
       }
     });
 
@@ -98,6 +110,10 @@ export class WebsocketService {
 
   private isHandshake(message: WebsocketEnvelope): boolean {
     return (message as Partial<GameEventEnvelope>).payload?.type === 'HANDSHAKE';
+  }
+
+  private isException(message: WebsocketEnvelope) {
+    return (message as Partial<GameEventEnvelope>).payload?.type === 'EXCEPTION_RESPONSE';
   }
 
   public send(envelope: WebsocketEnvelope): void {
