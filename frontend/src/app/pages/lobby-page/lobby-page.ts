@@ -1,7 +1,6 @@
 import {Component, inject, linkedSignal, OnInit} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
-import {ConnectionStatus} from '../../services/models/connection-status';
 import {Chat} from './chat/chat';
 import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
 import {OverlayService} from '../../services/overlay/overlay.service';
@@ -9,7 +8,6 @@ import {ParticipantSettingsOverlay} from '../../overlay/participant-settings-ove
 import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
 import {LobbyService} from '../../services/lobby/lobby.service';
 import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-participant-overlay';
-import {Router} from '@angular/router';
 import {QrCodeOverlay} from '../../overlay/qr-code-overlay/qr-code-overlay';
 import {LobbyJoinData} from '../../services/lobby/models/lobby-join-data';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
@@ -20,7 +18,6 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
   styleUrl: './lobby-page.scss',
   host: {
     'tabindex': '-1',
-    '(keydown.n)': 'onEnterKeyDown()',
   },
   imports: [
     ParticipantOverview,
@@ -33,7 +30,6 @@ export class LobbyPage implements OnInit {
 
   public readonly lobbyService = inject(LobbyService)
   private readonly overlayService = inject(OverlayService);
-  private readonly router = inject(Router);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
 
@@ -98,14 +94,6 @@ export class LobbyPage implements OnInit {
     })
   }
 
-  public goHome() {
-    this.router.navigate(['/']);
-  }
-
-  onEnterKeyDown() {
-    this.openNewParticipantOverlay()
-  }
-
   addUsualSuspects() {
     this.lobbyService.requestParticipantCreation("Mathias");
     this.lobbyService.requestParticipantCreation("Lasse");
@@ -113,6 +101,4 @@ export class LobbyPage implements OnInit {
     this.lobbyService.requestParticipantCreation("Andreas");
     this.lobbyService.requestParticipantCreation("Jakob");
   }
-
-  protected readonly ConnectionStatus = ConnectionStatus;
 }

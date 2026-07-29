@@ -85,7 +85,10 @@ export class LobbyService {
   public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''));
   public readonly isHost = computed(() => this.role() === Role.GameClient);
 
-  private readonly _creatingGame = signal<boolean>(false);
+  private readonly _creatingGame = linkedSignal(()=>{
+    this.lobbyState();
+    return false;
+  })
   public readonly creatingGame = this._creatingGame.asReadonly();
 
   private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();

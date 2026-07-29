@@ -24,12 +24,12 @@
         @if (lobbyService.creatingGame()) {
           <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
         } @else {
-          Start spil • {{ lobbyService.participants().length }} Spillere
+          Opret spil • {{ lobbyService.participants().length }} Spillere
         }
       </button>
     }
   </div>
 
-  <app-chat style="grid-area: chat"></app-chat>
+  <app-chat [style.grid-area]="'chat'"></app-chat>
 
 }

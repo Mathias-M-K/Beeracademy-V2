@@ -36,6 +36,8 @@ import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-o
 import {Role} from '../../../api-models/model/role';
 import {Router} from '@angular/router';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
+import {GamePausedOverlay} from '../../overlay/game-paused-overlay/game-paused-overlay';
+import {GamePausedOverlayData} from '../../overlay/game-paused-overlay/models/game-paused-overlay-data';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -112,6 +114,7 @@ export class GameService {
   private readonly role = computed(() => this.identity()?.role);
 
   private gameNotStartedOverlay!: OverlayHandle<void>;
+  private gamePausedOverlay!: OverlayHandle<void>;
 
   constructor() {
     effect(() => {
@@ -159,6 +162,10 @@ export class GameService {
               this.dispatchStartGameAction();
             })
           }
+        }
+
+        if(this.gameTimeReport()?.state === TimerState.Paused) {
+          this.openPauseOverlay(this.gameTimeReport()!);
         }
       });
     });
@@ -290,12 +297,18 @@ export class GameService {
     const gamePausedEvent: GamePausedEvent = event.payload as GamePausedEvent;
     this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
+
+    this.openPauseOverlay(gamePausedEvent.timerReports.gameTimeReport!);
   }
 
   private handleGameResumedEvent(event: GameEventEnvelope) {
     const gameResumedEvent: GameResumedEvent = event.payload as GameResumedEvent;
     this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
+
+    if(this.gamePausedOverlay){
+      this.gamePausedOverlay.close();
+    }
   }
 
   private handleGameEndEvent(event: GameEventEnvelope) {
@@ -391,6 +404,15 @@ export class GameService {
     console.log(`Added turn to player ${playerId}.`);
   }
 
+  private openPauseOverlay(timeReport: TimeReport){
+    const elapsedTime = timeReport.activeTime??0;
+    const gamePausedData: GamePausedOverlayData = {currentPlayer: this.currentPlayer()!,time: elapsedTime, role: this.role()!};
+    this.gamePausedOverlay = this.overlayService.openOverlay<void>({component: GamePausedOverlay, data: gamePausedData});
+    this.gamePausedOverlay.closed.then(()=>{
+      this.dispatchResumeGameAction();
+    })
+  }
+
   public endGame() {
     this.gameState.set(GameState.Finished);
     this.pauseTimer(this.gameTimeReport);
@@ -402,7 +424,6 @@ export class GameService {
   }
 
   public onGamePageDestroyed(){
-
     if(this.gameNotStartedOverlay){
       this.gameNotStartedOverlay.close();
     }
