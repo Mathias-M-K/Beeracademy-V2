@@ -3,12 +3,14 @@ package dk.mathiaskofod.websocket.lobby;
 import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
-import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
 import dk.mathiaskofod.services.session.LobbyClientSessionManager;
 import dk.mathiaskofod.services.session.LobbyParticipantSessionManager;
 import dk.mathiaskofod.services.session.WebsocketSessionManager;
+import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.common.ExceptionEvent;
+import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
 import io.quarkus.security.Authenticated;
 import io.quarkus.websockets.next.*;
@@ -56,10 +58,15 @@ public class LobbyWebsocket {
         String cause = e.getCause() == null ? "" : e.getCause().getClass().getSimpleName();
         ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(), cause, e.getMessage());
         log.warn("Websocket error for connection {}: {}", connection.id(), response);
-        connection.sendTextAndAwait(response);
+        connection.sendTextAndAwait(new GameClientEventEnvelope(new ExceptionEvent(response)));
+
+        if(e instanceof SessionNotFoundException){
+            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
+            return;
+        }
 
         if (e instanceof LobbyNotFoundException) {
-            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
+            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.LOBBY_NOT_FOUND.getCode()));
         }
     }
 
