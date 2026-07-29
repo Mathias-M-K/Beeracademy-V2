@@ -3,9 +3,12 @@ package dk.mathiaskofod.providers.openapi;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.eclipse.microprofile.openapi.OASFactory;
+import org.eclipse.microprofile.openapi.models.Components;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.media.Schema;
 import org.junit.jupiter.api.DisplayName;
@@ -59,8 +62,10 @@ class WebsocketCodeSchemaFilterTest {
     @DisplayName("The filter is a no-op when the schema is absent")
     @Test
     void noopWhenSchemaMissing() {
-        // Arrange
-        OpenAPI openAPI = OASFactory.createOpenAPI().components(OASFactory.createComponents());
+        // Arrange - a non-null schemas map that does not contain the CustomWebsocketCodes schema
+        OpenAPI openAPI = OASFactory.createOpenAPI()
+                .components(OASFactory.createComponents()
+                        .addSchema("SomethingElse", OASFactory.createSchema().type(List.of(Schema.SchemaType.STRING))));
 
         // Act & Assert
         assertDoesNotThrow(() -> filter.filterOpenAPI(openAPI));
@@ -70,7 +75,21 @@ class WebsocketCodeSchemaFilterTest {
     @Test
     void noopWhenComponentsMissing() {
         // Arrange
-        OpenAPI openAPI = OASFactory.createOpenAPI();
+        OpenAPI openAPI = mock(OpenAPI.class);
+        when(openAPI.getComponents()).thenReturn(null);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> filter.filterOpenAPI(openAPI));
+    }
+
+    @DisplayName("The filter is a no-op when the components hold no schemas map")
+    @Test
+    void noopWhenSchemasNull() {
+        // Arrange
+        Components components = mock(Components.class);
+        when(components.getSchemas()).thenReturn(null);
+        OpenAPI openAPI = mock(OpenAPI.class);
+        when(openAPI.getComponents()).thenReturn(components);
 
         // Act & Assert
         assertDoesNotThrow(() -> filter.filterOpenAPI(openAPI));
