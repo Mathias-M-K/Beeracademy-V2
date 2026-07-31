@@ -21,7 +21,8 @@ class WebsocketCodeSchemaFilterTest {
     private OpenAPI openApiWithStringEnum() {
         Schema schema = OASFactory.createSchema()
                 .type(List.of(Schema.SchemaType.STRING))
-                .enumeration(List.of("SESSION_NOT_FOUND", "LOBBY_LEADER_LEFT", "KICKED", "TRANSITIONING"));
+                .enumeration(
+                        List.of("SESSION_NOT_FOUND", "LOBBY_NOT_FOUND", "LOBBY_LEADER_LEFT", "KICKED", "TRANSITIONING"));
 
         return OASFactory.createOpenAPI()
                 .components(OASFactory.createComponents().addSchema("CustomWebsocketCodes", schema));
@@ -40,7 +41,7 @@ class WebsocketCodeSchemaFilterTest {
         Schema schema = openAPI.getComponents().getSchemas().get("CustomWebsocketCodes");
         assertTrue(schema.getType().contains(Schema.SchemaType.INTEGER));
         assertEquals("int32", schema.getFormat());
-        assertEquals(List.of(4000, 4010, 4020, 4030), schema.getEnumeration());
+        assertEquals(List.of(4000, 4001, 4010, 4020, 4030), schema.getEnumeration());
     }
 
     @DisplayName("The rewritten schema keeps member names via the x-enum-varnames extension")
@@ -55,7 +56,7 @@ class WebsocketCodeSchemaFilterTest {
         // Assert
         Schema schema = openAPI.getComponents().getSchemas().get("CustomWebsocketCodes");
         assertEquals(
-                List.of("SessionNotFound", "LobbyLeaderLeft", "Kicked", "Transitioning"),
+                List.of("SessionNotFound", "LobbyNotFound", "LobbyLeaderLeft", "Kicked", "Transitioning"),
                 schema.getExtensions().get("x-enum-varnames"));
     }
 
