@@ -1,4 +1,4 @@
-@if (clientRole === Role.PlayerClient) {
+@if (!isGameClient) {
   <div class="icons">
     @let size = 25;
     <material-icon icon="sports_bar" [size]="size"></material-icon>

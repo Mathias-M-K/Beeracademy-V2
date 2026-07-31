@@ -36,6 +36,9 @@ import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-o
 import {Role} from '../../../api-models/model/role';
 import {Router} from '@angular/router';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
+import {GamePausedOverlay} from '../../overlay/game-paused-overlay/game-paused-overlay';
+import {GamePausedOverlayData} from '../../overlay/game-paused-overlay/models/game-paused-overlay-data';
+import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -82,18 +85,10 @@ export class GameService {
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
   private readonly currentPlayerId = linkedSignal(() => this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,);
-
   public readonly currentPlayer = computed(() => {
     const id = this.currentPlayerId();
     if (!id) return undefined;
     return this.players().find((player) => player.id === id);
-  });
-
-  public awaitingChugFromPlayer = linkedSignal(() => {
-    if (this.gameState() === GameState.AwaitingChug) {
-      return this.currentPlayer();
-    }
-    return undefined;
   });
 
   private readonly _remainingCardsCount = linkedSignal(() => {
@@ -110,20 +105,13 @@ export class GameService {
 
   private readonly identity = signal<Identity | undefined>(undefined)
   private readonly role = computed(() => this.identity()?.role);
+  private readonly isGameClient = computed(() => this.role() === Role.GameClient);
 
-  private gameNotStartedOverlay!: OverlayHandle<void>;
+  private gameNotStartedOverlay?: OverlayHandle<void>;
+  private gamePausedOverlay?: OverlayHandle<void>;
+  private chugOverlay?: OverlayHandle<number>;
 
   constructor() {
-    effect(() => {
-      if (this.gameState() !== GameState.AwaitingChug) return;
-
-      if (this.role() === Role.GameClient) {
-        this.initiateChug();
-      } else {
-        console.debug("Player client doesn't show chug-timer");
-      }
-    });
-
     effect(() => {
       const timerState = this.gameTimeReport()?.state;
       if (!timerState) return;
@@ -150,18 +138,36 @@ export class GameService {
     }).catch(() => {
       this.handleFailedToConnectToGame();
     }).finally(() => {
-      overlayHandle.close().then(() => {
-        if (this.gameState() === GameState.AwaitingStart) {
-          this.gameNotStartedOverlay = this.overlayService.openOverlay<void>({component: GameNotStartedOverlay, data: this.role()});
-
-          if(this.role() === Role.GameClient) {
-            this.gameNotStartedOverlay.closed.then(()=>{
-              this.dispatchStartGameAction();
-            })
-          }
-        }
-      });
+      overlayHandle.close().then(() => this.onGameLoad());
     });
+  }
+
+  private onGameLoad() {
+    switch (this.gameState()) {
+      case GameState.AwaitingChug:
+        return this.openChugOverlay();
+      case GameState.AwaitingStart: {
+        this.gameNotStartedOverlay = this.overlayService.openOverlay<void, boolean>({
+          component: GameNotStartedOverlay,
+          data: this.isGameClient()
+        });
+
+        if (this.isGameClient()) {
+          this.gameNotStartedOverlay.closed.then(() => {
+            this.gameNotStartedOverlay = undefined;
+            this.dispatchStartGameAction();
+          })
+        }
+
+        break;
+      }
+    }
+
+    if (this.gameTimeReport()?.state === TimerState.Paused) {
+      this.openPauseOverlay(this.gameTimeReport()!);
+    }
+
+
   }
 
   private handleWebsocketConnectionDroppedClean() {
@@ -251,27 +257,21 @@ export class GameService {
     this.resetTimer(this.playerTimeReport);
 
     if (isChugCard) {
-      this.gameState.set(GameState.AwaitingChug);
+      this.openChugOverlay();
     }
   }
 
-  private initiateChug() {
-    this.pauseTimer(this.playerTimeReport);
-    this.awaitingChugFromPlayer.set(this.currentPlayer());
 
-    this.overlayService.openOverlay<number>({component: ChugOverlay, data: this.currentPlayer()})
-      .closed.then((chugTime) => {
-      this.dispatchChugAction(chugTime ?? 0)
-    })
-  }
 
   private handleChugEvent(event: GameEventEnvelope) {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
     this.currentPlayerId.set(chugEvent.nextToDraw);
-    this.awaitingChugFromPlayer.set(undefined);
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
+
+    //TODO what if it is undefined? 
+    this.chugOverlay?.close();
   }
 
   private handleGameStartEvent() {
@@ -279,10 +279,8 @@ export class GameService {
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
 
-    // this.toastService.showToast("Spillet er igang!", "test test", "sports_bar")
-    if(this.gameNotStartedOverlay){
-      this.gameNotStartedOverlay.close();
-    }
+    //TODO what if it is undefined? 
+    this.gameNotStartedOverlay?.close();
   }
 
 
@@ -290,12 +288,17 @@ export class GameService {
     const gamePausedEvent: GamePausedEvent = event.payload as GamePausedEvent;
     this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
+
+    this.openPauseOverlay(gamePausedEvent.timerReports.gameTimeReport!);
   }
 
   private handleGameResumedEvent(event: GameEventEnvelope) {
     const gameResumedEvent: GameResumedEvent = event.payload as GameResumedEvent;
     this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
+
+    //TODO what if it is undefined?
+    this.gamePausedOverlay?.close();
   }
 
   private handleGameEndEvent(event: GameEventEnvelope) {
@@ -334,6 +337,7 @@ export class GameService {
   }
 
 
+  /**helper methods**/
   private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {
     timeReport.update((report) => {
       if (!report) return report;
@@ -391,23 +395,78 @@ export class GameService {
     console.log(`Added turn to player ${playerId}.`);
   }
 
+  /**Overlay**/
+  private openPauseOverlay(timeReport: TimeReport) {
+    // A reconnect and a paused-event can both land on the same pause — only ever show one.
+    if (this.gamePausedOverlay) return;
+
+    const elapsedTime = timeReport.activeTime ?? 0;
+    const gamePausedData: GamePausedOverlayData = {
+      currentPlayer: this.currentPlayer()!,
+      time: elapsedTime,
+      isGameClient: this.isGameClient()
+    };
+    this.gamePausedOverlay = this.overlayService.openOverlay<void>({
+      component: GamePausedOverlay,
+      data: gamePausedData
+    });
+
+    this.gamePausedOverlay.closed.then(() => {
+      this.gamePausedOverlay = undefined;
+      if (!this.isGameClient()) return;
+      this.dispatchResumeGameAction();
+    })
+
+  }
+
+  private openChugOverlay() {
+    // A reconnect and a card-drawn event can both land on the same chug — only ever show one.
+    if (this.chugOverlay) return;
+
+    this.pauseTimer(this.playerTimeReport);
+
+    const chugData: ChugOverlayData = {
+      players: this.players(),
+      playerToChug: this.currentPlayer()!,
+      isGameClient: this.isGameClient()
+    }
+    this.chugOverlay = this.overlayService.openOverlay<number>({component: ChugOverlay, data: chugData});
+
+    this.chugOverlay.closed.then((chugTime) => {
+      this.chugOverlay = undefined;
+      if (!this.isGameClient()) return;
+      this.dispatchChugAction(chugTime ?? 0);
+    });
+  }
+
+  /**Diverse**/
+
   public endGame() {
     this.gameState.set(GameState.Finished);
     this.pauseTimer(this.gameTimeReport);
     this.pauseTimer(this.playerTimeReport);
+    this.dismissAllOverlays();
   }
 
   public resetGameData() {
     this.gameStateObj.set(undefined);
   }
 
-  public onGamePageDestroyed(){
+  public onGamePageDestroyed() {
+    // Nobody is left to watch the exit animation — the page is on its way out.
+    this.dismissAllOverlays(true);
+  }
 
-    if(this.gameNotStartedOverlay){
-      this.gameNotStartedOverlay.close();
-    }
+  /** Guests can't close the chug/pause overlays themselves — don't strand them behind one. */
+  private dismissAllOverlays(ignoreAnimation = false) {
+    this.gameNotStartedOverlay?.dismiss(ignoreAnimation);
+    this.gamePausedOverlay?.dismiss(ignoreAnimation);
+    this.chugOverlay?.dismiss(ignoreAnimation);
 
-
+    // A dismissal never resolves `closed`, so the handlers that normally clear these don't run.
+    this.gameNotStartedOverlay = undefined;
+    this.gamePausedOverlay = undefined;
+    this.chugOverlay = undefined;
   }
 
   private navigateToWelcome() {

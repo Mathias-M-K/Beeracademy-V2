@@ -1,21 +1,19 @@
+<div>
+  <p class="upper_subtitle">Ny spiller</p>
+  <h2>Tilføj deltager</h2>
+</div>
+
 <div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
-  <div>
-    <p class="upper_subtitle">Ny spiller</p>
-    <h2>Tilføj deltager</h2>
-  </div>
+  <p class="upper_subtitle">Navn</p>
+  <input
+    aria-label="new-participant-input"
+    placeholder="fx. Mathias"
+    [value]="name()"
+    (input)="name.set(nameInput.value)"
+    #nameInput
+    (keyup.enter)="exit()">
+</div>
 
-  <div>
-    <p class="upper_subtitle">Navn</p>
-    <input
-      aria-label="new-participant-input"
-      placeholder="fx. Mathias"
-      [value]="name()"
-      (input)="name.set(nameInput.value)"
-      #nameInput
-      (keyup.enter)="exit()">
-  </div>
-
-  <div class="action-buttons">
-    <button (click)="exit()" class="btn-secondary">{{ name() ? 'Tilføj' : 'Luk' }}</button>
-  </div>
+<div class="action-buttons">
+  <button (click)="exit()" class="btn-secondary">{{ name() ? 'Tilføj' : 'Luk' }}</button>
 </div>

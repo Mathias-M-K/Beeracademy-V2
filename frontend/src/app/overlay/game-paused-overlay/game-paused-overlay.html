@@ -1,0 +1,19 @@
+<div>
+  <material-icon icon="pause" [size]="30"></material-icon>
+  <h2>Spillet er sat på pause</h2>
+</div>
+
+<div class="info-box">
+  <p class="upper_subtitle">Forløben tid</p>
+  <h3>{{data.time | gameTimeFormat: 'HH:mm:ss'}}</h3>
+</div>
+
+<div class="info-box">
+  <p class="upper_subtitle">Nuværende spiller</p>
+  <h3>{{ data.currentPlayer.name }}</h3>
+</div>
+
+@if (data.isGameClient) {
+  <button class="btn-secondary" (click)="handle.close()">Fortsæt spil</button>
+}
+

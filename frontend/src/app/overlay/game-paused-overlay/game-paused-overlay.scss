@@ -1,0 +1,18 @@
+:host{
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+}
+
+:host div{
+  display: inherit;
+  justify-items: inherit;
+}
+
+h2{
+  margin: 10px;
+}
+
+.info-box h3{
+  margin: 5px 0;
+}

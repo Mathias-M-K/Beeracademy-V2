@@ -6,7 +6,7 @@
 }
 
 :host(.leaving) {
-  animation: leave .5s ease-in forwards;
+  animation: leave .3s ease-in forwards;
 }
 @keyframes leave {
   to {

@@ -27,7 +27,7 @@ export class BeerLoaderOverlay implements OnDestroy {
 
   // Keep the loader up for at least this long so a fast request doesn't make
   // it flash. Measured from when the overlay was created.
-  private static readonly MIN_VISIBLE_MS = 1000;
+  private static readonly MIN_VISIBLE_MS = 500;
   private readonly openedAt = Date.now();
   private minVisibleTimer?: ReturnType<typeof setTimeout>;
 

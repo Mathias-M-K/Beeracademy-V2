@@ -7,12 +7,21 @@ export const OVERLAY_DATA = new InjectionToken<unknown>('OVERLAY_DATA');
 
 /**
  * Handle given to both the opener (via OverlayService.open) and the overlay
- * component (via DI). `close(result?)` is the single exit point: it resolves
- * the `closed` promise and disposes the overlay.
+ * component (via DI). There are two exit points:
+ *
+ * - `close(result?)` — the overlay ran its course. Resolves `closed`, so result
+ *   handlers run.
+ * - `dismiss(ignoreAnimation?)` — the opener is tearing the overlay down (navigating away,
+ *   the game ended). `closed` never resolves, so result handlers never run.
+ *
+ * Both dispose the overlay after its exit animation; whichever comes first wins.
  */
 export class OverlayHandle<R = unknown> {
 
-  /** Resolves once the overlay is fully gone, with the result (or undefined). */
+  /**
+   * Resolves once the overlay is fully gone, with the result (or undefined).
+   * Never resolves if the overlay was dismissed — a dismissal is not a result.
+   */
   readonly closed: Promise<R | undefined>;
 
   private resolveClosed!: (result: R | undefined) => void;
@@ -35,15 +44,34 @@ export class OverlayHandle<R = unknown> {
   }
 
   async close(result?: R): Promise<void> {
+    return this.teardown(() => this.resolveClosed(result));
+  }
+
+  /**
+   * Removes the overlay without reporting a result. Use when the overlay is being taken
+   * away from the user rather than answered by them — otherwise the `closed` handlers
+   * would read the teardown as a decision and act on it.
+   *
+   * @param ignoreAnimation skips the registered leave animation, so the overlay is gone by
+   * the time this returns. For teardowns the user shouldn't see play out — the page behind
+   * the overlay is already going away, or the overlay is being replaced immediately.
+   */
+  async dismiss(ignoreAnimation = false): Promise<void> {
+    return this.teardown(undefined, ignoreAnimation);
+  }
+
+  private async teardown(report?: () => void, ignoreAnimation = false): Promise<void> {
     if (this.isClosed) {
       return; // guard: backdrop + button could both fire
     }
     this.isClosed = true;
 
     try {
-      await this.leave?.();
+      if (!ignoreAnimation) {
+        await this.leave?.();
+      }
     } finally {
-      this.resolveClosed(result);
+      report?.();
       this.overlayRef.dispose();
     }
   }

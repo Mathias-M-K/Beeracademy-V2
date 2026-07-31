@@ -13,6 +13,7 @@ const EMOJI_HOLD_MS = 2500;
     '[class.active]': 'style() === "active" || "default"',
     '[class.local]': 'style() === "local"',
     '[class.small]': 'size() === "s"',
+    '[class.x-small]': 'size() === "xs"',
     '[style.background-color]':'backgroundColor()'
   },
 })
@@ -20,7 +21,7 @@ export class ParticipantBadge implements OnDestroy {
   readonly initials = input<string>('');
   readonly style = input<'default'|'active'|'local'>('default');
 
-  readonly size = input<'s' | 'm'>('m');  //small, medium
+  readonly size = input<'xs' | 's' | 'm'>('m');  //small, medium
   readonly backgroundColor = input<string>('');
 
   /** A new reaction object pushed from the parent triggers the animation. */
