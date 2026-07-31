@@ -17,7 +17,7 @@ import {Role} from '../../../api-models/model/role';
 export class GameNotStartedOverlay {
 
   protected readonly handle = inject(OverlayHandle);
-  protected readonly clientRole = inject(OVERLAY_DATA) as Role;
+  protected readonly isGameClient = inject(OVERLAY_DATA) as boolean;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 

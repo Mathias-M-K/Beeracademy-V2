@@ -13,7 +13,7 @@
   <h3>{{ data.currentPlayer.name }}</h3>
 </div>
 
-@if (data.role === Role.GameClient) {
+@if (data.isGameClient) {
   <button class="btn-secondary" (click)="handle.close()">Fortsæt spil</button>
 }
 

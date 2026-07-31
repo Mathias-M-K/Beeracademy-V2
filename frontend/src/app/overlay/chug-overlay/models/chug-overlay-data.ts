@@ -1,7 +1,7 @@
 import {Player} from '../../../services/game/models/player';
 
-export interface GamePausedOverlayData{
+export interface ChugOverlayData{
+  players: Player[];
+  playerToChug: Player;
   isGameClient: boolean;
-  currentPlayer: Player;
-  time: number;
 }

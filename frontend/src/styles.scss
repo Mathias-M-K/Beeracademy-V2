@@ -51,15 +51,18 @@ button {
   transition: background-color 0.200s ease;
   column-gap: 5px;
 }
-button:disabled{
+
+button:disabled {
   background-color: var(--primary-disabled);
   pointer-events: none;
   color: var(--primary-disabled-text);
 }
-button > material-icon{
+
+button > material-icon {
   margin: calc(var(--btn-padding) * -1) 0;
 }
-.btn-icon > material-icon{
+
+.btn-icon > material-icon {
   margin: calc(var(--btn-padding) * -1);
 }
 
@@ -79,36 +82,48 @@ button > material-icon{
     --btn-background: var(--color-black);
     --btn-foreground: var(--color-white);
   }
+
+  .btn-rounded:hover {
+    --btn-background: rgba(255, 255, 255, 0.2);
+  }
 }
 
 button:active {
   background-color: color-mix(in oklab, var(--btn-background), black 30%);
 }
 
-.btn-secondary{
+.btn-secondary {
   --btn-background: var(--color-black);
   --btn-foreground: var(--color-white);
   border: 1px solid var(--btn-foreground);
 }
 
-.btn-tertiary{
+.btn-tertiary {
   --btn-background: var(--color-white);
   --btn-foreground: var(--color-black);
   border: 1px solid var(--color-silver);
 }
 
-.btn-warning{
+.btn-rounded {
+  padding: 0 20px;
+  --btn-background: rgba(255, 255, 255, 0.12);
+  --btn-foreground: var(--color-white);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: 50px;
+}
+
+
+
+.btn-warning {
   --btn-background: var(--color-white);
   --btn-background-hover: var(--color-black);
   --btn-foreground: var(--color-black);
   --btn-foreground-hover: var(--color-white);
 }
 
-.btn-icon{
+.btn-icon {
   padding: 5px 10px;
 }
-
-
 
 
 input {
@@ -122,6 +137,7 @@ input {
 
   font-size: 16px;
 }
+
 input::placeholder {
   color: var(--color-silver);
   font-size: 14px;
@@ -138,19 +154,19 @@ input::placeholder {
   color: var(--color-silver);
 }
 
-.horizontal_line{
+.horizontal_line {
   color: var(--color-silver);
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.horizontal_line:empty{
+.horizontal_line:empty {
   gap: 0;
 }
 
 .horizontal_line::before,
-.horizontal_line::after{
+.horizontal_line::after {
   content: "";
   flex: 1;
   height: 1px;
@@ -158,8 +174,21 @@ input::placeholder {
 }
 
 .overlay-backdrop {
-  background-color: rgba(250,250,250, 0.6);
+  background-color: rgba(250, 250, 250, 0.6);
   backdrop-filter: blur(20px);
+
+  //animation: backdrop-in 0.3s ease-in-out;
+}
+
+@keyframes backdrop-in {
+  from{
+    background-color: rgba(250, 250, 250, 0);
+    backdrop-filter: blur(0);
+  }
+  to{
+    background-color: rgba(250, 250, 250, 0.6);
+    backdrop-filter: blur(20px);
+  }
 }
 
 

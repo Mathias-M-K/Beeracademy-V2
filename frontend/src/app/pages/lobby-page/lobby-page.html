@@ -27,7 +27,9 @@
           Opret spil • {{ lobbyService.participants().length }} Spillere
         }
       </button>
+
     }
+    <button (click)="addUsualSuspects()">Add testers</button>
   </div>
 
   <app-chat [style.grid-area]="'chat'"></app-chat>

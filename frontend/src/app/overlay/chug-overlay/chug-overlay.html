@@ -1,18 +1,64 @@
-<h2>{{overlayData.name}}</h2>
-<div class="time">
-  <h1>{{elapsedTime() | gameTimeFormat: 'mm:ss.SSS'}}</h1>
-</div>
+<p class="header" [style.grid-area]="'header'">ES TRUKKET</p>
 
-<div class="buttons">
-  @if (!timerRunning() && elapsedTime()===0) {
-    <button (click)="startTimer()">Start</button>
-  } @else if (!timerRunning() && elapsedTime() > 0){
-    <button (click)="startTimer()">Prøv igen</button>
-    <button (click)="overlayHandle.close(elapsedTime())">Afslut</button>
-  } @else {
-    <button (click)="stopTimer()">Stop</button>
-  }
+@if (isGameClient) {
+  <circle-loader
+    [style.grid-area]="'timer'"
+    class="timer"
+    [value]="elapsedTime()"
+    [rotation]="10000"
+    [thickness]="5"
+    [animated]="animateLoader()">
+    <p class="seconds">{{ (elapsedTime() | gameTimeFormat: 'ss.SSS') }}</p>
+    <p class="unit">SEKUNDER</p>
+  </circle-loader>
+}
+
+@let badgeSize = isGameClient ? 'xs' : 'm';
+<p class="player" [style.grid-area]="'player'">
+  <app-participant-badge [initials]="initial" [size]="badgeSize" backgroundColor="white"
+                         [style.color]="'var(--color-coffie-700)'"></app-participant-badge>
+  {{ overlayData.playerToChug.name }} bunder
+</p>
 
 
-</div>
 
+@if (!isGameClient && chugTimes.length > 0) {
+  <div class="chug-time-container">
+    <p class="header">TIDLIGERE BUNDE-TIDER</p>
+
+    <div class="chug-times">
+      @for (chugTime of chugTimes; track chugTime.place) {
+        <div class="chug-time">
+          <p>{{ chugTime.place }}</p>
+          <app-participant-badge size="xs" [initials]="chugTime.initial" backgroundColor="white"
+                                 [style.color]="'var(--primary)'"></app-participant-badge>
+          <p>{{ chugTime.name }}</p>
+          <p>{{ (chugTime.time / 1000).toFixed(2) }}s</p>
+        </div>
+      }
+
+    </div>
+  </div>
+
+}
+
+@if (isGameClient) {
+  <div class="buttons">
+    <button class="btn-rounded timer-btn" (click)="dynamicBtnClick()" [class.stopped]="btnState() === 'stop'"
+            [attr.aria-label]="btnLabel()">
+      <div class="texts" aria-hidden="true" [class.start]="btnState() === 'start'"
+           [class.stop]="btnState() === 'stop'"
+           [class.try-again]="btnState() === 'try-again'">
+        <span>START</span>
+        <span>STOP</span>
+        <span>PRØV IGEN</span>
+      </div>
+    </button>
+    <button
+      class="btn-rounded apply-btn"
+      [class.hidden]="btnState() != 'try-again'"
+      [attr.inert]="btnState() != 'try-again' ? '' : null"
+      (click)="overlayHandle.close(elapsedTime())">AFSLUT
+    </button>
+  </div>
+}

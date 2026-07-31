@@ -1,0 +1,47 @@
+:host {
+  display: inline-block;
+}
+
+.ring {
+  position: relative;
+
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  /* Moves the start of the arc from 3 o'clock to 12 o'clock. */
+  transform: rotate(-90deg);
+}
+
+.track {
+  stroke: var(--cl-track-color);
+}
+
+.progress {
+  stroke: var(--cl-progress-color);
+}
+
+:host(.animated) .progress {
+  transition: stroke-dashoffset 120ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.animated) .progress {
+    transition: none;
+  }
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* The ring is purely decorative geometry — never swallow clicks aimed behind it. */
+  pointer-events: none;
+}

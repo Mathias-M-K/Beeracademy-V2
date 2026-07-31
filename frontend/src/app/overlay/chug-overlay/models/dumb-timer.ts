@@ -8,7 +8,9 @@ export class DumbTimer{
 
   private readonly _timerRunning = signal<boolean>(false)
   public readonly timerRunning = this._timerRunning.asReadonly();
-  public readonly elapsedTime = signal<number>(0);
+
+  private readonly _elapsedTime = signal<number>(0);
+  public readonly elapsedTime = this._elapsedTime.asReadonly();
 
 
   private startTime!: number;
@@ -18,7 +20,7 @@ export class DumbTimer{
       this.tick();
 
       if (this._timerRunning()){
-        this.elapsedTime.set(Date.now() - this.startTime);
+        this._elapsedTime.set(Date.now() - this.startTime);
       }else{
         return;
       }
@@ -26,12 +28,19 @@ export class DumbTimer{
     });
   }
 
-  startTimer(){
+  public startTimer(){
     this.startTime = Date.now();
     this._timerRunning.set(true);
   }
 
-  stopTimer(){
+  public stopTimer(){
     this._timerRunning.set(false);
+  }
+
+  /** Stops as well as clears — otherwise the next tick would overwrite the 0. */
+  public resetTimer(){
+    this._timerRunning.set(false);
+    this.startTime = 0;
+    this._elapsedTime.set(0);
   }
 }

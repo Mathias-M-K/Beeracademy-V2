@@ -42,8 +42,7 @@ export class GamePage implements OnInit, OnDestroy {
   protected gameInfo = this.gameService.gameInfo;
   protected currentCard = this.gameService.currentCard;
   protected currentPlayer = this.gameService.currentPlayer;
-  protected awaitingChug = this.gameService.awaitingChugFromPlayer;
-  protected gameState = this.gameService.gameState;
+
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
 

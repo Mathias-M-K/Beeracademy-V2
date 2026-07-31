@@ -1,0 +1,35 @@
+<div class="ring">
+  <svg
+    viewBox="0 0 100 100"
+    [attr.role]="label() ? 'progressbar' : null"
+    [attr.aria-label]="label() || null"
+    [attr.aria-valuemin]="label() ? 0 : null"
+    [attr.aria-valuemax]="label() ? 100 : null"
+    [attr.aria-valuenow]="label() ? valueNow() : null"
+    [attr.aria-hidden]="label() ? null : true"
+  >
+    <circle
+      class="track"
+      cx="50"
+      cy="50"
+      [attr.r]="radius()"
+      fill="none"
+      [attr.stroke-width]="thickness()">
+    </circle>
+    <circle
+      class="progress"
+      cx="50"
+      cy="50"
+      [attr.r]="radius()"
+      fill="none"
+      [attr.stroke-width]="thickness()"
+      [attr.stroke-linecap]="lineCap()"
+      [attr.pathLength]="100"
+      stroke-dasharray="100"
+      [attr.stroke-dashoffset]="dashOffset()"></circle>
+  </svg>
+
+  <div class="content">
+    <ng-content />
+  </div>
+</div>
