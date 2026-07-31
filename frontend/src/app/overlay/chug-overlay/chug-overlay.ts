@@ -59,7 +59,9 @@ export class ChugOverlay {
 
   private static extractChugTimes(players: Player[]): OverlayChug[] {
     return players
-      .flatMap((player: Player) => (player.stats?.chugs ?? []).map((chug: Chug) => {
+      .flatMap((player: Player) => (player.stats?.chugs ?? [])
+        .filter((chug: Chug) => chug.chugTimeMillis != null)
+        .map((chug: Chug) => {
         const overlayChug: OverlayChug = {
           name: player.name,
           initial: ChugOverlay.initialOf(player.name),
