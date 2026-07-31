@@ -1,5 +1,6 @@
 package dk.mathiaskofod.websocket.lobby;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,7 +15,11 @@ import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.lobby.exceptions.LobbyNotFoundException;
 import dk.mathiaskofod.services.session.LobbyClientSessionManager;
 import dk.mathiaskofod.services.session.LobbyParticipantSessionManager;
+import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
+import dk.mathiaskofod.services.session.events.common.ExceptionEvent;
+import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
+import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Set;
@@ -23,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -130,13 +136,27 @@ class LobbyWebsocketTest {
         websocket.onError(error);
 
         // Assert
-        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
-        verify(connection).closeAndAwait(any(CloseReason.class));
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
+        assertEquals(CustomWebsocketCodes.LOBBY_NOT_FOUND.getCode(), capturedCloseCode());
     }
 
-    @DisplayName("onError reports other errors (with a cause) without closing the connection")
+    @DisplayName("onError reports the error and closes the connection when the session is not found")
     @Test
-    void onErrorGeneric() {
+    void onErrorSessionNotFound() {
+        // Arrange
+        SessionNotFoundException error = new SessionNotFoundException(CONN_ID);
+
+        // Act
+        websocket.onError(error);
+
+        // Assert
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
+        assertEquals(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode(), capturedCloseCode());
+    }
+
+    @DisplayName("onError sends the exception details wrapped in a game-client event envelope")
+    @Test
+    void onErrorSendsExceptionEvent() {
         // Arrange
         RuntimeException error = new RuntimeException("boom", new IllegalStateException("root cause"));
 
@@ -144,7 +164,32 @@ class LobbyWebsocketTest {
         websocket.onError(error);
 
         // Assert
-        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
+        ArgumentCaptor<GameClientEventEnvelope> captor = ArgumentCaptor.forClass(GameClientEventEnvelope.class);
+        verify(connection).sendTextAndAwait(captor.capture());
+
+        ExceptionResponse response = ((ExceptionEvent) captor.getValue().payload()).response();
+        assertEquals(RuntimeException.class.getSimpleName(), response.exception());
+        assertEquals(IllegalStateException.class.getSimpleName(), response.cause());
+        assertEquals("boom", response.message());
+    }
+
+    @DisplayName("onError reports other errors without closing the connection")
+    @Test
+    void onErrorGeneric() {
+        // Arrange
+        RuntimeException error = new RuntimeException("boom");
+
+        // Act
+        websocket.onError(error);
+
+        // Assert
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
         verify(connection, never()).closeAndAwait(any(CloseReason.class));
+    }
+
+    private int capturedCloseCode() {
+        ArgumentCaptor<CloseReason> captor = ArgumentCaptor.forClass(CloseReason.class);
+        verify(connection).closeAndAwait(captor.capture());
+        return captor.getValue().getCode();
     }
 }
