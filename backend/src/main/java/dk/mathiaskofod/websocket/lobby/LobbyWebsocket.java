@@ -66,7 +66,7 @@ public class LobbyWebsocket {
         }
 
         if (e instanceof LobbyNotFoundException) {
-            connection.closeAndAwait(new CloseReason(WebsocketCodes.LOBBY_NOT_FOUND.getCode()));
+            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.LOBBY_NOT_FOUND.getCode()));
         }
     }
 

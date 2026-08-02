@@ -19,7 +19,6 @@ export const LocalWebsocketCodes = {
   providedIn: 'root',
 })
 export class WebsocketService {
-
   private readonly applicationConfig = inject(ConfigService)
   private readonly lobbyWebsocketUrl = this.applicationConfig.apiUrl + "/ws/lobby"
   private readonly gameWebsocketUrl = this.applicationConfig.apiUrl + "/ws/game"
@@ -126,7 +125,7 @@ export class WebsocketService {
   }
 
   private isException(message: WebsocketEnvelope) {
-    return (message as Partial<GameEventEnvelope>).payload?.type === 'EXCEPTION_RESPONSE'
+    return (message as Partial<GameEventEnvelope>).payload?.type === 'EXCEPTION_RESPONSE';
   }
 
   public send(envelope: WebsocketEnvelope): void {
