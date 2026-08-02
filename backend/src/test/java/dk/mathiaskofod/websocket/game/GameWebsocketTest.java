@@ -15,7 +15,7 @@ import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Set;
@@ -112,7 +112,7 @@ class GameWebsocketTest {
     void onCloseSessionNotFound() {
         // Arrange
         asRole(Role.GAME_CLIENT);
-        CloseReason reason = new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode());
+        CloseReason reason = new CloseReason(WebsocketCodes.SESSION_NOT_FOUND.getCode());
 
         // Act
         websocket.onWebsocketConnectionClosed(reason);

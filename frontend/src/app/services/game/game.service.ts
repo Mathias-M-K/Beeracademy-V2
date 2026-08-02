@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
@@ -39,6 +39,8 @@ import {OverlayHandle} from '../overlay/models/overlay-handle';
 import {GamePausedOverlay} from '../../overlay/game-paused-overlay/game-paused-overlay';
 import {GamePausedOverlayData} from '../../overlay/game-paused-overlay/models/game-paused-overlay-data';
 import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
+import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
+import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -111,35 +113,45 @@ export class GameService {
   private gamePausedOverlay?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;
 
-  constructor() {
-    effect(() => {
-      const timerState = this.gameTimeReport()?.state;
-      if (!timerState) return;
+  private isReconnecting: boolean = false;
 
-      switch (timerState) {
-        case TimerState.Paused:
-          return console.log("GAME PAUSED");
-        case TimerState.Running:
-          return console.log("GAME UNPAUSED");
-      }
-    });
+  constructor() {
+    document.addEventListener('visibilitychange', () => this.onPageGainFocus());
   }
 
-  public connectToWebsocket() {
-    const loaderMsg = ['Henter øl', 'Blander kort', 'Varmer serveren op', 'Tjekker vejeret', 'Drikker en øl']
-    const overlayHandle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay, data: loaderMsg});
+  public connectToWebsocket(isReconnect: boolean = false, timeoutMs?: number) {
 
-    this.websocketService.connectToGameWebsocket().then(msgObs => {
+    let overlayHandle: OverlayHandle<void> | undefined;
+
+    if (isReconnect) {
+      overlayHandle = this.overlayService.openOverlay<void>({component: ReconnectingOverlay});
+    } else {
+      const loaderMsg = ['Henter øl', 'Blander kort', 'Varmer serveren op', 'Tjekker vejeret', 'Drikker en øl']
+      overlayHandle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay, data: loaderMsg});
+    }
+
+    this.websocketService.connectToGameWebsocket(timeoutMs).then(msgObs => {
       msgObs.subscribe({
         next: message => this.handleWebsocketMessage(message),
         error: err => this.handleWebsocketConnectionDroppedWithError(err),
         complete: () => this.handleWebsocketConnectionDroppedClean(),
       });
-    }).catch(() => {
-      this.handleFailedToConnectToGame();
+    }).catch((error) => {
+      this.handleWebsocketConnectionDroppedWithError(error);
     }).finally(() => {
-      overlayHandle.close().then(() => this.onGameLoad());
+      this.isReconnecting = false;
+
+      const closed = overlayHandle ? overlayHandle.close() : Promise.resolve();
+      closed.then(() => {
+        this.onGameLoad();
+      })
     });
+  }
+
+  public reconnectToWebsocket() {
+    if (this.isReconnecting) return;
+    this.isReconnecting = true;
+    this.connectToWebsocket(true, 15000);
   }
 
   private onGameLoad() {
@@ -170,14 +182,48 @@ export class GameService {
 
   }
 
+  /**
+   * When page gains focus, e.g. after phone have been locked or user used another app or tab
+   * @private
+   */
+  private onPageGainFocus() {
+
+    const visibilityState = document.visibilityState;
+
+    console.debug('Visibility:',visibilityState, ', socket is connected:', this.websocketService.isConnected());
+    if (visibilityState !== 'visible') return;
+    if (!this.gameStateObj()) return;
+    if (this.websocketService.isConnected()) return;
+    this.reconnectToWebsocket();
+  }
+
   private handleWebsocketConnectionDroppedClean() {
     // do nothing yet, but log the error. A game can be reconnected, implementation is soon
     console.warn("Lost connection to game-websocket, no errors");
   }
 
   private handleWebsocketConnectionDroppedWithError(error?: unknown) {
-    // do nothing yet, but log the error. A game can be reconnected, implementation is soon
-    console.error("Lost connection to game-websocket, with errors", error);
+
+    const errorObj = error as Error;
+    console.debug("Lost connection to game-websocket. Message: ", errorObj?.message, ', code: ', errorObj?.cause);
+
+    switch (errorObj.cause) {
+      case WebsocketCodes.GameNotFound: {
+        this.toastService.showToast("Der skete en fejl", "Spillet findes ikke længere", 'error', ToastState.error);
+        this.navigateToWelcome();
+        break;
+      }
+      case WebsocketCodes.GoingAway:
+      case WebsocketCodes.AbnormalClosure:
+      case WebsocketCodes.ServiceRestart:
+      case WebsocketCodes.TryAgainLater: {
+        console.warn('Transient disconnect, awaiting resume. Code:', errorObj.cause);
+        break;
+      }
+      default:
+        this.handleFailedToConnectToGame();
+    }
+
   }
 
   private handleFailedToConnectToGame() {
@@ -262,7 +308,6 @@ export class GameService {
   }
 
 
-
   private handleChugEvent(event: GameEventEnvelope) {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
@@ -270,7 +315,6 @@ export class GameService {
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
 
-    //TODO what if it is undefined? 
     this.chugOverlay?.close();
   }
 
@@ -279,7 +323,6 @@ export class GameService {
     this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
 
-    //TODO what if it is undefined? 
     this.gameNotStartedOverlay?.close();
   }
 
@@ -297,7 +340,6 @@ export class GameService {
     this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
 
-    //TODO what if it is undefined?
     this.gamePausedOverlay?.close();
   }
 
@@ -448,12 +490,9 @@ export class GameService {
     this.dismissAllOverlays();
   }
 
-  public resetGameData() {
-    this.gameStateObj.set(undefined);
-  }
-
   public onGamePageDestroyed() {
-    // Nobody is left to watch the exit animation — the page is on its way out.
+    this.websocketService.disconnect();
+    this.gameStateObj.set(undefined);
     this.dismissAllOverlays(true);
   }
 

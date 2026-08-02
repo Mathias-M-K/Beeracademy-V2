@@ -47,9 +47,9 @@ import {
 } from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
 import {ToastService} from '../toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
-import {CustomWebsocketCodes} from '../../../api-models/model/customWebsocketCodes';
 import {OverlayService} from '../overlay/overlay.service';
 import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
+import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
 
 @Injectable({
   providedIn: 'root',
@@ -143,13 +143,13 @@ export class LobbyService {
     }
 
     switch (error.cause as number) {
-      case CustomWebsocketCodes.LobbyLeaderLeft:
+      case WebsocketCodes.LobbyLeaderLeft:
         return this.handleLobbyLeaderLeft();
-      case CustomWebsocketCodes.Kicked:
+      case WebsocketCodes.Kicked:
         return this.handleKicked();
-      case CustomWebsocketCodes.SessionNotFound:
+      case WebsocketCodes.SessionNotFound:
         return this.handleSessionNotFound();
-      case CustomWebsocketCodes.Transitioning:
+      case WebsocketCodes.Transitioning:
         return this.onGameStarted();
       default:
         return this.handleUnknownError();

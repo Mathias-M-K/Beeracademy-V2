@@ -16,7 +16,7 @@ import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.*;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -72,7 +72,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
 
         lobbyService.removeDisconnectedParticipant(lobbyId, playerId);
 
-        boolean isTransitioning = CustomWebsocketCodes.TRANSITIONING.getCode() == closeReason.getCode();
+        boolean isTransitioning = WebsocketCodes.TRANSITIONING.getCode() == closeReason.getCode();
         if (isTransitioning) {
             sessionRegistry.clearConnectionId(playerId);
         } else {
@@ -82,8 +82,8 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
         LobbyParticipantDisconnectedEvent event = new LobbyParticipantDisconnectedEvent(playerId);
         LobbyParticipantEventEnvelope envelope = new LobbyParticipantEventEnvelope(event);
 
-        if (closeReason.getCode() == CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode()
-                || closeReason.getCode() == CustomWebsocketCodes.TRANSITIONING.getCode()) {
+        if (closeReason.getCode() == WebsocketCodes.LOBBY_LEADER_LEFT.getCode()
+                || closeReason.getCode() == WebsocketCodes.TRANSITIONING.getCode()) {
             // Skipping broadcast, since every member have already been notified
             return;
         }

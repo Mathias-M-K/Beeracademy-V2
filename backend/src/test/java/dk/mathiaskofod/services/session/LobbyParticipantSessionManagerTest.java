@@ -22,7 +22,7 @@ import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
@@ -138,7 +138,7 @@ class LobbyParticipantSessionManagerTest {
         void connectionClosedTransitioning() {
             // Arrange
             WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
-            CloseReason reason = new CloseReason(CustomWebsocketCodes.TRANSITIONING.getCode());
+            CloseReason reason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
 
             // Act
             sessionManager.onConnectionClosed(tokenInfo, reason);
@@ -154,7 +154,7 @@ class LobbyParticipantSessionManagerTest {
         void connectionClosedLeaderLeft() {
             // Arrange
             WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
-            CloseReason reason = new CloseReason(CustomWebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "leader left");
+            CloseReason reason = new CloseReason(WebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "leader left");
 
             // Act
             sessionManager.onConnectionClosed(tokenInfo, reason);

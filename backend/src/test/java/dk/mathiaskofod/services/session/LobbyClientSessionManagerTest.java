@@ -29,7 +29,7 @@ import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
@@ -140,7 +140,7 @@ class LobbyClientSessionManagerTest {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", true, 0));
             WebSocketConnection participantConnection = mockActiveConnection("p1");
-            CloseReason reason = new CloseReason(CustomWebsocketCodes.TRANSITIONING.getCode());
+            CloseReason reason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
 
             // Act
             sessionManager.onConnectionClosed(tokenInfo, reason);
