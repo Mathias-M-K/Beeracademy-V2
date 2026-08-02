@@ -7,13 +7,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
 import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
+import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
@@ -145,7 +145,7 @@ class GameWebsocketTest {
         websocket.onError(error);
 
         // Assert
-        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
         verify(connection).closeAndAwait(any(CloseReason.class));
     }
 
@@ -159,7 +159,7 @@ class GameWebsocketTest {
         websocket.onError(error);
 
         // Assert
-        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
         verify(connection, never()).closeAndAwait(any(CloseReason.class));
     }
 }

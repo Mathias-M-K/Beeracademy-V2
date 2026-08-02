@@ -14,7 +14,7 @@ import org.eclipse.microprofile.openapi.models.media.Schema;
  *
  * <p>This filter rewrites that schema into an integer enum whose members keep their (PascalCase) names via the
  * {@code x-enum-varnames} extension, which the typescript-angular generator honours. The result on the frontend is
- * {@code CustomWebsocketCodes = { SessionNotFound: 4000, ... }}. The Java enum stays the single source of truth.
+ * {@code WebsocketCodes = { SessionNotFound: 4000, ... }}. The Java enum stays the single source of truth.
  */
 public class WebsocketCodeSchemaFilter implements OASFilter {
 
