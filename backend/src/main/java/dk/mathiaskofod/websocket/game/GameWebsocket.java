@@ -7,8 +7,10 @@ import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
 import dk.mathiaskofod.services.session.WebsocketSessionManager;
+import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.services.session.events.common.ExceptionEvent;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.security.Authenticated;
 import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
@@ -39,7 +41,7 @@ public class GameWebsocket {
 
     @OnClose
     public void onWebsocketConnectionClosed(CloseReason reason) {
-        if (reason.getCode() == CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()) {
+        if (reason.getCode() == WebsocketCodes.SESSION_NOT_FOUND.getCode()) {
             return;
         }
 
@@ -56,10 +58,10 @@ public class GameWebsocket {
         String cause = e.getCause() == null ? "" : e.getCause().getClass().getSimpleName();
         ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(), cause, e.getMessage());
         log.warn("Websocket error for connection {}: {}", connection.id(), response);
-        connection.sendTextAndAwait(response);
+        connection.sendTextAndAwait(new GameClientEventEnvelope(new ExceptionEvent(response)));
 
         if (e instanceof GameNotFoundException) {
-            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
+            connection.closeAndAwait(new CloseReason(WebsocketCodes.GAME_NOT_FOUND.getCode()));
         }
     }
 

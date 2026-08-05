@@ -1,5 +1,6 @@
 package dk.mathiaskofod.websocket.game;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -7,15 +8,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dk.mathiaskofod.providers.exceptions.mappers.ExceptionResponse;
 import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
 import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
+import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -112,7 +114,7 @@ class GameWebsocketTest {
     void onCloseSessionNotFound() {
         // Arrange
         asRole(Role.GAME_CLIENT);
-        CloseReason reason = new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode());
+        CloseReason reason = new CloseReason(WebsocketCodes.SESSION_NOT_FOUND.getCode());
 
         // Act
         websocket.onWebsocketConnectionClosed(reason);
@@ -145,8 +147,8 @@ class GameWebsocketTest {
         websocket.onError(error);
 
         // Assert
-        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
-        verify(connection).closeAndAwait(any(CloseReason.class));
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
+        assertEquals(WebsocketCodes.GAME_NOT_FOUND.getCode(), capturedCloseCode());
     }
 
     @DisplayName("onError reports other errors without closing the connection")
@@ -159,7 +161,13 @@ class GameWebsocketTest {
         websocket.onError(error);
 
         // Assert
-        verify(connection).sendTextAndAwait(any(ExceptionResponse.class));
+        verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
         verify(connection, never()).closeAndAwait(any(CloseReason.class));
+    }
+
+    private int capturedCloseCode() {
+        ArgumentCaptor<CloseReason> captor = ArgumentCaptor.forClass(CloseReason.class);
+        verify(connection).closeAndAwait(captor.capture());
+        return captor.getValue().getCode();
     }
 }

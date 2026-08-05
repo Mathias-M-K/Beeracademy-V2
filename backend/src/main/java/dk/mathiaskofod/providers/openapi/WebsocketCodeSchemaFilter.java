@@ -1,6 +1,6 @@
 package dk.mathiaskofod.providers.openapi;
 
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,16 +9,16 @@ import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.media.Schema;
 
 /**
- * SmallRye represents the {@link CustomWebsocketCodes} enum by its constant <em>names</em>, dropping the numeric close
+ * SmallRye represents the {@link WebsocketCodes} enum by its constant <em>names</em>, dropping the numeric close
  * codes the frontend actually needs to match a WebSocket {@code CloseEvent.code}.
  *
  * <p>This filter rewrites that schema into an integer enum whose members keep their (PascalCase) names via the
  * {@code x-enum-varnames} extension, which the typescript-angular generator honours. The result on the frontend is
- * {@code CustomWebsocketCodes = { SessionNotFound: 4000, ... }}. The Java enum stays the single source of truth.
+ * {@code WebsocketCodes = { SessionNotFound: 4000, ... }}. The Java enum stays the single source of truth.
  */
 public class WebsocketCodeSchemaFilter implements OASFilter {
 
-    private static final String SCHEMA_NAME = "CustomWebsocketCodes";
+    private static final String SCHEMA_NAME = "WebsocketCodes";
 
     @Override
     public void filterOpenAPI(OpenAPI openAPI) {
@@ -31,10 +31,10 @@ public class WebsocketCodeSchemaFilter implements OASFilter {
             return;
         }
 
-        List<Object> codes = Arrays.stream(CustomWebsocketCodes.values())
+        List<Object> codes = Arrays.stream(WebsocketCodes.values())
                 .map(code -> (Object) code.getCode())
                 .toList();
-        List<String> varNames = Arrays.stream(CustomWebsocketCodes.values())
+        List<String> varNames = Arrays.stream(WebsocketCodes.values())
                 .map(code -> toPascalCase(code.name()))
                 .toList();
 

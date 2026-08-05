@@ -11,7 +11,7 @@ import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.common.ExceptionEvent;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.security.Authenticated;
 import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
@@ -61,12 +61,12 @@ public class LobbyWebsocket {
         connection.sendTextAndAwait(new GameClientEventEnvelope(new ExceptionEvent(response)));
 
         if(e instanceof SessionNotFoundException){
-            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode()));
+            connection.closeAndAwait(new CloseReason(WebsocketCodes.SESSION_NOT_FOUND.getCode()));
             return;
         }
 
         if (e instanceof LobbyNotFoundException) {
-            connection.closeAndAwait(new CloseReason(CustomWebsocketCodes.LOBBY_NOT_FOUND.getCode()));
+            connection.closeAndAwait(new CloseReason(WebsocketCodes.LOBBY_NOT_FOUND.getCode()));
         }
     }
 

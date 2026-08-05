@@ -19,7 +19,7 @@ import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.common.ExceptionEvent;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
-import dk.mathiaskofod.websocket.game.models.CustomWebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Set;
@@ -137,7 +137,7 @@ class LobbyWebsocketTest {
 
         // Assert
         verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
-        assertEquals(CustomWebsocketCodes.LOBBY_NOT_FOUND.getCode(), capturedCloseCode());
+        assertEquals(WebsocketCodes.LOBBY_NOT_FOUND.getCode(), capturedCloseCode());
     }
 
     @DisplayName("onError reports the error and closes the connection when the session is not found")
@@ -151,7 +151,7 @@ class LobbyWebsocketTest {
 
         // Assert
         verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
-        assertEquals(CustomWebsocketCodes.SESSION_NOT_FOUND.getCode(), capturedCloseCode());
+        assertEquals(WebsocketCodes.SESSION_NOT_FOUND.getCode(), capturedCloseCode());
     }
 
     @DisplayName("onError sends the exception details wrapped in a game-client event envelope")

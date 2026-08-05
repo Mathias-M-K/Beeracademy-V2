@@ -7,6 +7,7 @@ import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
 import {GameEventEnvelope} from './models/categories/events/game/game-event-envelope';
 import {ExceptionResponse} from '../../api-models/model/exceptionResponse';
 import {ExceptionEvent} from './models/categories/events/common/exception-event';
+import {WebsocketCodes} from '../../api-models/model/websocketCodes';
 
 
 export const LocalWebsocketCodes = {
@@ -25,15 +26,19 @@ export class WebsocketService {
 
   private websocket?: WebSocketSubject<WebsocketEnvelope>;
 
+  public isConnected(): boolean {
+    return !!this.websocket;
+  }
+
   public connectToLobbyWebsocket() {
     return this.connectToWebsocket(this.lobbyWebsocketUrl);
   }
 
-  public connectToGameWebsocket() {
-    return this.connectToWebsocket(this.gameWebsocketUrl);
+  public connectToGameWebsocket(timeoutMs?: number) {
+    return this.connectToWebsocket(this.gameWebsocketUrl, timeoutMs);
   }
 
-  private connectToWebsocket(url: string): Promise<Observable<WebsocketEnvelope>> {
+  private connectToWebsocket(url: string, timeoutMs?: number): Promise<Observable<WebsocketEnvelope>> {
     console.debug("Connecting to Websocket", url);
     this.disconnect();
 
@@ -46,10 +51,10 @@ export class WebsocketService {
       rejectConnection = reject;
     });
 
-    const timeout = setTimeout(() => {
+    const timeoutHandle = setTimeout(() => {
       rejectConnection(new Error("Did not receive handshake", {cause: 0}));
       this.disconnect();
-    }, 6000);
+    }, timeoutMs ?? 6000);
 
     const socket = this.websocket = webSocket<WebsocketEnvelope>({
       url: url,
@@ -59,7 +64,7 @@ export class WebsocketService {
       closeObserver: {
         next: (closeEvent: CloseEvent) => {
           console.log("⚠️ Websocket disconnected. Code:", closeEvent.code, ', clean:', closeEvent.wasClean);
-          clearTimeout(timeout);
+          clearTimeout(timeoutHandle);
 
           const error = new Error('Websocket was closed', {cause: closeEvent.code});
           rejectConnection(error);
@@ -87,21 +92,28 @@ export class WebsocketService {
 
         if (this.isHandshake(message)) {
           console.log("✅ Websocket handshake received");
-          clearTimeout(timeout);
+          clearTimeout(timeoutHandle);
           resolveConnection(messages);
         } else if (this.isException(message)) {
           const exception: ExceptionResponse = ((message as GameEventEnvelope).payload as ExceptionEvent).response;
+          let cause = LocalWebsocketCodes.Exception;
+          switch (exception.exception) {
+            case 'GameNotFoundException': {
+              cause = WebsocketCodes.GameNotFound
+              break;
+            }
+          }
           console.debug("⚠️ Exception thrown from websocket", exception);
-          rejectConnection(new Error("Exception thrown from websocket", {cause: LocalWebsocketCodes.Exception}));
+          rejectConnection(new Error("Exception thrown from websocket", {cause: cause}));
           return;
         }
 
         messages.next(message);
       },
       error: (error: Event) => {
-        clearTimeout(timeout);
+        clearTimeout(timeoutHandle);
         rejectConnection(new Error('Websocket disconnected', {cause: LocalWebsocketCodes.Unknown}));
-        console.debug("⚠️ Error when attempting to connect to websocket:", error, ", url:", url);
+        console.debug("⚠️ Error when attempting to connect to websocket.", error, "url:", url);
       }
     });
 
