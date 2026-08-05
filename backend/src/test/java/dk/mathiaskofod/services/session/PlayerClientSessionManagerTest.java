@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -191,6 +192,22 @@ class PlayerClientSessionManagerTest {
             // Assert
             verify(sessionRegistry).clearConnectionId(PLAYER_ID);
             verify(gameClientConnection).sendTextAndAwait(any(WebsocketEnvelope.class));
+        }
+
+        @DisplayName("onConnectionClosed clears the connection without broadcasting when the game session is gone")
+        @Test
+        void connectionClosedGameSessionGone() {
+            // Arrange
+            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
+            when(sessionRegistry.getSession(GAME_ID)).thenReturn(Optional.empty());
+
+            // Act
+            sessionManager.onConnectionClosed(tokenInfo, null);
+
+            // Assert
+            verify(sessionRegistry).clearConnectionId(PLAYER_ID);
+            verify(gameService, never()).getGame(GAME_ID);
         }
     }
 

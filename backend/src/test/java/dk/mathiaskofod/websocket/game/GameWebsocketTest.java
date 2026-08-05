@@ -1,5 +1,6 @@
 package dk.mathiaskofod.websocket.game;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -146,7 +148,7 @@ class GameWebsocketTest {
 
         // Assert
         verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
-        verify(connection).closeAndAwait(any(CloseReason.class));
+        assertEquals(WebsocketCodes.GAME_NOT_FOUND.getCode(), capturedCloseCode());
     }
 
     @DisplayName("onError reports other errors without closing the connection")
@@ -161,5 +163,11 @@ class GameWebsocketTest {
         // Assert
         verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
         verify(connection, never()).closeAndAwait(any(CloseReason.class));
+    }
+
+    private int capturedCloseCode() {
+        ArgumentCaptor<CloseReason> captor = ArgumentCaptor.forClass(CloseReason.class);
+        verify(connection).closeAndAwait(captor.capture());
+        return captor.getValue().getCode();
     }
 }

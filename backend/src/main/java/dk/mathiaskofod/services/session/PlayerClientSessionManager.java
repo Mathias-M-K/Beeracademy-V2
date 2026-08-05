@@ -55,6 +55,17 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
         sessionRegistry.clearConnectionId(playerId);
 
+        // The game session can already be gone — e.g. the connection was rejected with GAME_NOT_FOUND, which
+        // closes the socket and lands us here. There is nobody left to notify, so clearing the connection
+        // above is all the cleanup there is; broadcasting would just throw GameNotFoundException a second time.
+        if (sessionRegistry.getSession(gameId).isEmpty()) {
+            log.info(
+                    "Player disconnected from a game session that no longer exists. PlayerID:{}, GameID:{}",
+                    playerId,
+                    gameId);
+            return;
+        }
+
         PlayerDisconnectedEvent event = new PlayerDisconnectedEvent(playerId, gameId);
         broadcastToParty(gameId, new PlayerClientEventEnvelope(event));
 

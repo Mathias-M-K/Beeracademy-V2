@@ -2,7 +2,7 @@ package dk.mathiaskofod.websocket.game.models;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@Schema(description = "Custom websocket codes")
+@Schema(description = "All websocket close codes")
 public enum WebsocketCodes {
     GOING_AWAY(1001),
     ABNORMAL_CLOSURE(1006),
