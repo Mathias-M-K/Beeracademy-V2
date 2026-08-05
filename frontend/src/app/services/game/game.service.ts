@@ -114,6 +114,8 @@ export class GameService {
   private chugOverlay?: OverlayHandle<number>;
 
   private isReconnecting: boolean = false;
+  private reconnectCount: number = 0;
+  private readonly reconnectCountLimit: number = 3;
 
   constructor() {
     document.addEventListener('visibilitychange', () => this.onPageGainFocus());
@@ -124,6 +126,7 @@ export class GameService {
     let overlayHandle: OverlayHandle<void> | undefined;
 
     if (isReconnect) {
+      this.reconnectCount++;
       overlayHandle = this.overlayService.openOverlay<void>({component: ReconnectingOverlay});
     } else {
       const loaderMsg = ['Henter øl', 'Blander kort', 'Varmer serveren op', 'Tjekker vejeret', 'Drikker en øl']
@@ -131,6 +134,7 @@ export class GameService {
     }
 
     this.websocketService.connectToGameWebsocket(timeoutMs).then(msgObs => {
+      this.reconnectCount = 0;
       msgObs.subscribe({
         next: message => this.handleWebsocketMessage(message),
         error: err => this.handleWebsocketConnectionDroppedWithError(err),
@@ -150,6 +154,11 @@ export class GameService {
 
   public reconnectToWebsocket() {
     if (this.isReconnecting) return;
+    if (this.reconnectCount >= this.reconnectCountLimit) {
+      this.toastService.showToast("Kunne ikke forbinde", "Efter flere forsøg var det ikke muligt at forbinde til spillet", "error", ToastState.error);
+      this.navigateToWelcome();
+      return;
+    }
     this.isReconnecting = true;
     this.connectToWebsocket(true, 15000);
   }
@@ -187,13 +196,12 @@ export class GameService {
    * @private
    */
   private onPageGainFocus() {
-
     const visibilityState = document.visibilityState;
-
-    console.debug('Visibility:',visibilityState, ', socket is connected:', this.websocketService.isConnected());
+    console.debug('Visibility:', visibilityState, ', socket is connected:', this.websocketService.isConnected());
     if (visibilityState !== 'visible') return;
     if (!this.gameStateObj()) return;
     if (this.websocketService.isConnected()) return;
+    this.reconnectCount = 0;
     this.reconnectToWebsocket();
   }
 
@@ -217,7 +225,11 @@ export class GameService {
       case WebsocketCodes.AbnormalClosure:
       case WebsocketCodes.ServiceRestart:
       case WebsocketCodes.TryAgainLater: {
-        console.warn('Transient disconnect, awaiting resume. Code:', errorObj.cause);
+        const visibilityState = document.visibilityState;
+        console.warn('Transient disconnect, awaiting resume. Code:', errorObj.cause, ', Page visible:', visibilityState);
+        if (visibilityState !== 'visible') return;
+
+        this.reconnectToWebsocket();
         break;
       }
       default:
