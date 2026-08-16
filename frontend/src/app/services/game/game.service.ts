@@ -199,6 +199,15 @@ export class GameService {
     const visibilityState = document.visibilityState;
     console.debug('Visibility:', visibilityState, ', socket is connected:', this.websocketService.isConnected());
     if (visibilityState !== 'visible') return;
+    this.resumeConnectionIfDropped();
+  }
+
+  /**
+   * Reconnects a game whose socket died while we were away. Safe to call repeatedly — it no-ops
+   * unless there is a game to resume and its socket is gone.
+   * @private
+   */
+  private resumeConnectionIfDropped() {
     if (!this.gameStateObj()) return;
     if (this.websocketService.isConnected()) return;
     this.reconnectCount = 0;
@@ -366,6 +375,13 @@ export class GameService {
 
   /**Dispatch actions**/
   private dispatchGameAction(action: GameAction) {
+
+    if (!this.websocketService.isConnected()) {
+      console.warn('Action dispatched without a socket, treating as a page resume.', action);
+      this.resumeConnectionIfDropped();
+      return;
+    }
+
     this.websocketService.send(gameClientActionEnvelope(action));
   }
 
