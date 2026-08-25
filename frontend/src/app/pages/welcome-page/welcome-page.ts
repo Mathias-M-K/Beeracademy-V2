@@ -53,22 +53,22 @@ export class WelcomePage {
   }
 
 
-  public registerParticipant(participantName: string, lobbyId: string): void {
+  public registerParticipant(participantName: string, partyId: string): void {
 
     if (participantName.trim().length === 0) {
       this.toastService.showToast("Fejl", "Angiv et deltager navn", "error", ToastState.error);
       return;
     }
 
-    if (lobbyId.trim().length === 0) {
+    if (partyId.trim().length === 0) {
       this.toastService.showToast("Fejl", "Angiv lobby-id", "error", ToastState.error);
       return;
     }
     this.joiningLobby.set(true);
 
-    const cleanLobbyId = lobbyId.replaceAll('-', '');
+    const cleanPartyId = partyId.replaceAll('-', '');
 
-    this.lobbyApi.fetchParticipantToken(cleanLobbyId, participantName)
+    this.lobbyApi.fetchParticipantToken(cleanPartyId, participantName)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.joiningLobby.set(false))

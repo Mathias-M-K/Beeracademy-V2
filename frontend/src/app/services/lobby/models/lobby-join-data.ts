@@ -1,4 +1,4 @@
 export interface LobbyJoinData {
-  lobbyId: string;
+  partyId: string;
   joinLink: string;
 }

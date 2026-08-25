@@ -19,16 +19,16 @@ public abstract class AbstractGameSessionManager extends AbstractSessionManager 
     @Inject
     GameSessionService gameSessionService;
 
-    protected void broadcastToParty(String gameId, WebsocketEnvelope<?> envelope) {
-        broadcastToParty(gameId, envelope, Collections.emptyList());
+    protected void broadcastToParty(String partyId, WebsocketEnvelope<?> envelope) {
+        broadcastToParty(partyId, envelope, Collections.emptyList());
     }
 
-    protected void broadcastToParty(String gameId, WebsocketEnvelope<?> envelope, List<String> excluded) {
+    protected void broadcastToParty(String partyId, WebsocketEnvelope<?> envelope, List<String> excluded) {
 
         Session gameClientSession =
-                sessionRegistry.getSession(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+                sessionRegistry.getSession(partyId).orElseThrow(() -> new GameNotFoundException(partyId));
 
-        gameService.getGame(gameId).getPlayers().stream()
+        gameService.getGame(partyId).getPlayers().stream()
                 .map(Player::id)
                 .filter(playerId -> !excluded.contains(playerId))
                 .map(sessionRegistry::getSession)
@@ -36,14 +36,14 @@ public abstract class AbstractGameSessionManager extends AbstractSessionManager 
                 .filter(session -> session.getConnectionId().isPresent())
                 .forEach(session -> sendMessage(session.getSessionId(), envelope));
 
-        if (!excluded.contains(gameId) && gameClientSession.isConnected()) {
+        if (!excluded.contains(partyId) && gameClientSession.isConnected()) {
             sendMessage(gameClientSession.getSessionId(), envelope);
         }
     }
 
     protected void provideGameSnapshotToClient(
             TokenInfo tokenInfo, Function<GameSnapshotEvent, WebsocketEnvelope<?>> envelope) {
-        GameDto game = gameSessionService.getGameView(tokenInfo.getGameId());
+        GameDto game = gameSessionService.getGameView(tokenInfo.getPartyId());
         GameSnapshotEvent gameSnapshotEvent = new GameSnapshotEvent(game);
         sendMessage(tokenInfo.getClientId(), envelope.apply(gameSnapshotEvent));
     }

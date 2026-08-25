@@ -4,14 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Vault (Persistent Memory)
 
-A persistent knowledge vault is available via the `obsidian` MCP server.
+A persistent knowledge vault is available via the `mcp-tools-istefox` MCP server
+(HTTP, `http://127.0.0.1:27200/mcp`). It talks to a **running Obsidian instance**, so the
+tools only work while Obsidian is open — if calls fail, check that first, then fall back to
+reading the vault as plain markdown on disk.
+
 Vault root: `C:\Users\mathi\Documents\vaults\obsidian_vault`
+
+Useful tools beyond plain file CRUD: `get_vault_overview` (one-call situational snapshot),
+`search_vault_smart`, `get_backlinks` / `get_outgoing_links`, `get_vault_file_partial`,
+`find_broken_links`.
 
 ### When to consult the vault
 
-- **At session start**: Read `context/project-beeracademy.md` and `dead-ends/_index.md` before making any architectural suggestions.
-- **Before suggesting an approach**: Check `patterns/` for established conventions and `dead-ends/` to avoid repeating discarded solutions.
+- **At session start**: Read `rules.md` and `known-issues.md` (vault root), plus
+  `context/project-beeracademy.md` and `dead-ends/_index.md`, before making any
+  architectural suggestions. `get_vault_overview` is the cheapest way to orient first.
+- **Before suggesting an approach**: Check `patterns/` for established conventions and
+  `dead-ends/` to avoid repeating discarded solutions.
 - **When referencing a past decision**: Check `decisions/` for the recorded rationale.
+
+**`rules.md` outranks this file.** It carries the codebase's conventions with a runnable
+check per rule, and it is maintained more actively than CLAUDE.md. Where the two disagree,
+`rules.md` wins — and fix the drift here.
 
 ### When to write to the vault
 
@@ -23,11 +38,17 @@ Vault root: `C:\Users\mathi\Documents\vaults\obsidian_vault`
 ### Rules
 
 - Never ask for permission to read the vault — just do it.
-- Never ask for permission to write decisions or patterns — record them as they emerge.
+- Never ask for permission to **create or update** notes in `patterns/`, `decisions/`,
+  `dead-ends/`, `context/`, or `scratch/` — record them as they emerge.
+- **Deleting is not covered by the above.** `delete_vault_file`, `delete_vault_directory`,
+  and whole-vault `search_and_replace` need explicit confirmation first. So does rewriting
+  `rules.md` or `known-issues.md` wholesale — append or patch those instead.
 - Keep notes terse and factual. No prose padding.
 - Prefer updating existing files over creating new ones unless the topic is genuinely new.
 - The `scratch/` folder is disposable — use it freely for working notes.
 - When referencing another vault note, use [[wiki links]] so the graph stays navigable.
+- Obsidian-side effects (`execute_obsidian_command`, `show_file_in_obsidian`) change what
+  the user is looking at — don't fire them unasked.
 
 ## Project Overview
 
@@ -155,7 +176,7 @@ kubectl apply -f ../deployment/backend
 1. **Game Creation**: Client creates a game via REST API (`/api/games`)
 2. **Session Claiming**: Game client claims the game, player claims their session
 3. **WebSocket Connection**: Clients connect via `/ws/game` endpoint
-4. **Game State Management**: Game state is maintained in memory (no database)
+4. **Game State Management**: Games and sessions are persisted to Redis; lobbies are still in-memory
 5. **Real-time Updates**: All players receive WebSocket broadcasts on state changes
 
 ### WebSocket Architecture
@@ -276,7 +297,13 @@ Located at `src/main/resources/application.properties`
 
 ## Important Notes
 
-- **No Database**: Game state is maintained in memory only
+- **Redis-backed state (mostly)**: Game snapshots (`GameService`) and sessions
+  (`SessionRegistry`) are Redis-backed and survive restarts; `LobbyRepository` is still an
+  in-memory `HashMap`, so lobbies are single-instance and vanish on restart. Do not assume
+  symmetry between them. See vault `rules.md` §6 and `decisions/redis-state-store.md` —
+  which supersedes the older "no database" ADR.
+- **Renaming a persisted field is a migration**: `GameSnapshot` is stored as JSON; changing
+  a component name breaks in-flight games on deploy.
 - **WebSocket Required**: All game interactions require WebSocket connection
 - **JWT in Cookies**: Tokens are returned as cookies, not headers
 - **CORS**: Enabled in dev mode, configured for specific origins

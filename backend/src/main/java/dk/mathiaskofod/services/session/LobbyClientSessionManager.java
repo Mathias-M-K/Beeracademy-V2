@@ -34,9 +34,9 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
 
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
-        String lobbyId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         log.info("Registering new lobby client connected with websocket connection id: {}", websocketConnectionId);
-        sessionRegistry.setConnectionId(lobbyId, websocketConnectionId);
+        sessionRegistry.setConnectionId(partyId, websocketConnectionId);
 
         confirmHandshake(tokenInfo, LobbyClientEventEnvelope::new);
         provideLobbySnapshotToClient(tokenInfo, LobbyClientEventEnvelope::new);
@@ -47,11 +47,11 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
     @Override
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
-        String lobbyId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
 
         log.info(
                 "Leader abandoned lobby: {}, with reason: {}-{}",
-                lobbyId,
+                partyId,
                 closeReason.getCode(),
                 closeReason.getMessage());
 
@@ -59,16 +59,16 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
 
         CloseReason participantCloseReason;
         if (isTransitioning) {
-            lobbyService.markLobbyAsTransitioning(lobbyId);
-            sessionRegistry.clearConnectionId(lobbyId);
+            lobbyService.markLobbyAsTransitioning(partyId);
+            sessionRegistry.clearConnectionId(partyId);
             participantCloseReason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
         } else {
-            lobbyService.markLobbyAsAbandoned(lobbyId);
+            lobbyService.markLobbyAsAbandoned(partyId);
             participantCloseReason =
                     new CloseReason(WebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "Leader left the lobby");
         }
 
-        lobbyService.getLobby(lobbyId).getParticipants().stream()
+        lobbyService.getLobby(partyId).getParticipants().stream()
                 .filter(LobbyParticipant::isActive)
                 .map(LobbyParticipant::getId)
                 .forEach(playerId -> disconnectParticipant(playerId, participantCloseReason));
@@ -78,7 +78,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
     @Override
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> message) {
 
-        String lobbyId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
 
         if (!(message instanceof LobbyClientActionEnvelope(LobbyClientAction action))) {
             throw new UnknownCategoryException("Invalid envelope type for lobby client action", 400);
@@ -88,11 +88,11 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
             case AddParticipantAction(String participantName) -> {
                 String participantId = IdGenerator.generatePlayerId();
                 LobbyParticipant newParticipant =
-                        lobbyService.registerParticipant(lobbyId, participantName, participantId, false);
+                        lobbyService.registerParticipant(partyId, participantName, participantId, false);
 
                 NewParticipantEvent event =
                         new NewParticipantEvent(LobbyParticipantDTO.fromLobbyParticipant(newParticipant));
-                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
+                broadcastToLobby(partyId, new LobbyClientEventEnvelope(event));
             }
             case RemoveParticipantAction(String participantId) -> {
                 ParticipantRemovedEvent event = new ParticipantRemovedEvent(participantId);
@@ -102,15 +102,15 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                     disconnectParticipant(participantId, closeReason);
                 } catch (SessionNotFoundException snf) {
                     log.info("Participant: {}, is not active. Proceeding to remove from lobby", participantId);
-                    lobbyService.removeDisconnectedParticipant(lobbyId, participantId);
+                    lobbyService.removeDisconnectedParticipant(partyId, participantId);
                 }
 
-                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
+                broadcastToLobby(partyId, new LobbyClientEventEnvelope(event));
             }
             case StartGameAction() -> {
-                lobbyService.createGame(lobbyId);
-                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(new GameStartedEvent()));
-                transitionToGameWebsocket(lobbyId);
+                lobbyService.createGame(partyId);
+                broadcastToLobby(partyId, new LobbyClientEventEnvelope(new GameStartedEvent()));
+                transitionToGameWebsocket(partyId);
             }
             case UpdateSettingsAction updateSettingsAction -> {
                 String participantId = updateSettingsAction
@@ -118,25 +118,25 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                         .orElseThrow(() -> new CannotIdentifyPlayer(
                                 "No participantId was provided when attempting to change settings", 400));
 
-                applyAndBroadcastSettings(lobbyId, participantId, updateSettingsAction);
+                applyAndBroadcastSettings(partyId, participantId, updateSettingsAction);
             }
             case SendEmojiAction(Emoji emoji) -> {
-                EmojiSentEvent event = new EmojiSentEvent(lobbyId, emoji);
-                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event), List.of(lobbyId));
+                EmojiSentEvent event = new EmojiSentEvent(partyId, emoji);
+                broadcastToLobby(partyId, new LobbyClientEventEnvelope(event), List.of(partyId));
             }
             case SendMessageAction(String clientMessage) -> {
-                MessageSentEvent event = new MessageSentEvent(lobbyId, clientMessage);
-                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event), List.of(lobbyId));
+                MessageSentEvent event = new MessageSentEvent(partyId, clientMessage);
+                broadcastToLobby(partyId, new LobbyClientEventEnvelope(event), List.of(partyId));
             }
             case RearrangeParticipantsAction(List<RearrangeParticipantsAction.ParticipantPosition> positions) -> {
-                log.info("Rearranging participants for lobby {}", lobbyId);
+                log.info("Rearranging participants for lobby {}", partyId);
                 positions.forEach(participantPosition -> this.lobbyService.changeParticipantPosition(
-                        lobbyId, participantPosition.participantId(), participantPosition.newPosition()));
+                        partyId, participantPosition.participantId(), participantPosition.newPosition()));
 
                 List<LobbyParticipantDTO> participants =
-                        LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId)).participants();
+                        LobbyDTO.fromLobby(lobbyService.getLobby(partyId)).participants();
                 ParticipantsRearrangedEvent event = new ParticipantsRearrangedEvent(participants);
-                broadcastToLobby(lobbyId, new LobbyClientEventEnvelope(event));
+                broadcastToLobby(partyId, new LobbyClientEventEnvelope(event));
             }
             default ->
                 log.warn(
@@ -146,9 +146,9 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
         }
     }
 
-    private void transitionToGameWebsocket(String lobbyId) {
+    private void transitionToGameWebsocket(String partyId) {
         CloseReason reason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
-        getWebsocketConnection(lobbyId).closeAndAwait(reason);
+        getWebsocketConnection(partyId).closeAndAwait(reason);
     }
 
     private void disconnectParticipant(String participantId, CloseReason reason) {

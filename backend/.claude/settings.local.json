@@ -10,11 +10,7 @@
       "WebSearch",
       "WebFetch(domain:quarkus.io)",
       "Bash(./gradlew compileJava --no-daemon)",
-      "Bash(./gradlew clean *)",
-      "mcp__obsidian__list-available-vaults",
-      "mcp__obsidian__create-directory",
-      "mcp__obsidian__create-note",
-      "mcp__obsidian__edit-note"
+      "Bash(./gradlew clean *)"
     ]
   }
 }

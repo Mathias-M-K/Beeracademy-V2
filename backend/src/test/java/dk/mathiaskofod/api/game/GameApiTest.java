@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.*;
 import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.player.models.Stats;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import io.quarkus.test.junit.QuarkusTest;
@@ -29,29 +30,30 @@ class GameApiTest {
      * @return the generated game ID
      */
     private String createGameWithTwoPlayers(String name) {
-        String gameId = IdGenerator.generateGameId();
-        List<Player> players = List.of(Player.create("Alice", 2, true), Player.create("Bob", 3, true));
-        gameService.createGame(name, gameId, players);
-        return gameId;
+        String partyId = IdGenerator.generatePartyId();
+        List<Player> players =
+                List.of(new Player("Alice", "alice", 2, true, new Stats()), new Player("Bob", "bob", 3, true, new Stats()));
+        gameService.createGame(name, partyId, players);
+        return partyId;
     }
 
     @DisplayName("Get game returns game details")
     @Test
     void getGameReturnsDetails() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Get Game Test");
+        String partyId = createGameWithTwoPlayers("Get Game Test");
 
         // Act
-        GameDto response = given().pathParam("gameId", gameId)
+        GameDto response = given().pathParam("partyId", partyId)
                 .when()
-                .get("/api/games/{gameId}")
+                .get("/api/games/{partyId}")
                 .then()
                 .statusCode(200)
                 .extract()
                 .as(GameDto.class);
 
         // Assert
-        assertThat(response.id(), is(gameId));
+        assertThat(response.partyId(), is(partyId));
         assertThat(response.name(), is("Get Game Test"));
     }
 
@@ -59,12 +61,12 @@ class GameApiTest {
     @Test
     void claimGameReturnsCookie() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Claim Game Test");
+        String partyId = createGameWithTwoPlayers("Claim Game Test");
 
         // Act & Assert
-        given().pathParam("gameId", gameId)
+        given().pathParam("partyId", partyId)
                 .when()
-                .get("/api/games/{gameId}/claim")
+                .get("/api/games/{partyId}/claim")
                 .then()
                 .statusCode(200)
                 .cookie("session_jwt", is(notNullValue()));
@@ -74,12 +76,12 @@ class GameApiTest {
     @Test
     void getPlayersInGameReturnsList() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Players List Test");
+        String partyId = createGameWithTwoPlayers("Players List Test");
 
         // Act
-        List<PlayerDto> response = given().pathParam("gameId", gameId)
+        List<PlayerDto> response = given().pathParam("partyId", partyId)
                 .when()
-                .get("/api/games/{gameId}/players")
+                .get("/api/games/{partyId}/players")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -96,10 +98,10 @@ class GameApiTest {
     @Test
     void claimPlayerReturnsCookie() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Claim Player Test");
+        String partyId = createGameWithTwoPlayers("Claim Player Test");
 
-        List<PlayerDto> players = given().pathParam("gameId", gameId)
-                .get("/api/games/{gameId}/players")
+        List<PlayerDto> players = given().pathParam("partyId", partyId)
+                .get("/api/games/{partyId}/players")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -109,10 +111,10 @@ class GameApiTest {
         String playerId = players.getFirst().id();
 
         // Act & Assert
-        given().pathParam("gameId", gameId)
+        given().pathParam("partyId", partyId)
                 .pathParam("playerId", playerId)
                 .when()
-                .get("/api/games/{gameId}/players/{playerId}/claim")
+                .get("/api/games/{partyId}/players/{playerId}/claim")
                 .then()
                 .statusCode(200)
                 .cookie("session_jwt", is(notNullValue()));
@@ -122,12 +124,12 @@ class GameApiTest {
     @Test
     void getGameReportReturnsReport() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Game Report Test");
+        String partyId = createGameWithTwoPlayers("Game Report Test");
 
         // Act & Assert
-        given().pathParam("gameId", gameId)
+        given().pathParam("partyId", partyId)
                 .when()
-                .get("/api/games/{gameId}/reports/game")
+                .get("/api/games/{partyId}/reports/game")
                 .then()
                 .statusCode(200)
                 .body("beersConsumed", hasSize(2));
@@ -137,12 +139,12 @@ class GameApiTest {
     @Test
     void getPlayerReportsReturnsList() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Player Reports Test");
+        String partyId = createGameWithTwoPlayers("Player Reports Test");
 
         // Act & Assert
-        given().pathParam("gameId", gameId)
+        given().pathParam("partyId", partyId)
                 .when()
-                .get("/api/games/{gameId}/reports/players")
+                .get("/api/games/{partyId}/reports/players")
                 .then()
                 .statusCode(200)
                 .body("$", hasSize(2));
@@ -152,12 +154,12 @@ class GameApiTest {
     @Test
     void getTimeReportReturnsReport() {
         // Arrange
-        String gameId = createGameWithTwoPlayers("Time Report Test");
+        String partyId = createGameWithTwoPlayers("Time Report Test");
 
         // Act & Assert
-        given().pathParam("gameId", gameId)
+        given().pathParam("partyId", partyId)
                 .when()
-                .get("/api/games/{gameId}/reports/time")
+                .get("/api/games/{partyId}/reports/time")
                 .then()
                 .statusCode(200)
                 .body("gameTimeReport", is(notNullValue()))

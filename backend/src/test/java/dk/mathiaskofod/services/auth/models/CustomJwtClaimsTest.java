@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 class CustomJwtClaimsTest {
 
     @Test
-    @DisplayName("CustomJwtClaims.GAME_ID is equal to 'GAME_ID'")
+    @DisplayName("CustomJwtClaims.PARTY_ID is equal to 'GAME_ID'")
     void test() {
 
         // Arrange
-        String claimName = CustomJwtClaims.GAME_ID.getName();
-        String expectedName = "GAME_ID";
+        String claimName = CustomJwtClaims.PARTY_ID.getName();
+        String expectedName = "PARTY_ID";
 
         // Act-Assert
         assertThat(claimName, is(expectedName));

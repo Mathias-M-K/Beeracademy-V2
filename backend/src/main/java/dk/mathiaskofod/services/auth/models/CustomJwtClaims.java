@@ -1,7 +1,7 @@
 package dk.mathiaskofod.services.auth.models;
 
 public enum CustomJwtClaims {
-    GAME_ID,
+    PARTY_ID,
     PLAYER_ID;
 
     public String getName() {

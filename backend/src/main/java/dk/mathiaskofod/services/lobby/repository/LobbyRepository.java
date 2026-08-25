@@ -16,11 +16,11 @@ public class LobbyRepository {
         lobbies.put(lobby.getId(), lobby);
     }
 
-    public Lobby getLobby(String lobbyId) {
-        return Optional.ofNullable(lobbies.get(lobbyId)).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
+    public Lobby getLobby(String partyId) {
+        return Optional.ofNullable(lobbies.get(partyId)).orElseThrow(() -> new LobbyNotFoundException(partyId));
     }
 
-    public void removeLobby(String lobbyId) {
-        lobbies.remove(lobbyId);
+    public void removeLobby(String partyId) {
+        lobbies.remove(partyId);
     }
 }

@@ -21,7 +21,7 @@ export class LobbyInfoQuick {
 
   readonly qrBtnClick = output<void>();
 
-  readonly lobbyId = input<string>('-');
+  readonly partyId = input<string>('-');
   readonly lobbyJoinLink = input<string>('-');
 
   onJoinLinkCopied(success: boolean){

@@ -10,6 +10,7 @@ import dk.mathiaskofod.domain.game.events.TestGameEventEmitter;
 import dk.mathiaskofod.domain.game.events.emitter.GameEventEmitter;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.player.models.Stats;
 import dk.mathiaskofod.domain.game.timer.TimerSnapshot;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,9 +33,9 @@ class GameImplTest {
 
     @BeforeEach
     void init() {
-        defaultPlayer1 = Player.create("Player1", 14, true);
-        defaultPlayer2 = Player.create("Player2", 14, true);
-        defaultPlayer3 = Player.create("Player3", 14, true);
+        defaultPlayer1 = new Player("Player1", "p1", 14, true, new Stats());
+        defaultPlayer2 = new Player("Player2", "p2", 14, true, new Stats());
+        defaultPlayer3 = new Player("Player3", "p3", 14, true, new Stats());
     }
 
     @Nested

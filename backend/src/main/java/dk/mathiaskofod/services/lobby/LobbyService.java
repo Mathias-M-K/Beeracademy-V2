@@ -31,88 +31,88 @@ public class LobbyService {
     LobbyRepository lobbyRepository;
 
     /**
-     * Creates a lobby and returns lobby-id
+     * Creates a lobby and returns its party-id
      *
-     * @param name Name of lobby, will persist as Game name
-     * @return Lobby ID, which will persist as Game ID
+     * @param name Name of lobby, will persist as the Game name
+     * @return the party ID — identifies this group of players through both the lobby and the game phase
      */
     public String createLobby(String name) {
-        String lobbyId = IdGenerator.generateGameId();
-        Lobby newLobby = new Lobby(name, lobbyId);
+        String partyId = IdGenerator.generatePartyId();
+        Lobby newLobby = new Lobby(name, partyId);
 
         lobbyRepository.addLobby(newLobby);
-        sessionRegistry.registerSession(new Session(lobbyId));
+        sessionRegistry.registerSession(new Session(partyId));
 
-        return lobbyId;
+        return partyId;
     }
 
-    public Lobby getLobby(String lobbyId) {
-        return lobbyRepository.getLobby(lobbyId);
+    public Lobby getLobby(String partyId) {
+        return lobbyRepository.getLobby(partyId);
     }
 
-    public void deleteLobby(String lobbyId, boolean preserveSession) {
+    public void deleteLobby(String partyId, boolean preserveSession) {
         boolean isEmpty =
-                lobbyRepository.getLobby(lobbyId).getParticipants().stream().noneMatch(LobbyParticipant::isActive);
+                lobbyRepository.getLobby(partyId).getParticipants().stream().noneMatch(LobbyParticipant::isActive);
 
         if (!isEmpty) {
-            throw new LobbyNotEmptyException(lobbyId);
+            throw new LobbyNotEmptyException(partyId);
         }
 
-        lobbyRepository.removeLobby(lobbyId);
+        lobbyRepository.removeLobby(partyId);
 
         if (preserveSession) {
-            sessionRegistry.clearConnectionId(lobbyId);
+            sessionRegistry.clearConnectionId(partyId);
         } else {
-            sessionRegistry.removeSession(lobbyId);
+            sessionRegistry.removeSession(partyId);
         }
 
-        log.info("Lobby deleted: {}, Session preserved: {}", lobbyId, preserveSession);
+        log.info("Lobby deleted: {}, Session preserved: {}", partyId, preserveSession);
     }
 
-    public void markLobbyAsAbandoned(String lobbyId) {
-        getLobby(lobbyId).markAsAbandoned();
+    public void markLobbyAsAbandoned(String partyId) {
+        getLobby(partyId).markAsAbandoned();
     }
 
-    public void markLobbyAsTransitioning(String lobbyId) {
-        getLobby(lobbyId).markAsTransitioning();
+    public void markLobbyAsTransitioning(String partyId) {
+        getLobby(partyId).markAsTransitioning();
     }
 
-    public LobbyParticipant registerParticipant(String lobbyId, String name, String id, boolean active) {
-        int participantPosition = getLobby(lobbyId).getParticipants().size();
+    public LobbyParticipant registerParticipant(String partyId, String name, String id, boolean active) {
+        int participantPosition = getLobby(partyId).getParticipants().size();
         LobbyParticipant newLobbyParticipant =
                 new LobbyParticipant(name, "Funny title", id, active, participantPosition);
-        getLobby(lobbyId).addParticipant(newLobbyParticipant);
+        getLobby(partyId).addParticipant(newLobbyParticipant);
         return newLobbyParticipant;
     }
 
-    public void removeDisconnectedParticipant(String lobbyId, String participantId) {
-        Lobby lobby = getLobby(lobbyId);
+    public void removeDisconnectedParticipant(String partyId, String participantId) {
+        Lobby lobby = getLobby(partyId);
         lobby.removeParticipant(participantId);
 
         boolean isEmpty = lobby.getParticipants().stream().noneMatch(LobbyParticipant::isActive);
 
         if (isEmpty && lobby.isAbandoned()) {
-            deleteLobby(lobbyId, false);
+            deleteLobby(partyId, false);
         } else if (isEmpty && lobby.isTransitioning()) {
-            deleteLobby(lobbyId, true);
+            deleteLobby(partyId, true);
         }
     }
 
-    public void changeParticipantPosition(String lobbyId, String participantId, int newPosition) {
-        getLobby(lobbyId)
+    public void changeParticipantPosition(String partyId, String participantId, int newPosition) {
+        getLobby(partyId)
                 .getParticipant(participantId)
                 .orElseThrow(() -> new CannotIdentifyPlayer(
                         "Participant ID: " + participantId + ", didn't match any participants", 400))
                 .setPosition(newPosition);
     }
 
-    public void createGame(String lobbyId) {
-        Lobby lobby = getLobby(lobbyId);
-        List<Player> players = getLobby(lobbyId).getParticipants().stream()
+    public void createGame(String partyId) {
+        Lobby lobby = getLobby(partyId);
+        List<Player> players = getLobby(partyId).getParticipants().stream()
                 .sorted(Comparator.comparingInt(LobbyParticipant::getPosition))
-                .map(Player::fromParticipant)
+                .map(LobbyParticipant::toPlayer)
                 .toList();
 
-        gameService.createGame(lobby.getName(), lobbyId, players);
+        gameService.createGame(lobby.getName(), partyId, players);
     }
 }

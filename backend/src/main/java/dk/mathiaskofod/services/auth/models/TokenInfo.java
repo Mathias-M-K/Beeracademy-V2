@@ -10,7 +10,7 @@ public class TokenInfo {
     private final String name;
 
     @Getter
-    private final String gameId;
+    private final String partyId;
 
     @Getter
     private final Role role;
@@ -19,12 +19,12 @@ public class TokenInfo {
 
     public TokenInfo(JsonWebToken token) {
         this.name = token.getName();
-        this.gameId = token.getClaim(CustomJwtClaims.GAME_ID.getName());
+        this.partyId = token.getClaim(CustomJwtClaims.PARTY_ID.getName());
         this.playerId = token.getClaim(CustomJwtClaims.PLAYER_ID.getName());
         this.role = Role.fromJsonWebToken(token);
 
-        if (gameId == null) {
-            throw new TokenException("No Game-ID found in token", 500);
+        if (partyId == null) {
+            throw new TokenException("No Party-ID found in token", 500);
         }
     }
 
@@ -41,7 +41,7 @@ public class TokenInfo {
      */
     public String getClientId() {
         return switch (role) {
-            case GAME_CLIENT -> this.gameId;
+            case GAME_CLIENT -> this.partyId;
             case PLAYER_CLIENT -> this.playerId;
         };
     }

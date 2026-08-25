@@ -11,8 +11,8 @@ public record LobbyDTO(
         @Schema(description = "The name of the lobby", examples = "My Beer Lobby")
         String name,
 
-        @Schema(description = "The unique 9-character alphanumeric lobby ID", examples = "aB3cD5eF7")
-        String id,
+        @Schema(description = "The unique 9-character alphanumeric party ID", examples = "aB3cD5eF7")
+        String partyId,
 
         @Schema(description = "The list of participants currently registered in the lobby")
         List<LobbyParticipantDTO> participants) {

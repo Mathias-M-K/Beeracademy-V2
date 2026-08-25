@@ -65,7 +65,7 @@ export class LobbyService {
   private readonly lobbyState = signal<LobbyDTO | undefined>(undefined);
 
   public readonly title = computed(() => this.lobbyState()?.name);
-  public readonly lobbyId = computed(() => this.lobbyState()?.id);
+  public readonly partyId = computed(() => this.lobbyState()?.partyId);
   private readonly _participants = linkedSignal(() => this.lobbyState()?.participants ?? []);
   public readonly participants = this._participants.asReadonly();
 
@@ -217,7 +217,7 @@ export class LobbyService {
   private handleNewMessageEvent(event: LobbyEventEnvelope) {
     const newMessageEvent: NewMessageEvent = event.payload as NewMessageEvent;
 
-    const isSenderHost: boolean = newMessageEvent.senderId === this.lobbyId();
+    const isSenderHost: boolean = newMessageEvent.senderId === this.partyId();
 
     let senderName = isSenderHost ?
       'Vært' :
@@ -242,7 +242,7 @@ export class LobbyService {
   private handleNewEmojiEvent(event: LobbyEventEnvelope) {
     const newEmojiEvent: NewEmojiEvent = event.payload as NewEmojiEvent;
 
-    const isSenderHost: boolean = newEmojiEvent.senderId === this.lobbyId();
+    const isSenderHost: boolean = newEmojiEvent.senderId === this.partyId();
 
     let senderName = isSenderHost ?
       'Vært' :

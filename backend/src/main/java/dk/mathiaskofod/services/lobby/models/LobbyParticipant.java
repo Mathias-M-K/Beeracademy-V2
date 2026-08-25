@@ -1,5 +1,7 @@
 package dk.mathiaskofod.services.lobby.models;
 
+import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.player.models.Stats;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,5 +39,14 @@ public class LobbyParticipant {
     public void updateSettings(int sipsInABeer, boolean canDrawAce) {
         this.sipsInABeer = sipsInABeer;
         this.canDrawAce = canDrawAce;
+    }
+
+    public Player toPlayer(){
+        return new Player(
+                getName(),
+                getId(),
+                getSipsInABeer(),
+                canDrawAce(),
+                new Stats());
     }
 }

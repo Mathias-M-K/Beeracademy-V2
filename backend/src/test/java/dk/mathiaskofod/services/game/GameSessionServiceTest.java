@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 
 import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.player.Player;
+import dk.mathiaskofod.domain.game.player.models.Stats;
 import dk.mathiaskofod.services.session.exceptions.ResourceClaimException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
@@ -33,7 +34,7 @@ class GameSessionServiceTest {
     @InjectMocks
     GameSessionService gameSessionService;
 
-    private static final String GAME_ID = "game-123";
+    private static final String PARTY_ID = "game-123";
     private static final String PLAYER_ID = "player-p1";
 
     @Nested
@@ -44,11 +45,11 @@ class GameSessionServiceTest {
         @Test
         void claimGameSuccessfully() {
             // Arrange
-            when(gameService.gameExists(GAME_ID)).thenReturn(true);
-            when(sessionRegistry.getSession(GAME_ID)).thenReturn(Optional.empty());
+            when(gameService.gameExists(PARTY_ID)).thenReturn(true);
+            when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.empty());
 
             // Act
-            gameSessionService.claimGame(GAME_ID);
+            gameSessionService.claimGame(PARTY_ID);
 
             // Assert
             verify(sessionRegistry).registerSession(any(Session.class));
@@ -58,21 +59,21 @@ class GameSessionServiceTest {
         @Test
         void claimGameGameMissing() {
             // Arrange
-            when(gameService.gameExists(GAME_ID)).thenReturn(false);
+            when(gameService.gameExists(PARTY_ID)).thenReturn(false);
 
             // Act & Assert
-            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimGame(GAME_ID));
+            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimGame(PARTY_ID));
         }
 
         @DisplayName("throws when the game is already claimed")
         @Test
         void claimGameAlreadyClaimed() {
             // Arrange
-            when(gameService.gameExists(GAME_ID)).thenReturn(true);
-            when(sessionRegistry.getSession(GAME_ID)).thenReturn(Optional.of(new Session(GAME_ID)));
+            when(gameService.gameExists(PARTY_ID)).thenReturn(true);
+            when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.of(new Session(PARTY_ID)));
 
             // Act & Assert
-            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimGame(GAME_ID));
+            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimGame(PARTY_ID));
         }
     }
 
@@ -84,13 +85,13 @@ class GameSessionServiceTest {
         @Test
         void claimPlayerSuccessfully() {
             // Arrange
-            Player player = Player.create("Bob", 14, true);
-            when(gameService.gameExists(GAME_ID)).thenReturn(true);
+            Player player = new Player("Bob", PLAYER_ID, 14, true, new Stats());
+            when(gameService.gameExists(PARTY_ID)).thenReturn(true);
             when(sessionRegistry.getSession(PLAYER_ID)).thenReturn(Optional.empty());
-            when(gameService.getPlayer(GAME_ID, PLAYER_ID)).thenReturn(player);
+            when(gameService.getPlayer(PARTY_ID, PLAYER_ID)).thenReturn(player);
 
             // Act
-            Player claimed = gameSessionService.claimPlayer(GAME_ID, PLAYER_ID);
+            Player claimed = gameSessionService.claimPlayer(PARTY_ID, PLAYER_ID);
 
             // Assert
             assertEquals(player, claimed);
@@ -101,21 +102,21 @@ class GameSessionServiceTest {
         @Test
         void claimPlayerGameMissing() {
             // Arrange
-            when(gameService.gameExists(GAME_ID)).thenReturn(false);
+            when(gameService.gameExists(PARTY_ID)).thenReturn(false);
 
             // Act & Assert
-            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimPlayer(GAME_ID, PLAYER_ID));
+            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimPlayer(PARTY_ID, PLAYER_ID));
         }
 
         @DisplayName("throws when the player is already claimed")
         @Test
         void claimPlayerAlreadyClaimed() {
             // Arrange
-            when(gameService.gameExists(GAME_ID)).thenReturn(true);
+            when(gameService.gameExists(PARTY_ID)).thenReturn(true);
             when(sessionRegistry.getSession(PLAYER_ID)).thenReturn(Optional.of(new Session(PLAYER_ID)));
 
             // Act & Assert
-            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimPlayer(GAME_ID, PLAYER_ID));
+            assertThrows(ResourceClaimException.class, () -> gameSessionService.claimPlayer(PARTY_ID, PLAYER_ID));
         }
     }
 
@@ -129,10 +130,10 @@ class GameSessionServiceTest {
             // Arrange
             Game game = mock(Game.class);
             when(game.getPlayers()).thenReturn(Collections.emptyList());
-            when(gameService.getGame(GAME_ID)).thenReturn(game);
+            when(gameService.getGame(PARTY_ID)).thenReturn(game);
 
             // Act & Assert
-            assertTrue(gameSessionService.getPlayerViews(GAME_ID).isEmpty());
+            assertTrue(gameSessionService.getPlayerViews(PARTY_ID).isEmpty());
         }
     }
 }

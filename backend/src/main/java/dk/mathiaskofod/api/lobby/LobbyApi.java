@@ -5,6 +5,7 @@ import dk.mathiaskofod.api.lobby.models.PlayerRegisterRequest;
 import dk.mathiaskofod.api.lobby.models.RegisterPlayerResponse;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.api.lobby.models.dto.RoleDTO;
+import dk.mathiaskofod.common.dto.party.PartyIdDto;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.auth.SessionCookieFactory;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
@@ -13,7 +14,6 @@ import dk.mathiaskofod.services.lobby.LobbyService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
@@ -66,19 +66,19 @@ public class LobbyApi {
             @Parameter(description = "The name of the lobby to be created", required = true, example = "My Beer Lobby")
                     @NotEmpty @QueryParam("name")
                     String name) {
-        String lobbyId = lobbyService.createLobby(name);
-        String jwt = authenticationService.createGameClientToken(name, lobbyId);
+        String partyId = lobbyService.createLobby(name);
+        String jwt = authenticationService.createGameClientToken(name, partyId);
 
         NewCookie cookieJwt = sessionCookieFactory.createSessionCookie(jwt);
 
         return Response.accepted()
-                .entity(new CreateLobbyResponse(lobbyId))
+                .entity(new CreateLobbyResponse(partyId))
                 .cookie(cookieJwt)
                 .build();
     }
 
     @GET
-    @Path("/{lobbyId}")
+    @Path("/{partyId}")
     @Operation(
             summary = "Get lobby details",
             description = "Retrieves the status, name, and participants of a specific lobby by its ID.")
@@ -86,20 +86,14 @@ public class LobbyApi {
             responseCode = "200",
             description = "Lobby retrieved successfully.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = LobbyDTO.class)))
-    @APIResponse(responseCode = "400", description = "Invalid lobby ID format.")
+    @APIResponse(responseCode = "400", description = "Invalid party ID format.")
     @APIResponse(responseCode = "404", description = "Lobby not found.")
-    public LobbyDTO getLobby(
-            @Parameter(
-                            description = "The unique 9-character alphanumeric lobby ID",
-                            required = true,
-                            example = "aB3cD5eF7")
-                    @Pattern(regexp = "^[A-Za-z0-9]{9}$", message = "Invalid game ID format") @PathParam("lobbyId")
-                    String lobbyId) {
-        return LobbyDTO.fromLobby(lobbyService.getLobby(lobbyId));
+    public LobbyDTO getLobby(@Valid @BeanParam PartyIdDto partyIdDto) {
+        return LobbyDTO.fromLobby(lobbyService.getLobby(partyIdDto.partyId()));
     }
 
     @POST
-    @Path("{lobbyId}/register")
+    @Path("{partyId}/register")
     @Operation(
             summary = "Register a participant in a lobby",
             description =
@@ -118,9 +112,9 @@ public class LobbyApi {
                         schema = @Schema(type = SchemaType.STRING))
             })
     public Response registerParticipant(@Valid @BeanParam PlayerRegisterRequest request) {
-        lobbyService.getLobby(request.lobbyId());
+        lobbyService.getLobby(request.partyId());
         String playerId = IdGenerator.generatePlayerId();
-        String jwt = authenticationService.createPlayerClientToken(request.playerName(), request.lobbyId(), playerId);
+        String jwt = authenticationService.createPlayerClientToken(request.playerName(), request.partyId(), playerId);
 
         NewCookie cookieJwt = sessionCookieFactory.createSessionCookie(jwt);
 

@@ -21,16 +21,16 @@ class LobbyRepositoryTest {
     void lobbyCanBeSavedAndFetched() {
 
         // Arrange
-        String lobbyId = "test-lobby-id";
-        Lobby lobby = new Lobby("Test Lobby", lobbyId);
+        String partyId = "test-lobby-id";
+        Lobby lobby = new Lobby("Test Lobby", partyId);
 
         // Act
         lobbyRepository.addLobby(lobby);
-        Lobby fetchedLobby = lobbyRepository.getLobby(lobbyId);
+        Lobby fetchedLobby = lobbyRepository.getLobby(partyId);
 
         // Assert
         assertNotNull(fetchedLobby);
-        assertEquals(lobbyId, fetchedLobby.getId());
+        assertEquals(partyId, fetchedLobby.getId());
         assertEquals("Test Lobby", fetchedLobby.getName());
     }
 
@@ -39,9 +39,9 @@ class LobbyRepositoryTest {
     void lobbyCanNotBeFetchedIfLobbyNotFound() {
 
         // Arrange
-        String lobbyId = "non-existing-lobby-id";
+        String partyId = "non-existing-lobby-id";
 
         // Act & Assert
-        assertThrows(LobbyNotFoundException.class, () -> lobbyRepository.getLobby(lobbyId));
+        assertThrows(LobbyNotFoundException.class, () -> lobbyRepository.getLobby(partyId));
     }
 }

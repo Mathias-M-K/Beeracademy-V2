@@ -12,7 +12,6 @@ import dk.mathiaskofod.domain.game.timer.TimeReport;
 import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
-import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,44 +34,50 @@ public class GameService {
         gameSnapshots = redisDataSource.value(GameSnapshot.class);
     }
 
-    public void createGame(String name, String id, List<Player> players) {
-        GameImpl game = new GameImpl(name, id, players, gameEventEmitterImpl);
+    /**
+     * Creates the Game for a party.
+     *
+     * <p>This is the one place where the party id crosses into the domain: the domain knows only about Games, so the
+     * party id becomes the game id. The domain deliberately never learns the word "party".
+     */
+    public void createGame(String name, String partyId, List<Player> players) {
+        GameImpl game = new GameImpl(name, partyId, players, gameEventEmitterImpl);
         saveGame(game);
     }
 
-    public boolean gameExists(String gameId) {
+    public boolean gameExists(String partyId) {
 
         try {
-            return gameSnapshots.get(gameId) != null;
+            return gameSnapshots.get(partyId) != null;
         } catch (NullPointerException npe) {
             return false;
         }
     }
 
-    public Game getGame(String gameId) {
+    public Game getGame(String partyId) {
 
-        GameSnapshot snapshot = gameSnapshots.get(gameId);
+        GameSnapshot snapshot = gameSnapshots.get(partyId);
 
         if (snapshot == null) {
-            throw new GameNotFoundException(gameId);
+            throw new GameNotFoundException(partyId);
         }
 
         return new GameImpl(snapshot, gameEventEmitterImpl);
     }
 
-    public Player getPlayer(String gameId, String playerId) {
-        return getGame(gameId).getPlayers().stream()
+    public Player getPlayer(String partyId, String playerId) {
+        return getGame(partyId).getPlayers().stream()
                 .filter(player -> player.id().equals(playerId))
                 .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException(playerId, gameId));
+                .orElseThrow(() -> new PlayerNotFoundException(playerId, partyId));
     }
 
-    public Player getCurrentPlayer(String gameId) {
-        return getGame(gameId).getNextToDraw();
+    public Player getCurrentPlayer(String partyId) {
+        return getGame(partyId).getNextToDraw();
     }
 
-    public void drawCard(long clientDurationMillis, String gameId) {
-        Game game = getGame(gameId);
+    public void drawCard(long clientDurationMillis, String partyId) {
+        Game game = getGame(partyId);
         long serverDurationMillis = game.getPlayerTimer().getActiveDuration().toMillis();
         long diff = Math.abs(clientDurationMillis - serverDurationMillis);
         log.info(
@@ -84,48 +89,48 @@ public class GameService {
         saveGame(game);
     }
 
-    public void registerChug(Chug chug, String gameId) {
-        Game game = getGame(gameId);
+    public void registerChug(Chug chug, String partyId) {
+        Game game = getGame(partyId);
         game.registerChug(chug);
         saveGame(game);
     }
 
-    public void startGame(String gameId) {
-        Game game = getGame(gameId);
+    public void startGame(String partyId) {
+        Game game = getGame(partyId);
         game.startGame();
         saveGame(game);
     }
 
-    public void endGame(String gameId) {
-        Game game = getGame(gameId);
+    public void endGame(String partyId) {
+        Game game = getGame(partyId);
         game.endGame();
         saveGame(game);
     }
 
-    public void pauseGame(String gameId) {
-        Game game = getGame(gameId);
+    public void pauseGame(String partyId) {
+        Game game = getGame(partyId);
         game.pauseGame();
         saveGame(game);
     }
 
-    public void resumeGame(String gameId) {
-        Game game = getGame(gameId);
+    public void resumeGame(String partyId) {
+        Game game = getGame(partyId);
         game.resumeGame();
         saveGame(game);
     }
 
-    public GameReport getGameReport(String gameId) {
-        Game game = getGame(gameId);
+    public GameReport getGameReport(String partyId) {
+        Game game = getGame(partyId);
         return GameReport.create(game.getPlayers());
     }
 
-    public List<PlayerReport> getPlayerReports(String gameId) {
-        Game game = getGame(gameId);
+    public List<PlayerReport> getPlayerReports(String partyId) {
+        Game game = getGame(partyId);
         return PlayerReport.create(game.getPlayers());
     }
 
-    public TimerReports getTimeReport(String gameId) {
-        Game game = getGame(gameId);
+    public TimerReports getTimeReport(String partyId) {
+        Game game = getGame(partyId);
         return new TimerReports(
                 TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()));
     }

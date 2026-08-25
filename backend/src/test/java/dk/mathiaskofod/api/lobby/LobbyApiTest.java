@@ -49,15 +49,15 @@ class LobbyApiTest {
     void allLobbiesCanBeFetched() {
 
         // Arrange
-        String lobbyId = "123123123";
-        Lobby lobby = new Lobby("TestLobby", lobbyId);
-        Mockito.when(lobbyService.getLobby(lobbyId)).thenReturn(lobby);
+        String partyId = "123123123";
+        Lobby lobby = new Lobby("TestLobby", partyId);
+        Mockito.when(lobbyService.getLobby(partyId)).thenReturn(lobby);
 
         // Act
-        when().get(url + "/" + lobbyId)
+        when().get(url + "/" + partyId)
                 .then()
                 .statusCode(200)
-                .body("id", equalTo(lobbyId))
+                .body("partyId", equalTo(partyId))
                 .body("name", equalTo("TestLobby"));
     }
 

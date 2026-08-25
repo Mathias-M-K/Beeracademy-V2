@@ -29,24 +29,24 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     // TODO participant session manger uses session registry directly, while client session manager doesn't
     @Override
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
-        String lobbyId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         String participantId = tokenInfo.getPlayerId();
         log.info(
-                "New participant connected! Name: {}, Player id: {}, Game id: {}, WebsocketId:{}",
+                "New participant connected! Name: {}, Player id: {}, Party id: {}, WebsocketId:{}",
                 tokenInfo.getName(),
                 participantId,
-                lobbyId,
+                partyId,
                 websocketConnectionId);
 
         LobbyParticipant lobbyParticipant =
-                lobbyService.registerParticipant(lobbyId, tokenInfo.getName(), participantId, true);
+                lobbyService.registerParticipant(partyId, tokenInfo.getName(), participantId, true);
 
         Session participantSession = new Session(participantId, websocketConnectionId);
         sessionRegistry.registerSession(participantSession);
 
         confirmHandshake(tokenInfo, LobbyParticipantEventEnvelope::new);
         NewParticipantEvent event = new NewParticipantEvent(LobbyParticipantDTO.fromLobbyParticipant(lobbyParticipant));
-        broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event));
+        broadcastToLobby(partyId, new LobbyParticipantEventEnvelope(event));
 
         provideLobbySnapshotToClient(tokenInfo, LobbyParticipantEventEnvelope::new);
         provideIdentityToClient(tokenInfo, LobbyParticipantEventEnvelope::new);
@@ -55,7 +55,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
     @Override
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
-        String lobbyId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         String playerId = tokenInfo.getPlayerId();
 
         log.info(
@@ -70,7 +70,7 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
          disconnecting or fail gracefully when fetching a Lobby
          */
 
-        lobbyService.removeDisconnectedParticipant(lobbyId, playerId);
+        lobbyService.removeDisconnectedParticipant(partyId, playerId);
 
         boolean isTransitioning = WebsocketCodes.TRANSITIONING.getCode() == closeReason.getCode();
         if (isTransitioning) {
@@ -87,13 +87,13 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
             // Skipping broadcast, since every member have already been notified
             return;
         }
-        broadcastToLobby(lobbyId, envelope);
+        broadcastToLobby(partyId, envelope);
     }
 
     @Override
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> message) {
 
-        String lobbyId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         String playerId = tokenInfo.getPlayerId();
 
         if (!(message instanceof LobbyParticipantActionEnvelope(LobbyParticipantAction action))) {
@@ -103,14 +103,14 @@ public class LobbyParticipantSessionManager extends AbstractLobbySessionManager 
         switch (action) {
             case SendEmojiAction(Emoji emoji) -> {
                 EmojiSentEvent event = new EmojiSentEvent(playerId, emoji);
-                broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
+                broadcastToLobby(partyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
             }
             case SendMessageAction(String clientMessage) -> {
                 MessageSentEvent event = new MessageSentEvent(playerId, clientMessage);
-                broadcastToLobby(lobbyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
+                broadcastToLobby(partyId, new LobbyParticipantEventEnvelope(event), List.of(playerId));
             }
             case UpdateSettingsAction updateSettingsAction ->
-                applyAndBroadcastSettings(lobbyId, playerId, updateSettingsAction);
+                applyAndBroadcastSettings(partyId, playerId, updateSettingsAction);
             default ->
                 log.warn(
                         "Received unknown action from lobby participant with player id: {}. Action: {}",

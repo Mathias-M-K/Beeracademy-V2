@@ -6,11 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PlayerNotFoundException extends BaseException {
 
-    public PlayerNotFoundException(String playerId, String gameId) {
-        super(createMessage(playerId, gameId), 404);
+    public PlayerNotFoundException(String playerId, String partyId) {
+        super(createMessage(playerId, partyId), 404);
     }
 
-    private static String createMessage(String playerId, String gameId) {
-        return "Player with ID " + playerId + " in game " + gameId + " not found.";
+    private static String createMessage(String playerId, String partyId) {
+        return "Player with ID " + playerId + " in game " + partyId + " not found.";
     }
 }

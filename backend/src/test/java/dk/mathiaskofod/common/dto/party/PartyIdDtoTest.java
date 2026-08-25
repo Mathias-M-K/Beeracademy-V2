@@ -1,11 +1,10 @@
-package dk.mathiaskofod.services.game;
+package dk.mathiaskofod.common.dto.party;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import dk.mathiaskofod.common.dto.game.GameIdDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -17,10 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class GameIdDtoGeneratorTest {
+class PartyIdDtoTest {
 
     Validator validator;
-    private static final int EXPECTED_GAME_ID_LENGTH = 9;
+    private static final int EXPECTED_PARTY_ID_LENGTH = 9;
 
     @BeforeEach
     void setup() {
@@ -32,19 +31,19 @@ class GameIdDtoGeneratorTest {
     }
 
     @Test
-    @DisplayName("GameId's with same gameId are equal")
-    void testGameIdEquality() {
+    @DisplayName("PartyId's with same partyId are equal")
+    void testPartyIdEquality() {
         // Arrange
-        String gameIdString = "123abc123";
+        String partyIdString = "123abc123";
 
-        GameIdDto gameIdDto1 = new GameIdDto(gameIdString);
-        GameIdDto gameIdDto2 = new GameIdDto(gameIdString);
+        PartyIdDto partyIdDto1 = new PartyIdDto(partyIdString);
+        PartyIdDto partyIdDto2 = new PartyIdDto(partyIdString);
 
         // Act & Assert
-        assertThat(gameIdDto1.equals(gameIdDto2), is(true));
+        assertThat(partyIdDto1.equals(partyIdDto2), is(true));
     }
 
-    @DisplayName("Valid gameId's should be accepted")
+    @DisplayName("Valid partyId's should be accepted")
     @ParameterizedTest
     @ValueSource(
             strings = {
@@ -56,12 +55,18 @@ class GameIdDtoGeneratorTest {
                 "123-123-123",
                 "123----abc----123"
             })
-    void validGameIdsShouldBeAccepted(String gameId) {
-        Set<ConstraintViolation<GameIdDto>> violations = validator.validate(new GameIdDto(gameId));
+    void validPartyIdsShouldBeAccepted(String partyId) {
+        // Arrange
+        PartyIdDto partyIdDto = new PartyIdDto(partyId);
+
+        // Act
+        Set<ConstraintViolation<PartyIdDto>> violations = validator.validate(partyIdDto);
+
+        // Assert
         assertThat(violations.isEmpty(), is(true));
     }
 
-    @DisplayName("Invalid gameId's should be rejected")
+    @DisplayName("Invalid partyId's should be rejected")
     @ParameterizedTest
     @ValueSource(
             strings = {
@@ -77,16 +82,25 @@ class GameIdDtoGeneratorTest {
                 "#¤%-#¤%-#¤%",
                 "abc@abc@abc"
             })
-    void invalidGameIdsShouldBeRejected(String gameId) {
-        Set<ConstraintViolation<GameIdDto>> violations = validator.validate(new GameIdDto(gameId));
+    void invalidPartyIdsShouldBeRejected(String partyId) {
+        // Arrange
+        PartyIdDto partyIdDto = new PartyIdDto(partyId);
+
+        // Act
+        Set<ConstraintViolation<PartyIdDto>> violations = validator.validate(partyIdDto);
+
+        // Assert
         assertThat(violations.isEmpty(), is(false));
     }
 
-    @DisplayName("GameId is normalized by removing dashes")
+    @DisplayName("PartyId is normalized by removing dashes")
     @ParameterizedTest
     @ValueSource(strings = {"123----abc----123", "abc-abc-abc", "123-123-123", "123abc123", "abcabcabc", "123123123"})
-    void gameIdShouldBeNormalized(String gameId) {
-        GameIdDto gameIdDto = assertDoesNotThrow(() -> new GameIdDto(gameId));
-        assertThat(gameIdDto.gameId().length(), is(EXPECTED_GAME_ID_LENGTH));
+    void partyIdShouldBeNormalized(String partyId) {
+        // Arrange & Act
+        PartyIdDto partyIdDto = assertDoesNotThrow(() -> new PartyIdDto(partyId));
+
+        // Assert
+        assertThat(partyIdDto.partyId().length(), is(EXPECTED_PARTY_ID_LENGTH));
     }
 }

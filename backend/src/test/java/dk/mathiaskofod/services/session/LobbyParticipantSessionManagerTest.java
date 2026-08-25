@@ -58,7 +58,7 @@ class LobbyParticipantSessionManagerTest {
 
     LobbyParticipantSessionManager sessionManager;
 
-    private static final String LOBBY_ID = "lobby-123";
+    private static final String PARTY_ID = "lobby-123";
     private static final String PLAYER_ID = "p1";
     private static final String CONN_ID = "conn-456";
 
@@ -72,14 +72,14 @@ class LobbyParticipantSessionManagerTest {
         sessionManager.lobbyService = lobbyService;
         sessionManager.connections = connections;
 
-        lobby = new Lobby("My Lobby", LOBBY_ID);
+        lobby = new Lobby("My Lobby", PARTY_ID);
 
-        when(tokenInfo.getGameId()).thenReturn(LOBBY_ID);
+        when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
         when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
         when(tokenInfo.getName()).thenReturn("Bob");
         when(tokenInfo.getClientId()).thenReturn(PLAYER_ID);
         when(tokenInfo.getRole()).thenReturn(Role.PLAYER_CLIENT);
-        when(lobbyService.getLobby(LOBBY_ID)).thenReturn(lobby);
+        when(lobbyService.getLobby(PARTY_ID)).thenReturn(lobby);
     }
 
     /** Registers an active websocket connection for the given session id and returns the mocked connection. */
@@ -103,17 +103,17 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void newConnectionSuccessfully() {
             // Arrange
-            mockActiveConnection(LOBBY_ID);
+            mockActiveConnection(PARTY_ID);
             mockActiveConnection(PLAYER_ID);
             LobbyParticipant participant = new LobbyParticipant("Bob", "title", PLAYER_ID, true, 0);
-            when(lobbyService.registerParticipant(LOBBY_ID, "Bob", PLAYER_ID, true))
+            when(lobbyService.registerParticipant(PARTY_ID, "Bob", PLAYER_ID, true))
                     .thenReturn(participant);
 
             // Act
             sessionManager.onNewConnection(CONN_ID, tokenInfo);
 
             // Assert
-            verify(lobbyService).registerParticipant(LOBBY_ID, "Bob", PLAYER_ID, true);
+            verify(lobbyService).registerParticipant(PARTY_ID, "Bob", PLAYER_ID, true);
             verify(sessionRegistry).registerSession(any(Session.class));
         }
 
@@ -121,14 +121,14 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void connectionClosedNormal() {
             // Arrange
-            WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
+            WebSocketConnection clientConnection = mockActiveConnection(PARTY_ID);
             CloseReason reason = new CloseReason(3000, "bye");
 
             // Act
             sessionManager.onConnectionClosed(tokenInfo, reason);
 
             // Assert
-            verify(lobbyService).removeDisconnectedParticipant(LOBBY_ID, PLAYER_ID);
+            verify(lobbyService).removeDisconnectedParticipant(PARTY_ID, PLAYER_ID);
             verify(sessionRegistry).removeSession(PLAYER_ID);
             verify(clientConnection).sendTextAndAwait(any(WebsocketEnvelope.class));
         }
@@ -137,7 +137,7 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void connectionClosedTransitioning() {
             // Arrange
-            WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
+            WebSocketConnection clientConnection = mockActiveConnection(PARTY_ID);
             CloseReason reason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
 
             // Act
@@ -153,7 +153,7 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void connectionClosedLeaderLeft() {
             // Arrange
-            WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
+            WebSocketConnection clientConnection = mockActiveConnection(PARTY_ID);
             CloseReason reason = new CloseReason(WebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "leader left");
 
             // Act
@@ -183,7 +183,7 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void sendEmoji() {
             // Arrange
-            WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
+            WebSocketConnection clientConnection = mockActiveConnection(PARTY_ID);
 
             // Act
             sessionManager.onMessage(tokenInfo, new LobbyParticipantActionEnvelope(new SendEmojiAction(Emoji.FIRE)));
@@ -196,7 +196,7 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void sendMessage() {
             // Arrange
-            WebSocketConnection clientConnection = mockActiveConnection(LOBBY_ID);
+            WebSocketConnection clientConnection = mockActiveConnection(PARTY_ID);
 
             // Act
             sessionManager.onMessage(tokenInfo, new LobbyParticipantActionEnvelope(new SendMessageAction("hi there")));
@@ -209,7 +209,7 @@ class LobbyParticipantSessionManagerTest {
         @Test
         void updateSettings() {
             // Arrange
-            mockActiveConnection(LOBBY_ID);
+            mockActiveConnection(PARTY_ID);
             mockActiveConnection(PLAYER_ID);
             LobbyParticipant participant = new LobbyParticipant("Bob", "title", PLAYER_ID, true, 0);
             lobby.addParticipant(participant);
