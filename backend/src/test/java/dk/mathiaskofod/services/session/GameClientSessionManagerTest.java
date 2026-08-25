@@ -81,7 +81,7 @@ class GameClientSessionManagerTest {
 
     GameClientSessionManager sessionManager;
 
-    private static final String GAME_ID = "game-123";
+    private static final String PARTY_ID = "game-123";
     private static final String CONN_ID = "websocket-conn-456";
 
     @BeforeEach
@@ -109,7 +109,7 @@ class GameClientSessionManagerTest {
         // broadcastToParty iterates the game's players; an empty roster keeps the party to the game client only
         Game game = mock(Game.class);
         when(game.getPlayers()).thenReturn(Collections.emptyList());
-        when(gameService.getGame(GAME_ID)).thenReturn(game);
+        when(gameService.getGame(PARTY_ID)).thenReturn(game);
     }
 
     @Nested
@@ -120,20 +120,20 @@ class GameClientSessionManagerTest {
         @Test
         void newConnectionSuccessfully() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
-            when(tokenInfo.getClientId()).thenReturn(GAME_ID);
-            when(gameService.gameExists(GAME_ID)).thenReturn(true);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getClientId()).thenReturn(PARTY_ID);
+            when(gameService.gameExists(PARTY_ID)).thenReturn(true);
 
             GameDto gameDto = mock(GameDto.class);
-            when(gameSessionService.getGameView(GAME_ID)).thenReturn(gameDto);
+            when(gameSessionService.getGameView(PARTY_ID)).thenReturn(gameDto);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onNewConnection(CONN_ID, tokenInfo);
 
             // Assert
-            verify(sessionRegistry).setConnectionId(GAME_ID, CONN_ID);
+            verify(sessionRegistry).setConnectionId(PARTY_ID, CONN_ID);
             // Called for the broadcast plus the game-snapshot and identity messages
             verify(connections, atLeastOnce()).findByConnectionId(CONN_ID);
         }
@@ -142,12 +142,13 @@ class GameClientSessionManagerTest {
         @Test
         void newConnectionConfirmsHandshake() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
-            when(tokenInfo.getClientId()).thenReturn(GAME_ID);
-            when(gameService.gameExists(GAME_ID)).thenReturn(true);
-            when(gameSessionService.getGameView(GAME_ID)).thenReturn(mock(GameDto.class));
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getClientId()).thenReturn(PARTY_ID);
+            when(gameService.gameExists(PARTY_ID)).thenReturn(true);
+            GameDto gameDto = mock(GameDto.class);
+            when(gameSessionService.getGameView(PARTY_ID)).thenReturn(gameDto);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
             WebSocketConnection clientConnection =
                     connections.findByConnectionId(CONN_ID).orElseThrow();
 
@@ -172,8 +173,8 @@ class GameClientSessionManagerTest {
         @Test
         void newConnectionGameNotFound() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
-            when(gameService.gameExists(GAME_ID)).thenReturn(false);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(gameService.gameExists(PARTY_ID)).thenReturn(false);
 
             // Act & Assert
             assertThrows(GameNotFoundException.class, () -> sessionManager.onNewConnection(CONN_ID, tokenInfo));
@@ -183,13 +184,13 @@ class GameClientSessionManagerTest {
         @Test
         void connectionClosedSuccessfully() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
 
             // Act
             sessionManager.onConnectionClosed(tokenInfo, null);
 
             // Assert
-            verify(sessionRegistry).clearConnectionId(GAME_ID);
+            verify(sessionRegistry).clearConnectionId(PARTY_ID);
         }
     }
 
@@ -211,77 +212,77 @@ class GameClientSessionManagerTest {
         @Test
         void processesStartGameAction() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
             GameClientActionEnvelope envelope = new GameClientActionEnvelope(new StartGameAction());
 
             // Act
             sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
-            verify(gameService).startGame(GAME_ID);
+            verify(gameService).startGame(PARTY_ID);
         }
 
         @DisplayName("onMessage should process EndGameAction")
         @Test
         void processesEndGameAction() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
             GameClientActionEnvelope envelope = new GameClientActionEnvelope(new EndGameAction());
 
             // Act
             sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
-            verify(gameService).endGame(GAME_ID);
+            verify(gameService).endGame(PARTY_ID);
         }
 
         @DisplayName("onMessage should process PauseGameAction")
         @Test
         void processesPauseGameAction() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
             GameClientActionEnvelope envelope = new GameClientActionEnvelope(new PauseGameAction());
 
             // Act
             sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
-            verify(gameService).pauseGame(GAME_ID);
+            verify(gameService).pauseGame(PARTY_ID);
         }
 
         @DisplayName("onMessage should process ResumeGameAction")
         @Test
         void processesResumeGameAction() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
             GameClientActionEnvelope envelope = new GameClientActionEnvelope(new ResumeGameAction());
 
             // Act
             sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
-            verify(gameService).resumeGame(GAME_ID);
+            verify(gameService).resumeGame(PARTY_ID);
         }
 
         @DisplayName("onMessage should process DrawCardAction")
         @Test
         void processesDrawCardAction() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
             GameClientActionEnvelope envelope = new GameClientActionEnvelope(new DrawCardAction(1200L));
 
             // Act
             sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
-            verify(gameService).drawCard(1200L, GAME_ID);
+            verify(gameService).drawCard(1200L, PARTY_ID);
         }
 
         @DisplayName("onMessage should process RegisterChugAction")
         @Test
         void processesRegisterChugAction() {
             // Arrange
-            when(tokenInfo.getGameId()).thenReturn(GAME_ID);
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
             Chug chug = new Chug(Suit.SPADE, 3200L);
             GameClientActionEnvelope envelope = new GameClientActionEnvelope(new RegisterChugAction(chug));
 
@@ -289,7 +290,7 @@ class GameClientSessionManagerTest {
             sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
-            verify(gameService).registerChug(chug, GAME_ID);
+            verify(gameService).registerChug(chug, PARTY_ID);
         }
     }
 
@@ -302,9 +303,9 @@ class GameClientSessionManagerTest {
         void startGameEventObserved() {
             // Arrange
             StartGameEvent event = mock(StartGameEvent.class);
-            when(event.gameId()).thenReturn(GAME_ID);
+            when(event.gameId()).thenReturn(PARTY_ID);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onGameEvent(event);
@@ -322,12 +323,12 @@ class GameClientSessionManagerTest {
             TimerReports timerReports = mock(TimerReports.class);
 
             EndGameEvent event = mock(EndGameEvent.class);
-            when(event.gameId()).thenReturn(GAME_ID);
+            when(event.gameId()).thenReturn(PARTY_ID);
             when(event.gameReport()).thenReturn(gameReport);
             when(event.playerReports()).thenReturn(Collections.emptyList());
             when(event.timerReports()).thenReturn(timerReports);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onGameEvent(event);
@@ -351,13 +352,13 @@ class GameClientSessionManagerTest {
             Turn turn = new Turn(1, new Card(Suit.HEART, 10), 1200L);
 
             DrawCardEvent event = mock(DrawCardEvent.class);
-            when(event.gameId()).thenReturn(GAME_ID);
+            when(event.gameId()).thenReturn(PARTY_ID);
             when(event.turn()).thenReturn(turn);
             when(event.drawnBy()).thenReturn(drawnBy);
             when(event.nextToDraw()).thenReturn(nextToDraw);
             when(event.nextAfter()).thenReturn(nextAfter);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onGameEvent(event);
@@ -377,12 +378,12 @@ class GameClientSessionManagerTest {
             when(nextToDraw.id()).thenReturn("p2");
 
             ChugEvent event = mock(ChugEvent.class);
-            when(event.gameId()).thenReturn(GAME_ID);
+            when(event.gameId()).thenReturn(PARTY_ID);
             when(event.chug()).thenReturn(new Chug(Suit.DIAMOND, 5000L));
             when(event.chuggedBy()).thenReturn(chuggedBy);
             when(event.nextToDraw()).thenReturn(nextToDraw);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onGameEvent(event);
@@ -399,10 +400,10 @@ class GameClientSessionManagerTest {
             TimerReports timerReports = mock(TimerReports.class);
 
             PauseGameEvent event = mock(PauseGameEvent.class);
-            when(event.gameId()).thenReturn(GAME_ID);
+            when(event.gameId()).thenReturn(PARTY_ID);
             when(event.timerReports()).thenReturn(timerReports);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onGameEvent(event);
@@ -419,10 +420,10 @@ class GameClientSessionManagerTest {
             TimerReports timerReports = mock(TimerReports.class);
 
             ResumeGameEvent event = mock(ResumeGameEvent.class);
-            when(event.gameId()).thenReturn(GAME_ID);
+            when(event.gameId()).thenReturn(PARTY_ID);
             when(event.timerReports()).thenReturn(timerReports);
 
-            mockActiveWebsocketConnection(GAME_ID);
+            mockActiveWebsocketConnection(PARTY_ID);
 
             // Act
             sessionManager.onGameEvent(event);

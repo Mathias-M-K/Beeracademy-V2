@@ -18,32 +18,32 @@ public class AuthenticationService {
     @ConfigProperty(name = "mp.jwt.verify.issuer")
     private String issuer;
 
-    public String createPlayerClientToken(String playerName, String gameId, String playerId) {
+    public String createPlayerClientToken(String playerName, String partyId, String playerId) {
         return Jwt.issuer(issuer)
                 .subject(playerName)
                 .groups(new HashSet<>(List.of(Role.PLAYER_CLIENT.toString())))
-                .claim(CustomJwtClaims.GAME_ID.getName(), gameId)
+                .claim(CustomJwtClaims.PARTY_ID.getName(), partyId)
                 .claim(CustomJwtClaims.PLAYER_ID.getName(), playerId)
                 .expiresIn(TOKEN_DURATION)
                 .sign();
     }
 
-    public String createPlayerClientToken(String playerName, String gameId) {
+    public String createPlayerClientToken(String playerName, String partyId) {
         String id = IdGenerator.generatePlayerId();
-        return createPlayerClientToken(playerName, gameId, id);
+        return createPlayerClientToken(playerName, partyId, id);
     }
 
-    public String createGameClientToken(String gameName, String id) {
+    public String createGameClientToken(String gameName, String partyId) {
         return Jwt.issuer(issuer)
                 .subject(gameName)
                 .groups(new HashSet<>(List.of(Role.GAME_CLIENT.toString())))
-                .claim(CustomJwtClaims.GAME_ID.getName(), id)
+                .claim(CustomJwtClaims.PARTY_ID.getName(), partyId)
                 .expiresIn(TOKEN_DURATION)
                 .sign();
     }
 
     public String createGameClientToken(String gameName) {
-        String id = IdGenerator.generateGameId();
+        String id = IdGenerator.generatePartyId();
         return createGameClientToken(gameName, id);
     }
 }

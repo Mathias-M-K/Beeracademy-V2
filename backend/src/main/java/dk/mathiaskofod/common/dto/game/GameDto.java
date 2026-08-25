@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public record GameDto(
         String name,
-        String id,
+        String partyId,
         GameState gameState,
         int currentRound,
         Card lastCard,

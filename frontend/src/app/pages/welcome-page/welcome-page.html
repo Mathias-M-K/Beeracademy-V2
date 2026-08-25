@@ -3,9 +3,9 @@
 </h1>
 
 <div class="content">
-  <input aria-label="lobby id" #lobbyIdInput id="lobby-id-input" placeholder="LOBBY ID" mask="AAA-AAA-AAA">
+  <input aria-label="lobby id" #partyIdInput id="party-id-input" placeholder="LOBBY ID" mask="AAA-AAA-AAA">
   <input aria-label="participant name" #participantNameInput placeholder="DELTAGER NAVN">
-  <button (click)="registerParticipant(participantNameInput.value,lobbyIdInput.value)" class="btn-primary">
+  <button (click)="registerParticipant(participantNameInput.value,partyIdInput.value)" class="btn-primary">
     @if (joiningLobby()) {
       <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
     } @else {

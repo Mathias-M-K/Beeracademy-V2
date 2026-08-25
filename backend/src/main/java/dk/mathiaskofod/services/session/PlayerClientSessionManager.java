@@ -25,32 +25,32 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
-        String gameId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         String playerId = tokenInfo.getPlayerId();
 
-        if (!gameService.gameExists(gameId)) {
-            throw new GameNotFoundException(gameId);
+        if (!gameService.gameExists(partyId)) {
+            throw new GameNotFoundException(partyId);
         }
 
         sessionRegistry.setConnectionId(playerId, websocketConnectionId);
 
         confirmHandshake(tokenInfo, PlayerClientEventEnvelope::new);
-        PlayerConnectedEvent event = new PlayerConnectedEvent(playerId, gameId);
-        broadcastToParty(gameId, new PlayerClientEventEnvelope(event));
+        PlayerConnectedEvent event = new PlayerConnectedEvent(playerId, partyId);
+        broadcastToParty(partyId, new PlayerClientEventEnvelope(event));
 
         provideGameSnapshotToClient(tokenInfo, PlayerClientEventEnvelope::new);
         provideIdentityToClient(tokenInfo, PlayerClientEventEnvelope::new);
 
         log.info(
-                "Websocket Connection: Type:New player connection, PlayerID:{}, GameID:{}, WebsocketConnID:{}",
+                "Websocket Connection: Type:New player connection, PlayerID:{}, PartyID:{}, WebsocketConnID:{}",
                 playerId,
-                gameId,
+                partyId,
                 websocketConnectionId);
     }
 
     public void onConnectionClosed(TokenInfo tokenInfo, CloseReason closeReason) {
 
-        String gameId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         String playerId = tokenInfo.getPlayerId();
 
         sessionRegistry.clearConnectionId(playerId);
@@ -58,37 +58,37 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
         // The game session can already be gone — e.g. the connection was rejected with GAME_NOT_FOUND, which
         // closes the socket and lands us here. There is nobody left to notify, so clearing the connection
         // above is all the cleanup there is; broadcasting would just throw GameNotFoundException a second time.
-        if (sessionRegistry.getSession(gameId).isEmpty()) {
+        if (sessionRegistry.getSession(partyId).isEmpty()) {
             log.info(
-                    "Player disconnected from a game session that no longer exists. PlayerID:{}, GameID:{}",
+                    "Player disconnected from a game session that no longer exists. PlayerID:{}, PartyID:{}",
                     playerId,
-                    gameId);
+                    partyId);
             return;
         }
 
-        PlayerDisconnectedEvent event = new PlayerDisconnectedEvent(playerId, gameId);
-        broadcastToParty(gameId, new PlayerClientEventEnvelope(event));
+        PlayerDisconnectedEvent event = new PlayerDisconnectedEvent(playerId, partyId);
+        broadcastToParty(partyId, new PlayerClientEventEnvelope(event));
 
-        log.info("Player disconnected! PlayerID:{}, GameID:{}, WebsocketConnID:{}", playerId, gameId, "");
+        log.info("Player disconnected! PlayerID:{}, PartyID:{}, WebsocketConnID:{}", playerId, partyId, "");
     }
 
-    public void relinquishPlayer(String gameId, String playerId) {
+    public void relinquishPlayer(String partyId, String playerId) {
 
         if (sessionRegistry.getSession(playerId).isEmpty()) {
             throw new SessionNotFoundException(playerId);
         }
 
         log.info(
-                "Player relinquished! PlayerID:{}, GameID:{}, WebsocketConnID:{}",
+                "Player relinquished! PlayerID:{}, PartyID:{}, WebsocketConnID:{}",
                 playerId,
-                gameId,
+                partyId,
                 getConnectionId(playerId));
 
         closeConnection(playerId);
         sessionRegistry.removeSession(playerId);
 
-        PlayerRelinquishedEvent event = new PlayerRelinquishedEvent(playerId, gameId);
-        broadcastToParty(gameId, new PlayerClientEventEnvelope(event));
+        PlayerRelinquishedEvent event = new PlayerRelinquishedEvent(playerId, partyId);
+        broadcastToParty(partyId, new PlayerClientEventEnvelope(event));
     }
 
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
@@ -97,12 +97,12 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
             throw new UnknownCategoryException("Only player actions allowed from player clients", 400);
         }
 
-        String gameId = tokenInfo.getGameId();
+        String partyId = tokenInfo.getPartyId();
         String playerId = tokenInfo.getPlayerId();
 
         switch (payload) {
-            case DrawCardAction(long duration) -> onDrawCardAction(duration, gameId, playerId);
-            case RelinquishPlayerAction() -> relinquishPlayer(gameId, playerId);
+            case DrawCardAction(long duration) -> onDrawCardAction(duration, partyId, playerId);
+            case RelinquishPlayerAction() -> relinquishPlayer(partyId, playerId);
             default ->
                 throw new BaseException(
                         String.format(
@@ -112,12 +112,12 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
         }
     }
 
-    private void onDrawCardAction(long durationInMillis, String gameId, String playerId) {
+    private void onDrawCardAction(long durationInMillis, String partyId, String playerId) {
 
-        String currentPlayerId = gameService.getCurrentPlayer(gameId).id();
+        String currentPlayerId = gameService.getCurrentPlayer(partyId).id();
         if (!playerId.equals(currentPlayerId)) {
             throw new GameException("It's not your turn!", 400);
         }
-        gameService.drawCard(durationInMillis, gameId);
+        gameService.drawCard(durationInMillis, partyId);
     }
 }

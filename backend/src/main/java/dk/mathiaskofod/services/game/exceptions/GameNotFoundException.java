@@ -6,11 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GameNotFoundException extends BaseException {
 
-    public GameNotFoundException(String gameId) {
-        super(createMessage(gameId), 404);
+    public GameNotFoundException(String partyId) {
+        super(createMessage(partyId), 404);
     }
 
-    private static String createMessage(String gameId) {
-        return "Game with gameId " + gameId + " not found";
+    private static String createMessage(String partyId) {
+        return "Game with partyId " + partyId + " not found";
     }
 }

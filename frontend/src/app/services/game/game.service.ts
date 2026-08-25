@@ -68,12 +68,12 @@ export class GameService {
   })
   public gameInfo = linkedSignal<GameInfo | undefined>(() => {
     const state = this.gameStateObj();
-    if (!state?.id || !state?.name) {
+    if (!state?.partyId || !state?.name) {
       return undefined;
     }
 
     const gameInfo: GameInfo = {
-      id: state.id,
+      id: state.partyId,
       name: state.name
     };
 

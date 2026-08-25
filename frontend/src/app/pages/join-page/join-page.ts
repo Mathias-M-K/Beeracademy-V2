@@ -35,7 +35,7 @@ export class JoinPage {
 
   readonly error = signal<string | undefined>(undefined);
   readonly lobbyName = signal<string>('');
-  private readonly lobbyId = signal<string>('');
+  private readonly partyId = signal<string>('');
   readonly alreadyJoined = signal<number>(0);
 
   private handle!: OverlayHandle<void>;
@@ -53,12 +53,12 @@ export class JoinPage {
   private onNewPathParam(params: Params) {
     this.handle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay});
     this.loading.set(true);
-    this.lobbyId.set(params['lobby-id'])
+    this.partyId.set(params['party-id'])
     this.lobbyName.set('');
     this.alreadyJoined.set(0);
     this.error.set(undefined);
 
-    this.getLobbyInfo(this.lobbyId());
+    this.getLobbyInfo(this.partyId());
   }
 
   private onLoadingComplete() {
@@ -71,8 +71,8 @@ export class JoinPage {
     });
   }
 
-  private getLobbyInfo(lobbyId: string) {
-    this.lobbyApi.getLobby(lobbyId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+  private getLobbyInfo(partyId: string) {
+    this.lobbyApi.getLobby(partyId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data: LobbyDTO) => {
         this.lobbyName.set(data.name ?? '');
         this.alreadyJoined.set(data.participants?.length ?? 0);
@@ -98,7 +98,7 @@ export class JoinPage {
     }
 
     this.joining.set(true);
-    this.lobbyApi.fetchParticipantToken(this.lobbyId(), participantName)
+    this.lobbyApi.fetchParticipantToken(this.partyId(), participantName)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(()=>this.joining.set(false))

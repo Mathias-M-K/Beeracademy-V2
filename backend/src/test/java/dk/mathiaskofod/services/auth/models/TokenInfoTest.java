@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 
 class TokenInfoTest {
 
-    private JsonWebToken gameClientToken(String gameId, String playerId, String name) {
+    private JsonWebToken gameClientToken(String partyId, String playerId, String name) {
         JsonWebToken token = mock(JsonWebToken.class);
         when(token.getName()).thenReturn(name);
         when(token.getGroups()).thenReturn(Set.copyOf(List.of(Role.GAME_CLIENT.toString())));
-        when(token.<String>getClaim(CustomJwtClaims.GAME_ID.getName())).thenReturn(gameId);
+        when(token.<String>getClaim(CustomJwtClaims.PARTY_ID.getName())).thenReturn(partyId);
         when(token.<String>getClaim(CustomJwtClaims.PLAYER_ID.getName())).thenReturn(playerId);
         return token;
     }
@@ -34,7 +34,7 @@ class TokenInfoTest {
 
         // Assert
         assertEquals("Host", info.getName());
-        assertEquals("game-1", info.getGameId());
+        assertEquals("game-1", info.getPartyId());
         assertEquals(Role.GAME_CLIENT, info.getRole());
         assertEquals("game-1", info.getClientId());
     }
@@ -46,7 +46,7 @@ class TokenInfoTest {
         JsonWebToken token = mock(JsonWebToken.class);
         when(token.getName()).thenReturn("Bob");
         when(token.getGroups()).thenReturn(Set.copyOf(List.of(Role.PLAYER_CLIENT.toString())));
-        when(token.<String>getClaim(CustomJwtClaims.GAME_ID.getName())).thenReturn("game-1");
+        when(token.<String>getClaim(CustomJwtClaims.PARTY_ID.getName())).thenReturn("game-1");
         when(token.<String>getClaim(CustomJwtClaims.PLAYER_ID.getName())).thenReturn("player-1");
 
         // Act
@@ -63,7 +63,7 @@ class TokenInfoTest {
         // Arrange
         JsonWebToken token = mock(JsonWebToken.class);
         when(token.getGroups()).thenReturn(Set.copyOf(List.of(Role.GAME_CLIENT.toString())));
-        when(token.<String>getClaim(CustomJwtClaims.GAME_ID.getName())).thenReturn(null);
+        when(token.<String>getClaim(CustomJwtClaims.PARTY_ID.getName())).thenReturn(null);
 
         // Act & Assert
         assertThrows(TokenException.class, () -> new TokenInfo(token));

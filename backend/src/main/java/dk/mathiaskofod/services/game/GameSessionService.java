@@ -32,49 +32,49 @@ public class GameSessionService {
     @Inject
     SessionRegistry sessionRegistry;
 
-    public GameDto getGameView(String gameId) {
+    public GameDto getGameView(String partyId) {
 
-        Game game = gameService.getGame(gameId);
+        Game game = gameService.getGame(partyId);
 
         SessionDto gameSession =
-                sessionRegistry.getSession(gameId).map(SessionDto::create).orElseGet(SessionDto::createEmpty);
+                sessionRegistry.getSession(partyId).map(SessionDto::create).orElseGet(SessionDto::createEmpty);
 
         List<PlayerDto> playerDtos = assemblePlayers(game);
 
         return GameDto.create(game, gameSession, playerDtos, game.getDeck());
     }
 
-    public List<PlayerDto> getPlayerViews(String gameId) {
-        return assemblePlayers(gameService.getGame(gameId));
+    public List<PlayerDto> getPlayerViews(String partyId) {
+        return assemblePlayers(gameService.getGame(partyId));
     }
 
-    public void claimGame(String gameId) {
+    public void claimGame(String partyId) {
 
-        if (!gameService.gameExists(gameId)) {
+        if (!gameService.gameExists(partyId)) {
             throw new ResourceClaimException("Game does not exist");
         }
 
-        if (sessionRegistry.getSession(gameId).isPresent()) {
-            String msg = String.format("The game with id %s is already claimed.", gameId);
+        if (sessionRegistry.getSession(partyId).isPresent()) {
+            String msg = String.format("The game with id %s is already claimed.", partyId);
             throw new ResourceClaimException(msg);
         }
 
-        sessionRegistry.registerSession(new Session(gameId));
+        sessionRegistry.registerSession(new Session(partyId));
     }
 
-    public Player claimPlayer(String gameId, String playerId) {
+    public Player claimPlayer(String partyId, String playerId) {
 
-        if (!gameService.gameExists(gameId)) {
+        if (!gameService.gameExists(partyId)) {
             throw new ResourceClaimException("Game does not exist");
         }
 
         if (sessionRegistry.getSession(playerId).isPresent()) {
             String msg =
-                    String.format("Player with ID: %s, from game: %s, has already been claimed.", playerId, gameId);
+                    String.format("Player with ID: %s, from game: %s, has already been claimed.", playerId, partyId);
             throw new ResourceClaimException(msg);
         }
 
-        Player player = gameService.getPlayer(gameId, playerId);
+        Player player = gameService.getPlayer(partyId, playerId);
 
         sessionRegistry.registerSession(new Session(playerId));
 

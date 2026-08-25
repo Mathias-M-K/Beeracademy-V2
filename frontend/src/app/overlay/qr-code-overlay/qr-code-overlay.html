@@ -1,3 +1,3 @@
 <qrcode [qrdata]="lobbyJoinData.joinLink" [width]="320" [errorCorrectionLevel]="'M'"></qrcode>
-<h2>{{ lobbyJoinData.lobbyId | mask : 'AAA-AAA-AAA' }}</h2>
+<h2>{{ lobbyJoinData.partyId | mask : 'AAA-AAA-AAA' }}</h2>
 <button class="btn-secondary" (click)="overlayHandle.close()">Luk</button>

@@ -11,7 +11,7 @@ export const routes: Routes = [
     component: WelcomePage
   },
   {
-    path: 'join/:lobby-id',
+    path: 'join/:party-id',
     component: JoinPage
   },
   {

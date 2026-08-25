@@ -50,7 +50,7 @@ class GameWebsocketTest {
     GameWebsocket websocket;
 
     private static final String CONN_ID = "conn-1";
-    private static final String GAME_ID = "game-1";
+    private static final String PARTY_ID = "game-1";
 
     @BeforeEach
     void setUp() {
@@ -61,7 +61,7 @@ class GameWebsocketTest {
         websocket.gameClientSessionManager = gameClientSessionManager;
 
         when(connection.id()).thenReturn(CONN_ID);
-        when(jwt.<String>getClaim(CustomJwtClaims.GAME_ID.getName())).thenReturn(GAME_ID);
+        when(jwt.<String>getClaim(CustomJwtClaims.PARTY_ID.getName())).thenReturn(PARTY_ID);
     }
 
     private void asRole(Role role) {
@@ -141,7 +141,7 @@ class GameWebsocketTest {
     @Test
     void onErrorGameNotFound() {
         // Arrange
-        GameNotFoundException error = new GameNotFoundException(GAME_ID);
+        GameNotFoundException error = new GameNotFoundException(PARTY_ID);
 
         // Act
         websocket.onError(error);

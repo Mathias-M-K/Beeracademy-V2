@@ -40,14 +40,14 @@ class LobbyServiceTest {
     @InjectMocks
     LobbyService lobbyService;
 
-    private static final String LOBBY_ID = "lobby-123";
+    private static final String PARTY_ID = "lobby-123";
     private static final String LOBBY_NAME = "Beer Lobby";
 
     private Lobby lobby;
 
     @BeforeEach
     void setUp() {
-        lobby = new Lobby(LOBBY_NAME, LOBBY_ID);
+        lobby = new Lobby(LOBBY_NAME, PARTY_ID);
     }
 
     @Nested
@@ -70,10 +70,10 @@ class LobbyServiceTest {
         @Test
         void getLobbyDelegates() {
             // Arrange
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            Lobby fetched = lobbyService.getLobby(LOBBY_ID);
+            Lobby fetched = lobbyService.getLobby(PARTY_ID);
 
             // Assert
             assertEquals(lobby, fetched);
@@ -84,26 +84,26 @@ class LobbyServiceTest {
         void deleteLobbyNotEmpty() {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", true, 0));
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act & Assert
-            assertThrows(LobbyNotEmptyException.class, () -> lobbyService.deleteLobby(LOBBY_ID, false));
-            verify(lobbyRepository, never()).removeLobby(LOBBY_ID);
+            assertThrows(LobbyNotEmptyException.class, () -> lobbyService.deleteLobby(PARTY_ID, false));
+            verify(lobbyRepository, never()).removeLobby(PARTY_ID);
         }
 
         @DisplayName("deleteLobby removes the session when it should not be preserved")
         @Test
         void deleteLobbyWithoutPreservingSession() {
             // Arrange
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.deleteLobby(LOBBY_ID, false);
+            lobbyService.deleteLobby(PARTY_ID, false);
 
             // Assert
-            verify(lobbyRepository).removeLobby(LOBBY_ID);
-            verify(sessionRegistry).removeSession(LOBBY_ID);
-            verify(sessionRegistry, never()).clearConnectionId(LOBBY_ID);
+            verify(lobbyRepository).removeLobby(PARTY_ID);
+            verify(sessionRegistry).removeSession(PARTY_ID);
+            verify(sessionRegistry, never()).clearConnectionId(PARTY_ID);
         }
 
         @DisplayName("deleteLobby preserves the session when requested")
@@ -111,25 +111,25 @@ class LobbyServiceTest {
         void deleteLobbyPreservingSession() {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", false, 0));
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.deleteLobby(LOBBY_ID, true);
+            lobbyService.deleteLobby(PARTY_ID, true);
 
             // Assert
-            verify(lobbyRepository).removeLobby(LOBBY_ID);
-            verify(sessionRegistry).clearConnectionId(LOBBY_ID);
-            verify(sessionRegistry, never()).removeSession(LOBBY_ID);
+            verify(lobbyRepository).removeLobby(PARTY_ID);
+            verify(sessionRegistry).clearConnectionId(PARTY_ID);
+            verify(sessionRegistry, never()).removeSession(PARTY_ID);
         }
 
         @DisplayName("markLobbyAsAbandoned flags the lobby")
         @Test
         void markAbandoned() {
             // Arrange
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.markLobbyAsAbandoned(LOBBY_ID);
+            lobbyService.markLobbyAsAbandoned(PARTY_ID);
 
             // Assert
             assertTrue(lobby.isAbandoned());
@@ -139,10 +139,10 @@ class LobbyServiceTest {
         @Test
         void markTransitioning() {
             // Arrange
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.markLobbyAsTransitioning(LOBBY_ID);
+            lobbyService.markLobbyAsTransitioning(PARTY_ID);
 
             // Assert
             assertTrue(lobby.isTransitioning());
@@ -158,10 +158,10 @@ class LobbyServiceTest {
         void registerParticipantAssignsPosition() {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Existing", "title", "p0", true, 0));
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            LobbyParticipant participant = lobbyService.registerParticipant(LOBBY_ID, "Bob", "p1", true);
+            LobbyParticipant participant = lobbyService.registerParticipant(PARTY_ID, "Bob", "p1", true);
 
             // Assert
             assertEquals("Bob", participant.getName());
@@ -176,14 +176,14 @@ class LobbyServiceTest {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", true, 0));
             lobby.markAsAbandoned();
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.removeDisconnectedParticipant(LOBBY_ID, "p1");
+            lobbyService.removeDisconnectedParticipant(PARTY_ID, "p1");
 
             // Assert
-            verify(lobbyRepository).removeLobby(LOBBY_ID);
-            verify(sessionRegistry).removeSession(LOBBY_ID);
+            verify(lobbyRepository).removeLobby(PARTY_ID);
+            verify(sessionRegistry).removeSession(PARTY_ID);
         }
 
         @DisplayName("removeDisconnectedParticipant preserves session for a transitioning lobby once empty")
@@ -192,14 +192,14 @@ class LobbyServiceTest {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", true, 0));
             lobby.markAsTransitioning();
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.removeDisconnectedParticipant(LOBBY_ID, "p1");
+            lobbyService.removeDisconnectedParticipant(PARTY_ID, "p1");
 
             // Assert
-            verify(lobbyRepository).removeLobby(LOBBY_ID);
-            verify(sessionRegistry).clearConnectionId(LOBBY_ID);
+            verify(lobbyRepository).removeLobby(PARTY_ID);
+            verify(sessionRegistry).clearConnectionId(PARTY_ID);
         }
 
         @DisplayName("removeDisconnectedParticipant keeps the lobby when participants remain")
@@ -209,13 +209,13 @@ class LobbyServiceTest {
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", true, 0));
             lobby.addParticipant(new LobbyParticipant("Alice", "title", "p2", true, 1));
             lobby.markAsAbandoned();
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.removeDisconnectedParticipant(LOBBY_ID, "p1");
+            lobbyService.removeDisconnectedParticipant(PARTY_ID, "p1");
 
             // Assert
-            verify(lobbyRepository, never()).removeLobby(LOBBY_ID);
+            verify(lobbyRepository, never()).removeLobby(PARTY_ID);
         }
 
         @DisplayName("changeParticipantPosition updates the participant position")
@@ -224,10 +224,10 @@ class LobbyServiceTest {
             // Arrange
             LobbyParticipant participant = new LobbyParticipant("Bob", "title", "p1", true, 0);
             lobby.addParticipant(participant);
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.changeParticipantPosition(LOBBY_ID, "p1", 3);
+            lobbyService.changeParticipantPosition(PARTY_ID, "p1", 3);
 
             // Assert
             assertEquals(3, participant.getPosition());
@@ -237,11 +237,11 @@ class LobbyServiceTest {
         @Test
         void changePositionUnknownParticipant() {
             // Arrange
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act & Assert
             assertThrows(
-                    CannotIdentifyPlayer.class, () -> lobbyService.changeParticipantPosition(LOBBY_ID, "missing", 1));
+                    CannotIdentifyPlayer.class, () -> lobbyService.changeParticipantPosition(PARTY_ID, "missing", 1));
         }
     }
 
@@ -255,13 +255,13 @@ class LobbyServiceTest {
             // Arrange
             lobby.addParticipant(new LobbyParticipant("Bob", "title", "p1", true, 0));
             lobby.addParticipant(new LobbyParticipant("Alice", "title", "p2", true, 1));
-            when(lobbyRepository.getLobby(LOBBY_ID)).thenReturn(lobby);
+            when(lobbyRepository.getLobby(PARTY_ID)).thenReturn(lobby);
 
             // Act
-            lobbyService.createGame(LOBBY_ID);
+            lobbyService.createGame(PARTY_ID);
 
             // Assert
-            verify(gameService).createGame(eq(LOBBY_NAME), eq(LOBBY_ID), anyList());
+            verify(gameService).createGame(eq(LOBBY_NAME), eq(PARTY_ID), anyList());
         }
     }
 }

@@ -1,7 +1,7 @@
 package dk.mathiaskofod.api.game;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
-import dk.mathiaskofod.common.dto.game.GameIdDto;
+import dk.mathiaskofod.common.dto.party.PartyIdDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.reports.GameReport;
@@ -43,14 +43,14 @@ public class GameApi {
     SessionCookieFactory sessionCookieFactory;
 
     @GET
-    @Path("/{gameId}")
+    @Path("/{partyId}")
     @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
-    public GameDto getGame(@Valid @BeanParam GameIdDto gameIdDto) {
-        return gameSessionService.getGameView(gameIdDto.gameId());
+    public GameDto getGame(@Valid @BeanParam PartyIdDto partyIdDto) {
+        return gameSessionService.getGameView(partyIdDto.partyId());
     }
 
     @GET
-    @Path("/{gameId}/claim")
+    @Path("/{partyId}/claim")
     @Operation(
             summary = "Claim game",
             description = "Claims a game session and returns an authentication token as cookie")
@@ -64,60 +64,60 @@ public class GameApi {
                         schema = @Schema(type = SchemaType.STRING))
             },
             content = @Content(schema = @Schema(hidden = true)))
-    public Response claimGame(@Valid @BeanParam GameIdDto gameIdDto) {
+    public Response claimGame(@Valid @BeanParam PartyIdDto partyIdDto) {
 
-        String gameId = gameIdDto.gameId();
-        gameSessionService.claimGame(gameId);
-        String sessionJwt = authenticationService.createGameClientToken(gameId);
+        String partyId = partyIdDto.partyId();
+        gameSessionService.claimGame(partyId);
+        String sessionJwt = authenticationService.createGameClientToken(partyId);
 
         NewCookie cookie = sessionCookieFactory.createSessionCookie(sessionJwt);
         return Response.ok().cookie(cookie).build();
     }
 
     @GET
-    @Path("/{gameId}/players")
+    @Path("/{partyId}/players")
     @Operation(summary = "Get players in game", description = "Retrieves the list of players in a specific game")
-    public List<PlayerDto> getPlayersInGame(@Valid @BeanParam GameIdDto gameIdDto) {
-        return gameSessionService.getPlayerViews(gameIdDto.gameId());
+    public List<PlayerDto> getPlayersInGame(@Valid @BeanParam PartyIdDto partyIdDto) {
+        return gameSessionService.getPlayerViews(partyIdDto.partyId());
     }
 
     @GET
-    @Path("/{gameId}/players/{playerId}/claim")
+    @Path("/{partyId}/players/{playerId}/claim")
     @Operation(summary = "Claim player", description = "Claims a player session and returns an cookie with jwt")
-    public Response claimPlayer(@Valid @BeanParam GameIdDto gameIdDto, @PathParam("playerId") String playerId) {
+    public Response claimPlayer(@Valid @BeanParam PartyIdDto partyIdDto, @PathParam("playerId") String playerId) {
 
-        String gameId = gameIdDto.gameId();
-        Player player = gameSessionService.claimPlayer(gameId, playerId);
-        String sessionJwt = authenticationService.createPlayerClientToken(player.name(), gameId);
+        String partyId = partyIdDto.partyId();
+        Player player = gameSessionService.claimPlayer(partyId, playerId);
+        String sessionJwt = authenticationService.createPlayerClientToken(player.name(), partyId);
 
         NewCookie cookie = sessionCookieFactory.createSessionCookie(sessionJwt);
         return Response.ok().cookie(cookie).build();
     }
 
     @GET
-    @Path("/{gameId}/reports/game")
+    @Path("/{partyId}/reports/game")
     @Operation(
             summary = "Get end of game report for game, players and time",
             description = "Retrieves the end of game report for a specific game")
-    public GameReport getGameReport(@Valid @BeanParam GameIdDto gameIdDto) {
-        return gameService.getGameReport(gameIdDto.gameId());
+    public GameReport getGameReport(@Valid @BeanParam PartyIdDto partyIdDto) {
+        return gameService.getGameReport(partyIdDto.partyId());
     }
 
     @GET
-    @Path("/{gameId}/reports/players")
+    @Path("/{partyId}/reports/players")
     @Operation(
             summary = "Get end of game report for game, players and time",
             description = "Retrieves the end of game report for a specific game")
-    public List<PlayerReport> getPlayerReport(@Valid @BeanParam GameIdDto gameIdDto) {
-        return gameService.getPlayerReports(gameIdDto.gameId());
+    public List<PlayerReport> getPlayerReport(@Valid @BeanParam PartyIdDto partyIdDto) {
+        return gameService.getPlayerReports(partyIdDto.partyId());
     }
 
     @GET
-    @Path("/{gameId}/reports/time")
+    @Path("/{partyId}/reports/time")
     @Operation(
             summary = "Get end of game report for game, players and time",
             description = "Retrieves the end of game report for a specific game")
-    public TimerReports getTimeReport(@Valid @BeanParam GameIdDto gameIdDto) {
-        return gameService.getTimeReport(gameIdDto.gameId());
+    public TimerReports getTimeReport(@Valid @BeanParam PartyIdDto partyIdDto) {
+        return gameService.getTimeReport(partyIdDto.partyId());
     }
 }

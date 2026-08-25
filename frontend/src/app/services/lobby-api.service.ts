@@ -25,17 +25,17 @@ export class LobbyApi {
     return this.httpClient.post<CreateLobbyResponse>(this.apiUrl + '/lobbies', null, requestOptions);
   }
 
-  public getLobby(lobbyId: string): Observable<LobbyDTO> {
-    return this.httpClient.get<LobbyDTO>(this.apiUrl + '/lobbies/' + lobbyId);
+  public getLobby(partyId: string): Observable<LobbyDTO> {
+    return this.httpClient.get<LobbyDTO>(this.apiUrl + '/lobbies/' + partyId);
   }
 
-  public fetchParticipantToken(lobbyId: string, participantName: string): Observable<RegisterPlayerResponse> {
+  public fetchParticipantToken(partyId: string, participantName: string): Observable<RegisterPlayerResponse> {
     const requestOptions = {
       params: new HttpParams().set('participantName', participantName),
       withCredentials: true
     };
 
-    return this.httpClient.post<RegisterPlayerResponse>(this.apiUrl + `/lobbies/${lobbyId}/register`, null, requestOptions);
+    return this.httpClient.post<RegisterPlayerResponse>(this.apiUrl + `/lobbies/${partyId}/register`, null, requestOptions);
   }
 
 }

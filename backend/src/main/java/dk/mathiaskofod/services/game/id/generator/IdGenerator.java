@@ -12,7 +12,7 @@ public class IdGenerator {
 
     private static final String ALPHANUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom random = new SecureRandom();
-    private static final int GAME_ID_LENGTH = 9;
+    private static final int PARTY_ID_LENGTH = 9;
     private static final int PLAYER_ID_LENGTH = 12;
 
     private static String generateId(int length) {
@@ -30,7 +30,7 @@ public class IdGenerator {
         return generateId(PLAYER_ID_LENGTH);
     }
 
-    public static String generateGameId() {
-        return generateId(GAME_ID_LENGTH);
+    public static String generatePartyId() {
+        return generateId(PARTY_ID_LENGTH);
     }
 }

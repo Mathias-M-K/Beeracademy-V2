@@ -17,42 +17,42 @@ import java.util.function.Function;
 
 public abstract class AbstractLobbySessionManager extends AbstractSessionManager {
 
-    protected void applyAndBroadcastSettings(String gameId, String targetParticipantId, UpdateSettingsAction action) {
+    protected void applyAndBroadcastSettings(String partyId, String targetParticipantId, UpdateSettingsAction action) {
 
         lobbyService
-                .getLobby(gameId)
+                .getLobby(partyId)
                 .getParticipant(targetParticipantId)
                 .orElseThrow(() -> new CannotIdentifyPlayer(
                         "Participant ID: " + targetParticipantId + ", didn't match any participants", 400))
                 .updateSettings(action.getSipsInABeer(), action.canDrawAce());
 
         SettingsUpdatedEvent event = SettingsUpdatedEvent.fromAction(targetParticipantId, action);
-        broadcastToLobby(gameId, new LobbyParticipantEventEnvelope(event));
+        broadcastToLobby(partyId, new LobbyParticipantEventEnvelope(event));
     }
 
-    protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope) {
-        broadcastToLobby(lobbyId, envelope, Collections.emptyList());
+    protected void broadcastToLobby(String partyId, WebsocketEnvelope<?> envelope) {
+        broadcastToLobby(partyId, envelope, Collections.emptyList());
     }
 
-    protected void broadcastToLobby(String lobbyId, WebsocketEnvelope<?> envelope, List<String> excluded) {
+    protected void broadcastToLobby(String partyId, WebsocketEnvelope<?> envelope, List<String> excluded) {
 
         Session lobbyClientSession =
-                sessionRegistry.getSession(lobbyId).orElseThrow(() -> new LobbyNotFoundException(lobbyId));
+                sessionRegistry.getSession(partyId).orElseThrow(() -> new LobbyNotFoundException(partyId));
 
-        lobbyService.getLobby(lobbyId).getParticipants().stream()
+        lobbyService.getLobby(partyId).getParticipants().stream()
                 .filter(LobbyParticipant::isActive)
                 .map(LobbyParticipant::getId)
                 .filter(id -> !excluded.contains(id))
                 .forEach(sessionId -> sendMessage(sessionId, envelope));
 
-        if (!excluded.contains(lobbyId)) {
+        if (!excluded.contains(partyId)) {
             sendMessage(lobbyClientSession.getSessionId(), envelope);
         }
     }
 
     protected void provideLobbySnapshotToClient(
             TokenInfo tokenInfo, Function<LobbySnapshotEvent, WebsocketEnvelope<?>> envelope) {
-        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(tokenInfo.getGameId()));
+        LobbyDTO lobbyState = LobbyDTO.fromLobby(lobbyService.getLobby(tokenInfo.getPartyId()));
         LobbySnapshotEvent lobbySnapshotEvent = new LobbySnapshotEvent(lobbyState);
         sendMessage(tokenInfo.getClientId(), envelope.apply(lobbySnapshotEvent));
     }

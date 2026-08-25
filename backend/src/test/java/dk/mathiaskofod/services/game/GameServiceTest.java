@@ -49,7 +49,7 @@ class GameServiceTest {
 
     GameService gameService;
 
-    private static final String GAME_ID = "test-game-123";
+    private static final String PARTY_ID = "test-game-123";
 
     @BeforeEach
     void setUp() {
@@ -82,10 +82,10 @@ class GameServiceTest {
         @Test
         void gameDoesNotExist() {
             // Arrange
-            when(gameSnapshots.get(GAME_ID)).thenReturn(null);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(null);
 
             // Act
-            boolean exists = gameService.gameExists(GAME_ID);
+            boolean exists = gameService.gameExists(PARTY_ID);
 
             // Assert
             assertFalse(exists);
@@ -95,10 +95,10 @@ class GameServiceTest {
         @Test
         void gameExistsThrowsNullPointerException() {
             // Arrange
-            when(gameSnapshots.get(GAME_ID)).thenThrow(new NullPointerException("Simulated NPE"));
+            when(gameSnapshots.get(PARTY_ID)).thenThrow(new NullPointerException("Simulated NPE"));
 
             // Act
-            boolean exists = gameService.gameExists(GAME_ID);
+            boolean exists = gameService.gameExists(PARTY_ID);
 
             // Assert
             assertFalse(exists);
@@ -108,33 +108,11 @@ class GameServiceTest {
         @Test
         void gameNotFound() {
             // Arrange
-            when(gameSnapshots.get(GAME_ID)).thenReturn(null);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(null);
 
             // Act & Assert
-            assertThrows(GameNotFoundException.class, () -> gameService.getGame(GAME_ID));
+            assertThrows(GameNotFoundException.class, () -> gameService.getGame(PARTY_ID));
         }
-    }
-
-    @Nested
-    @DisplayName("Create Game Tests")
-    class CreateGame {
-
-        //        @DisplayName("createGame should instantiate and save game correctly")
-        //        @Test
-        //        void createGameSuccessfully() {
-        //            // Arrange
-        //            String name = "New Beer Game";
-        //            Player p1 = new Player("Alice", "p1", 10, true, new Stats());
-        //            Player p2 = new Player("Bob", "p2", 10, true, new Stats());
-        //            List<Player> players = List.of(p1, p2);
-        //
-        //            // Act
-        //            gameService.createGame(name,"", players);
-        //
-        //            // Assert
-        //            assertThat(generatedId, is(notNullValue()));
-        //            verify(gameSnapshots).set(eq(generatedId), any(GameSnapshot.class));
-        //        }
     }
 
     @Nested
@@ -145,61 +123,61 @@ class GameServiceTest {
         @Test
         void startGameSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.AWAITING_START);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.AWAITING_START);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            gameService.startGame(GAME_ID);
+            gameService.startGame(PARTY_ID);
 
             // Assert
             verify(gameEventEmitterImpl).onStartGame(any(Game.class));
-            verify(gameSnapshots).set(eq(GAME_ID), any(GameSnapshot.class));
+            verify(gameSnapshots).set(eq(PARTY_ID), any(GameSnapshot.class));
         }
 
         @DisplayName("endGame should finalize game and emit event")
         @Test
         void endGameSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            gameService.endGame(GAME_ID);
+            gameService.endGame(PARTY_ID);
 
             // Assert
             verify(gameEventEmitterImpl).onEndGame(any(Game.class));
-            verify(gameSnapshots).set(eq(GAME_ID), any(GameSnapshot.class));
+            verify(gameSnapshots).set(eq(PARTY_ID), any(GameSnapshot.class));
         }
 
         @DisplayName("pauseGame should pause timers and emit event")
         @Test
         void pauseGameSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            gameService.pauseGame(GAME_ID);
+            gameService.pauseGame(PARTY_ID);
 
             // Assert
             verify(gameEventEmitterImpl).onPauseGame(any(Game.class));
-            verify(gameSnapshots).set(eq(GAME_ID), any(GameSnapshot.class));
+            verify(gameSnapshots).set(eq(PARTY_ID), any(GameSnapshot.class));
         }
 
         @DisplayName("resumeGame should resume timers and emit event")
         @Test
         void resumeGameSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
             game.pauseGame();
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            gameService.resumeGame(GAME_ID);
+            gameService.resumeGame(PARTY_ID);
 
             // Assert
             verify(gameEventEmitterImpl).onResumeGame(any(Game.class));
-            verify(gameSnapshots).set(eq(GAME_ID), any(GameSnapshot.class));
+            verify(gameSnapshots).set(eq(PARTY_ID), any(GameSnapshot.class));
         }
     }
 
@@ -211,22 +189,22 @@ class GameServiceTest {
         @Test
         void drawCardSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            gameService.drawCard(1500L, GAME_ID);
+            gameService.drawCard(1500L, PARTY_ID);
 
             // Assert
             verify(gameEventEmitterImpl).onDrawCard(any(), any(), any(), any(), any(Game.class));
-            verify(gameSnapshots).set(eq(GAME_ID), any(GameSnapshot.class));
+            verify(gameSnapshots).set(eq(PARTY_ID), any(GameSnapshot.class));
         }
 
         @DisplayName("registerChug should record chug and transition state to IN_PROGRESS")
         @Test
         void registerChugSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
             GameSnapshot original = GameSnapshot.of(game);
 
             // Construct a snapshot in AWAITING_CHUG state so we can register a chug
@@ -241,15 +219,15 @@ class GameServiceTest {
                     original.deck(),
                     original.gameTimer(),
                     original.playerTimer());
-            when(gameSnapshots.get(GAME_ID)).thenReturn(awaitingChugSnapshot);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(awaitingChugSnapshot);
             Chug chug = new Chug(Suit.HEART, 4500L);
 
             // Act
-            gameService.registerChug(chug, GAME_ID);
+            gameService.registerChug(chug, PARTY_ID);
 
             // Assert
             verify(gameEventEmitterImpl).onNewChug(eq(chug), any(), any(), any(Game.class));
-            verify(gameSnapshots).set(eq(GAME_ID), any(GameSnapshot.class));
+            verify(gameSnapshots).set(eq(PARTY_ID), any(GameSnapshot.class));
         }
     }
 
@@ -261,11 +239,11 @@ class GameServiceTest {
         @Test
         void getPlayerSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            Player found = gameService.getPlayer(GAME_ID, "p1");
+            Player found = gameService.getPlayer(PARTY_ID, "p1");
 
             // Assert
             assertThat(found, is(notNullValue()));
@@ -276,23 +254,23 @@ class GameServiceTest {
         @Test
         void getPlayerNotFound() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act & Assert
-            assertThrows(PlayerNotFoundException.class, () -> gameService.getPlayer(GAME_ID, "non-existent"));
+            assertThrows(PlayerNotFoundException.class, () -> gameService.getPlayer(PARTY_ID, "non-existent"));
         }
 
         @DisplayName("getCurrentPlayer should return next player to draw")
         @Test
         void getCurrentPlayerSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
             Player expectedNext = game.getNextToDraw();
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            Player current = gameService.getCurrentPlayer(GAME_ID);
+            Player current = gameService.getCurrentPlayer(PARTY_ID);
 
             // Assert
             assertThat(current, is(notNullValue()));
@@ -308,11 +286,11 @@ class GameServiceTest {
         @Test
         void getGameReportSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            GameReport report = gameService.getGameReport(GAME_ID);
+            GameReport report = gameService.getGameReport(PARTY_ID);
 
             // Assert
             assertThat(report, is(notNullValue()));
@@ -322,11 +300,11 @@ class GameServiceTest {
         @Test
         void getPlayerReportsSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            List<PlayerReport> reports = gameService.getPlayerReports(GAME_ID);
+            List<PlayerReport> reports = gameService.getPlayerReports(PARTY_ID);
 
             // Assert
             assertThat(reports, is(notNullValue()));
@@ -337,11 +315,11 @@ class GameServiceTest {
         @Test
         void getTimeReportSuccessfully() {
             // Arrange
-            GameImpl game = createTestGame(GAME_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(GAME_ID)).thenReturn(GameSnapshot.of(game));
+            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
+            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
 
             // Act
-            TimerReports reports = gameService.getTimeReport(GAME_ID);
+            TimerReports reports = gameService.getTimeReport(PARTY_ID);
 
             // Assert
             assertThat(reports, is(notNullValue()));
