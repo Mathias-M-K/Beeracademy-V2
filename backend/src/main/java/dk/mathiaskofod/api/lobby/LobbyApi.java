@@ -1,7 +1,6 @@
 package dk.mathiaskofod.api.lobby;
 
 import dk.mathiaskofod.api.lobby.models.CreateLobbyResponse;
-import dk.mathiaskofod.api.lobby.models.PlayerRegisterRequest;
 import dk.mathiaskofod.api.lobby.models.RegisterPlayerResponse;
 import dk.mathiaskofod.api.lobby.models.dto.LobbyDTO;
 import dk.mathiaskofod.api.lobby.models.dto.RoleDTO;
@@ -111,10 +110,19 @@ public class LobbyApi {
                         description = "Contains the JWT session token",
                         schema = @Schema(type = SchemaType.STRING))
             })
-    public Response registerParticipant(@Valid @BeanParam PlayerRegisterRequest request) {
-        lobbyService.getLobby(request.partyId());
+    public Response registerParticipant(
+            @Valid
+            @BeanParam
+            PartyIdDto partyIdDto,
+
+            @Parameter(description = "The name of the player registering in the lobby", required = true, example = "Bob")
+            @NotEmpty(message = "Player name must not be empty")
+            @QueryParam("participantName")
+            String playerName) {
+
+        lobbyService.getLobby(partyIdDto.partyId());
         String playerId = IdGenerator.generatePlayerId();
-        String jwt = authenticationService.createPlayerClientToken(request.playerName(), request.partyId(), playerId);
+        String jwt = authenticationService.createPlayerClientToken(playerName, partyIdDto.partyId(), playerId);
 
         NewCookie cookieJwt = sessionCookieFactory.createSessionCookie(jwt);
 

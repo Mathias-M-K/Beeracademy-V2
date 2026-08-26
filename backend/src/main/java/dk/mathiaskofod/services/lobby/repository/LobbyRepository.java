@@ -23,4 +23,8 @@ public class LobbyRepository {
     public void removeLobby(String partyId) {
         lobbies.remove(partyId);
     }
+
+    public boolean lobbyExist(String partyId) {
+        return lobbies.containsKey(partyId);
+    }
 }

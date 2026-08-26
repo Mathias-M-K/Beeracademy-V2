@@ -3,6 +3,7 @@
 
   height: 100dvh;
   width: 100dvw;
+  gap: 10px;
 
   color: white;
   background-color: var(--primary);
@@ -21,13 +22,16 @@
   grid-template-rows: auto auto 1fr;
   gap: 20px;
 }
-:host(.guest) *{
+
+:host(.guest) * {
   grid-area: revert-layer !important;
 }
-:host(.guest) .player{
+
+:host(.guest) .player {
   flex-direction: column;
 }
-.chug-time-container{
+
+.chug-time-container {
   display: flex;
   flex-direction: column;
   height: fit-content;
@@ -35,30 +39,35 @@
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
 }
-.chug-time-container .header{
+
+.chug-time-container .header {
   font-size: 10px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.6);
 }
-.chug-times{
+
+.chug-times {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-.chug-time{
+
+.chug-time {
   display: grid;
   grid-template-columns: auto auto auto 1fr;
   align-items: center;
   gap: 10px;
   padding: 5px 0;
 }
-.chug-time p{
+
+.chug-time p {
   color: white;
   margin: 0;
   font-weight: 700;
   font-size: 16px;
 }
-.chug-time p:nth-child(4){
+
+.chug-time p:nth-child(4) {
   margin-left: 40px;
   justify-self: end;
 }
@@ -185,12 +194,19 @@ button:focus-visible {
   }
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1000px) {
 
+  //:host {
+  //  width: 700px;
+  //  height: 900px;
+  //  border-radius: 10px;
+  //}
   :host {
     width: 700px;
-    height: 900px;
+    height: unset;
+    aspect-ratio: 5 / 6;
     border-radius: 10px;
+
   }
   .timer {
     width: 500px;

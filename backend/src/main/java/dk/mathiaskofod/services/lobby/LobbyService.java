@@ -51,8 +51,11 @@ public class LobbyService {
     }
 
     public void deleteLobby(String partyId, boolean preserveSession) {
-        boolean isEmpty =
-                lobbyRepository.getLobby(partyId).getParticipants().stream().noneMatch(LobbyParticipant::isActive);
+        boolean isEmpty = lobbyRepository
+                .getLobby(partyId)
+                .getParticipants()
+                .stream()
+                .noneMatch(LobbyParticipant::isActive);
 
         if (!isEmpty) {
             throw new LobbyNotEmptyException(partyId);
@@ -67,6 +70,10 @@ public class LobbyService {
         }
 
         log.info("Lobby deleted: {}, Session preserved: {}", partyId, preserveSession);
+    }
+
+    public boolean lobbyExist(String partyId){
+        return lobbyRepository.lobbyExist(partyId);
     }
 
     public void markLobbyAsAbandoned(String partyId) {
