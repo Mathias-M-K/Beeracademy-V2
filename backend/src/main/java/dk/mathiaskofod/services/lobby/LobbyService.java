@@ -86,8 +86,7 @@ public class LobbyService {
 
     public LobbyParticipant registerParticipant(String partyId, String name, String id, boolean active) {
         int participantPosition = getLobby(partyId).getParticipants().size();
-        LobbyParticipant newLobbyParticipant =
-                new LobbyParticipant(name, "Funny title", id, active, participantPosition);
+        LobbyParticipant newLobbyParticipant = new LobbyParticipant(name, "Funny title", id, active, participantPosition);
         getLobby(partyId).addParticipant(newLobbyParticipant);
         return newLobbyParticipant;
     }

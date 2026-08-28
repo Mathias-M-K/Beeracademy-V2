@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxMaskDirective} from 'ngx-mask';
-import {LobbyApi} from '../../services/lobby-api.service';
+import {LobbyApi} from '../../services/apis/lobby-api.service';
 import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';

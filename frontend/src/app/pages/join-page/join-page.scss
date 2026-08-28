@@ -60,6 +60,10 @@ label,span {
   color: var(--color-silver);
 }
 
+.players{
+  width: 300px;
+}
+
 @media (max-width: 500px) {
 
   :host{

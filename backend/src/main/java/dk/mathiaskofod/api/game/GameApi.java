@@ -25,7 +25,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-// TODO Split API into three different APIs, Lobby, Session and GameReport
 @Path("/games")
 @Tag(name = "Game API", description = "API for managing games")
 public class GameApi {
@@ -88,7 +87,7 @@ public class GameApi {
 
         String partyId = partyIdDto.partyId();
         Player player = gameSessionService.claimPlayer(partyId, playerId);
-        String sessionJwt = authenticationService.createPlayerClientToken(player.name(), partyId);
+        String sessionJwt = authenticationService.createPlayerClientToken(player.name(), partyId, playerId);
 
         NewCookie cookie = sessionCookieFactory.createSessionCookie(sessionJwt);
         return Response.ok().cookie(cookie).build();
