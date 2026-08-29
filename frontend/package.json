@@ -13,7 +13,8 @@
     "docker:build": "docker build -t ghcr.io/mathias-m-k/beer-academy-frontend .",
     "docker:run-local": "docker run -d --name beer-academy-frontend -p 8090:80 -e API_URL=http://localhost:8080 ghcr.io/mathias-m-k/beer-academy-frontend",
     "docker:push": "docker push ghcr.io/mathias-m-k/beer-academy-frontend:latest",
-    "kubectl:deploy": "kubectl apply -f ../deployment/frontend"
+    "kubectl:deploy": "kubectl apply -f ../deployment/frontend",
+    "start:mock": "ng serve --configuration mock"
   },
   "prettier": {
     "printWidth": 100,
@@ -49,8 +50,14 @@
     "@angular/compiler-cli": "^22.1.4",
     "@openapitools/openapi-generator-cli": "^2.16.3",
     "jsdom": "^27.1.0",
+    "msw": "^2.15.0",
     "shx": "^0.4.0",
     "typescript": "~6.0.3",
     "vitest": "^4.0.17"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

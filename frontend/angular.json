@@ -31,7 +31,10 @@
             ],
             "styles": [
               "src/styles.scss"
-            ]
+            ],
+            "define": {
+              "USE_MOCKS": "false"
+            }
           },
           "configurations": {
             "production": {
@@ -53,6 +56,14 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "mock": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "define": {
+                "USE_MOCKS": "true"
+              }
             }
           },
           "defaultConfiguration": "production"
@@ -65,6 +76,9 @@
             },
             "development": {
               "buildTarget": "beeracademy-frontend:build:development"
+            },
+            "mock": {
+              "buildTarget": "beeracademy-frontend:build:mock"
             }
           },
           "defaultConfiguration": "development"
