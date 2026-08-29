@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install project dependencies
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -22,7 +22,7 @@ RUN npm run openApi
 RUN npm run build
 
 # Stage 2: Serve the Angular application with Nginx
-FROM nginx:1.29.5-alpine3.23-slim
+FROM nginx:1.31.2-alpine3.23-slim
 RUN apk update && apk upgrade --no-cache && \
     apk add --no-cache openssl ca-certificates
 
