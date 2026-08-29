@@ -1,0 +1,36 @@
+type: environment.insomnia.rest/5.0
+schema_version: "5.1"
+name: Environments
+meta:
+  id: wrk_2d7c9d55c06f4c36b72801814af8bff3
+  created: 1788016027695
+  modified: 1788016350928
+  description: ""
+environments:
+  name: Base
+  meta:
+    id: env_654ad35093e3d2c1ecc95fb820642f65e6dcccd5
+    created: 1788016027730
+    modified: 1788017174071
+    isPrivate: false
+  subEnvironments:
+    - name: DEV
+      meta:
+        id: env_7e3e6f0da098414fb9e5b3e33aa15626
+        created: 1788016368084
+        modified: 1788017174069
+        isPrivate: false
+        sortKey: 1788016368084
+      data:
+        url: http://localhost:8080/api
+      color: "#5bb4d2"
+    - name: PROD
+      meta:
+        id: env_40940dee1c8b4c6fbfbc25202ce5091a
+        created: 1788016373053
+        modified: 1788017135358
+        isPrivate: false
+        sortKey: 1788016373053
+      data:
+        url: https://beeracademy.mathiaskofod.dk
+      color: "#ec3c3c"

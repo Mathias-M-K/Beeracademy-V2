@@ -1,0 +1,157 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: API
+meta:
+  id: wrk_08d63b3f93584c28859ac45eab941d4d
+  created: 1788015885258
+  modified: 1788015885258
+  description: ""
+collection:
+  - name: Ping
+    meta:
+      id: fld_912387d1f93d489babaf0e5ed791ea8c
+      created: 1788016003440
+      modified: 1788016003440
+      sortKey: -1788016003440
+      description: ""
+    children:
+      - url: "{{ _.url }}/ping"
+        name: Ping
+        meta:
+          id: req_a71eacb9c4db41a39681c7a5b1de9386
+          created: 1788016074935
+          modified: 1788016280482
+          isPrivate: false
+          description: ""
+          sortKey: -1788016074935
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Game
+    meta:
+      id: fld_760c4980eea84cb897dfbe2b9089970d
+      created: 1788016555591
+      modified: 1788016585542
+      sortKey: -1788016555591
+      description: ""
+    children:
+      - url: "{{ _.url }}{{ _['resource-url'] }}"
+        name: Game
+        meta:
+          id: req_04f2007a1c574fcdb2bf732f539ad511
+          created: 1788016558702
+          modified: 1788016624623
+          isPrivate: false
+          description: ""
+          sortKey: -1788016558702
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    environment:
+      resource-url: /games
+  - name: Lobby
+    meta:
+      id: fld_d914e059701c4a479c5aeb97d2112527
+      created: 1788016630844
+      modified: 1788017174072
+      sortKey: -1788016630844
+      description: ""
+    children:
+      - url: "{{ _.url }}{{ _['resource-url'] }}"
+        name: Lobby
+        meta:
+          id: req_1d89dad47cad47fb933f01b92677da33
+          created: 1788016633539
+          modified: 1788017172865
+          isPrivate: false
+          description: ""
+          sortKey: -1788016633539
+        method: POST
+        parameters:
+          - name: name
+            value: Test Lobby 123
+            description: ""
+            disabled: false
+        scripts:
+          afterResponse: |-
+            const response = insomnia.response.json();
+            insomnia.environment.set("partyId",response.partyId);
+            console.log(response.partyId);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.url }}{{ _['resource-url'] }}/:partyId"
+        name: Lobby
+        meta:
+          id: req_287f08d34991463589aed3bdd50814ae
+          created: 1788017047040
+          modified: 1788017198265
+          isPrivate: false
+          description: ""
+          sortKey: -1788017047040
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: partyId
+            value: "{{ _.partyId }}"
+    environment:
+      resource-url: /lobbies
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_9220febb5a9c261763b690c0d53aa671197588fc
+    created: 1788015885301
+    modified: 1788017174068
+  cookies:
+    - id: c3a1d6c7-ba61-4a97-82d5-0cabde683c0d
+      key: session_jwt
+      value: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJzdWIiOiJUZXN0IExvYmJ5IDEyMyIsImdyb3VwcyI6WyJHQU1FX0NMSUVOVCJdLCJQQVJUWV9JRCI6IjNTU1dVOEdIQiIsImlhdCI6MTc4ODAxNzE3NCwiZXhwIjoxNzg4MDM1MTc0LCJqdGkiOiI1NmMyYmNhMC1lZThiLTRkMWYtYjMzNy00ZGZhNWNjN2U1MDkifQ.eiGfNZ1VoWGj47m5xxblUB3dPrCIFzXNQAzLE6ajrX0bL8aGF5U4OUIZg2RXz1Sz7Y3Fw4Vp3veJ24Js8FFMm1kk9n80hv78iHYU7SxIsW3cTqhp3uRiOkd2Sm9qNTp-J3nRbyAUY-yrVEyjIiDe511Or8DLQueHYO-n_uzXZCDqKrivv95uqDKpcP7K90cpyRtKkz66Taljok_iWo7XTm3RQntYhNx_zoiykg3eIa2CSWRJglhYUX8Lkmlm-JRJMb-3mEEb8f7GsY5rT1aCwa3u_sfV2OzKR9qsLYteqZ-vICs6nb2i_qlIgtb-FRWqEyYygRD89WQQvUAs4Z2t7Q
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: false
+      extensions:
+        - Version=1
+      hostOnly: true
+    - id: 11178b16-69d4-4a70-a48c-b96f5710d4ab
+      key: session_jwt
+      value: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJzdWIiOiJUZXN0IExvYmJ5IDEyMyIsImdyb3VwcyI6WyJHQU1FX0NMSUVOVCJdLCJQQVJUWV9JRCI6IlpONFZKTjdRMSIsImlhdCI6MTc4ODAxNjgzNSwiZXhwIjoxNzg4MDM0ODM1LCJqdGkiOiIwMDg4NzRmZS05NDE3LTQ1MzUtYjdlOC00NjE0MzBiMTI5MzcifQ.K6qcAQERMVkBjOj8Xdni_Jczs58PToAhfZLzwVRynZqBArkkCZCVwq8BCLjM5M_aOvajeV_woAsvecrFMco8h-ipJ7iJWxRqYI0K21_h3cteB_BM84yZTS2Zxg4A-Q0OBJiGIWadcdwtXwBBBAbAXteaGPFtssFcs5qBpToX7VMBnBKqJ4BOWjw0Dden6wGkbzHrQoCgvYy3tLpxhOnxFsWkA0xP5AlU8LP7_QaZaNk9H6utZvbHQu5fZe-E0m1tLyGnDXNQGVf8EtkYOppecqtpTszLtNjTO2bCnS3YrwFXoy54hQ5OxBROvQI0_w2niqn9sCRqLAmfiULIMZXKaQ
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: false
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_9220febb5a9c261763b690c0d53aa671197588fc
+    created: 1788015885291
+    modified: 1788017174069
+    isPrivate: false
+  data:
+    lobbyId: 8SBSF3PTK
+    partyId: 3SSWU8GHB
