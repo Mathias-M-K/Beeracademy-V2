@@ -7,6 +7,7 @@ import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.lobby.models.Lobby;
+import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.party.exceptions.PartyNotFoundException;
 import dk.mathiaskofod.services.party.models.PartyParticipant;
 import dk.mathiaskofod.services.party.models.PartyState;
@@ -14,6 +15,7 @@ import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.Comparator;
 import java.util.List;
 
 @ApplicationScoped
@@ -48,6 +50,7 @@ public class PartyService {
         if (lobbyService.lobbyExist(partyId)) {
             Lobby lobby = lobbyService.getLobby(partyId);
             List<PartyParticipantDto> participants = lobby.getParticipants().stream()
+                    .sorted(Comparator.comparingInt(LobbyParticipant::getPosition))
                     .map(PartyParticipant::fromLobbyParticipant)
                     .map(this::createPartyParticipantDto)
                     .toList();

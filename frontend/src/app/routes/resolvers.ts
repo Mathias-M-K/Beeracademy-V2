@@ -1,11 +1,13 @@
 import {ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router} from '@angular/router';
 import {inject} from '@angular/core';
-import {catchError, map, Observable, of, timeout} from 'rxjs';
+import {catchError, finalize, Observable, of, timeout} from 'rxjs';
 import {PartyApiService} from '../services/apis/party-api.service';
 import {ToastService} from '../services/toast/toast.service';
 import {ToastState} from '../overlay/toast/models/toast-data';
 import {OverlayService} from '../services/overlay/overlay.service';
 import {PartyDto} from '../../api-models/model/partyDto';
+import {BeerLoaderOverlay} from '../overlay/beer-loader-overlay/beer-loader-overlay';
+import {OverlayHandle} from '../services/overlay/models/overlay-handle';
 
 
 export const partyStateResolver: ResolveFn<PartyDto> = (route: ActivatedRouteSnapshot) => {
@@ -15,6 +17,7 @@ export const partyStateResolver: ResolveFn<PartyDto> = (route: ActivatedRouteSna
   const overlayService = inject(OverlayService);
 
   const PARTY_LOOKUP_TIMEOUT = 8000;
+  const TIME_BEFORE_SHOWING_LOADER = 150;
 
   const partyId: string = route.params['party-id'];
 
@@ -23,13 +26,25 @@ export const partyStateResolver: ResolveFn<PartyDto> = (route: ActivatedRouteSna
     return of(new RedirectCommand(router.parseUrl('/start')));
   };
 
-  // const overlayHandle = overlayService.openOverlay<void>({component: BeerLoaderOverlay});
+  const beerLoaderMessages: string[] = ['Tjekker om der er plads','Henter øl','Blander kort','Tjekker ting']
+  let overlayHandle: OverlayHandle<void>;
+  const loadingScreenTimer = setTimeout(() => {
+    overlayHandle = overlayService.openOverlay<void, string[]>({component: BeerLoaderOverlay, data: beerLoaderMessages});
+  }, TIME_BEFORE_SHOWING_LOADER);
+
+
   return partyApi.getParty(partyId).pipe(
-    map(partyInfo => partyInfo),
+    finalize(() => {
+      clearTimeout(loadingScreenTimer);
+
+      if (overlayHandle) {
+        overlayHandle.dismiss()
+      }
+    }),
     timeout({
       each: PARTY_LOOKUP_TIMEOUT,
       with: () => bail('Timeout', 'Måske tager serveren en pause')
     }),
-    catchError(() => bail('Miv :(', 'Den søgte fest kunne ikke findes')),
+    catchError(() => bail('Miv :(', 'Kunne ikke forbinde')),
   );
 };

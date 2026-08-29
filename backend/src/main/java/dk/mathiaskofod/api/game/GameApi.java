@@ -11,12 +11,15 @@ import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.auth.SessionCookieFactory;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.GameSessionService;
+import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+
 import java.util.List;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -57,17 +60,23 @@ public class GameApi {
             responseCode = "200",
             description = "Login successful, JWT returned in a secure cookie",
             headers = {
-                @Header(
-                        name = "Set-Cookie",
-                        description = "Contains the JWT session token",
-                        schema = @Schema(type = SchemaType.STRING))
+                    @Header(
+                            name = "Set-Cookie",
+                            description = "Contains the JWT session token",
+                            schema = @Schema(type = SchemaType.STRING))
             },
             content = @Content(schema = @Schema(hidden = true)))
     public Response claimGame(@Valid @BeanParam PartyIdDto partyIdDto) {
 
         String partyId = partyIdDto.partyId();
+
+        if (!gameService.gameExists(partyId)) {
+            throw new GameNotFoundException(partyId);
+        }
+
+        String gameName = gameService.getGame(partyId).getName();
         gameSessionService.claimGame(partyId);
-        String sessionJwt = authenticationService.createGameClientToken(partyId);
+        String sessionJwt = authenticationService.createGameClientToken(gameName, partyId);
 
         NewCookie cookie = sessionCookieFactory.createSessionCookie(sessionJwt);
         return Response.ok().cookie(cookie).build();
