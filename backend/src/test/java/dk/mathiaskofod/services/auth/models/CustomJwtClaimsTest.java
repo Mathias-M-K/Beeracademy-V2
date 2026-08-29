@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class CustomJwtClaimsTest {
 
     @Test
-    @DisplayName("CustomJwtClaims.PARTY_ID is equal to 'GAME_ID'")
+    @DisplayName("CustomJwtClaims.PARTY_ID is equal to 'PARTY_ID'")
     void test() {
 
         // Arrange

@@ -3,6 +3,9 @@ package dk.mathiaskofod.api.lobby;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.lobby.LobbyService;
@@ -71,5 +74,38 @@ class LobbyApiTest {
                 .then()
                 .statusCode(200)
                 .cookie("session_jwt");
+    }
+
+    @Test
+    @DisplayName("Player can register to lobby using the dashed display form of the party id")
+    void canRegisterToLobbyWithDashedPartyId() {
+
+        // Arrange
+        String dashedPartyId = "123-456-789";
+
+        // Act
+        when().post(url + "/" + dashedPartyId + "/register?participantName=TestPlayer")
+                .then()
+                .statusCode(200)
+                .cookie("session_jwt");
+
+        // Assert
+        verify(lobbyService).getLobby("123456789");
+    }
+
+    @Test
+    @DisplayName("Registering with a malformed party id is rejected")
+    void cannotRegisterToLobbyWithMalformedPartyId() {
+
+        // Arrange
+        String malformedPartyId = "abc";
+
+        // Act & Assert
+        when().post(url + "/" + malformedPartyId + "/register?participantName=TestPlayer")
+                .then()
+                .statusCode(400);
+
+
+        verify(lobbyService, never()).getLobby(anyString());
     }
 }

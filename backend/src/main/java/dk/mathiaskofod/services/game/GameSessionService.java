@@ -10,7 +10,9 @@ import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -69,8 +71,7 @@ public class GameSessionService {
         }
 
         if (sessionRegistry.getSession(playerId).isPresent()) {
-            String msg =
-                    String.format("Player with ID: %s, from game: %s, has already been claimed.", playerId, partyId);
+            String msg = String.format("Player with ID: %s, from game: %s, has already been claimed.", playerId, partyId);
             throw new ResourceClaimException(msg);
         }
 

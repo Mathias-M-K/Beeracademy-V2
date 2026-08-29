@@ -56,7 +56,7 @@ public class LobbyWebsocket {
     @OnError
     public void onError(RuntimeException e){
         String cause = e.getCause() == null ? "" : e.getCause().getClass().getSimpleName();
-        ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(), cause, e.getMessage());
+        ExceptionResponse response = new ExceptionResponse(e.getClass().getSimpleName(), cause, e.getMessage(),"");
         log.warn("Websocket error for connection {}: {}", connection.id(), response);
         connection.sendTextAndAwait(new GameClientEventEnvelope(new ExceptionEvent(response)));
 

@@ -1,7 +1,20 @@
-import {Component, ElementRef, effect, input, signal, viewChild, viewChildren, linkedSignal} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  effect,
+  input,
+  signal,
+  viewChild,
+  viewChildren,
+  linkedSignal,
+  inject
+} from '@angular/core';
 import {PlayerCard} from './player-card/player-card';
 import {Player} from '../../../services/game/models/player';
 import {DotIndicator} from '../../../common/dot-indicator/dot-indicator';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {map} from 'rxjs';
+import {BreakpointObserver} from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-player-grid',
@@ -13,6 +26,8 @@ import {DotIndicator} from '../../../common/dot-indicator/dot-indicator';
   styleUrl: './player-grid.scss',
 })
 export class PlayerGrid {
+
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   readonly players = input.required<Player[] | undefined>();
   readonly activePlayerId = input<string>();
@@ -28,6 +43,13 @@ export class PlayerGrid {
     return false;
   });
 
+  protected readonly isCompact = toSignal(
+    this.breakpointObserver
+      .observe('(max-width: 500px)')
+      .pipe(map((result) => result.matches)),
+    { initialValue: false },
+  );
+
   private rafId = 0;
 
   constructor() {
@@ -35,7 +57,7 @@ export class PlayerGrid {
     effect(() => {
       const players = this.players() ?? [];
       const index = players.findIndex((player) => player.id === this.activePlayerId());
-      if (index >= 0) {
+      if (index >= 0 && this.isCompact()) {
         this.scrollToIndex(index);
       }
     });

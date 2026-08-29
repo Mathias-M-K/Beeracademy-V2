@@ -51,8 +51,11 @@ public class LobbyService {
     }
 
     public void deleteLobby(String partyId, boolean preserveSession) {
-        boolean isEmpty =
-                lobbyRepository.getLobby(partyId).getParticipants().stream().noneMatch(LobbyParticipant::isActive);
+        boolean isEmpty = lobbyRepository
+                .getLobby(partyId)
+                .getParticipants()
+                .stream()
+                .noneMatch(LobbyParticipant::isActive);
 
         if (!isEmpty) {
             throw new LobbyNotEmptyException(partyId);
@@ -69,6 +72,10 @@ public class LobbyService {
         log.info("Lobby deleted: {}, Session preserved: {}", partyId, preserveSession);
     }
 
+    public boolean lobbyExist(String partyId){
+        return lobbyRepository.lobbyExist(partyId);
+    }
+
     public void markLobbyAsAbandoned(String partyId) {
         getLobby(partyId).markAsAbandoned();
     }
@@ -79,8 +86,7 @@ public class LobbyService {
 
     public LobbyParticipant registerParticipant(String partyId, String name, String id, boolean active) {
         int participantPosition = getLobby(partyId).getParticipants().size();
-        LobbyParticipant newLobbyParticipant =
-                new LobbyParticipant(name, "Funny title", id, active, participantPosition);
+        LobbyParticipant newLobbyParticipant = new LobbyParticipant(name, "Funny title", id, active, participantPosition);
         getLobby(partyId).addParticipant(newLobbyParticipant);
         return newLobbyParticipant;
     }

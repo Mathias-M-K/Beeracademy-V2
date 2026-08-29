@@ -72,6 +72,21 @@ class GameApiTest {
                 .cookie("session_jwt", is(notNullValue()));
     }
 
+    @DisplayName("Claim game returns 404 for an unknown party")
+    @Test
+    void claimGameReturnsNotFoundForUnknownParty() {
+        // Arrange
+        String unknownPartyId = IdGenerator.generatePartyId();
+
+        // Act & Assert
+        given().pathParam("partyId", unknownPartyId)
+                .when()
+                .get("/api/games/{partyId}/claim")
+                .then()
+                .statusCode(404)
+                .body("exception", is("GameNotFoundException"));
+    }
+
     @DisplayName("Get players in game returns player list")
     @Test
     void getPlayersInGameReturnsList() {

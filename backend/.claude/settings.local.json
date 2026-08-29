@@ -10,7 +10,15 @@
       "WebSearch",
       "WebFetch(domain:quarkus.io)",
       "Bash(./gradlew compileJava --no-daemon)",
-      "Bash(./gradlew clean *)"
+      "Bash(./gradlew clean *)",
+      "mcp__mcp-tools-istefox__get_vault_file",
+      "Bash(ls -R /c/Users/mathi/dev/beeracademy/frontend/src/app/services /c/Users/mathi/dev/beeracademy/frontend/src/app/routes 2>/dev/null | head -60; echo \"---ROUTES---\"; cat /c/Users/mathi/dev/beeracademy/frontend/src/app/app.routes.ts)",
+      "mcp__mcp-tools-istefox__get_vault_overview",
+      "Bash(cd /c/Users/mathi/dev/beeracademy/frontend && grep -E '\"@angular/\\(core|router\\)\"' package.json && echo \"=== party-api ===\" && cat src/app/services/party/party-api.service.ts)",
+      "Bash(npx tsc *)"
+    ],
+    "ask": [
+      "ask before touching files"
     ]
   }
 }

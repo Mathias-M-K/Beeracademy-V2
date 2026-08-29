@@ -4,6 +4,7 @@ import {GamePage} from './pages/game-page/game-page';
 import {SerialPlayground} from './pages/serial-playground/serial-playground';
 import {LobbyPage} from './pages/lobby-page/lobby-page';
 import {JoinPage} from './pages/join-page/join-page';
+import {partyStateResolver} from './routes/resolvers';
 
 export const routes: Routes = [
   {
@@ -12,7 +13,8 @@ export const routes: Routes = [
   },
   {
     path: 'join/:party-id',
-    component: JoinPage
+    component: JoinPage,
+    resolve: {partyInfo: partyStateResolver}
   },
   {
     path: 'lobby',
