@@ -44,4 +44,17 @@ class LobbyRepositoryTest {
         // Act & Assert
         assertThrows(LobbyNotFoundException.class, () -> lobbyRepository.getLobby(partyId));
     }
+
+    @Test
+    @DisplayName("Lobby existence is reported for known and unknown ids")
+    void lobbyExistenceIsReported() {
+
+        // Arrange
+        String partyId = "test-lobby-id";
+        lobbyRepository.addLobby(new Lobby("Test Lobby", partyId));
+
+        // Act & Assert
+        assertTrue(lobbyRepository.lobbyExist(partyId));
+        assertFalse(lobbyRepository.lobbyExist("non-existing-lobby-id"));
+    }
 }

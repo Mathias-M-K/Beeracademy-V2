@@ -147,6 +147,20 @@ class LobbyServiceTest {
             // Assert
             assertTrue(lobby.isTransitioning());
         }
+
+        @DisplayName("lobbyExist delegates to the repository")
+        @Test
+        void lobbyExistDelegatesToRepository() {
+            // Arrange
+            when(lobbyRepository.lobbyExist(PARTY_ID)).thenReturn(true);
+            when(lobbyRepository.lobbyExist("unknown-lobby")).thenReturn(false);
+
+            // Act & Assert
+            assertTrue(lobbyService.lobbyExist(PARTY_ID));
+            assertFalse(lobbyService.lobbyExist("unknown-lobby"));
+
+            verify(lobbyRepository).lobbyExist(PARTY_ID);
+        }
     }
 
     @Nested
