@@ -19,7 +19,6 @@ import {MaterialIcon} from '../../../common/components/material-icon/material-ic
     CdkDrag,
     MaterialIcon
   ],
-  standalone: true
 })
 export class ParticipantOverview {
 

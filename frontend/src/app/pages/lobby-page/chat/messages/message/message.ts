@@ -6,7 +6,6 @@ import {MessageDirection} from '../../../../../services/chat/models/message-dire
   selector: 'app-message',
   templateUrl: './message.html',
   styleUrl: './message.scss',
-  standalone: true,
   host: {
     '[class.outbound]': 'message().direction === MessageDirection.OUT',
     '[class.isFromToHost]': 'isHost()',

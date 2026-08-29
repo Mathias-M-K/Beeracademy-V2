@@ -10,7 +10,6 @@ import {Message} from './message/message';
   imports: [
     Message
   ],
-  standalone: true
 })
 export class Messages {
 

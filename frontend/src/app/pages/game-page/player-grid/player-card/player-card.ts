@@ -1,4 +1,4 @@
-import {Component, computed, effect, input, Signal} from '@angular/core';
+import {Component, computed, input, Signal} from '@angular/core';
 import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle';
 import {Player} from '../../../../services/game/models/player';
 
@@ -42,17 +42,7 @@ export class PlayerCard {
     return this.player().stats?.turns?.at(-1)?.card;
   });
 
-  readonly beersConsumed: number[] = [];
-
-  constructor() {
-    effect(() => {
-      const nrOfBeersConsumed = Math.floor(this.beers());
-      const nrOfBeersShown = this.beersConsumed.length;
-
-      for (let i = 0; i < nrOfBeersConsumed - nrOfBeersShown; i++) {
-        this.beersConsumed.push(1);
-      }
-    });
-  }
+  // One entry per fully consumed beer; the template only cares about the count.
+  readonly beersConsumed = computed(() => Array.from({length: Math.floor(this.beers())}));
 
 }

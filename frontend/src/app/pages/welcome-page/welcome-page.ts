@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal} from '@angular/core';
+import {Component, DestroyRef, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxMaskDirective} from 'ngx-mask';
 import {LobbyApi} from '../../services/apis/lobby-api.service';
@@ -13,7 +13,6 @@ import {finalize} from 'rxjs';
   templateUrl: './welcome-page.html',
   styleUrl: './welcome-page.scss',
   imports: [NgxMaskDirective, DotLoader],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WelcomePage {
 
