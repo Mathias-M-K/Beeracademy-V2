@@ -4,7 +4,7 @@
   @for (player of topThreePlayers(); track player.id){
       <div>
           <app-participant-badge
-            [initials]="player?.name?.substring(0,1)??''" size="s"
+            [initials]="player.name.substring(0,1)" size="s"
             [backgroundColor]="player.color"></app-participant-badge>
           <p>{{ player.name }}</p>
           <div class="podium-shape"><h2>{{$index+1}}</h2></div>

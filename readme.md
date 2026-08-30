@@ -39,3 +39,8 @@ in SonarQube as separate projects. We also use SonarQube plugins in Intellij to 
 ## Common
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Mathias-M-K/Beeracademy-V2?utm_source=oss&utm_medium=github&utm_campaign=Mathias-M-K%2FBeeracademy-V2&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 [![Build and Deploy](https://github.com/Mathias-M-K/Beeracademy-V2/actions/workflows/main.yml/badge.svg)](https://github.com/Mathias-M-K/Beeracademy-V2/actions/workflows/main.yml)
+
+## Knowledge vault (Obsidian + MCP)
+Architecture decisions, patterns, known issues and dead ends live in [`.obsidian/`](.obsidian/), served to
+Claude Code over MCP. New developers: follow [`.obsidian/SETUP.md`](.obsidian/SETUP.md) — it is the only way
+Claude can read the vault.

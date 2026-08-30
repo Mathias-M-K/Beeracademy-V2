@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'circle-loader',
   imports: [],
   templateUrl: './circle-loader.html',
   styleUrl: './circle-loader.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[style.--cl-track-color]': 'trackColor()',
     '[style.--cl-progress-color]': 'progressColor()',

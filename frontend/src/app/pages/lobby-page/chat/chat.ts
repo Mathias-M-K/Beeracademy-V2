@@ -16,7 +16,6 @@ import {sendEmojiAction} from '../../../services/models/categories/actions/lobby
   selector: 'app-chat',
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
-  standalone: true,
   imports: [
     Messages
   ]

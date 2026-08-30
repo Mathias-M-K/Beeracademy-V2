@@ -9,9 +9,11 @@ import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Slf4j
 @Path("/parties")
+@Tag(name = "Party API", description = "API endpoint fetching info about parties")
 public class PartyApi {
 
     @Inject

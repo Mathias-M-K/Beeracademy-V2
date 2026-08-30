@@ -32,12 +32,13 @@
 <div id="bottom">
   <div class="horizontal_line"></div>
   <div class="beer-rack">
-    @for (_ of beersConsumed; track $index) {
+    @for (_ of beersConsumed(); track $index) {
       <app-beer-bottle
         [color]="player().color"
         class="consumed-beer-container"
         [style.animation-delay.ms]="$index * 60"></app-beer-bottle>
     }
+
   </div>
 
 </div>

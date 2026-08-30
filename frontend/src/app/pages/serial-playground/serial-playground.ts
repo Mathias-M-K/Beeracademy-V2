@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -16,7 +15,6 @@ interface SerialInput {
   selector: 'app-serial-playground',
   templateUrl: './serial-playground.html',
   styleUrl: './serial-playground.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SerialPlayground {
 

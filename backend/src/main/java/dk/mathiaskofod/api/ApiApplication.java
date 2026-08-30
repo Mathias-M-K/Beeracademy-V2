@@ -15,6 +15,6 @@ import org.eclipse.microprofile.openapi.annotations.servers.Server;
                         description = "Backend API for Beeracademy application"),
         servers = {
             @Server(url = "http://localhost:8080", description = "DEV"),
-            @Server(url = "beeracademy.mathiaskofod.dk", description = "PROD")
+            @Server(url = "https://beeracademy.mathiaskofod.dk", description = "PROD")
         })
 public class ApiApplication extends Application {}

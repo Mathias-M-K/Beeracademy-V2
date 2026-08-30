@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   inject, OnDestroy,
@@ -26,8 +25,6 @@ import {PlayerGrid} from './player-grid/player-grid';
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:keyup.space)': 'drawCard()',
   },

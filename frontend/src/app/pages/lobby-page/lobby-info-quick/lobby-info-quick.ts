@@ -13,7 +13,6 @@ import {ToastService} from '../../../services/toast/toast.service';
     CdkCopyToClipboard,
     MaterialIcon
   ],
-  standalone: true
 })
 export class LobbyInfoQuick {
 
