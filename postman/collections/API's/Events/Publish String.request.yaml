@@ -1,0 +1,8 @@
+$kind: http-request
+name: Publish String
+url: "{{url}}/events/push-message"
+method: POST
+body:
+  type: text
+  content: "123123123"
+order: 2000

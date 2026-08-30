@@ -1,0 +1,23 @@
+$kind: http-request
+name: Lobby
+url: "{{url}}/lobbies?name=Test lobby 123"
+method: POST
+queryParams:
+  name: Test lobby 123
+scripts:
+  - type: afterResponse
+    code: "const partyId = pm.response.json().partyId;\r
+
+      pm.environment.set('partyId','value')\r
+
+      \r
+
+      pm.test('Response returned a 9 character partyId', ()=>{\r
+
+      \r
+
+      \    pm.response.to.have.status(202)\r
+
+      })"
+    language: text/javascript
+order: 1788107361275

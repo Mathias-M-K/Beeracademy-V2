@@ -1,0 +1,6 @@
+name: DEV
+values:
+  - key: url
+    value: 'http://localhost:8080/api'
+  - key: partyId
+    value: ''

@@ -7,27 +7,6 @@ meta:
   modified: 1788015885258
   description: ""
 collection:
-  - url: ""
-    name: New Event Stream
-    meta:
-      id: req_4f5b3c25b9974cba9c13779fa38132d5
-      created: 1788098776040
-      modified: 1788098805036
-      isPrivate: false
-      description: ""
-      sortKey: -1788098776040
-    method: GET
-    headers:
-      - name: Accept
-        value: text/event-stream
-    settings:
-      renderRequestBody: true
-      encodeUrl: true
-      followRedirects: global
-      cookies:
-        send: true
-        store: true
-      rebuildPath: true
   - name: Ping
     meta:
       id: fld_912387d1f93d489babaf0e5ed791ea8c
@@ -95,7 +74,7 @@ collection:
         meta:
           id: req_1d89dad47cad47fb933f01b92677da33
           created: 1788016633539
-          modified: 1788017172865
+          modified: 1788109004743
           isPrivate: false
           description: ""
           sortKey: -1788016633539
@@ -141,6 +120,59 @@ collection:
             value: "{{ _.partyId }}"
     environment:
       resource-url: /lobbies
+  - name: Test
+    meta:
+      id: fld_dd4d5f32d6194c2aaa2f6b58d215993f
+      created: 1788104865872
+      modified: 1788104865872
+      sortKey: -1788104865872
+      description: ""
+    children:
+      - url: "{{ _.url }}/test"
+        name: New Event Stream
+        meta:
+          id: req_4f5b3c25b9974cba9c13779fa38132d5
+          created: 1788098776040
+          modified: 1788105375955
+          isPrivate: false
+          description: ""
+          sortKey: -1788104869318
+        method: GET
+        headers:
+          - name: Accept
+            value: text/event-stream
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.url }}/test/push-message"
+        name: New Request
+        meta:
+          id: req_8bb19c7fbc8f4f09aacddc323828de17
+          created: 1788104871852
+          modified: 1788105413666
+          isPrivate: false
+          description: ""
+          sortKey: -1788104871852
+        method: POST
+        body:
+          mimeType: text/plain
+          text: Heyo
+        headers:
+          - name: Content-Type
+            value: text/plain
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:

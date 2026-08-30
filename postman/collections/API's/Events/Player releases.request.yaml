@@ -1,0 +1,10 @@
+$kind: http-request
+name: Player releases
+url: "{{url}}/events/player-releases?player-id=123123123"
+method: GET
+queryParams:
+  player-id: "123123123"
+body:
+  type: text
+  content: Hejsa
+order: 1000
