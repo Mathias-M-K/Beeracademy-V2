@@ -4,12 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Vault (Persistent Memory)
 
-A persistent knowledge vault is available via the `mcp-tools-istefox` MCP server
+A persistent knowledge vault is available via the `obsidian` MCP server
 (HTTP, `http://127.0.0.1:27200/mcp`). It talks to a **running Obsidian instance**, so the
-tools only work while Obsidian is open — if calls fail, check that first, then fall back to
-reading the vault as plain markdown on disk.
+tools only work while Obsidian is open — if calls fail, check that first, and reconnect the
+MCP server (`/mcp`) before giving up.
 
-Vault root: `C:\Users\mathi\Documents\vaults\obsidian_vault`
+**The MCP server is the only way to reach the vault.** There is no filesystem fallback: do
+not go looking for the vault on disk or read it as plain markdown. If the MCP tools are
+unreachable, say so instead of guessing at a location.
+
+The server is **per developer machine**, not shared infrastructure. `.obsidian/.obsidian/`
+is gitignored, so a fresh clone has the notes but no plugin, no token, and no working MCP
+server until that developer installs Obsidian, installs the MCP Connector plugin from the
+community browser, generates their own bearer token, and registers it in `~/.claude.json`.
+That is documented in `.obsidian/SETUP.md` at the repo root — point new developers there.
 
 Useful tools beyond plain file CRUD: `get_vault_overview` (one-call situational snapshot),
 `search_vault_smart`, `get_backlinks` / `get_outgoing_links`, `get_vault_file_partial`,

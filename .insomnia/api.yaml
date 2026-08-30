@@ -7,6 +7,27 @@ meta:
   modified: 1788015885258
   description: ""
 collection:
+  - url: ""
+    name: New Event Stream
+    meta:
+      id: req_4f5b3c25b9974cba9c13779fa38132d5
+      created: 1788098776040
+      modified: 1788098805036
+      isPrivate: false
+      description: ""
+      sortKey: -1788098776040
+    method: GET
+    headers:
+      - name: Accept
+        value: text/event-stream
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
   - name: Ping
     meta:
       id: fld_912387d1f93d489babaf0e5ed791ea8c

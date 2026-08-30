@@ -55,3 +55,22 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## Local Development
+
+```bash
+npm start           # dev server against the real backend on localhost:8080
+npm run start:mock  # dev server against the Insomnia mockbin server on localhost:9080
+```
+
+The backend URL is **not** compiled into the bundle. `src/main.ts` fetches `/config.json`
+before `bootstrapApplication` and parks it on `window.APP_CONFIG`; `ConfigService` is the
+only reader. Which file lands at `/config.json` is decided by the `assets` array of the
+active `angular.json` build configuration — `public/config.json` normally,
+`public/mock/config.json` under `mock`. In production the container entrypoint rewrites it
+from the `API_URL` env var.
+
+Do not add `environment.ts` files or `fileReplacements`: the URL is runtime config by
+design, so one image runs in every environment. `npm run start:mock` needs the mock server
+up (`docker compose -f .insomnia/mock-server.yaml up -d`) and covers REST only — no
+websockets, and credentialed endpoints fail CORS.

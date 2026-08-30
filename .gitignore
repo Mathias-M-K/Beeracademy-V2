@@ -1,4 +1,2 @@
 .idea/
-# Obsidian plugin state — holds the MCP bearer token in plain text.
-# Each dev generates their own; see .obsidian/SETUP.md step 3.
-.obsidian/.obsidian/plugins/*/data.json
+.obsidian/.obsidian/
