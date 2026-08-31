@@ -1,9 +1,10 @@
 $kind: http-request
-name: Player releases
-url: "{{url}}/events/player-releases?player-id=123123123"
+url: "{{url}}/events/player-releases/:participantId"
 method: GET
-queryParams:
-  player-id: "123123123"
+pathVariables:
+  - key: participantId
+    value: "123"
+    description: ""
 body:
   type: text
   content: Hejsa

@@ -1,5 +1,6 @@
 package dk.mathiaskofod.providers.loggers;
 
+import dk.mathiaskofod.helpers.CorrIdHelper;
 import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -9,7 +10,6 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 
 @Slf4j
 @Provider
@@ -18,15 +18,13 @@ public class RestClientLogger implements ContainerRequestFilter, ContainerRespon
     @Inject
     RequestTimer timer;
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
-
     @Override
     public void filter(ContainerRequestContext requestContext) {
 
-        Optional<String> correlationId = Optional.ofNullable(requestContext.getHeaderString(CORRELATION_ID_HEADER));
+        Optional<String> downstreamCorrId = Optional.ofNullable(requestContext.getHeaderString(CorrIdHelper.CORRELATION_ID_HEADER));
+        String corrID = downstreamCorrId.orElse(IdGenerator.generateCorrelationId());
 
-        MDC.put(CORRELATION_ID_HEADER, correlationId.orElse(IdGenerator.generateCorrelationId()));
+        CorrIdHelper.setCorrId(corrID);
         timer.startTime();
 
         String method = requestContext.getMethod();
@@ -45,6 +43,6 @@ public class RestClientLogger implements ContainerRequestFilter, ContainerRespon
         int elapsedTime = timer.getResponseTime();
         log.info("Response: {} {}, Status: {}, duration: {}ms", method, uri, status, elapsedTime);
 
-        MDC.remove(CORRELATION_ID_HEADER);
+        CorrIdHelper.removeCorrId();
     }
 }

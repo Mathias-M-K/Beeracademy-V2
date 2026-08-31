@@ -1,8 +1,11 @@
 $kind: http-request
-name: Publish String
-url: "{{url}}/events/push-message"
+url: "{{url}}/events/push-message/:player-id"
 method: POST
+pathVariables:
+  - key: player-id
+    value: "123123123123"
+    description: ""
 body:
   type: text
-  content: "123123123"
+  content: ""
 order: 2000
