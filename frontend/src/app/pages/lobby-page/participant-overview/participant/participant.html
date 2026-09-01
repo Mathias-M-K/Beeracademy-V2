@@ -35,10 +35,10 @@
 
 <div class="btn-row">
   @if (inLineEditing()) {
-    <button class="btn-tertiary btn-icon animated-icon-btn" (click)="editSettings.emit(participant())">
+    <button class="btn-secondary-outlined btn-icon animated-icon-btn" (click)="editSettings.emit(participant())">
       <material-icon class="settings-icon" icon="settings" [weight]="300"></material-icon>
     </button>
-    <button class="btn-tertiary btn-icon animated-icon-btn" (click)="remove.emit(participant().id!)">
+    <button class="btn-secondary-outlined btn-icon animated-icon-btn" (click)="remove.emit(participant().id!)">
       <material-icon icon="person_remove" [weight]="300"></material-icon>
     </button>
     @if (!compact()) {

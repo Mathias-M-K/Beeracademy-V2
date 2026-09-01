@@ -4,10 +4,10 @@
 <h2 style="grid-area: id">{{ partyId() | mask : 'AAA-AAA-AAA' }}</h2>
 
 <div class="buttons" style="grid-area: copy-btn">
-  <button class="btn-tertiary btn-icon" (click)="qrBtnClick.emit()">
+  <button class="btn-secondary-outlined btn-icon" (click)="qrBtnClick.emit()">
     <material-icon icon="qr_code"></material-icon>
   </button>
-  <button class="btn-tertiary btn-icon" [cdkCopyToClipboard]="lobbyJoinLink()" (cdkCopyToClipboardCopied)="onJoinLinkCopied($event)">
+  <button class="btn-secondary-outlined btn-icon" [cdkCopyToClipboard]="lobbyJoinLink()" (cdkCopyToClipboardCopied)="onJoinLinkCopied($event)">
     <material-icon icon="content_copy"></material-icon>
   </button>
 </div>

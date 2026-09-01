@@ -1,11 +1,18 @@
-
-
 @let isClaimed = participant().session.isClaimed;
-@let lockIcon = isClaimed ? 'lock' : 'lock_open';
-<p [class.locked]="isClaimed">{{participant().name}}</p>
-<material-icon [class.locked]="isClaimed" [icon]="lockIcon"></material-icon>
-
 @let isConnected = participant().session.isConnected;
-@let connectedIcon = isConnected ? 'wifi' : 'wifi_off';
-<material-icon [class.connected]="isConnected" [class.disconnected]="isClaimed && !isConnected" [icon]="connectedIcon"></material-icon>
 
+<div class="dot"></div>
+
+<div>
+  <h4 style="margin: 0">{{ participant().name }}</h4>
+  <p>{{ statusText() }}</p>
+</div>
+
+
+@if (!isConnected) {
+  @let btnText = isClaimed ? 'Anmod' : 'Deltag';
+  <button
+    (click)="isClaimed ? requestRelease.emit(participant()) : connect.emit(participant())"
+    [class.btn-primary-outlined]="isClaimed"
+    [class.btn-secondary]="!isClaimed">{{ btnText }}</button>
+}

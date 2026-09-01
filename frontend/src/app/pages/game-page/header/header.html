@@ -9,13 +9,13 @@
 
   <div [style.grid-area]="'time-btn'">
     @if (timerState() === TimerState.Paused) {
-      <button class="btn-tertiary btn-icon" (click)="resumeClick.emit()">
+      <button class="btn-secondary-outlined btn-icon" (click)="resumeClick.emit()">
         <material-icon icon="play_arrow"></material-icon>
       </button>
     } @else if (timerState() === TimerState.NotStarted) {
       <button (click)="startClick.emit()">Start!</button>
     } @else {
-      <button class="btn-tertiary btn-icon" (click)="pauseClick.emit()">
+      <button class="btn-secondary-outlined btn-icon" (click)="pauseClick.emit()">
         <material-icon icon="pause"></material-icon>
       </button>
     }

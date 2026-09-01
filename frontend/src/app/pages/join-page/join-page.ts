@@ -69,16 +69,15 @@ export class JoinPage {
       })
   }
 
-  protected getGamePlayerToken() {
+  protected connectAsParticipant(participant: PartyParticipantDto) {
 
-    const selectedParticipant = this.selectedParticipant();
-    if(!selectedParticipant) return;
+    if (!participant) return;
 
     this.joining.set(true);
 
-    this.gameApi.getGamePlayerToken(this.partyInfo().id, selectedParticipant.id).pipe(
+    this.gameApi.getGamePlayerToken(this.partyInfo().id, participant.id).pipe(
       takeUntilDestroyed(this.destroyRef),
-      finalize(()=>this.joining.set(false)),
+      finalize(() => this.joining.set(false)),
       timeout({each: 8000})
     ).subscribe({
       next: () => this.router.navigate(['/game']),
@@ -86,14 +85,10 @@ export class JoinPage {
     })
   }
 
-
-  protected onParticipantSelected(participant: PartyParticipantDto) {
-    if (this.selectedParticipant() === participant) {
-      this.selectedParticipant.set(undefined);
-    } else {
-      this.selectedParticipant.set(participant);
-    }
+  protected requestRelease(participant: PartyParticipantDto) {
+    console.log("Requesting release");
   }
+
 
   protected readonly PartyState = PartyState;
 }

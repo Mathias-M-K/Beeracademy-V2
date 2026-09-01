@@ -35,18 +35,9 @@
     <div class="players">
       @for (participant of participants(); track participant.id) {
         <app-existing-participant
-          (keydown)="onParticipantSelected(participant)"
-          (click)="onParticipantSelected(participant)"
           [participant]="participant"
-          [isSelected]="participant === selectedParticipant()"></app-existing-participant>
+          (connect)="connectAsParticipant($event)" (requestRelease)="requestRelease($event)"></app-existing-participant>
       }
-      <button (click)="getGamePlayerToken()" [disabled]="!selectedParticipant()!!">
-        @if (joining()) {
-          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
-        } @else {
-          Deltag
-        }
-      </button>
     </div>
   }
 

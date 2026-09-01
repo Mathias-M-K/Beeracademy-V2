@@ -1,58 +1,57 @@
-:host{
+:host {
   display: grid;
 
   width: 100%;
-  padding: 0 10px;
+  padding: 10px;
 
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   gap: 10px;
 
-  border-radius: 5px;
-  border: 1px solid var(--color-cloud);
+  align-items: center;
+
+  border-radius: 15px;
+  border: 1px solid var(--color-grey-500);
 
   background-color: var(--color-white);
 
   transition: transform .1s ease-out;
-
-  user-select: none;
-  pointer-events: none;
 }
 
-:host(.selectable){
-  pointer-events: unset;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+:host(.isReserved){
+  background-color: color-mix(in oklab, var(--primary), white 95%);
+  border-color: var(--primary);
 }
 
-:host(.selectable):hover{
-  cursor: pointer;
-  transform: translate(5px, 0px);
+:host(.isReserved) .dot{
+  background-color: var(--primary-hover);
 }
-:host(.selectable):active{
-  cursor: pointer;
-  transform: translate(20px, 0px);
+:host(.isFree) .dot{
+  background-color: var(--color-grey-500);
+}
+.dot {
+  $radius: 8px;
+  width: $radius;
+  height: $radius;
+  background-color: #2ecc71;
+
+  border-radius: 50%;
 }
 
-:host(.selected){
-  border-color: var(--color-coffie-400);
-  background-color: var(--color-coffie-400);
-}
-
-p, material-icon{
-  letter-spacing: 2px;
+h3{
   font-weight: 500;
-  color: var(--color-slate-700);
 }
 
-.locked{
+p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--color-grey-600);
 }
 
-.connected{
-  color: var(--color-emerald-600);
+button{
+  height: unset;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.1px;
 }
-
-.disconnected{
-  color: var(--color-alizarin-600);
-}
-
 
