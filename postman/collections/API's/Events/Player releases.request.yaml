@@ -1,8 +1,8 @@
 $kind: http-request
-url: "{{url}}/events/player-releases/:participantId"
+url: "{{url}}/events/player-releases/:partyId"
 method: GET
 pathVariables:
-  - key: participantId
+  - key: partyId
     value: "123"
     description: ""
 body:

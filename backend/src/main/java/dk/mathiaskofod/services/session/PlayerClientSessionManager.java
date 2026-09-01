@@ -1,8 +1,10 @@
 package dk.mathiaskofod.services.session;
 
+import dk.mathiaskofod.services.event.publisher.SseEventPublisher;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.event.publisher.models.ConnectionEvent;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.actions.game.player.PlayerClientAction;
@@ -17,11 +19,15 @@ import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class PlayerClientSessionManager extends AbstractGameSessionManager {
+
+    @Inject
+    SseEventPublisher sseEventPublisher;
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
@@ -40,6 +46,8 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
         provideGameSnapshotToClient(tokenInfo, PlayerClientEventEnvelope::new);
         provideIdentityToClient(tokenInfo, PlayerClientEventEnvelope::new);
+
+        sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.CONNECTED);
 
         log.info(
                 "Websocket Connection: Type:New player connection, PlayerID:{}, PartyID:{}, WebsocketConnID:{}",
@@ -69,6 +77,7 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
         PlayerDisconnectedEvent event = new PlayerDisconnectedEvent(playerId, partyId);
         broadcastToParty(partyId, new PlayerClientEventEnvelope(event));
 
+        sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.DISCONNECTED);
         log.info("Player disconnected! PlayerID:{}, PartyID:{}, WebsocketConnID:{}", playerId, partyId, "");
     }
 
