@@ -1,6 +1,6 @@
 package dk.mathiaskofod.services.session.repository;
 
-import dk.mathiaskofod.services.session.exceptions.SessionAlreadyConnectedException;
+import dk.mathiaskofod.services.session.exceptions.SessionConnectedException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.SessionStateException;
 import io.quarkus.redis.datasource.RedisDataSource;
@@ -61,7 +61,7 @@ public class SessionRegistry {
                             .orElseThrow(() -> new SessionNotFoundException(sessionId)),
                     (session, tx) -> {
                         if (session.isConnected()) {
-                            throw new SessionAlreadyConnectedException(sessionId);
+                            throw new SessionConnectedException(sessionId);
                         }
                         session.setConnectionId(connectionId);
                         tx.value(Session.class).set(sessionCacheId, session);

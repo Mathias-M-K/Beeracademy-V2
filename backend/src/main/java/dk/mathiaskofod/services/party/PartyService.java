@@ -65,6 +65,13 @@ public class PartyService {
         throw new PartyNotFoundException(partyId);
     }
 
+    public boolean isParticipantMemberOfParty(String partyId, String participantId){
+        Game game = gameService.getGame(partyId);
+
+        return game.getPlayers().stream()
+                .anyMatch(player -> player.id().equals(participantId));
+    }
+
     private PartyParticipantDto createPartyParticipantDto(PartyParticipant participant){
 
         SessionDto sessionDto = sessionRegistry.getSession(participant.id())

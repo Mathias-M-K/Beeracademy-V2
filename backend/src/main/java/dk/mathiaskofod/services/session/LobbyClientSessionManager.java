@@ -19,7 +19,7 @@ import dk.mathiaskofod.services.session.events.lobby.client.ParticipantsRearrang
 import dk.mathiaskofod.services.session.events.lobby.common.EmojiSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.MessageSentEvent;
 import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantEvent;
-import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayerException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
@@ -115,7 +115,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
             case UpdateSettingsAction updateSettingsAction -> {
                 String participantId = updateSettingsAction
                         .getBehalfOf()
-                        .orElseThrow(() -> new CannotIdentifyPlayer(
+                        .orElseThrow(() -> new CannotIdentifyPlayerException(
                                 "No participantId was provided when attempting to change settings", 400));
 
                 applyAndBroadcastSettings(partyId, participantId, updateSettingsAction);

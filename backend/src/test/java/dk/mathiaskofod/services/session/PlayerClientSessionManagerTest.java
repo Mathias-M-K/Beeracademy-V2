@@ -14,6 +14,7 @@ import dk.mathiaskofod.domain.game.Game;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.event.publisher.SseEventPublisher;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.lobby.LobbyService;
@@ -61,6 +62,9 @@ class PlayerClientSessionManagerTest {
     GameSessionService gameSessionService;
 
     @Mock
+    SseEventPublisher sseEventPublisher;
+
+    @Mock
     TokenInfo tokenInfo;
 
     PlayerClientSessionManager sessionManager;
@@ -78,6 +82,7 @@ class PlayerClientSessionManagerTest {
         sessionManager.lobbyService = lobbyService;
         sessionManager.connections = connections;
         sessionManager.gameSessionService = gameSessionService;
+        sessionManager.sseEventPublisher = sseEventPublisher;
     }
 
     private void mockActiveWebsocketConnection(String sessionId) {
@@ -224,7 +229,7 @@ class PlayerClientSessionManagerTest {
             when(sessionRegistry.getSession(PLAYER_ID)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThrows(SessionNotFoundException.class, () -> sessionManager.relinquishPlayer(PARTY_ID, PLAYER_ID));
+            assertThrows(SessionNotFoundException.class, () -> sessionManager.kickAndReleasePlayer(PARTY_ID, PLAYER_ID));
         }
 
         @DisplayName("relinquishPlayer closes connection, removes session, and broadcasts event")
@@ -235,7 +240,7 @@ class PlayerClientSessionManagerTest {
             WebSocketConnection gameClientConnection = mockConnectedGameClient();
 
             // Act
-            sessionManager.relinquishPlayer(PARTY_ID, PLAYER_ID);
+            sessionManager.kickAndReleasePlayer(PARTY_ID, PLAYER_ID);
 
             // Assert
             verify(sessionRegistry).removeSession(PLAYER_ID);

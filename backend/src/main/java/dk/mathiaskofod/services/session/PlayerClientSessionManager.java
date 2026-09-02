@@ -1,6 +1,5 @@
 package dk.mathiaskofod.services.session;
 
-import dk.mathiaskofod.services.event.publisher.SseEventPublisher;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
@@ -19,15 +18,11 @@ import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class PlayerClientSessionManager extends AbstractGameSessionManager {
-
-    @Inject
-    SseEventPublisher sseEventPublisher;
 
     public void onNewConnection(String websocketConnectionId, TokenInfo tokenInfo) {
 
@@ -63,14 +58,8 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
         sessionRegistry.clearConnectionId(playerId);
 
-        // The game session can already be gone — e.g. the connection was rejected with GAME_NOT_FOUND, which
-        // closes the socket and lands us here. There is nobody left to notify, so clearing the connection
-        // above is all the cleanup there is; broadcasting would just throw GameNotFoundException a second time.
         if (sessionRegistry.getSession(partyId).isEmpty()) {
-            log.info(
-                    "Player disconnected from a game session that no longer exists. PlayerID:{}, PartyID:{}",
-                    playerId,
-                    partyId);
+            log.info("Player disconnected from a game session that no longer exists. PlayerID:{}, PartyID:{}", playerId, partyId);
             return;
         }
 
@@ -79,25 +68,6 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
         sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.DISCONNECTED);
         log.info("Player disconnected! PlayerID:{}, PartyID:{}, WebsocketConnID:{}", playerId, partyId, "");
-    }
-
-    public void relinquishPlayer(String partyId, String playerId) {
-
-        if (sessionRegistry.getSession(playerId).isEmpty()) {
-            throw new SessionNotFoundException(playerId);
-        }
-
-        log.info(
-                "Player relinquished! PlayerID:{}, PartyID:{}, WebsocketConnID:{}",
-                playerId,
-                partyId,
-                getConnectionId(playerId));
-
-        closeConnection(playerId);
-        sessionRegistry.removeSession(playerId);
-
-        PlayerRelinquishedEvent event = new PlayerRelinquishedEvent(playerId, partyId);
-        broadcastToParty(partyId, new PlayerClientEventEnvelope(event));
     }
 
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
@@ -111,7 +81,7 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
 
         switch (payload) {
             case DrawCardAction(long duration) -> onDrawCardAction(duration, partyId, playerId);
-            case RelinquishPlayerAction() -> relinquishPlayer(partyId, playerId);
+            case RelinquishPlayerAction() -> kickAndReleasePlayer(partyId, playerId);
             default ->
                 throw new BaseException(
                         String.format(
@@ -128,5 +98,20 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
             throw new GameException("It's not your turn!", 400);
         }
         gameService.drawCard(durationInMillis, partyId);
+    }
+
+    public void kickAndReleasePlayer(String partyId, String playerId) {
+
+        if (sessionRegistry.getSession(playerId).isEmpty()) {
+            throw new SessionNotFoundException(playerId);
+        }
+
+        closeConnection(playerId);
+        sessionRegistry.removeSession(playerId);
+
+        sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.RELEASED);
+        log.info("Player disconnected and released! PlayerID:{}, PartyID:{}", playerId, partyId);
+        PlayerRelinquishedEvent event = new PlayerRelinquishedEvent(playerId, partyId);
+        broadcastToParty(partyId, new PlayerClientEventEnvelope(event));
     }
 }

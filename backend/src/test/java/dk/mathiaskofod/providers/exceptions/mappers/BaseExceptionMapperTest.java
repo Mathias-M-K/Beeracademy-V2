@@ -1,7 +1,6 @@
 package dk.mathiaskofod.providers.exceptions.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.services.party.exceptions.PartyNotFoundException;
@@ -76,14 +75,14 @@ class BaseExceptionMapperTest {
         assertEquals("corr-123", ((ExceptionResponse) response.getEntity()).corrId());
     }
 
-    @DisplayName("The correlation id is null when MDC holds none")
+    @DisplayName("The correlation id is empty when MDC holds none")
     @Test
-    void correlationIdIsNullWhenMdcHoldsNone() {
+    void correlationIdIsEmptyWhenMdcHoldsNone() {
 
         // Act
         Response response = mapper.toResponse(new PartyNotFoundException("123456789"));
 
         // Assert
-        assertNull(((ExceptionResponse) response.getEntity()).corrId());
+        assertEquals("", ((ExceptionResponse) response.getEntity()).corrId());
     }
 }

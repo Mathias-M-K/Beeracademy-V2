@@ -48,7 +48,7 @@ public class SseEventStream {
     @APIResponse(
             responseCode = "400",
             description = "The partyId path parameter is missing or is not a 9-character alphanumeric party ID.")
-    public Multi<OutboundSseEvent> streamPlayerReleases(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public Multi<OutboundSseEvent> streamPlayerReleases(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return sseEventPublisher.playerConnectionEventStream(partyIdDto.partyId()).map(this::toSseEvent);
     }
 

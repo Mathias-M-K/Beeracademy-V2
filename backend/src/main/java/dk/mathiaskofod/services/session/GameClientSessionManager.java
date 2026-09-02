@@ -9,12 +9,12 @@ import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
 import dk.mathiaskofod.services.session.events.game.game.*;
 import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
-import dk.mathiaskofod.services.session.exceptions.UnknownActionException;
-import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
-import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
+import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleaseRequestedEvent;
+import dk.mathiaskofod.services.session.exceptions.*;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -53,7 +53,6 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
         log.info("Game client disconnected. PartyID:{}", partyId);
     }
 
-
     public void onMessage(TokenInfo tokenInfo, WebsocketEnvelope<?> envelope) {
 
         if (!(envelope instanceof GameClientActionEnvelope(GameClientAction action))) {
@@ -68,8 +67,38 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
             case ResumeGameAction() -> gameService.resumeGame(partyId);
             case DrawCardAction(long duration) -> gameService.drawCard(duration, partyId);
             case RegisterChugAction(Chug chug) -> gameService.registerChug(chug, partyId);
+            case ReleasePlayerAction(String playerId) -> releasePlayer(partyId, playerId, GameClientEventEnvelope::new);
             default -> throw new UnknownActionException(action.getClass().getSimpleName(), 500);
         }
+    }
+
+    public void requestParticipantRelease(String partyId, String participantId) {
+
+        if (!partyService.isParticipantMemberOfParty(partyId, participantId)) {
+            throw new PartyMemberNotFoundException(partyId, participantId);
+        }
+
+        boolean isPartyLeaderConnected = sessionRegistry.getSession(partyId)
+                .orElseThrow(() -> new SessionNotFoundException(partyId))
+                .isConnected();
+
+        if (!isPartyLeaderConnected) {
+            throw new NoPartyLeaderConnectedException("No party leader is connected to approve the request", Response.Status.CONFLICT);
+        }
+
+        boolean isPlayerConnected = sessionRegistry.getSession(participantId)
+                .orElseThrow(() -> new SessionNotFoundException(participantId))
+                .isConnected();
+
+        if (isPlayerConnected) {
+            throw new SessionConnectedException(participantId);
+        }
+
+        broadcastToPartyLeader(partyId, new GameClientEventEnvelope(new PlayerReleaseRequestedEvent(participantId)));
+    }
+
+    private void broadcastToPartyLeader(String partyId, WebsocketEnvelope<?> envelope) {
+        sendMessage(partyId, envelope);
     }
 
     /**

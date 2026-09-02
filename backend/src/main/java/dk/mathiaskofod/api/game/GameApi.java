@@ -1,6 +1,7 @@
 package dk.mathiaskofod.api.game;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
+import dk.mathiaskofod.common.dto.participant.ParticipantIdDto;
 import dk.mathiaskofod.common.dto.party.PartyIdDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.domain.game.player.Player;
@@ -12,6 +13,7 @@ import dk.mathiaskofod.services.auth.SessionCookieFactory;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
+import dk.mathiaskofod.services.session.GameClientSessionManager;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -20,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -28,6 +31,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+@Slf4j
 @Path("/games")
 @Tag(name = "Game API", description = "API for managing games")
 public class GameApi {
@@ -44,10 +48,13 @@ public class GameApi {
     @Inject
     SessionCookieFactory sessionCookieFactory;
 
+    @Inject
+    GameClientSessionManager gameClientSessionManager;
+
     @GET
     @Path("/{partyId}")
     @Operation(summary = "Get game", description = "Retrieves the details of a specific game by its ID")
-    public GameDto getGame(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public GameDto getGame(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return gameSessionService.getGameView(partyIdDto.partyId());
     }
 
@@ -66,7 +73,7 @@ public class GameApi {
                             schema = @Schema(type = SchemaType.STRING))
             },
             content = @Content(schema = @Schema(hidden = true)))
-    public Response claimGame(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public Response claimGame(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
 
         String partyId = partyIdDto.partyId();
 
@@ -85,14 +92,14 @@ public class GameApi {
     @GET
     @Path("/{partyId}/players")
     @Operation(summary = "Get players in game", description = "Retrieves the list of players in a specific game")
-    public List<PlayerDto> getPlayersInGame(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public List<PlayerDto> getPlayersInGame(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return gameSessionService.getPlayerViews(partyIdDto.partyId());
     }
 
     @GET
-    @Path("/{partyId}/players/{playerId}/claim")
+    @Path("/{partyId}/players/{participantId}/claim")
     @Operation(summary = "Claim player", description = "Claims a player session and returns an cookie with jwt")
-    public Response claimPlayer(@Valid @BeanParam PartyIdDto partyIdDto, @PathParam("playerId") String playerId) {
+    public Response claimPlayer(@Valid @PathParam("partyId") PartyIdDto partyIdDto, @PathParam("participantId") String playerId) {
 
         String partyId = partyIdDto.partyId();
         Player player = gameSessionService.claimPlayer(partyId, playerId);
@@ -103,11 +110,22 @@ public class GameApi {
     }
 
     @GET
+    @Path("/{partyId}/players/{participantId}/request-release")
+    @Operation(summary = "Requests release of participant",
+            description = "Sends a request to current party leader, requesting the release of a given player")
+    public void requestPlayerRelease(
+            @Valid @PathParam("partyId") PartyIdDto partyIdDto,
+            @Valid @PathParam("participantId") ParticipantIdDto participantIdDto
+    ) {
+        gameClientSessionManager.requestParticipantRelease(partyIdDto.partyId(),participantIdDto.id());
+    }
+
+    @GET
     @Path("/{partyId}/reports/game")
     @Operation(
             summary = "Get end of game report for game, players and time",
             description = "Retrieves the end of game report for a specific game")
-    public GameReport getGameReport(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public GameReport getGameReport(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return gameService.getGameReport(partyIdDto.partyId());
     }
 
@@ -116,7 +134,7 @@ public class GameApi {
     @Operation(
             summary = "Get end of game report for game, players and time",
             description = "Retrieves the end of game report for a specific game")
-    public List<PlayerReport> getPlayerReport(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public List<PlayerReport> getPlayerReport(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return gameService.getPlayerReports(partyIdDto.partyId());
     }
 
@@ -125,7 +143,7 @@ public class GameApi {
     @Operation(
             summary = "Get end of game report for game, players and time",
             description = "Retrieves the end of game report for a specific game")
-    public TimerReports getTimeReport(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public TimerReports getTimeReport(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return gameService.getTimeReport(partyIdDto.partyId());
     }
 }

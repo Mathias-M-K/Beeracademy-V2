@@ -7,7 +7,7 @@ import dk.mathiaskofod.services.lobby.exceptions.LobbyNotEmptyException;
 import dk.mathiaskofod.services.lobby.models.Lobby;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.lobby.repository.LobbyRepository;
-import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayerException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -107,7 +107,7 @@ public class LobbyService {
     public void changeParticipantPosition(String partyId, String participantId, int newPosition) {
         getLobby(partyId)
                 .getParticipant(participantId)
-                .orElseThrow(() -> new CannotIdentifyPlayer(
+                .orElseThrow(() -> new CannotIdentifyPlayerException(
                         "Participant ID: " + participantId + ", didn't match any participants", 400))
                 .setPosition(newPosition);
     }

@@ -1,12 +1,15 @@
 package dk.mathiaskofod.services.session;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
@@ -29,6 +32,7 @@ import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.lobby.LobbyService;
+import dk.mathiaskofod.services.party.PartyService;
 import dk.mathiaskofod.services.session.actions.game.client.EndGameAction;
 import dk.mathiaskofod.services.session.actions.game.client.PauseGameAction;
 import dk.mathiaskofod.services.session.actions.game.client.RegisterChugAction;
@@ -41,6 +45,9 @@ import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.common.Handshake;
 import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
 import dk.mathiaskofod.services.session.events.game.gameclient.GameClientEvent;
+import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleaseRequestedEvent;
+import dk.mathiaskofod.services.session.exceptions.PartyMemberNotFoundException;
+import dk.mathiaskofod.services.session.exceptions.SessionConnectedException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
@@ -74,6 +81,9 @@ class GameClientSessionManagerTest {
     GameSessionService gameSessionService;
 
     @Mock
+    PartyService partyService;
+
+    @Mock
     OpenConnections connections;
 
     @Mock
@@ -82,6 +92,7 @@ class GameClientSessionManagerTest {
     GameClientSessionManager sessionManager;
 
     private static final String PARTY_ID = "game-123";
+    private static final String PARTICIPANT_ID = "participant-789";
     private static final String CONN_ID = "websocket-conn-456";
 
     @BeforeEach
@@ -91,6 +102,7 @@ class GameClientSessionManagerTest {
         sessionManager.gameService = gameService;
         sessionManager.lobbyService = lobbyService;
         sessionManager.gameSessionService = gameSessionService;
+        sessionManager.partyService = partyService;
         sessionManager.connections = connections;
     }
 
@@ -291,6 +303,75 @@ class GameClientSessionManagerTest {
 
             // Assert
             verify(gameService).registerChug(chug, PARTY_ID);
+        }
+    }
+
+    @Nested
+    @DisplayName("Player Release Request Tests")
+    class PlayerReleaseRequests {
+
+        @DisplayName("requestPlayerRelease rejects a participant that belongs to another party")
+        @Test
+        void rejectsParticipantFromAnotherParty() {
+            // Arrange
+            when(partyService.isParticipantMemberOfParty(PARTY_ID, PARTICIPANT_ID)).thenReturn(false);
+
+            // Act & Assert
+            assertThrows(
+                    PartyMemberNotFoundException.class,
+                    () -> sessionManager.requestParticipantRelease(PARTY_ID, PARTICIPANT_ID));
+            verifyNoInteractions(connections);
+        }
+
+        @DisplayName("requestPlayerRelease rejects a participant that still holds an active connection")
+        @Test
+        void rejectsConnectedParticipant() {
+            // Arrange
+            when(partyService.isParticipantMemberOfParty(PARTY_ID, PARTICIPANT_ID)).thenReturn(true);
+
+            Session partyLeaderSession = mock(Session.class);
+            when(partyLeaderSession.isConnected()).thenReturn(true);
+            when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.of(partyLeaderSession));
+
+            Session participantSession = mock(Session.class);
+            when(participantSession.isConnected()).thenReturn(true);
+            when(sessionRegistry.getSession(PARTICIPANT_ID)).thenReturn(Optional.of(participantSession));
+
+            // Act & Assert
+            assertThrows(
+                    SessionConnectedException.class,
+                    () -> sessionManager.requestParticipantRelease(PARTY_ID, PARTICIPANT_ID));
+            verifyNoInteractions(connections);
+        }
+
+        @DisplayName("requestPlayerRelease forwards the request to the party leader only")
+        @Test
+        void forwardsRequestToPartyLeader() {
+            // Arrange
+            when(partyService.isParticipantMemberOfParty(PARTY_ID, PARTICIPANT_ID)).thenReturn(true);
+
+            Session partyLeaderSession = mock(Session.class);
+            when(partyLeaderSession.isConnected()).thenReturn(true);
+            when(partyLeaderSession.getConnectionId()).thenReturn(Optional.of(CONN_ID));
+            when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.of(partyLeaderSession));
+
+            Session participantSession = mock(Session.class);
+            when(participantSession.isConnected()).thenReturn(false);
+            when(sessionRegistry.getSession(PARTICIPANT_ID)).thenReturn(Optional.of(participantSession));
+
+            WebSocketConnection partyLeaderConnection = mock(WebSocketConnection.class);
+            when(connections.findByConnectionId(CONN_ID)).thenReturn(Optional.of(partyLeaderConnection));
+
+            // Act
+            sessionManager.requestParticipantRelease(PARTY_ID, PARTICIPANT_ID);
+
+            // Assert
+            ArgumentCaptor<GameClientEventEnvelope> captor = ArgumentCaptor.forClass(GameClientEventEnvelope.class);
+            verify(partyLeaderConnection).sendTextAndAwait(captor.capture());
+
+            PlayerReleaseRequestedEvent event =
+                    assertInstanceOf(PlayerReleaseRequestedEvent.class, captor.getValue().payload());
+            assertEquals(PARTICIPANT_ID, event.playerId());
         }
     }
 
