@@ -1,4 +1,4 @@
-import {inject, Injectable, Injector} from '@angular/core';
+import {inject, Service, Injector} from '@angular/core';
 import {ComponentType, GlobalPositionStrategy, Overlay, OverlayPositionBuilder, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal} from '@angular/cdk/portal';
 import {OVERLAY_DATA, OverlayHandle} from './models/overlay-handle';
@@ -12,9 +12,7 @@ export interface OverlayConf<D> {
   position?: GlobalPositionStrategy;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class OverlayService {
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);

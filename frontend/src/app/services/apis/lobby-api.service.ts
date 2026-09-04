@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ConfigService} from '../../../config.service';
 import {CreateLobbyResponse} from '../../../api-models/model/createLobbyResponse';
@@ -6,9 +6,7 @@ import {Observable} from 'rxjs';
 import {RegisterPlayerResponse} from '../../../api-models/model/registerPlayerResponse';
 import {LobbyDTO} from '../../../api-models/model/lobbyDTO';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LobbyApi {
 
   private readonly appConfig: ConfigService = inject(ConfigService)

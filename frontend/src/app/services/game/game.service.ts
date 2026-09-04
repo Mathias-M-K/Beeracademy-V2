@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Service, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
@@ -44,9 +44,7 @@ import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
 import {releasePlayerAction} from '../models/categories/actions/game/game-client-action/release-player-action';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class GameService {
 
   private readonly websocketService = inject(WebsocketService);

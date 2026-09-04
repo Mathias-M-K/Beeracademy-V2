@@ -1,13 +1,11 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Service, signal} from '@angular/core';
 import {OverlayConf, OverlayService} from '../overlay/overlay.service';
 import {OverlayPositionBuilder} from '@angular/cdk/overlay';
 import {ToastData, ToastState} from '../../overlay/toast/models/toast-data';
 import {ToastContainer} from '../../overlay/toast/toast-container/toast-container';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ToastService {
 
   private readonly overlayService = inject(OverlayService);

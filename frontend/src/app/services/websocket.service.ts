@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {ConfigService} from '../../config.service';
 import {webSocket} from 'rxjs/webSocket';
 import {WebsocketEnvelope} from './models/websocket-envelope';
@@ -15,9 +15,7 @@ export const LocalWebsocketCodes = {
   Exception: 1
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class WebsocketService {
   private readonly applicationConfig = inject(ConfigService)
   private readonly lobbyWebsocketUrl = this.applicationConfig.apiUrl + "/ws/lobby"
