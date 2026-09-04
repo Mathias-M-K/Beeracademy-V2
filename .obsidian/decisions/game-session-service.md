@@ -1,3 +1,10 @@
+---
+type: adr
+adr: 3
+status: accepted
+tags: [adr, backend]
+---
+
 # ADR-003: GameSessionService — unify Game state + Session info
 
 **Date**: 2026-06-19
@@ -27,3 +34,9 @@ Introduce **`GameSessionService`** (`services/game/GameSessionService.java`) —
 - Reuses existing factories (`GameDto.create`, `PlayerDto.create`, `SessionDto.create/createEmpty`) and `ResourceClaimException` — no DTO changes.
 
 See [[websocket-session-managers]], [[project-beeracademy]].
+
+## Related
+- [[websocket-session-managers]] — the managers that call this service
+- [[party-id-lifecycle]] — the id it is keyed by
+- [[known-issues]] — #1, the unreachable claim endpoint this service throws from
+- [[README]] — vault index

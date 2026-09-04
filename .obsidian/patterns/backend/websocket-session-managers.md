@@ -1,3 +1,10 @@
+---
+type: pattern
+layer: backend
+updated: 2026-09-04
+tags: [pattern, backend, websocket]
+---
+
 # Pattern: WebSocket Session Managers
 
 ## Structure

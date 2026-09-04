@@ -1,3 +1,9 @@
+---
+type: meta
+updated: 2026-09-04
+tags: [meta, setup]
+---
+
 # Vault setup (new developers)
 
 This folder **is** the knowledge vault: architecture decisions, established patterns,
@@ -57,8 +63,7 @@ Restart Claude Code afterwards so it picks up the new server.
 ## 5. Verify
 
 Run `/mcp` in Claude Code — `obsidian` should show as connected. Then ask Claude
-for a vault overview; it should report ~19 notes across `decisions/`, `patterns/`,
-`context/`, `dead-ends/`, and `code-review/`.
+for a vault overview; it should report ~23 notes across `decisions/`, `patterns/`, `context/`, `dead-ends/`, `archive/` and `templates/`.
 
 ## Troubleshooting
 
@@ -77,11 +82,18 @@ header in `~/.claude.json` to match.
 
 ## Where to look once it works
 
+Open [[README]] — it is the vault index, and every note is reachable from it. In short:
+
+- `README.md` — start here; also carries the conventions notes in this vault follow.
 - `rules.md` — codebase conventions, each with a runnable check. Outranks `CLAUDE.md`.
 - `known-issues.md`, `security-issues.md` — current known problems.
-- `context/project-beeracademy.md` — project state.
-- `decisions/` — ADRs with rationale. `patterns/` — established conventions.
+- `context/project-beeracademy.md` — project state and current branch.
+- `decisions/` — ADRs with rationale. `patterns/backend/`, `patterns/frontend/` — established
+  conventions.
 - `dead-ends/_index.md` — approaches already tried and rejected. Read before proposing one.
+- `archive/` — point-in-time documents, kept for reasoning only; anything still actionable in
+  there has been promoted into `known-issues.md`.
+- `templates/` — note templates.
 
 ## Note on the token
 
@@ -93,3 +105,7 @@ credential regardless of how narrowly the server binds.
 Committing it bought little in the first place: step 4 has you paste the token into your own
 `~/.claude.json` by hand, so a shared token saved exactly one copy-paste of a value you have
 to handle anyway.
+
+## Related
+- [[README]] — the vault index, and where to start once this works
+- [[rules]] — the conventions the vault exists to protect

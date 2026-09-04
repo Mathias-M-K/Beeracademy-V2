@@ -1,3 +1,10 @@
+---
+type: pattern
+layer: frontend
+updated: 2026-09-04
+tags: [pattern, frontend, angular]
+---
+
 # Pattern: Routing Transient Events to Child Components (Angular)
 
 How a one-shot, per-target event (a lobby **emoji reaction**) flows from a

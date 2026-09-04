@@ -1,3 +1,10 @@
+---
+type: pattern
+layer: backend
+updated: 2026-09-04
+tags: [pattern, backend, party-id]
+---
+
 # Pattern: The Party ID Lifecycle
 
 One 9-character id (`[A-Z0-9]{9}`, `SecureRandom`) identifies a group of players across
@@ -66,7 +73,7 @@ session lookup then just works. **`Session.sessionId` must stay generically name
 ## Gotcha: the host sentinel
 The party id doubles as a pseudo-participant id for the host. `LobbyClientSessionManager`
 sends `EmojiSentEvent(partyId, emoji)` / `MessageSentEvent(partyId, msg)`, and the frontend
-detects a host reaction with `senderId === lobbyId()`. See [[frontend-reaction-routing]].
+detects a host reaction with `senderId === lobbyId()`. See [[reaction-routing]].
 Any change here must keep that comparison working.
 
 ## Wire format

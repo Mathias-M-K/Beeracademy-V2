@@ -1,3 +1,9 @@
+---
+type: registry
+updated: 2026-09-04
+tags: [issues, open]
+---
+
 # Known Issues
 
 Live registry of known problems that are **documented but not fixed**. Most were surfaced
@@ -62,9 +68,14 @@ Still outstanding in the domain, though narrower than this issue was:
 - Five domain exceptions extend `providers.exceptions.BaseException`, which carries an HTTP
   status code — an API concern reaching into domain errors.
 
-## 7. `CLAUDE.md` is stale
-Still claims "No Database: game state is maintained in memory only". Untrue — see
-[[redis-state-store]].
+## 7. `CLAUDE.md` is stale — ✅ RESOLVED 2026-09-04
+
+~~Still claims "No Database: game state is maintained in memory only". Untrue — see
+[[redis-state-store]].~~
+
+Fixed. `backend/CLAUDE.md:187` now reads "Games and sessions are persisted to Redis; lobbies are
+still in-memory", and lines 310–312 spell out the single-instance consequence and name
+[[redis-state-store]] as superseding the "no database" ADR. Verified 2026-09-04.
 
 ## 8. Lobbies are single-instance
 `LobbyRepository` is a plain in-memory `HashMap` while sessions and games are in Redis, so
@@ -72,7 +83,7 @@ lobbies cannot survive a restart or be shared across replicas. Blocks horizontal
 for the lobby phase specifically.
 
 ## 9. Frontend runtime config fails silently in three places
-The `API_URL` → `config.json` → `window.APP_CONFIG` chain ([[frontend-runtime-config]]) has no
+The `API_URL` → `config.json` → `window.APP_CONFIG` chain ([[runtime-config]]) has no
 fail-fast step. An unset `API_URL` makes `envsubst` write `"apiUrl": ""` (same-origin requests,
 no error); a missing `config.template.json` makes the entrypoint's `if [ -f ... ]` guard skip
 substitution and serve the committed **localhost** config from a production container; a failed
@@ -80,8 +91,54 @@ substitution and serve the committed **localhost** config from a production cont
 page is blank. `set -eu` plus an explicit non-empty check in `docker-entrypoint.sh` would close
 the first two.
 
+
+## 10. `session` means two things across the party-state endpoint's branches
+`services/party/PartyService.java` — in the GAME branch `isClaimed` means "player slot has been
+claimed" (`GameSessionService.claimPlayer` registers the session). In the LOBBY branch a
+participant only gets a `Session` when they open a websocket — `LobbyParticipantSessionManager`
+is still the only registration site, and `LobbyApi.registerParticipant` mints a JWT but registers
+nothing.
+
+**Effect:** a registered-but-not-yet-connected lobby participant reports `isClaimed: false`, so any
+client rendering `ExistingParticipant` for a LOBBY party (nothing prevents it — the DTO is
+identical) offers that row as free to take. Promoted from
+[[party-state-endpoint-review]] #4.
+
+## 11. `/join` participant selection is not guarded against keyboard activation
+`frontend/src/app/pages/join-page/join-page.ts`, `join-page.html` — the ineligibility guard is CSS
+(`pointer-events: none`), and the `(keydown)` binding fires on *any* key including Tab.
+`onParticipantSelected` has no eligibility check of its own.
+
+Not a security hole — the server blocks the claim regardless — but keyboard users can trigger a
+doomed claim, and it is an accessibility gap against the WCAG AA baseline the frontend is held to.
+**Fix direction:** block keyboard activation for non-selectable rows and narrow the handler to
+Enter/Space. Promoted from [[party-state-endpoint-review]] #7.
+
+## 12. `PartyService` depends outward on the API layer
+`services/party/PartyService.java` imports `api.party.models.PartyDto` / `PartyParticipantDto` — a
+service depending on the API layer, against [[rules]] §1 "dependencies point inward". Cross-layer
+DTOs belong under `common/dto/`; compare `GameSessionService` → `common.dto.game.GameDto`.
+
+Also: `getPartyState` now returns a full `PartyDto`, not a `PartyState`, so the method name no
+longer matches. Needs a decision, not just a move. A layer rule in
+[[architecture-tests]] would catch the recurrence. Promoted from
+[[party-state-endpoint-review]] #8.
+
+## 13. Dead crumbs from the party-state change
+Both cosmetic, both frontend:
+- `src/api-models/model/partyStateDto.ts` — stale generated model; the backend `PartyStateDto`
+  record was deleted. Unreferenced, and will vanish on the next client regeneration.
+- `party-api.service.ts` — a leftover `console.debug("Getting party:", partyId)` and a no-op
+  `map(partyStateDto => partyStateDto)` with its now-redundant `map` import.
+
 ## Related
-- [[party-id-unification]] — the change during which these were found
-- [[frontend-runtime-config]] — issue 9
+
+- [[rules]] — the conventions several of these violate
+- [[security-issues]] — security defects, tracked separately
+- [[party-id-unification]] — the change during which issues 1–9 were found
+- [[party-state-endpoint-review]] — the archived review issues 10–13 were promoted from
+- [[architecture-tests]] — machine-enforced checks; issues 6 and 12 are what it must encode
+- [[runtime-config]] — issue 9
 - [[redis-state-store]] — issues 5, 7, 8
 - [[party-id-lifecycle]] — issue 6's boundary rule
+- [[README]] — vault index

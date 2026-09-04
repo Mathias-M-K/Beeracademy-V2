@@ -1,3 +1,10 @@
+---
+type: pattern
+layer: frontend
+updated: 2026-09-04
+tags: [pattern, frontend, angular, router]
+---
+
 # Pattern: Route resolvers as navigation gates
 
 ## Rule
@@ -82,3 +89,10 @@ return partyApi.getParty(partyId).pipe(
 ```
 
 This is the "loader outside the routed component" resolution the cost section above calls for.
+
+## Related
+- [[party-id-lifecycle]] — the id the `/join` resolver looks up
+- [[runtime-config]] — the other place a cold `/join` entry can fail invisibly
+- [[overlay-exit-animations]] — how the loader this note restores tears down
+- [[party-state-endpoint-review]] — the archived review that drove the 2026-08-28 updates
+- [[README]] — vault index

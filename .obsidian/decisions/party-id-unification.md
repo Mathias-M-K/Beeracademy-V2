@@ -1,3 +1,10 @@
+---
+type: adr
+adr: 4
+status: accepted
+tags: [adr, backend, party-id]
+---
+
 # ADR-004: Unify `lobbyId` and `gameId` into `partyId`
 
 **Date**: 2026-08-25
@@ -70,5 +77,5 @@ Also decided:
 ## Related
 - [[party-id-lifecycle]] — how the id behaves across the lobby→game seam
 - [[websocket-session-managers]] — where the translation lines lived
-- [[frontend-reaction-routing]] — the `senderId === lobbyId` host sentinel this must not break
+- [[reaction-routing]] — the `senderId === lobbyId` host sentinel this must not break
 - [[project-beeracademy]] — overall architecture

@@ -1,3 +1,9 @@
+---
+type: context
+updated: 2026-09-04
+tags: [context, architecture]
+---
+
 # Beeracademy — Project Context
 
 ## What It Is
@@ -12,25 +18,32 @@ Multiplayer online card game backend. Players connect via WebSocket to play in r
 - **Tests**: JUnit 5, Mockito, REST Assured, JaCoCo coverage
 - **Deploy**: Docker → Kubernetes (`kubectl apply -f ../deployment/backend`)
 
-## Current Branch (as of 2026-08-25)
-`party-id-introduction` — unifying `lobbyId`/`gameId` into a single `partyId`. See
-[[party-id-unification]] and [[party-id-lifecycle]].
+## Current Branch (as of 2026-09-04)
 
-Previously `improvement/better-lobby-logic` (merged): kicking participants when the lobby
-leader leaves, lobby WebSocket improvements, `AbstractLobbySessionManager`, `Map`-based
-participant management, `RoleNotFoundException`.
+`session-ownership-transfer` — releasing a player so someone else can take over their seat,
+and joining a party whose game is already running. The backend side of the loop landed first
+(an `EventStreamer` for subscribers and an `EventPublisher` for outgoing events, plus release
+events); the frontend does not yet handle the release request. Not yet written up as a pattern
+note — do that once the shape settles.
+
+Merged before it:
+- `party-id-introduction` — unified `lobbyId`/`gameId` into a single `partyId`. See
+  [[party-id-unification]] and [[party-id-lifecycle]].
+- `improvement/better-lobby-logic` — kicking participants when the lobby leader leaves, lobby
+  WebSocket improvements, `AbstractLobbySessionManager`, `Map`-based participant management,
+  `RoleNotFoundException`.
 
 ## Frontend
 Angular v20 (standalone, signals) in `frontend/`. Talks to the backend over the
 same lobby/game WebSockets. For how transient per-target events (e.g. emoji
 reactions) are routed from a service to a single dumb child component, see
-[[frontend-reaction-routing]].
+[[reaction-routing]].
 
 The backend URL is **not** compiled into the bundle — it is fetched from `/config.json` at
 startup, which the container's entrypoint rewrites from `API_URL` at boot. To repoint an
 environment you edit `deployment/frontend/deployment.yaml`, not the frontend source. The same
 mechanism drives `npm run start:mock` against an Insomnia mockbin server. See
-[[frontend-runtime-config]].
+[[runtime-config]].
 
 ## Game Flow
 1. Host creates a **lobby** via `POST /lobbies`; gets a `partyId` and a JWT cookie
@@ -51,7 +64,7 @@ caller of `GameService.createGame`. There is no lobby-less game-creation path, a
 | `domain/game/` | Pure domain models — deck, events, player, timer. Knows **only** about the Game: no lobby/party/websocket/API concepts, and keeps `gameId` internally. See [[party-id-lifecycle]]. |
 | `services/lobby/` | Lobby management |
 | `services/session/` | WebSocket session managers. See [[websocket-session-managers]]. |
-| `services/game/` | Game business logic. `GameService` = commands (session-free); `GameSessionService` = the layer that joins Game state + Session info (DTO reads + claim commands). See [[game-query-service]]. |
+| `services/game/` | Game business logic. `GameService` = commands (session-free); `GameSessionService` = the layer that joins Game state + Session info (DTO reads + claim commands). See [[game-session-service]]. |
 | `services/auth/` | JWT generation/validation |
 | `websocket/` | WebSocket handlers |
 
@@ -78,3 +91,9 @@ boundary, wire contracts, test style: see [[rules]].
 
 ## Known Issues
 Problems that are documented but not fixed: see [[known-issues]].
+
+## Related
+- [[README]] — vault index
+- [[rules]] — conventions this architecture is held to
+- [[known-issues]] — documented but unfixed problems
+- [[security-issues]] — security defects

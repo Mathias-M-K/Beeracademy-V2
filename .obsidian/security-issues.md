@@ -1,3 +1,9 @@
+---
+type: registry
+updated: 2026-09-04
+tags: [issues, security]
+---
+
 # Security Issues
 
 Security defects, tracked separately from [[known-issues]] (which covers correctness and

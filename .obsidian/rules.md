@@ -1,3 +1,9 @@
+---
+type: rules
+updated: 2026-09-04
+tags: [rules, conventions]
+---
+
 # Rules
 
 Conventions this codebase is held to. Each rule states the *why* and, where possible, a
@@ -115,8 +121,7 @@ a test that stubs `getPlayer(PARTY_ID, PLAYER_ID)` should return a player whose 
 ## 6. State lives in Redis (mostly)
 
 Sessions and game snapshots are Redis-backed; only `LobbyRepository` is still an in-memory
-`HashMap`. See [[redis-state-store]] — and note it supersedes the older "no database" ADR,
-which is still cited in a stale `CLAUDE.md`.
+`HashMap`. See [[redis-state-store]] — and note it supersedes the older "no database" ADR ([[no-database]]).
 
 **Consequence:** lobbies are single-instance and vanish on restart, while games and sessions
 do not. Do not assume symmetry between them.
@@ -136,7 +141,11 @@ That is a deploy-timing decision, not an incidental refactor.
 ---
 
 ## Related
+
+- [[README]] — vault index
 - [[known-issues]] — where current violations are tracked
+- [[security-issues]] — security defects, tracked separately
+- [[architecture-tests]] — the effort to replace these greps with rules that fail the build
 - [[party-id-unification]] — ADR behind rules 1–3
 - [[party-id-lifecycle]] — how the id behaves across the phase seam
 - [[redis-state-store]] — rule 6

@@ -1,3 +1,10 @@
+---
+type: adr
+adr: 2
+status: accepted
+tags: [adr, backend, auth]
+---
+
 # ADR-002: JWT Returned as Cookies, Not Authorization Headers
 
 **Date**: (before 2026-06-16, pre-existing decision)

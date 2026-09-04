@@ -1,3 +1,10 @@
+---
+type: pattern
+layer: frontend
+updated: 2026-09-04
+tags: [pattern, frontend, deploy]
+---
+
 # Pattern: Frontend API URL is runtime config, not build-time
 
 ## Rule

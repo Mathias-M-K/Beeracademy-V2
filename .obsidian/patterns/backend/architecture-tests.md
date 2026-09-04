@@ -1,3 +1,10 @@
+---
+type: pattern
+layer: backend
+updated: 2026-09-04
+tags: [pattern, backend, testing]
+---
+
 # Architecture tests (ArchUnit)
 
 Status: **started 2026-09-01** — first rules landed, list below is unfinished.

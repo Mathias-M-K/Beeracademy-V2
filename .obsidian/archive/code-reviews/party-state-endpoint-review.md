@@ -1,4 +1,17 @@
+---
+type: code-review
+status: archived
+reviewed: 2026-08-28
+tags: [code-review, archive]
+---
+
 # Code review — party-state endpoint & join-page rewrite
+> [!info] Archived 2026-09-04
+> A point-in-time review of a branch that has since merged. Kept for its reasoning, its
+> "raised and dismissed" verdicts, and the record of what was fixed. **Its still-open findings
+> were promoted to [[known-issues]] #10–#13** — track them there, not here.
+
+
 
 **Branch:** `party-id-introduction` · **Reviewed:** 2026-08-28 · **Re-checked:** 2026-08-28 (x2)
 **Scope:** `git diff main...HEAD` (party-state endpoint, `LobbyApi` param refactor, `PlayerGrid`/chug CSS)
