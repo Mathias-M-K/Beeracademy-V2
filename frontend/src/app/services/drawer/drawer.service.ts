@@ -9,6 +9,7 @@ import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map} from 'rxjs';
 import {Player} from '../game/models/player';
+import {ConfirmationDrawer} from '../../drawer/confirmation-drawer/confirmation-drawer';
 
 @Service()
 export class DrawerService {
@@ -25,10 +26,12 @@ export class DrawerService {
   )
 
   public showPlayerOverviewDrawer(players: Player[]): void {
-
     const playerOverviewData: PlayerOverviewDrawerData = {players: players};
     this.showDrawer(playerOverviewData, PlayerOverviewDrawerComponent);
+  }
 
+  public showConfirmationDrawer(){
+    this.showDrawer(null, ConfirmationDrawer)
   }
 
   private showDrawer(data: any, component: ComponentType<any>): void {
@@ -43,6 +46,9 @@ export class DrawerService {
       data: data,
       position: pos,
       backdrop:true,
+      componentClasses: this.isCompact()
+        ? ['drawer-pane', 'drawer-pane--compact']
+        : ['drawer-pane'],
       backdropClass: 'drawer-backdrop'
     })
   }

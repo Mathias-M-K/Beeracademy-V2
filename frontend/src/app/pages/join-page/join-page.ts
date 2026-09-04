@@ -11,6 +11,8 @@ import {PartyState} from '../../../api-models/model/partyState';
 import {ExistingParticipant} from './existing-participant/existing-participant';
 import {PartyParticipantDto} from '../../../api-models/model/partyParticipantDto';
 import {GameApi} from '../../services/apis/game-api.service';
+import {DrawerService} from '../../services/drawer/drawer.service';
+import {ToastState} from '../../overlay/toast/models/toast-data';
 
 @Component({
   selector: 'app-join-page',
@@ -30,6 +32,7 @@ export class JoinPage {
   readonly gameApi = inject(GameApi);
   readonly destroyRef = inject(DestroyRef);
   readonly toastService = inject(ToastService);
+  readonly drawerService = inject(DrawerService);
 
   readonly joining = signal(false);
 
@@ -86,13 +89,14 @@ export class JoinPage {
   }
 
   protected requestRelease(participant: PartyParticipantDto) {
+
     console.debug("Requesting release for participant", participant);
     this.gameApi.requestPlayerRelease(this.partyId(),participant.id).pipe(
       takeUntilDestroyed(this.destroyRef),
       timeout({each: 8000})
     ).subscribe({
-      next: () => console.log("Request sent!"),
-      error: () => console.error("Request failed")
+      next: () => this.drawerService.showConfirmationDrawer(),
+      error: () => this.toastService.showToast("Der skete en fejl","Kunne ikke sende anmodning","error", ToastState.error)
     });
   }
 

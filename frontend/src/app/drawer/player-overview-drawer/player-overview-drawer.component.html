@@ -1,13 +1,9 @@
-<div class="header">
-  <div>
-    <p class="subtitle">deltagere</p>
-    <p class="title">2 anmodninger afventer</p>
-  </div>
+<app-drawer-header
+  title="2 anmodninger afventer"
+  subtitle="test"
+  (closeClick)="closeOverview()">
 
-  <button class="btn-primary-outlined btn-icon" (click)="closeOverview()">
-    <material-icon icon="close"></material-icon>
-  </button>
-</div>
+</app-drawer-header>
 
 <div class="players">
   @for (player of overviewData.players; track player.id){

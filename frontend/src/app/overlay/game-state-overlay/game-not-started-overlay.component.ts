@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, signal} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {OVERLAY_DATA, OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 import {Role} from '../../../api-models/model/role';
@@ -15,11 +15,6 @@ export class GameNotStartedOverlay {
 
   protected readonly handle = inject(OverlayHandle);
   protected readonly isGameClient = inject(OVERLAY_DATA) as boolean;
-
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  protected readonly leaving = signal<boolean>(false);
-
 
   protected readonly Role = Role;
 }

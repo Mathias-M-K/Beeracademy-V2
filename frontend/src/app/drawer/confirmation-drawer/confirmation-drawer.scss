@@ -1,0 +1,42 @@
+:host {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+:host(.drawer-pane--compact) {
+  grid-template-rows: auto 1fr;
+}
+
+.check-mark-circle {
+  display: flex;
+  justify-content: center;
+  justify-self: center;
+
+  $circle-size: 50px;
+  height: $circle-size;
+  width: $circle-size;
+  border-radius: calc($circle-size / 2);
+  background-color: var(--color-emerald-500);
+  color: var(--color-white);
+
+  margin-top: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.main-text {
+  letter-spacing: 1px;
+  font-size: 14px;
+}
+
+.footer-text {
+  font-size: 12px;
+  color: var(--text);
+}
+
+button {
+  width: 100%;
+}

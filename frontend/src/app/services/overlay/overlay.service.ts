@@ -7,6 +7,7 @@ export interface OverlayConf<D> {
   component: ComponentType<any>;
   data?: D;
   backdrop?: boolean;
+  componentClasses?: string[];
   backdropClass?: string;
   position?: GlobalPositionStrategy;
 }
@@ -41,7 +42,10 @@ export class OverlayService {
         {provide: OverlayHandle, useValue: handle},
       ]
     });
+
     overlayRef.attach(new ComponentPortal(conf.component, null, injector));
+    const overlayComponentElement = overlayRef.overlayElement.firstElementChild;
+    overlayComponentElement?.classList.add(...(conf.componentClasses ?? []));
 
     return handle;
   }

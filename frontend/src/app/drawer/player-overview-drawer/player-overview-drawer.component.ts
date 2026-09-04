@@ -5,8 +5,8 @@ import {map} from 'rxjs';
 import {Player} from '../../services/game/models/player';
 import {OVERLAY_DATA, OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {PlayerOverviewEntity} from './player-overview-entity/player-overview-entity.component';
-import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 import {GameService} from '../../services/game/game.service';
+import {DrawerHeader} from '../drawer-header/drawer-header';
 
 export interface PlayerOverviewDrawerData {
   players: Player[];
@@ -15,9 +15,9 @@ export interface PlayerOverviewDrawerData {
 @Component({
   imports: [
     PlayerOverviewEntity,
-    MaterialIcon
+    DrawerHeader
   ],
-  selector: 'app-player-overview-player-overview-drawer',
+  selector: 'app-player-overview-drawer',
   styleUrl: './player-overview-drawer.component.scss',
   templateUrl: './player-overview-drawer.component.html',
   host: {
@@ -45,4 +45,6 @@ export class PlayerOverviewDrawerComponent {
   protected closeOverview() {
     this.overlayHandle.close();
   }
+
+  protected readonly close = close;
 }
