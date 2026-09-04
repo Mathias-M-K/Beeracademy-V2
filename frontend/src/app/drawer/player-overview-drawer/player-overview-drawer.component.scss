@@ -1,0 +1,95 @@
+:host{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 200px;
+  width: 450px;
+  background-color: #ecf0f1;
+
+  gap: 15px;
+  padding: 25px;
+
+  animation: fly-in-from-right 0.2s ease;
+}
+
+:host(.isCompact){
+  height: 70dvh;
+  width: 100dvw;
+  border-radius: 25px 25px 0 0;
+
+  padding: 20px 15px;
+
+  animation: fly-in-from-below 0.2s ease;
+}
+
+.header{
+  display: flex;
+  justify-content: space-between;
+}
+
+.subtitle, .title{
+  margin: 0;
+}
+
+.subtitle{
+  color: var(--primary);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.title{
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.players{
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px
+}
+
+:host(.overlay-leaving){
+  animation: fly-out-to-right 0.2s ease-in forwards;
+}
+:host(.isCompact.overlay-leaving){
+  animation: fly-out-to-button 0.2s ease-in forwards;
+}
+
+@keyframes fly-in-from-right {
+  from{
+    transform: translateX(100%);
+  }
+  to{
+    transform: translateX(0);
+  }
+}
+
+@keyframes fly-in-from-below {
+  from{
+    transform: translatey(100%);
+  }
+  to{
+    transform: translatey(0);
+  }
+}
+
+@keyframes fly-out-to-right {
+  from{
+    transform: translateX(0);
+  }
+  to{
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fly-out-to-button {
+  from{
+    transform: translateY(0);
+  }
+  to{
+    transform: translateY(100%);
+  }
+}

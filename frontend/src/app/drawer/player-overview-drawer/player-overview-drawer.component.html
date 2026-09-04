@@ -1,0 +1,21 @@
+<div class="header">
+  <div>
+    <p class="subtitle">deltagere</p>
+    <p class="title">2 anmodninger afventer</p>
+  </div>
+
+  <button class="btn-primary-outlined btn-icon" (click)="closeOverview()">
+    <material-icon icon="close"></material-icon>
+  </button>
+</div>
+
+<div class="players">
+  @for (player of overviewData.players; track player.id){
+    <app-player-overview-entity
+      [player]="player"
+      [compact]="isCompact()"
+      (disconnectOrRelease)="onDisconnectOrRelease(player)">
+    </app-player-overview-entity>
+  }
+</div>
+

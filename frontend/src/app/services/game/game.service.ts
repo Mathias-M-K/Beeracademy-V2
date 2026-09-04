@@ -41,6 +41,7 @@ import {GamePausedOverlayData} from '../../overlay/game-paused-overlay/models/ga
 import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
 import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
 import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
+import {releasePlayerAction} from '../models/categories/actions/game/game-client-action/release-player-action';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Injectable({
@@ -406,6 +407,10 @@ export class GameService {
     this.dispatchGameAction(chugAction(chug));
   }
 
+  public dispatchReleaseAction(playerId: string){
+    this.dispatchGameAction(releasePlayerAction(playerId))
+  }
+
 
   /**helper methods**/
   private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {
@@ -464,6 +469,28 @@ export class GameService {
     ));
     console.log(`Added turn to player ${playerId}.`);
   }
+
+  public disconnectAndReleasePlayer(playerId: string): void {
+    const player = this.players().find(player => player.id);
+    if(player === undefined){
+      console.error('Player not found.', playerId);
+      return;
+    }
+
+    const isConnected = player.sessionInfo?.isConnected??false;
+    const isClaimed = player.sessionInfo?.isClaimed??false;
+
+    if(isConnected){
+      console.log("Kicking player is not yet implemented")
+    }
+
+    if(isClaimed){
+      this.dispatchReleaseAction(playerId);
+    }
+
+  }
+
+
 
   /**Overlay**/
   private openPauseOverlay(timeReport: TimeReport) {

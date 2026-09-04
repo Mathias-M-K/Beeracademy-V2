@@ -9,10 +9,7 @@ import {Role} from '../../../api-models/model/role';
     MaterialIcon
   ],
   templateUrl: './game-not-started-overlay.component.html',
-  styleUrl: './game-not-started-overlay.component.scss',
-  host: {
-    '[class.leaving]': 'leaving()',
-  },
+  styleUrl: './game-not-started-overlay.component.scss'
 })
 export class GameNotStartedOverlay {
 
@@ -23,36 +20,6 @@ export class GameNotStartedOverlay {
 
   protected readonly leaving = signal<boolean>(false);
 
-  constructor() {
-    this.handle.registerLeave(async () => {
-      await this.animateOut();
-    })
-  }
-
-  private animateOut(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      const el = this.host.nativeElement;
-
-      const done = () => {
-        clearTimeout(fallback);
-        el.removeEventListener('animationend', onEnd);
-        resolve();
-      };
-
-      // Ignore the beer/dots' own (infinite) animations bubbling up.
-      const onEnd = (event: AnimationEvent) => {
-        if (event.target === el) {
-          done();
-        }
-      };
-
-      el.addEventListener('animationend', onEnd);
-      // Safety net in case animationend never fires (e.g. reduced motion).
-      const fallback = setTimeout(done, 5000);
-
-      this.leaving.set(true);
-    });
-  }
 
   protected readonly Role = Role;
 }

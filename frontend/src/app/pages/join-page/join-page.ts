@@ -86,7 +86,14 @@ export class JoinPage {
   }
 
   protected requestRelease(participant: PartyParticipantDto) {
-    console.log("Requesting release");
+    console.debug("Requesting release for participant", participant);
+    this.gameApi.requestPlayerRelease(this.partyId(),participant.id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      timeout({each: 8000})
+    ).subscribe({
+      next: () => console.log("Request sent!"),
+      error: () => console.error("Request failed")
+    });
   }
 
 

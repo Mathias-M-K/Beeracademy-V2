@@ -24,6 +24,7 @@ export class Header {
   readonly startClick = output<void>()
   readonly pauseClick = output<void>();
   readonly resumeClick = output<void>();
+  readonly playerOverviewClick = output<void>();
 
   protected readonly TimerState = TimerState;
 }

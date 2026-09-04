@@ -1,0 +1,12 @@
+.overlay-backdrop {
+  background-color: rgba(250, 250, 250, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.drawer-backdrop {
+  background-color: rgb(53 53 53 / 0.49);
+  backdrop-filter: blur(2px);
+}
+.drawer-backdrop.backdrop-exiting{
+  animation: opaque-out 0.2s ease-in-out forwards;
+}

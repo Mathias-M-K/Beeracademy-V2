@@ -30,6 +30,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 @Slf4j
 @Path("/games")
@@ -113,6 +114,7 @@ public class GameApi {
     @Path("/{partyId}/players/{participantId}/request-release")
     @Operation(summary = "Requests release of participant",
             description = "Sends a request to current party leader, requesting the release of a given player")
+    @ResponseStatus(201)
     public void requestPlayerRelease(
             @Valid @PathParam("partyId") PartyIdDto partyIdDto,
             @Valid @PathParam("participantId") ParticipantIdDto participantIdDto

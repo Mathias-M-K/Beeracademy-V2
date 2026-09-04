@@ -13,6 +13,7 @@ import {CardCount} from './card-count/card-count';
 import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
+import {DrawerService} from '../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-game-page',
@@ -34,6 +35,7 @@ export class GamePage implements OnInit, OnDestroy {
   private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
   private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
   private readonly gameService: GameService = inject(GameService);
+  private readonly drawerService = inject(DrawerService);
 
   protected players = this.gameService.players;
   protected gameInfo = this.gameService.gameInfo;
@@ -71,6 +73,11 @@ export class GamePage implements OnInit, OnDestroy {
 
   protected drawCard() {
     this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
+  }
+
+  protected showPlayerOverview(): void {
+
+    this.drawerService.showPlayerOverviewDrawer(this.gameService.players());
   }
 
   protected readonly TimerState = TimerState;

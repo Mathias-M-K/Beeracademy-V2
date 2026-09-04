@@ -7,6 +7,7 @@ export interface OverlayConf<D> {
   component: ComponentType<any>;
   data?: D;
   backdrop?: boolean;
+  backdropClass?: string;
   position?: GlobalPositionStrategy;
 }
 
@@ -14,20 +15,19 @@ export interface OverlayConf<D> {
   providedIn: 'root',
 })
 export class OverlayService {
-
-  //TODO create a shared modal component, that other components can wire themselves into, to get a shared design across overlays
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
   private readonly positionBuilder = inject(OverlayPositionBuilder);
 
-  public openOverlay<ReturnModel, D=unknown>(conf: OverlayConf<D>): OverlayHandle<ReturnModel> {
+  public openOverlay<ReturnModel, D = unknown>(conf: OverlayConf<D>): OverlayHandle<ReturnModel> {
 
     const position = conf.position ?? this.positionBuilder.global().centerVertically().centerHorizontally();
 
     const hasBackdrop = conf.backdrop ?? true;
+    const backdropClass = hasBackdrop ? conf.backdropClass ?? 'overlay-backdrop' : '';
     const overlayRef: OverlayRef = this.overlay.create({
       hasBackdrop: hasBackdrop,
-      backdropClass: hasBackdrop ? 'overlay-backdrop' : '',
+      backdropClass: backdropClass,
       positionStrategy: position,
       scrollStrategy: hasBackdrop ? this.overlay.scrollStrategies.block() : this.overlay.scrollStrategies.noop()
     });
@@ -41,7 +41,6 @@ export class OverlayService {
         {provide: OverlayHandle, useValue: handle},
       ]
     });
-
     overlayRef.attach(new ComponentPortal(conf.component, null, injector));
 
     return handle;
