@@ -4,16 +4,15 @@ import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.event.publisher.SseEventPublisher;
-import dk.mathiaskofod.services.event.publisher.models.ConnectionEvent;
 import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.party.PartyService;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.game.common.GameSnapshotEvent;
-import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleasedEvent;
-import dk.mathiaskofod.services.session.exceptions.SessionConnectedException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.repository.Session;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import io.quarkus.websockets.next.CloseReason;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,23 +61,14 @@ public abstract class AbstractGameSessionManager extends AbstractSessionManager 
         sendMessage(tokenInfo.getClientId(), envelope.apply(gameSnapshotEvent));
     }
 
-    public void releasePlayer(String partyId, String playerId, Function<PlayerReleasedEvent, WebsocketEnvelope<?>> envelope) {
+    protected void disconnectAndReleasePlayer(String playerId, WebsocketCodes closeCode, String reason) {
 
-        Session session = sessionRegistry.getSession(playerId)
-                .orElseThrow(() -> new SessionNotFoundException(playerId));
-
-        if(session.isConnected()){
-            throw new SessionConnectedException(playerId);
+        if (sessionRegistry.getSession(playerId).isEmpty()) {
+            throw new SessionNotFoundException(playerId);
         }
 
-
-
+        CloseReason closeReason = new CloseReason(closeCode.getCode(), reason);
+        getWebsocketConnection(playerId).closeAndAwait(closeReason);
         sessionRegistry.removeSession(playerId);
-
-        sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.RELEASED);
-        log.info("Player released! PlayerID:{}, PartyID:{}", playerId, partyId);
-        broadcastToParty(partyId, envelope.apply(new PlayerReleasedEvent(playerId)));
     }
-
-
 }

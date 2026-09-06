@@ -76,8 +76,7 @@ export class GamePage implements OnInit, OnDestroy {
   }
 
   protected showPlayerOverview(): void {
-
-    this.drawerService.showPlayerOverviewDrawer(this.gameService.players());
+    this.drawerService.showPlayerOverviewDrawer();
   }
 
   protected readonly TimerState = TimerState;

@@ -1,12 +1,12 @@
 <app-drawer-header
-  title="2 anmodninger afventer"
-  subtitle="test"
+  title="Deltagere"
+  subtitle="2 anmodninger venter"
   (closeClick)="closeOverview()">
 
 </app-drawer-header>
 
 <div class="players">
-  @for (player of overviewData.players; track player.id){
+  @for (player of gameService.players(); track player.id){
     <app-player-overview-entity
       [player]="player"
       [compact]="isCompact()"

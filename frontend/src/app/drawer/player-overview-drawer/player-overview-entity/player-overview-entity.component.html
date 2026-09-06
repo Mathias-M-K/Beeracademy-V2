@@ -1,7 +1,10 @@
 <div class="header">
   <div>
     <p class="name">{{ player().name }}</p>
-    <p class="status">{{ connectionStatus() }}</p>
+    <p class="status"
+       [class.connected]="isConnected()"
+       [class.reserved]="!isConnected() && isClaimed()"
+       [class.free]="!isConnected() && !isClaimed()">{{ connectionStatus() }}</p>
   </div>
 
   @if (isConnected()) {

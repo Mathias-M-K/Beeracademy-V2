@@ -3,14 +3,20 @@ package dk.mathiaskofod.services.session;
 import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
+import dk.mathiaskofod.services.event.publisher.models.ConnectionEvent;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.session.actions.game.client.*;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
 import dk.mathiaskofod.services.session.envelopes.*;
 import dk.mathiaskofod.services.session.events.game.game.*;
 import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnectedEvent;
+import dk.mathiaskofod.services.session.events.game.gameclient.PlayerKickedEvent;
 import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleaseRequestedEvent;
+import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleasedEvent;
+import dk.mathiaskofod.services.session.events.game.playerclient.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.exceptions.*;
+import dk.mathiaskofod.services.session.repository.Session;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -18,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Slf4j
 @ApplicationScoped
@@ -67,7 +74,8 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
             case ResumeGameAction() -> gameService.resumeGame(partyId);
             case DrawCardAction(long duration) -> gameService.drawCard(duration, partyId);
             case RegisterChugAction(Chug chug) -> gameService.registerChug(chug, partyId);
-            case ReleasePlayerAction(String playerId) -> releasePlayer(partyId, playerId, GameClientEventEnvelope::new);
+            case ReleasePlayerAction(String playerId) -> releasePlayer(partyId, playerId);
+            case KickPlayerAction(String playerId, String reason) -> kickPlayer(partyId, playerId, reason);
             default -> throw new UnknownActionException(action.getClass().getSimpleName(), 500);
         }
     }
@@ -101,6 +109,32 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
         sendMessage(partyId, envelope);
     }
 
+    private void releasePlayer(String partyId, String playerId) {
+
+        Session session = sessionRegistry.getSession(playerId)
+                .orElseThrow(() -> new SessionNotFoundException(playerId));
+
+        if (session.isConnected()) {
+            throw new SessionConnectedException(playerId);
+        }
+
+        sessionRegistry.removeSession(playerId);
+
+        sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.RELEASED);
+        log.info("Player released! PlayerID:{}, PartyID:{}", playerId, partyId);
+        broadcastToParty(partyId, new GameClientEventEnvelope(new PlayerReleasedEvent(playerId)));
+    }
+
+    private void kickPlayer(String partyId, String playerId, String reason) {
+        disconnectAndReleasePlayer(playerId, WebsocketCodes.KICKED, reason);
+
+        sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.RELEASED);
+        log.info("Player kicked! PlayerID:{}, PartyID:{}, Reason:{}", playerId, partyId, reason);
+        PlayerKickedEvent event = new PlayerKickedEvent(playerId, reason);
+        broadcastToParty(partyId, new GameClientEventEnvelope(event));
+
+    }
+
     /**
      * Game Events
      */
@@ -123,4 +157,6 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
         // The game id IS the party id — the domain simply never learns that word.
         broadcastToParty(gameEvent.gameId(), envelope);
     }
+
+
 }

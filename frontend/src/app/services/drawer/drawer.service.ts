@@ -1,14 +1,12 @@
 import {inject, Service} from '@angular/core';
 import {OverlayService} from '../overlay/overlay.service';
 import {
-  PlayerOverviewDrawerComponent,
-  PlayerOverviewDrawerData
+  PlayerOverviewDrawerComponent
 } from '../../drawer/player-overview-drawer/player-overview-drawer.component';
 import {ComponentType, OverlayPositionBuilder} from '@angular/cdk/overlay';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map} from 'rxjs';
-import {Player} from '../game/models/player';
 import {ConfirmationDrawer} from '../../drawer/confirmation-drawer/confirmation-drawer';
 
 @Service()
@@ -25,16 +23,15 @@ export class DrawerService {
       ), {initialValue: false}
   )
 
-  public showPlayerOverviewDrawer(players: Player[]): void {
-    const playerOverviewData: PlayerOverviewDrawerData = {players: players};
-    this.showDrawer(playerOverviewData, PlayerOverviewDrawerComponent);
+  public showPlayerOverviewDrawer(): void {
+    this.showDrawer(PlayerOverviewDrawerComponent);
   }
 
   public showConfirmationDrawer(){
-    this.showDrawer(null, ConfirmationDrawer)
+    this.showDrawer(ConfirmationDrawer)
   }
 
-  private showDrawer(data: any, component: ComponentType<any>): void {
+  private showDrawer(component: ComponentType<any>): void {
 
     const pos = this.isCompact() ?
       this.posBuilder.global().centerHorizontally().bottom() :
@@ -43,7 +40,6 @@ export class DrawerService {
 
     this.overlayService.openOverlay({
       component: component,
-      data: data,
       position: pos,
       backdrop:true,
       componentClasses: this.isCompact()

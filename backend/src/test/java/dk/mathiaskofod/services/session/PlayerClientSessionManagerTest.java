@@ -229,7 +229,7 @@ class PlayerClientSessionManagerTest {
             when(sessionRegistry.getSession(PLAYER_ID)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThrows(SessionNotFoundException.class, () -> sessionManager.kickAndReleasePlayer(PARTY_ID, PLAYER_ID));
+            assertThrows(SessionNotFoundException.class, () -> sessionManager.disconnectAndReleasePlayer(PARTY_ID, PLAYER_ID));
         }
 
         @DisplayName("relinquishPlayer closes connection, removes session, and broadcasts event")
@@ -240,7 +240,7 @@ class PlayerClientSessionManagerTest {
             WebSocketConnection gameClientConnection = mockConnectedGameClient();
 
             // Act
-            sessionManager.kickAndReleasePlayer(PARTY_ID, PLAYER_ID);
+            sessionManager.disconnectAndReleasePlayer(PARTY_ID, PLAYER_ID);
 
             // Assert
             verify(sessionRegistry).removeSession(PLAYER_ID);

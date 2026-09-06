@@ -15,7 +15,6 @@ export class PartyApiService {
 
   public getParty(partyId: string): Observable<PartyDto> {
 
-    console.debug("Getting party:", partyId);
     return this.httpClient.get<PartyDto>(this.apiUrl + '/parties/' + partyId)
       .pipe(
         map(partyStateDto => partyStateDto)

@@ -2,7 +2,7 @@ package dk.mathiaskofod.api.events;
 
 import dk.mathiaskofod.common.dto.party.PartyIdDto;
 import dk.mathiaskofod.services.event.publisher.SseEventPublisher;
-import dk.mathiaskofod.services.event.publisher.models.PlayerReleaseEvent;
+import dk.mathiaskofod.services.event.publisher.models.PlayerConnectionEvent;
 import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -44,7 +44,7 @@ public class SseEventStream {
             content =
                     @Content(
                             mediaType = MediaType.SERVER_SENT_EVENTS,
-                            schema = @Schema(implementation = PlayerReleaseEvent.class)))
+                            schema = @Schema(implementation = PlayerConnectionEvent.class)))
     @APIResponse(
             responseCode = "400",
             description = "The partyId path parameter is missing or is not a 9-character alphanumeric party ID.")
@@ -52,7 +52,7 @@ public class SseEventStream {
         return sseEventPublisher.playerConnectionEventStream(partyIdDto.partyId()).map(this::toSseEvent);
     }
 
-    private OutboundSseEvent toSseEvent(PlayerReleaseEvent event) {
+    private OutboundSseEvent toSseEvent(PlayerConnectionEvent event) {
         return serverSentEvent
                 .newEventBuilder()
                 .name(event.connectionEvent().toString())

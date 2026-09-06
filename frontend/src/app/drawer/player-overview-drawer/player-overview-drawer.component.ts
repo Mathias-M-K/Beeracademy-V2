@@ -3,14 +3,10 @@ import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map} from 'rxjs';
 import {Player} from '../../services/game/models/player';
-import {OVERLAY_DATA, OverlayHandle} from '../../services/overlay/models/overlay-handle';
+import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {PlayerOverviewEntity} from './player-overview-entity/player-overview-entity.component';
 import {GameService} from '../../services/game/game.service';
 import {DrawerHeader} from '../drawer-header/drawer-header';
-
-export interface PlayerOverviewDrawerData {
-  players: Player[];
-}
 
 @Component({
   imports: [
@@ -26,12 +22,16 @@ export interface PlayerOverviewDrawerData {
 })
 export class PlayerOverviewDrawerComponent {
 
-  protected readonly overviewData = inject(OVERLAY_DATA) as PlayerOverviewDrawerData;
   protected readonly overlayHandle = inject(OverlayHandle);
   private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly gameService = inject(GameService);
+  protected readonly gameService = inject(GameService);
 
   protected onDisconnectOrRelease(player: Player) {
+
+    if (player.sessionInfo?.isConnected) {
+      return this.gameService.dispatchKickAction(player.id, "Kicked by leader");
+    }
+
     this.gameService.dispatchReleaseAction(player.id);
   }
 

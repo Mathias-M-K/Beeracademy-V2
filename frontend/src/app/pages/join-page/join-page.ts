@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, linkedSignal, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LobbyApi} from '../../services/apis/lobby-api.service';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
@@ -13,6 +13,9 @@ import {PartyParticipantDto} from '../../../api-models/model/partyParticipantDto
 import {GameApi} from '../../services/apis/game-api.service';
 import {DrawerService} from '../../services/drawer/drawer.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
+import {EventApi} from '../../services/apis/event.api';
+import {ConnectionEvent} from '../../../api-models/model/connectionEvent';
+import {PlayerConnectionEvent} from '../../../api-models/model/playerConnectionEvent';
 
 @Component({
   selector: 'app-join-page',
@@ -30,6 +33,7 @@ export class JoinPage {
   readonly router = inject(Router);
   readonly lobbyApi = inject(LobbyApi);
   readonly gameApi = inject(GameApi);
+  readonly eventApi = inject(EventApi)
   readonly destroyRef = inject(DestroyRef);
   readonly toastService = inject(ToastService);
   readonly drawerService = inject(DrawerService);
@@ -38,7 +42,7 @@ export class JoinPage {
 
   readonly partyName = computed(() => this.partyInfo().name);
   private readonly partyId = computed(() => this.partyInfo().id);
-  readonly participants = computed(() => this.partyInfo().participants);
+  readonly participants = linkedSignal(() => this.partyInfo().participants);
   readonly alreadyJoined = computed(() => this.participants().length);
 
 
@@ -48,10 +52,27 @@ export class JoinPage {
     minLength(model.participantName, 2)
   });
 
-  readonly selectedParticipant = signal<PartyParticipantDto | undefined>(undefined);
 
   private readonly routeData = toSignal(this.route.data, {requireSync: true});
   readonly partyInfo = computed(() => this.routeData()['partyInfo'] as PartyDto);
+
+  constructor() {
+    this.eventApi.getPlayerConnectionEventStream(this.partyId()).subscribe({
+      next: event => this.onNewConnectionEvent(event),
+      error: error => console.error('event error', error),
+    })
+  }
+
+  private onNewConnectionEvent(event: PlayerConnectionEvent) {
+    switch (event.connectionEvent) {
+      case ConnectionEvent.Connected:
+        return this.updateParticipantConnectionStatus(event.playerId, true, true);
+      case ConnectionEvent.Released:
+        return this.updateParticipantConnectionStatus(event.playerId, false, false);
+      case ConnectionEvent.Disconnected:
+        return this.updateParticipantConnectionStatus(event.playerId, false, true);
+    }
+  }
 
   protected getLobbyParticipantToken(participantName: string) {
 
@@ -91,13 +112,20 @@ export class JoinPage {
   protected requestRelease(participant: PartyParticipantDto) {
 
     console.debug("Requesting release for participant", participant);
-    this.gameApi.requestPlayerRelease(this.partyId(),participant.id).pipe(
+    this.gameApi.requestPlayerRelease(this.partyId(), participant.id).pipe(
       takeUntilDestroyed(this.destroyRef),
       timeout({each: 8000})
     ).subscribe({
       next: () => this.drawerService.showConfirmationDrawer(),
-      error: () => this.toastService.showToast("Der skete en fejl","Kunne ikke sende anmodning","error", ToastState.error)
+      error: () => this.toastService.showToast("Der skete en fejl", "Kunne ikke sende anmodning", "error", ToastState.error)
     });
+  }
+
+  private updateParticipantConnectionStatus(participantId: string, connected: boolean, claimed: boolean) {
+    this.participants.update(participants => participants.map(participant =>
+      participant.id === participantId
+        ? {...participant, session: {isConnected: connected, isClaimed: claimed}}
+        : participant));
   }
 
 

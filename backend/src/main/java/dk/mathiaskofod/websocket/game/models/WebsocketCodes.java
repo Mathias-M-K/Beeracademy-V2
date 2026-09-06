@@ -13,7 +13,8 @@ public enum WebsocketCodes {
     GAME_NOT_FOUND(4002),
     LOBBY_LEADER_LEFT(4010),
     KICKED(4020),
-    TRANSITIONING(4030);
+    TRANSITIONING(4030),
+    PLAYER_RELINQUISHED(4040);
 
     private final int statusCode;
 
