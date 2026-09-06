@@ -1,17 +1,71 @@
-:host{
+:host {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.header{
+p{
+  margin: 0;
+}
+
+.header {
   display: flex;
   justify-content: space-between;
 }
 
+.header > p {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-disabled-text);
+}
+
+.header > .title {
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.quick-overview{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.overview-header {
+  display: flex;
+  align-items: end;
+  gap: 5px;
+}
+
+.overview-header > .title {
+  font-weight: bold;
+  font-size: 30px;
+}
+
+.status-graph {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 3px;
+}
+
+.connection-indicator-box {
+  height: 20px;
+  border-radius: 3px;
+}
+
+.connection-indicator-box.connected {
+  background-color: var(--success);
+}
+
+.connection-indicator-box.free {
+  background-color: var(--color-silver);
+}
+
+.connection-indicator-box.reserved {
+  background-color: var(--reserved);
+}
 
 
-.players{
+.players {
   height: 100%;
   overflow: auto;
   display: flex;

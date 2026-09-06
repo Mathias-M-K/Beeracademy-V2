@@ -9,6 +9,7 @@ export interface OverlayConf<D> {
   backdrop?: boolean;
   componentClasses?: string[];
   backdropClass?: string;
+  dismissOnBackdropClick?: boolean;
   position?: GlobalPositionStrategy;
 }
 
@@ -44,6 +45,13 @@ export class OverlayService {
     overlayRef.attach(new ComponentPortal(conf.component, null, injector));
     const overlayComponentElement = overlayRef.overlayElement.firstElementChild;
     overlayComponentElement?.classList.add(...(conf.componentClasses ?? []));
+
+    if(conf.dismissOnBackdropClick??false){
+      overlayRef.backdropClick().subscribe({
+        next: () => handle.close()
+      });
+    }
+
 
     return handle;
   }

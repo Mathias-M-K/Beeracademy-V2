@@ -31,15 +31,25 @@
   color: grey;
 }
 
-.active-indicator{
+:host(.with-border){
+  border: 3px solid var(--border-color);
+}
+
+.status-indicator{
   position: absolute;
   bottom: 0;
   right: 0;
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background-color: #4caf50;
+
   border: 2px solid white;
+}
+.status-indicator.active{
+  background-color: #4caf50;
+}
+.status-indicator.reserved{
+  background-color: var(--reserved);
 }
 
 .emoji-clip{

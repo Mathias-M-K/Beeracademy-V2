@@ -6,12 +6,10 @@ import {Player} from '../../services/game/models/player';
 import {OverlayHandle} from '../../services/overlay/models/overlay-handle';
 import {PlayerOverviewEntity} from './player-overview-entity/player-overview-entity.component';
 import {GameService} from '../../services/game/game.service';
-import {DrawerHeader} from '../drawer-header/drawer-header';
 
 @Component({
   imports: [
-    PlayerOverviewEntity,
-    DrawerHeader
+    PlayerOverviewEntity
   ],
   selector: 'app-player-overview-drawer',
   styleUrl: './player-overview-drawer.component.scss',

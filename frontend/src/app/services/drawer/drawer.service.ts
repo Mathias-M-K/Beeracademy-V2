@@ -45,7 +45,8 @@ export class DrawerService {
       componentClasses: this.isCompact()
         ? ['drawer-pane', 'drawer-pane--compact']
         : ['drawer-pane'],
-      backdropClass: 'drawer-backdrop'
+      backdropClass: 'drawer-backdrop',
+      dismissOnBackdropClick: true
     })
   }
 

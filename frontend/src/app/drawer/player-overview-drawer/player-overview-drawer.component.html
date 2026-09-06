@@ -1,9 +1,25 @@
-<app-drawer-header
-  title="Deltagere"
-  subtitle="2 anmodninger venter"
-  (closeClick)="closeOverview()">
+<div class="header">
+  <p class="title">5 Deltagere</p>
+</div>
 
-</app-drawer-header>
+<div class="quick-overview">
+  <div class="overview-header">
+    <p class="title">4</p>
+    <p>Forbundet lige nu</p>
+  </div>
+
+  <div class="status-graph">
+    @for (player of gameService.players(); track player.id) {
+      @let session = player.sessionInfo;
+      <div
+        [class.connected]="session?.isConnected"
+        [class.reserved]="!session?.isConnected && session?.isClaimed"
+        [class.free]="!session?.isConnected && !session?.isClaimed"
+        class="connection-indicator-box"></div>
+    }
+  </div>
+
+</div>
 
 <div class="players">
   @for (player of gameService.players(); track player.id){

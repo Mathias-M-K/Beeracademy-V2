@@ -1,10 +1,16 @@
-import {Component, computed, input, output} from '@angular/core';
+import {Component, computed, input, output, Signal} from '@angular/core';
 import {Player} from '../../../services/game/models/player';
+import {
+  ParticipantBadge
+} from '../../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
 
 @Component({
   selector: 'app-player-overview-entity',
   styleUrl: './player-overview-entity.component.scss',
   templateUrl: './player-overview-entity.component.html',
+  imports: [
+    ParticipantBadge
+  ]
 })
 export class PlayerOverviewEntity {
 
@@ -16,9 +22,12 @@ export class PlayerOverviewEntity {
   protected readonly isConnected = computed(() => this.player().sessionInfo?.isConnected);
   protected readonly isClaimed = computed(() => this.player().sessionInfo?.isClaimed);
 
-  protected readonly canDrawAceText = computed(()=>{
-    return this.player().canDrawChugCard ? 'Kan trække ES' : 'Kan IKKE trække ES';
+  protected readonly badgeStyle: Signal<'active' | 'local' | 'reserved'> = computed(() => {
+    if (this.isConnected()) return 'active';
+    if (this.isClaimed()) return 'reserved';
+    return 'local';
   })
+
 
   protected readonly connectionStatus = computed(() => {
     if (this.player().sessionInfo?.isConnected) return 'Forbundet';

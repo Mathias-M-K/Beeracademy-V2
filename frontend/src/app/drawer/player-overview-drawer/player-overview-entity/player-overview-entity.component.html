@@ -1,24 +1,27 @@
-<div class="header">
-  <div>
-    <p class="name">{{ player().name }}</p>
-    <p class="status"
-       [class.connected]="isConnected()"
-       [class.reserved]="!isConnected() && isClaimed()"
-       [class.free]="!isConnected() && !isClaimed()">{{ connectionStatus() }}</p>
-  </div>
+<app-participant-badge
+  [style.grid-area]="'badge'"
+  size="s"
+  [initials]="player().name.substring(0,1)"
+  [style]="badgeStyle()">
+</app-participant-badge>
 
-  @if (isConnected()) {
-    <button class="btn-secondary" (click)="disconnectOrRelease.emit()">Fjern</button>
-  } @else if (isClaimed()) {
-    <button class="btn-secondary-outlined" (click)="disconnectOrRelease.emit()">Frigiv</button>
-  }
+
+<p class="name">{{ player().name }}</p>
+
+
+@if (isConnected()) {
+  <button class="btn-secondary" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Fjern</button>
+} @else if (isClaimed()) {
+  <button class="btn-secondary-outlined" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Frigiv</button>
+}
+
+
+<div class="chips" [style.grid-area]="'settings'">
+  <div class="chip sips-indicator">
+    <p>{{ player().sipsInABeer }} slurke/øl</p>
+  </div>
+  <div [class.not-allowed]="!player().canDrawChugCard" class="chip ace-allowed-indicator">
+    <p>ES Tilladt</p>
+  </div>
 </div>
 
-<div class="chips">
-  <div class="chip">
-    <p>{{ player().sipsInABeer }} sips i en øl</p>
-  </div>
-  <div class="chip">
-    <p>{{ canDrawAceText() }}</p>
-  </div>
-</div>
