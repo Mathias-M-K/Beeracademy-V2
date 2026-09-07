@@ -279,4 +279,73 @@ class PartyServiceTest {
             assertTrue(exception.getMessage().contains(PARTY_ID), "The message names the party that was not found");
         }
     }
+
+    @Nested
+    @DisplayName("Party membership")
+    class PartyMembership {
+
+        @DisplayName("A player of the game is a member of the party")
+        @Test
+        void playerOfTheGameIsAMember() {
+
+            // Arrange
+            Game game = mock(Game.class);
+            when(game.getPlayers()).thenReturn(List.of(player("Alice", "alice"), player("Bob", "bob")));
+            when(gameService.getGame(PARTY_ID)).thenReturn(game);
+
+            // Act
+            boolean isMember = partyService.isParticipantMemberOfParty(PARTY_ID, "bob");
+
+            // Assert
+            assertTrue(isMember);
+        }
+
+        @DisplayName("A participant that is not a player of the game is not a member of the party")
+        @Test
+        void unknownParticipantIsNotAMember() {
+
+            // Arrange
+            Game game = mock(Game.class);
+            when(game.getPlayers()).thenReturn(List.of(player("Alice", "alice"), player("Bob", "bob")));
+            when(gameService.getGame(PARTY_ID)).thenReturn(game);
+
+            // Act
+            boolean isMember = partyService.isParticipantMemberOfParty(PARTY_ID, "charlie");
+
+            // Assert
+            assertFalse(isMember);
+        }
+
+        @DisplayName("Membership is matched on the participant ID, not the name")
+        @Test
+        void membershipIsMatchedOnId() {
+
+            // Arrange
+            Game game = mock(Game.class);
+            when(game.getPlayers()).thenReturn(List.of(player("Alice", "alice")));
+            when(gameService.getGame(PARTY_ID)).thenReturn(game);
+
+            // Act
+            boolean isMember = partyService.isParticipantMemberOfParty(PARTY_ID, "Alice");
+
+            // Assert
+            assertFalse(isMember);
+        }
+
+        @DisplayName("Nobody is a member of a party whose game has no players")
+        @Test
+        void nobodyIsAMemberOfAnEmptyGame() {
+
+            // Arrange
+            Game game = mock(Game.class);
+            when(game.getPlayers()).thenReturn(List.of());
+            when(gameService.getGame(PARTY_ID)).thenReturn(game);
+
+            // Act
+            boolean isMember = partyService.isParticipantMemberOfParty(PARTY_ID, "alice");
+
+            // Assert
+            assertFalse(isMember);
+        }
+    }
 }

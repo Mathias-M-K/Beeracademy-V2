@@ -13,6 +13,7 @@ import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +36,22 @@ class GameApiTest {
                 List.of(new Player("Alice", "alice", 2, true, new Stats()), new Player("Bob", "bob", 3, true, new Stats()));
         gameService.createGame(name, partyId, players);
         return partyId;
+    }
+
+    /**
+     * Creates a game whose players carry generated 12-character IDs, so they satisfy {@code ParticipantIdDto}
+     * validation and reach the endpoint body rather than being rejected as malformed.
+     *
+     * @return the generated party ID and the ID of its first player
+     */
+    private Map.Entry<String, String> createGameWithGeneratedParticipantIds(String name) {
+        String partyId = IdGenerator.generatePartyId();
+        String aliceId = IdGenerator.generatePlayerId();
+        List<Player> players = List.of(
+                new Player("Alice", aliceId, 2, true, new Stats()),
+                new Player("Bob", IdGenerator.generatePlayerId(), 3, true, new Stats()));
+        gameService.createGame(name, partyId, players);
+        return Map.entry(partyId, aliceId);
     }
 
     @DisplayName("Get game returns game details")
@@ -179,5 +196,68 @@ class GameApiTest {
                 .statusCode(200)
                 .body("gameTimeReport", is(notNullValue()))
                 .body("playerTimeReport", is(notNullValue()));
+    }
+
+    @DisplayName("Request player release rejects a malformed participant ID")
+    @Test
+    void requestPlayerReleaseRejectsMalformedParticipantId() {
+        // Arrange
+        String partyId = createGameWithTwoPlayers("Release Malformed Id Test");
+
+        // Act & Assert
+        given().pathParam("partyId", partyId)
+                .pathParam("participantId", "alice")
+                .when()
+                .post("/api/games/{partyId}/players/{participantId}/request-release")
+                .then()
+                .statusCode(400);
+    }
+
+    @DisplayName("Request player release returns 403 for a participant that is not in the party")
+    @Test
+    void requestPlayerReleaseRejectsNonMember() {
+        // Arrange
+        String partyId = createGameWithTwoPlayers("Release Non Member Test");
+        String strangerId = IdGenerator.generatePlayerId();
+
+        // Act & Assert
+        given().pathParam("partyId", partyId)
+                .pathParam("participantId", strangerId)
+                .when()
+                .post("/api/games/{partyId}/players/{participantId}/request-release")
+                .then()
+                .statusCode(403);
+    }
+
+    @DisplayName("Request player release returns 404 when the party has no leader session to approve it")
+    @Test
+    void requestPlayerReleaseReturnsNotFoundWithoutALeaderSession() {
+        // Arrange
+        // The game is created straight through GameService, so no session is registered for the party
+        Map.Entry<String, String> game = createGameWithGeneratedParticipantIds("Release No Leader Test");
+
+        // Act & Assert
+        given().pathParam("partyId", game.getKey())
+                .pathParam("participantId", game.getValue())
+                .when()
+                .post("/api/games/{partyId}/players/{participantId}/request-release")
+                .then()
+                .statusCode(404);
+    }
+
+    @DisplayName("Request player release returns 404 for an unknown party")
+    @Test
+    void requestPlayerReleaseReturnsNotFoundForUnknownParty() {
+        // Arrange
+        String unknownPartyId = IdGenerator.generatePartyId();
+        String participantId = IdGenerator.generatePlayerId();
+
+        // Act & Assert
+        given().pathParam("partyId", unknownPartyId)
+                .pathParam("participantId", participantId)
+                .when()
+                .post("/api/games/{partyId}/players/{participantId}/request-release")
+                .then()
+                .statusCode(404);
     }
 }

@@ -1,6 +1,6 @@
 ---
 type: context
-updated: 2026-09-04
+updated: 2026-09-07
 tags: [context, architecture]
 ---
 
@@ -18,13 +18,25 @@ Multiplayer online card game backend. Players connect via WebSocket to play in r
 - **Tests**: JUnit 5, Mockito, REST Assured, JaCoCo coverage
 - **Deploy**: Docker → Kubernetes (`kubectl apply -f ../deployment/backend`)
 
-## Current Branch (as of 2026-09-04)
+## Current Branch (as of 2026-09-07)
 
-`session-ownership-transfer` — releasing a player so someone else can take over their seat,
-and joining a party whose game is already running. The backend side of the loop landed first
-(an `EventStreamer` for subscribers and an `EventPublisher` for outgoing events, plus release
-events); the frontend does not yet handle the release request. Not yet written up as a pattern
-note — do that once the shape settles.
+`session-ownership-transfer` — releasing a player so someone else can take over their seat, and
+joining a party whose game is already running. Both sides have now landed: the backend
+(`SseEventPublisher` + `SseEventStream` for subscribers, release/kick events) and the frontend
+(release requests, player-management drawer, auto-join of a released slot).
+
+Shape as it settled:
+- `POST /games/{partyId}/players/{participantId}/request-release` (202) → `GameClientSessionManager.requestParticipantRelease`,
+  which validates party membership via `PartyService.isParticipantMemberOfParty`, requires a *connected*
+  party leader and a *disconnected* participant, then sends `PLAYER_RELEASE_REQUESTED` to the leader only.
+- The leader answers with the `RELEASE_PLAYER` or `KICK_PLAYER` websocket action; both drop the session,
+  publish a `RELEASED` connection event on the SSE stream and broadcast to the party.
+- `GET /events/player-connection-events/{partyId}` is the SSE stream; it is party-scoped but not
+  player-scoped, so clients match on `playerId` themselves.
+- `ParticipantIdDto` (12 alphanumerics, dashes stripped) mirrors `PartyIdDto` for participant path params.
+
+Covered by tests as of 2026-09-07 (337 backend tests, all green). See
+[[websocket-session-managers]] for the close-code contract this touched.
 
 Merged before it:
 - `party-id-introduction` — unified `lobbyId`/`gameId` into a single `partyId`. See
@@ -59,11 +71,12 @@ caller of `GameService.createGame`. There is no lobby-less game-creation path, a
 ## Key Packages
 | Package | Purpose |
 |---|---|
-| `api/` | REST endpoints (auth, lobby, game, ping) |
+| `api/` | REST endpoints (auth, lobby, game, ping, events) |
 | `common/dto/` | Shared DTOs |
 | `domain/game/` | Pure domain models — deck, events, player, timer. Knows **only** about the Game: no lobby/party/websocket/API concepts, and keeps `gameId` internally. See [[party-id-lifecycle]]. |
 | `services/lobby/` | Lobby management |
 | `services/session/` | WebSocket session managers. See [[websocket-session-managers]]. |
+| `services/event/` | `SseEventPublisher` — the outbound connection-event stream the API layer subscribes to |
 | `services/game/` | Game business logic. `GameService` = commands (session-free); `GameSessionService` = the layer that joins Game state + Session info (DTO reads + claim commands). See [[game-session-service]]. |
 | `services/auth/` | JWT generation/validation |
 | `websocket/` | WebSocket handlers |

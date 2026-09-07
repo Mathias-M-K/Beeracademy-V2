@@ -1,5 +1,7 @@
 package dk.mathiaskofod.services.session;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -7,28 +9,36 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import dk.mathiaskofod.common.dto.game.GameDto;
 import dk.mathiaskofod.domain.game.Game;
+import dk.mathiaskofod.providers.exceptions.BaseException;
 import dk.mathiaskofod.domain.game.exceptions.GameException;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.event.publisher.SseEventPublisher;
+import dk.mathiaskofod.services.event.publisher.models.ConnectionEvent;
 import dk.mathiaskofod.services.game.GameService;
 import dk.mathiaskofod.services.game.GameSessionService;
 import dk.mathiaskofod.services.lobby.LobbyService;
 import dk.mathiaskofod.services.session.actions.game.common.DrawCardAction;
+import dk.mathiaskofod.services.session.actions.game.player.PlayerClientAction;
 import dk.mathiaskofod.services.session.actions.game.player.RelinquishPlayerAction;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.PlayerClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.common.Handshake;
 import dk.mathiaskofod.services.session.events.game.playerclient.PlayerClientEvent;
+import dk.mathiaskofod.services.session.events.game.playerclient.PlayerDisconnectedEvent;
+import dk.mathiaskofod.services.session.events.game.playerclient.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
+import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Collections;
@@ -73,6 +83,10 @@ class PlayerClientSessionManagerTest {
     private static final String PLAYER_ID = "player-p1";
     private static final String CONN_ID = "websocket-conn-456";
     private static final String GAME_CONN_ID = "websocket-conn-game";
+
+    /** An ordinary client-side disconnect, as opposed to the server closing the connection with a kick. */
+    private static final CloseReason CLIENT_LEFT =
+            new CloseReason(WebsocketCodes.GOING_AWAY.getCode(), "Client left");
 
     @BeforeEach
     void setUp() {
@@ -194,7 +208,7 @@ class PlayerClientSessionManagerTest {
             WebSocketConnection gameClientConnection = mockConnectedGameClient();
 
             // Act
-            sessionManager.onConnectionClosed(tokenInfo, null);
+            sessionManager.onConnectionClosed(tokenInfo, CLIENT_LEFT);
 
             // Assert
             verify(sessionRegistry).clearConnectionId(PLAYER_ID);
@@ -210,11 +224,54 @@ class PlayerClientSessionManagerTest {
             when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.empty());
 
             // Act
-            sessionManager.onConnectionClosed(tokenInfo, null);
+            sessionManager.onConnectionClosed(tokenInfo, CLIENT_LEFT);
 
             // Assert
             verify(sessionRegistry).clearConnectionId(PLAYER_ID);
             verify(gameService, never()).getGame(PARTY_ID);
+        }
+
+        @DisplayName("onConnectionClosed publishes a disconnect and broadcasts it when the player simply left")
+        @Test
+        void connectionClosedPublishesDisconnect() {
+            // Arrange
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
+
+            WebSocketConnection gameClientConnection = mockConnectedGameClient();
+
+            // Act
+            sessionManager.onConnectionClosed(tokenInfo, CLIENT_LEFT);
+
+            // Assert
+            verify(sseEventPublisher).publishNewConnectionEvent(PARTY_ID, PLAYER_ID, ConnectionEvent.DISCONNECTED);
+
+            ArgumentCaptor<PlayerClientEventEnvelope> captor = ArgumentCaptor.forClass(PlayerClientEventEnvelope.class);
+            verify(gameClientConnection).sendTextAndAwait(captor.capture());
+            PlayerDisconnectedEvent event =
+                    assertInstanceOf(PlayerDisconnectedEvent.class, captor.getValue().payload());
+            assertEquals(PLAYER_ID, event.playerId());
+        }
+
+        @DisplayName("onConnectionClosed stays quiet after a kick, which the game client has already been told about")
+        @Test
+        void connectionClosedAfterAKickIsNotReported() {
+            // Arrange
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
+
+            Session gameClientSession = mock(Session.class);
+            when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.of(gameClientSession));
+
+            CloseReason kicked = new CloseReason(WebsocketCodes.KICKED.getCode(), "Kicked by the party leader");
+
+            // Act
+            sessionManager.onConnectionClosed(tokenInfo, kicked);
+
+            // Assert
+            verify(sessionRegistry).clearConnectionId(PLAYER_ID);
+            verify(gameService, never()).getGame(PARTY_ID);
+            verifyNoInteractions(sseEventPublisher);
         }
     }
 
@@ -226,25 +283,49 @@ class PlayerClientSessionManagerTest {
         @Test
         void relinquishSessionNotFound() {
             // Arrange
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
             when(sessionRegistry.getSession(PLAYER_ID)).thenReturn(Optional.empty());
 
+            PlayerClientActionEnvelope envelope = new PlayerClientActionEnvelope(new RelinquishPlayerAction());
+
             // Act & Assert
-            assertThrows(SessionNotFoundException.class, () -> sessionManager.disconnectAndReleasePlayer(PARTY_ID, PLAYER_ID));
+            assertThrows(SessionNotFoundException.class, () -> sessionManager.onMessage(tokenInfo, envelope));
         }
 
-        @DisplayName("relinquishPlayer closes connection, removes session, and broadcasts event")
+        @DisplayName(
+                "relinquishPlayer closes the connection with the relinquish code, removes the session, publishes the release and broadcasts the event")
         @Test
         void relinquishPlayerSuccessfully() {
             // Arrange
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
+
             mockActiveWebsocketConnection(PLAYER_ID);
+            WebSocketConnection playerConnection =
+                    connections.findByConnectionId(CONN_ID).orElseThrow();
             WebSocketConnection gameClientConnection = mockConnectedGameClient();
 
+            PlayerClientActionEnvelope envelope = new PlayerClientActionEnvelope(new RelinquishPlayerAction());
+
             // Act
-            sessionManager.disconnectAndReleasePlayer(PARTY_ID, PLAYER_ID);
+            sessionManager.onMessage(tokenInfo, envelope);
 
             // Assert
+            ArgumentCaptor<CloseReason> closeReasonCaptor = ArgumentCaptor.forClass(CloseReason.class);
+            verify(playerConnection).closeAndAwait(closeReasonCaptor.capture());
+            assertEquals(
+                    WebsocketCodes.PLAYER_RELINQUISHED.getCode(),
+                    closeReasonCaptor.getValue().getCode());
+
             verify(sessionRegistry).removeSession(PLAYER_ID);
-            verify(gameClientConnection).sendTextAndAwait(any(WebsocketEnvelope.class));
+            verify(sseEventPublisher).publishNewConnectionEvent(PARTY_ID, PLAYER_ID, ConnectionEvent.RELEASED);
+
+            ArgumentCaptor<PlayerClientEventEnvelope> captor = ArgumentCaptor.forClass(PlayerClientEventEnvelope.class);
+            verify(gameClientConnection).sendTextAndAwait(captor.capture());
+            PlayerRelinquishedEvent event =
+                    assertInstanceOf(PlayerRelinquishedEvent.class, captor.getValue().payload());
+            assertEquals(PLAYER_ID, event.playerId());
         }
     }
 
@@ -316,6 +397,21 @@ class PlayerClientSessionManagerTest {
 
             // Act & Assert
             assertThrows(GameException.class, () -> sessionManager.onMessage(tokenInfo, envelope));
+        }
+
+        @DisplayName("onMessage rejects a player action it does not support")
+        @Test
+        void unsupportedPlayerAction() {
+            // Arrange
+            when(tokenInfo.getPartyId()).thenReturn(PARTY_ID);
+            when(tokenInfo.getPlayerId()).thenReturn(PLAYER_ID);
+
+            PlayerClientActionEnvelope envelope = new PlayerClientActionEnvelope(mock(PlayerClientAction.class));
+
+            // Act & Assert
+            BaseException exception =
+                    assertThrows(BaseException.class, () -> sessionManager.onMessage(tokenInfo, envelope));
+            assertEquals(400, exception.httpStatus);
         }
     }
 }
