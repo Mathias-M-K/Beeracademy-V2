@@ -537,26 +537,6 @@ export class GameService {
 
   }
 
-  public disconnectAndReleasePlayer(playerId: string): void {
-    const player = this.players().find(player => player.id);
-    if (player === undefined) {
-      console.error('Player not found.', playerId);
-      return;
-    }
-
-    const isConnected = player.sessionInfo?.isConnected ?? false;
-    const isClaimed = player.sessionInfo?.isClaimed ?? false;
-
-    if (isConnected) {
-      console.log("Kicking player is not yet implemented")
-    }
-
-    if (isClaimed) {
-      this.dispatchReleaseAction(playerId);
-    }
-
-  }
-
   private registerNewReleaseRequestOnPlayer(playerId: string): void {
     this._releaseRequests.update(players =>
       players.includes(playerId) ? players : [...players, playerId],

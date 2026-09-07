@@ -110,11 +110,11 @@ public class GameApi {
         return Response.ok().cookie(cookie).build();
     }
 
-    @GET
+    @POST
     @Path("/{partyId}/players/{participantId}/request-release")
     @Operation(summary = "Requests release of participant",
             description = "Sends a request to current party leader, requesting the release of a given player")
-    @ResponseStatus(201)
+    @ResponseStatus(202)
     public void requestPlayerRelease(
             @Valid @PathParam("partyId") PartyIdDto partyIdDto,
             @Valid @PathParam("participantId") ParticipantIdDto participantIdDto
