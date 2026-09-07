@@ -9,9 +9,9 @@
 <p class="name">{{ player().name }}</p>
 
 
-@if (isConnected()) {
+@if (isConnected() && controlsAvailable()) {
   <button class="btn-secondary" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Fjern</button>
-} @else if (isClaimed()) {
+} @else if (isClaimed() && controlsAvailable()) {
   <button class="btn-secondary-outlined" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Frigiv</button>
 }
 

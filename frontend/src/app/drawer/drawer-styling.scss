@@ -1,25 +1,26 @@
 .drawer-pane {
-  height: 100vh;
+  height: 80vh;
   min-width: 200px;
   width: 450px;
   background-color: #ecf0f1;
+  border-radius: 25px;
 
   padding: 25px;
 
-  animation: fly-in-from-right 0.2s ease;
+  animation: fly-in-from-below 0.2s ease;
 }
 
 .drawer-pane.drawer-pane--compact {
   height: 80dvh;
   width: 100dvw;
   border-radius: 25px 25px 0 0;
-  padding: 20px 15px;
+  padding: 20px 15px 0 15px;
 
   animation: fly-in-from-below 0.2s ease;
 }
 
 .overlay-leaving {
-  animation: fly-out-to-right 0.2s ease-in forwards;
+  animation: fly-out-to-button 0.2s ease-in forwards;
 }
 
 .drawer-pane--compact.overlay-leaving {

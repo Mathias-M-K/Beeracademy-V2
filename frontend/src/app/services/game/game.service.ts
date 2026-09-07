@@ -47,6 +47,9 @@ import {PlayerDisconnectedEvent} from '../models/categories/events/game/player-c
 import {PlayerReleasedEvent} from '../models/categories/events/game/game-event/player-released-event';
 import {kickPlayerAction} from '../models/categories/actions/game/game-client-action/kick-player-action';
 import {PlayerKickedEvent} from '../models/categories/events/game/game-event/player-kicked-event';
+import {
+  PlayerReleaseRequestedEvent
+} from '../models/categories/events/game/game-client-event/player-release-requested.event';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -110,7 +113,10 @@ export class GameService {
 
   private readonly identity = signal<Identity | undefined>(undefined)
   private readonly role = computed(() => this.identity()?.role);
-  private readonly isGameClient = computed(() => this.role() === Role.GameClient);
+  public readonly isGameClient = computed(() => this.role() === Role.GameClient);
+
+  private readonly _releaseRequests = signal<string[]>([]);
+  public readonly releaseRequests = this._releaseRequests.asReadonly();
 
   private gameNotStartedOverlay?: OverlayHandle<void>;
   private gamePausedOverlay?: OverlayHandle<void>;
@@ -298,6 +304,8 @@ export class GameService {
         return this.handlePlayerReleased(event);
       case 'PLAYER_KICKED':
         return this.handlePlayerKickedEvent(event);
+      case 'PLAYER_RELEASE_REQUESTED':
+        return this.handlePlayerReleaseRequested(event);
       default:
         console.warn("Could not handle websocket message", event);
     }
@@ -410,6 +418,11 @@ export class GameService {
     this.updatePlayerConnectionStatus(playerKickedEvent.playerId, false, false);
   }
 
+  private handlePlayerReleaseRequested(event: GameEventEnvelope) {
+    const playerReleaseRequestedEvent: PlayerReleaseRequestedEvent = event.payload as PlayerReleaseRequestedEvent;
+    this.registerNewReleaseRequestOnPlayer(playerReleaseRequestedEvent.playerId);
+  }
+
 
   //Dispatch actions
   private dispatchGameAction(action: GameAction) {
@@ -445,6 +458,9 @@ export class GameService {
   }
 
   public dispatchReleaseAction(playerId: string) {
+    if(this.releaseRequests().includes(playerId)) {
+      this._releaseRequests.update(playerIds => playerIds.filter(requestPlayerId => requestPlayerId !== playerId));
+    }
     this.dispatchGameAction(releasePlayerAction(playerId))
   }
 
@@ -536,6 +552,12 @@ export class GameService {
       this.dispatchReleaseAction(playerId);
     }
 
+  }
+
+  private registerNewReleaseRequestOnPlayer(playerId: string): void {
+    this._releaseRequests.update(players =>
+      players.includes(playerId) ? players : [...players, playerId],
+    );
   }
 
 

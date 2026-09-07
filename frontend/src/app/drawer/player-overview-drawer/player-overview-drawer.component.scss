@@ -4,7 +4,7 @@
   gap: 15px;
 }
 
-p{
+p {
   margin: 0;
 }
 
@@ -24,21 +24,15 @@ p{
   text-transform: uppercase;
 }
 
-.quick-overview{
+.quick-overview {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.overview-header {
-  display: flex;
-  align-items: end;
-  gap: 5px;
-}
-
-.overview-header > .title {
+p > span.title {
   font-weight: bold;
-  font-size: 30px;
+  font-size: 32px;
 }
 
 .status-graph {
@@ -62,6 +56,41 @@ p{
 
 .connection-indicator-box.reserved {
   background-color: var(--reserved);
+}
+
+.legend{
+  display: flex;
+  gap: 25px;
+}
+.legend-element{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-element p{
+  font-size: 12px;
+  color: var(--primary-disabled-text);
+}
+.legend-element.connected .dot{
+  background-color: var(--success);
+}
+.legend-element.reserved .dot{
+  background-color: var(--reserved);
+}
+.legend-element.free .dot{
+  background-color: var(--color-silver);
+}
+
+.dot{
+  $radius: 10px;
+  width: $radius;
+  height: $radius;
+  border-radius: 5px;
+
+}
+
+.horizontal_line{
+  --horizontal-line-color: var(--color-grey-500);
 }
 
 

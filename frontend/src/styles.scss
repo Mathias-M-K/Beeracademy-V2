@@ -162,7 +162,7 @@ input::placeholder {
 }
 
 .horizontal_line {
-  color: var(--color-silver);
+  --horizontal-line-color: var(--color-silver);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -177,7 +177,7 @@ input::placeholder {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--color-silver);
+  background: var(--horizontal-line-color);
 }
 
 

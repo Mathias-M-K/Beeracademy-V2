@@ -35,7 +35,7 @@ export class DrawerService {
 
     const pos = this.isCompact() ?
       this.posBuilder.global().centerHorizontally().bottom() :
-      this.posBuilder.global().right();
+      this.posBuilder.global().centerHorizontally().centerVertically();
 
 
     this.overlayService.openOverlay({

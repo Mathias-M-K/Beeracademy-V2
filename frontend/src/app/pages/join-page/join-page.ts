@@ -45,6 +45,8 @@ export class JoinPage {
   readonly participants = linkedSignal(() => this.partyInfo().participants);
   readonly alreadyJoined = computed(() => this.participants().length);
 
+  private readonly autoJoinAsIfAvailable = signal<string>('')
+
 
   readonly nameModel = signal({'participantName': ''});
   readonly nameForm = form(this.nameModel, (model) => {

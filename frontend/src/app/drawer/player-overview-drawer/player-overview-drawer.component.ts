@@ -39,10 +39,4 @@ export class PlayerOverviewDrawerComponent {
         map(data => data.matches),
       ), {initialValue: false}
   )
-
-  protected closeOverview() {
-    this.overlayHandle.close();
-  }
-
-  protected readonly close = close;
 }

@@ -10,12 +10,17 @@ import {
   templateUrl: './player-overview-entity.component.html',
   imports: [
     ParticipantBadge
-  ]
+  ],
+  host: {
+    '[class.is-requested]': 'isRequestedReleased()'
+  }
 })
 export class PlayerOverviewEntity {
 
   readonly player = input.required<Player>();
+  readonly isRequestedReleased = input(false);
   readonly compact = input<boolean>(false);
+  readonly controlsAvailable = input<boolean>(false);
 
   readonly disconnectOrRelease = output<void>();
 
@@ -27,11 +32,4 @@ export class PlayerOverviewEntity {
     if (this.isClaimed()) return 'reserved';
     return 'local';
   })
-
-
-  protected readonly connectionStatus = computed(() => {
-    if (this.player().sessionInfo?.isConnected) return 'Forbundet';
-    if (this.player().sessionInfo?.isClaimed) return 'Reserveret';
-    else return 'Ledig'
-  });
 }

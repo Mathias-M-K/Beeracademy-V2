@@ -1,12 +1,12 @@
 <div class="header">
-  <p class="title">5 Deltagere</p>
+  <p class="title">Deltagere</p>
 </div>
 
 <div class="quick-overview">
-  <div class="overview-header">
-    <p class="title">4</p>
-    <p>Forbundet lige nu</p>
-  </div>
+  <p>
+    <span class="title">{{this.gameService.players().filter(player => player.sessionInfo?.isConnected).length}}</span>
+    <span class="subtitle"> forbundet</span>
+  </p>
 
   <div class="status-graph">
     @for (player of gameService.players(); track player.id) {
@@ -19,13 +19,35 @@
     }
   </div>
 
+  <div class="legend">
+
+    <div class="legend-element connected">
+      <div class="dot"></div>
+      <p>Forbundet</p>
+    </div>
+
+    <div class="legend-element reserved">
+      <div class="dot"></div>
+      <p>Reserveret</p>
+    </div>
+
+    <div class="legend-element free">
+      <div class="dot"></div>
+      <p>Ledig</p>
+    </div>
+
+  </div>
+  <div class="horizontal_line"></div>
+
 </div>
 
 <div class="players">
-  @for (player of gameService.players(); track player.id){
+  @for (player of gameService.players(); track player.id) {
     <app-player-overview-entity
       [player]="player"
       [compact]="isCompact()"
+      [isRequestedReleased]="gameService.releaseRequests().includes(player.id)"
+      [controlsAvailable]="gameService.isGameClient()"
       (disconnectOrRelease)="onDisconnectOrRelease(player)">
     </app-player-overview-entity>
   }
