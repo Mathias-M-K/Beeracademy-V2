@@ -45,7 +45,7 @@ export class JoinPage {
   readonly participants = linkedSignal(() => this.partyInfo().participants);
   readonly alreadyJoined = computed(() => this.participants().length);
 
-  private readonly autoJoinAsIfAvailable = signal<string>('')
+  protected readonly autoJoinAsIfAvailable = signal<PartyParticipantDto | undefined>(undefined);
 
 
   readonly nameModel = signal({'participantName': ''});
@@ -68,9 +68,20 @@ export class JoinPage {
   private onNewConnectionEvent(event: PlayerConnectionEvent) {
     switch (event.connectionEvent) {
       case ConnectionEvent.Connected:
+        if(this.autoJoinAsIfAvailable()?.id === event.playerId){
+          this.autoJoinAsIfAvailable.set(undefined);
+        }
         return this.updateParticipantConnectionStatus(event.playerId, true, true);
-      case ConnectionEvent.Released:
-        return this.updateParticipantConnectionStatus(event.playerId, false, false);
+      case ConnectionEvent.Released: {
+        this.updateParticipantConnectionStatus(event.playerId, false, false);
+
+        const autoJoinParticipant = this.autoJoinAsIfAvailable();
+        if (autoJoinParticipant?.id === event.playerId) {
+          this.connectAsParticipant(autoJoinParticipant);
+        }
+
+        break;
+      }
       case ConnectionEvent.Disconnected:
         return this.updateParticipantConnectionStatus(event.playerId, false, true);
     }
@@ -118,7 +129,10 @@ export class JoinPage {
       takeUntilDestroyed(this.destroyRef),
       timeout({each: 8000})
     ).subscribe({
-      next: () => this.drawerService.showConfirmationDrawer(),
+      next: () => {
+        this.autoJoinAsIfAvailable.set(participant);
+        this.drawerService.showConfirmationDrawer(participant.name)
+      },
       error: () => this.toastService.showToast("Der skete en fejl", "Kunne ikke sende anmodning", "error", ToastState.error)
     });
   }

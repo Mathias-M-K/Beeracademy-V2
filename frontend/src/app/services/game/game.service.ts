@@ -399,6 +399,9 @@ export class GameService {
   private handlePlayerConnected(event: GameEventEnvelope) {
     const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerConnectedEvent;
     console.log("Player connected:", playerConnectedEvent.playerId);
+    if(this.releaseRequests().includes(playerConnectedEvent.playerId)){
+      this._releaseRequests.update(playerIds => playerIds.filter(playerId => playerId !== playerConnectedEvent.playerId));
+    }
     this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, true, true);
   }
 

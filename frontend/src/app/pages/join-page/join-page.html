@@ -1,4 +1,3 @@
-
 <div class="beer-academy-title">
   <h2>
     <div>BEER</div>
@@ -36,11 +35,15 @@
       </button>
     </div>
   } @else {
-    <div class="players" >
+    <div class="players">
       @for (participant of participants(); track participant.id) {
         <app-existing-participant
           [participant]="participant"
-          (connect)="connectAsParticipant($event)" (requestRelease)="requestRelease($event)"></app-existing-participant>
+          [isBeingWatched]="autoJoinAsIfAvailable()?.id === participant.id"
+          (removeWatcher)="autoJoinAsIfAvailable.set(undefined)"
+          (connect)="connectAsParticipant($event)"
+          (requestRelease)="requestRelease($event)">
+        </app-existing-participant>
       }
     </div>
   }

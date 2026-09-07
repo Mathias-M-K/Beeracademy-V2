@@ -27,11 +27,11 @@ export class DrawerService {
     this.showDrawer(PlayerOverviewDrawerComponent);
   }
 
-  public showConfirmationDrawer(){
-    this.showDrawer(ConfirmationDrawer)
+  public showConfirmationDrawer(participantId: string){
+    this.showDrawer(ConfirmationDrawer, participantId);
   }
 
-  private showDrawer(component: ComponentType<any>): void {
+  private showDrawer(component: ComponentType<any>, data?: any): void {
 
     const pos = this.isCompact() ?
       this.posBuilder.global().centerHorizontally().bottom() :
@@ -39,6 +39,7 @@ export class DrawerService {
 
 
     this.overlayService.openOverlay({
+      data: data,
       component: component,
       position: pos,
       backdrop:true,
