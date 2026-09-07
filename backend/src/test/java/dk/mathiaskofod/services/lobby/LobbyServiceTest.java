@@ -13,7 +13,7 @@ import dk.mathiaskofod.services.lobby.exceptions.LobbyNotEmptyException;
 import dk.mathiaskofod.services.lobby.models.Lobby;
 import dk.mathiaskofod.services.lobby.models.LobbyParticipant;
 import dk.mathiaskofod.services.lobby.repository.LobbyRepository;
-import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayerException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -255,7 +255,7 @@ class LobbyServiceTest {
 
             // Act & Assert
             assertThrows(
-                    CannotIdentifyPlayer.class, () -> lobbyService.changeParticipantPosition(PARTY_ID, "missing", 1));
+                    CannotIdentifyPlayerException.class, () -> lobbyService.changeParticipantPosition(PARTY_ID, "missing", 1));
         }
     }
 

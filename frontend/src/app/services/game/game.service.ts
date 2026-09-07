@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Service, linkedSignal, signal, WritableSignal} from '@angular/core';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
 import {GameDto} from '../../../api-models/model/gameDto';
 import {Chug} from '../../../api-models/model/chug';
@@ -41,11 +41,18 @@ import {GamePausedOverlayData} from '../../overlay/game-paused-overlay/models/ga
 import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
 import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
 import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
+import {releasePlayerAction} from '../models/categories/actions/game/game-client-action/release-player-action';
+import {PlayerConnectedEvent} from '../models/categories/events/game/player-client-event/player-connected-event';
+import {PlayerDisconnectedEvent} from '../models/categories/events/game/player-client-event/player-disconnected-event';
+import {PlayerReleasedEvent} from '../models/categories/events/game/game-event/player-released-event';
+import {kickPlayerAction} from '../models/categories/actions/game/game-client-action/kick-player-action';
+import {PlayerKickedEvent} from '../models/categories/events/game/game-event/player-kicked-event';
+import {
+  PlayerReleaseRequestedEvent
+} from '../models/categories/events/game/game-client-event/player-release-requested.event';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class GameService {
 
   private readonly websocketService = inject(WebsocketService);
@@ -57,9 +64,8 @@ export class GameService {
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
   public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
 
-  private readonly playerDTOs = linkedSignal(() => this.gameStateObj()?.players ?? []);
-  public players = computed(() => {
-
+  private readonly playerDTOs = computed(() => this.gameStateObj()?.players ?? []);
+  public players = linkedSignal(() => {
     return this.playerDTOs().map((dto, index) => {
       const player = Player.fromPlayerDto(dto);
       player.color = playerColor(index);
@@ -107,7 +113,10 @@ export class GameService {
 
   private readonly identity = signal<Identity | undefined>(undefined)
   private readonly role = computed(() => this.identity()?.role);
-  private readonly isGameClient = computed(() => this.role() === Role.GameClient);
+  public readonly isGameClient = computed(() => this.role() === Role.GameClient);
+
+  private readonly _releaseRequests = signal<string[]>([]);
+  public readonly releaseRequests = this._releaseRequests.asReadonly();
 
   private gameNotStartedOverlay?: OverlayHandle<void>;
   private gamePausedOverlay?: OverlayHandle<void>;
@@ -241,6 +250,11 @@ export class GameService {
         this.reconnectToWebsocket();
         break;
       }
+      case WebsocketCodes.Kicked: {
+        this.toastService.showToast("Fjernet fra spillet", "Du blev fjernet fra spillet", 'sports_martial_arts');
+        this.navigateToWelcome();
+        break;
+      }
       default:
         this.handleFailedToConnectToGame();
     }
@@ -252,12 +266,12 @@ export class GameService {
     this.navigateToWelcome();
   }
 
-  public handleWebsocketMessage(msg: WebsocketEnvelope) {
+  private handleWebsocketMessage(msg: WebsocketEnvelope) {
 
     const supportedEventCategories: string[] = ['GAME_EVENT', 'GAME_CLIENT_EVENT', 'PLAYER_CLIENT_EVENT'];
 
     if (!supportedEventCategories.includes(msg.category)) {
-      console.error("Can't handle message", msg);
+      console.error("Can't handle messages of category:", msg.category, "Message:", msg);
       return;
     }
 
@@ -282,10 +296,22 @@ export class GameService {
         return this.handleGameResumedEvent(event);
       case 'GAME_END':
         return this.handleGameEndEvent(event);
+      case 'PLAYER_CONNECTED':
+        return this.handlePlayerConnected(event);
+      case 'PLAYER_DISCONNECTED':
+        return this.handlePlayerDisconnected(event);
+      case 'PLAYER_RELEASED':
+        return this.handlePlayerReleased(event);
+      case 'PLAYER_KICKED':
+        return this.handlePlayerKickedEvent(event);
+      case 'PLAYER_RELEASE_REQUESTED':
+        return this.handlePlayerReleaseRequested(event);
+      default:
+        console.warn("Could not handle websocket message", event);
     }
   }
 
-  /**Handle websocket messages**/
+  //Handle websocket messages
   private handleIdentity(event: GameEventEnvelope) {
     const identityEvent: IdentityEvent = event.payload as IdentityEvent;
     this.identity.set(identifyFromEvent(identityEvent));
@@ -328,7 +354,6 @@ export class GameService {
     }
   }
 
-
   private handleChugEvent(event: GameEventEnvelope) {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
@@ -346,7 +371,6 @@ export class GameService {
 
     this.gameNotStartedOverlay?.close();
   }
-
 
   private handleGamePausedEvent(event: GameEventEnvelope) {
     const gamePausedEvent: GamePausedEvent = event.payload as GamePausedEvent;
@@ -372,8 +396,38 @@ export class GameService {
     this.endGame();
   }
 
+  private handlePlayerConnected(event: GameEventEnvelope) {
+    const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerConnectedEvent;
+    console.log("Player connected:", playerConnectedEvent.playerId);
+    if(this.releaseRequests().includes(playerConnectedEvent.playerId)){
+      this._releaseRequests.update(playerIds => playerIds.filter(playerId => playerId !== playerConnectedEvent.playerId));
+    }
+    this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, true, true);
+  }
 
-  /**Dispatch actions**/
+  private handlePlayerDisconnected(event: GameEventEnvelope) {
+    const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerDisconnectedEvent;
+    console.log("Player disconnected:", playerConnectedEvent.playerId);
+    this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, false, true);
+  }
+
+  private handlePlayerReleased(event: GameEventEnvelope) {
+    const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerReleasedEvent;
+    this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, false, false);
+  }
+
+  private handlePlayerKickedEvent(event: GameEventEnvelope) {
+    const playerKickedEvent: PlayerKickedEvent = event.payload as PlayerKickedEvent;
+    this.updatePlayerConnectionStatus(playerKickedEvent.playerId, false, false);
+  }
+
+  private handlePlayerReleaseRequested(event: GameEventEnvelope) {
+    const playerReleaseRequestedEvent: PlayerReleaseRequestedEvent = event.payload as PlayerReleaseRequestedEvent;
+    this.registerNewReleaseRequestOnPlayer(playerReleaseRequestedEvent.playerId);
+  }
+
+
+  //Dispatch actions
   private dispatchGameAction(action: GameAction) {
 
     if (!this.websocketService.isConnected()) {
@@ -406,8 +460,19 @@ export class GameService {
     this.dispatchGameAction(chugAction(chug));
   }
 
+  public dispatchReleaseAction(playerId: string) {
+    if(this.releaseRequests().includes(playerId)) {
+      this._releaseRequests.update(playerIds => playerIds.filter(requestPlayerId => requestPlayerId !== playerId));
+    }
+    this.dispatchGameAction(releasePlayerAction(playerId))
+  }
 
-  /**helper methods**/
+  public dispatchKickAction(playerId: string, reason: string) {
+    this.dispatchGameAction(kickPlayerAction(playerId, reason))
+  }
+
+
+  //helper methods
   private startTimer(timeReport: WritableSignal<TimeReport | undefined>) {
     timeReport.update((report) => {
       if (!report) return report;
@@ -439,8 +504,8 @@ export class GameService {
     });
   }
 
-  public addChugToPlayer(chug: Chug, playerId: string): void {
-    this.playerDTOs.update(players => players.map(player =>
+  private addChugToPlayer(chug: Chug, playerId: string): void {
+    this.players.update(players => players.map(player =>
       player.id === playerId ? {
         ...player,
         stats: {
@@ -449,11 +514,10 @@ export class GameService {
         }
       } : player
     ));
-    console.log(`Added chug to player ${playerId}.`);
   }
 
-  public addTurnToPlayer(turn: Turn, playerId: string): void {
-    this.playerDTOs.update(players => players.map(player =>
+  private addTurnToPlayer(turn: Turn, playerId: string): void {
+    this.players.update(players => players.map(player =>
       player.id === playerId ? {
         ...player,
         stats: {
@@ -462,10 +526,25 @@ export class GameService {
         }
       } : player
     ));
-    console.log(`Added turn to player ${playerId}.`);
   }
 
-  /**Overlay**/
+  private updatePlayerConnectionStatus(playerId: string, connected: boolean, claimed: boolean): void {
+
+    this.players.update(players => players.map(player =>
+      player.id === playerId ?
+        {...player, sessionInfo: {isConnected: connected, isClaimed: claimed}} : player
+    ))
+
+  }
+
+  private registerNewReleaseRequestOnPlayer(playerId: string): void {
+    this._releaseRequests.update(players =>
+      players.includes(playerId) ? players : [...players, playerId],
+    );
+  }
+
+
+  //Overlay
   private openPauseOverlay(timeReport: TimeReport) {
     // A reconnect and a paused-event can both land on the same pause — only ever show one.
     if (this.gamePausedOverlay) return;
@@ -509,7 +588,7 @@ export class GameService {
     });
   }
 
-  /**Diverse**/
+  //Diverse
 
   public endGame() {
     this.gameState.set(GameState.Finished);
@@ -524,7 +603,7 @@ export class GameService {
     this.dismissAllOverlays(true);
   }
 
-  /** Guests can't close the chug/pause overlays themselves — don't strand them behind one. */
+  // Guests can't close the chug/pause overlays themselves — don't strand them behind one
   private dismissAllOverlays(ignoreAnimation = false) {
     this.gameNotStartedOverlay?.dismiss(ignoreAnimation);
     this.gamePausedOverlay?.dismiss(ignoreAnimation);

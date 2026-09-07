@@ -31,7 +31,8 @@ class WebsocketCodeSchemaFilterTest {
                         "GAME_NOT_FOUND",
                         "LOBBY_LEADER_LEFT",
                         "KICKED",
-                        "TRANSITIONING"));
+                        "TRANSITIONING",
+                        "PLAYER_RELINQUISHED"));
 
         return OASFactory.createOpenAPI()
                 .components(OASFactory.createComponents().addSchema("WebsocketCodes", schema));
@@ -51,7 +52,8 @@ class WebsocketCodeSchemaFilterTest {
         assertTrue(schema.getType().contains(Schema.SchemaType.INTEGER));
         assertEquals("int32", schema.getFormat());
         assertEquals(
-                List.of(1001, 1006, 1012, 1013, 4000, 4001, 4002, 4010, 4020, 4030), schema.getEnumeration());
+                List.of(1001, 1006, 1012, 1013, 4000, 4001, 4002, 4010, 4020, 4030, 4040),
+                schema.getEnumeration());
     }
 
     @DisplayName("The rewritten schema keeps member names via the x-enum-varnames extension")
@@ -76,7 +78,8 @@ class WebsocketCodeSchemaFilterTest {
                         "GameNotFound",
                         "LobbyLeaderLeft",
                         "Kicked",
-                        "Transitioning"),
+                        "Transitioning",
+                        "PlayerRelinquished"),
                 schema.getExtensions().get("x-enum-varnames"));
     }
 

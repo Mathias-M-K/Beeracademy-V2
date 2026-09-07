@@ -1,5 +1,6 @@
 @use "colors";
-
+@use "../src/app/overlay/overlay-styling";
+@use "../src/app/drawer/drawer-styling";
 /* You can add global styles to this file, and also import other style files */
 * {
   box-sizing: border-box;
@@ -78,7 +79,7 @@ button > material-icon {
     --btn-foreground: var(--color-black);
   }
 
-  .btn-tertiary:hover {
+  .btn-secondary-outlined:hover {
     --btn-background: var(--color-black);
     --btn-foreground: var(--color-white);
   }
@@ -98,7 +99,7 @@ button:active {
   border: 1px solid var(--btn-foreground);
 }
 
-.btn-tertiary {
+.btn-secondary-outlined {
   --btn-background: var(--color-white);
   --btn-foreground: var(--color-black);
   border: 1px solid var(--color-silver);
@@ -110,6 +111,12 @@ button:active {
   --btn-foreground: var(--color-white);
   border: 1.5px solid rgba(255, 255, 255, 0.75);
   border-radius: 50px;
+}
+
+.btn-primary-outlined{
+  --btn-background: var(--color-white);
+  --btn-foreground: var(--primary);
+  border: 1px solid var(--primary);
 }
 
 
@@ -155,7 +162,7 @@ input::placeholder {
 }
 
 .horizontal_line {
-  color: var(--color-silver);
+  --horizontal-line-color: var(--color-silver);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -170,14 +177,18 @@ input::placeholder {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--color-silver);
+  background: var(--horizontal-line-color);
 }
 
-.overlay-backdrop {
-  background-color: rgba(250, 250, 250, 0.6);
-  backdrop-filter: blur(20px);
 
-  //animation: backdrop-in 0.3s ease-in-out;
+
+@keyframes opaque-out {
+  from{
+    opacity: 1;
+  }
+  to{
+    opacity: 0;
+  }
 }
 
 @keyframes backdrop-in {

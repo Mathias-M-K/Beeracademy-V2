@@ -1,0 +1,106 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+p {
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.header > p {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-disabled-text);
+}
+
+.header > .title {
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.quick-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+p > span.title {
+  font-weight: bold;
+  font-size: 32px;
+}
+
+.status-graph {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 3px;
+}
+
+.connection-indicator-box {
+  height: 20px;
+  border-radius: 3px;
+}
+
+.connection-indicator-box.connected {
+  background-color: var(--success);
+}
+
+.connection-indicator-box.free {
+  background-color: var(--color-silver);
+}
+
+.connection-indicator-box.reserved {
+  background-color: var(--reserved);
+}
+
+.legend{
+  display: flex;
+  gap: 25px;
+}
+.legend-element{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-element p{
+  font-size: 12px;
+  color: var(--primary-disabled-text);
+}
+.legend-element.connected .dot{
+  background-color: var(--success);
+}
+.legend-element.reserved .dot{
+  background-color: var(--reserved);
+}
+.legend-element.free .dot{
+  background-color: var(--color-silver);
+}
+
+.dot{
+  $radius: 10px;
+  width: $radius;
+  height: $radius;
+  border-radius: 5px;
+
+}
+
+.horizontal_line{
+  --horizontal-line-color: var(--color-grey-500);
+}
+
+
+.players {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px
+}
+
+
+

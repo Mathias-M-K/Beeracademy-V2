@@ -9,7 +9,7 @@ import dk.mathiaskofod.services.session.envelopes.LobbyParticipantEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.lobby.common.LobbySnapshotEvent;
 import dk.mathiaskofod.services.session.events.lobby.common.SettingsUpdatedEvent;
-import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayerException;
 import dk.mathiaskofod.services.session.repository.Session;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,7 @@ public abstract class AbstractLobbySessionManager extends AbstractSessionManager
         lobbyService
                 .getLobby(partyId)
                 .getParticipant(targetParticipantId)
-                .orElseThrow(() -> new CannotIdentifyPlayer(
+                .orElseThrow(() -> new CannotIdentifyPlayerException(
                         "Participant ID: " + targetParticipantId + ", didn't match any participants", 400))
                 .updateSettings(action.getSipsInABeer(), action.canDrawAce());
 

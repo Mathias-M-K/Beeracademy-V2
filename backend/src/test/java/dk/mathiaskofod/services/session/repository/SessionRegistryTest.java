@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import dk.mathiaskofod.services.session.exceptions.SessionAlreadyConnectedException;
+import dk.mathiaskofod.services.session.exceptions.SessionConnectedException;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.util.Optional;
@@ -102,7 +102,7 @@ class SessionRegistryTest {
         sessionRegistry.setConnectionId(sessionId, connectionId);
 
         // Act - Assert
-        assertThrows(SessionAlreadyConnectedException.class, () -> sessionRegistry.setConnectionId(sessionId, "789"));
+        assertThrows(SessionConnectedException.class, () -> sessionRegistry.setConnectionId(sessionId, "789"));
     }
 
     @Test

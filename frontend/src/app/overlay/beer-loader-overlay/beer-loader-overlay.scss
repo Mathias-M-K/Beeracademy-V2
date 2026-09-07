@@ -10,7 +10,7 @@ $lift: 55px;
 }
 
 // Exit animation, triggered by the OverlayHandle before disposal.
-:host(.leaving) {
+:host(.overlay-leaving){
   animation: leave .5s ease-in forwards;
 }
 

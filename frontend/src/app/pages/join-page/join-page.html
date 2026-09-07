@@ -1,18 +1,21 @@
-<div class="content">
+<div class="beer-academy-title">
   <h2>
     <div>BEER</div>
     <div>ACADEMY</div>
   </h2>
-
-  <div>
-    <span>Du er ved at deltage i</span>
-    <h1>{{ partyName() }}</h1>
-    <span>{{ alreadyJoined() }} er allerede med</span>
-  </div>
+</div>
 
 
+<div class="info">
+  <span>Du er ved at deltage i</span>
+  <h1>{{ partyName() }}</h1>
+  <span>{{ alreadyJoined() }} er allerede med</span>
+</div>
+
+
+<div class="action">
   @if (partyInfo().partyState === PartyState.Lobby) {
-    <div>
+    <div class="lobby-input">
       <div id="input">
         <label for="participant-name">dit navn</label>
         <input
@@ -35,20 +38,17 @@
     <div class="players">
       @for (participant of participants(); track participant.id) {
         <app-existing-participant
-          (keydown)="onParticipantSelected(participant)"
-          (click)="onParticipantSelected(participant)"
           [participant]="participant"
-          [isSelected]="participant === selectedParticipant()"></app-existing-participant>
+          [isBeingWatched]="autoJoinAsIfAvailable()?.id === participant.id"
+          (removeWatcher)="autoJoinAsIfAvailable.set(undefined)"
+          (connect)="connectAsParticipant($event)"
+          (requestRelease)="requestRelease($event)">
+        </app-existing-participant>
       }
-      <button (click)="getGamePlayerToken()" [disabled]="!selectedParticipant()!!">
-        @if (joining()) {
-          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
-        } @else {
-          Deltag
-        }
-      </button>
     </div>
   }
-
 </div>
+
+
+
 

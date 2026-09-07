@@ -14,22 +14,19 @@ const EMOJI_HOLD_MS = 2500;
     '[class.local]': 'style() === "local"',
     '[class.small]': 'size() === "s"',
     '[class.x-small]': 'size() === "xs"',
-    '[style.background-color]':'backgroundColor()'
+    '[style.background-color]': 'backgroundColor()'
   },
 })
 export class ParticipantBadge implements OnDestroy {
   readonly initials = input<string>('');
-  readonly style = input<'default'|'active'|'local'>('default');
+  readonly style = input<'default' | 'active' | 'local' | 'reserved'>('default');
 
   readonly size = input<'xs' | 's' | 'm'>('m');  //small, medium
   readonly backgroundColor = input<string>('');
 
-  /** A new reaction object pushed from the parent triggers the animation. */
   readonly reaction = input<EmojiInfo>();
 
-  /** The emoji currently being shown. */
   protected readonly emoji = signal('');
-  /** Drives the `.emoji-active` class — true while the reaction is on screen. */
   protected readonly showEmoji = signal(false);
 
   private hideTimer?: ReturnType<typeof setTimeout>;

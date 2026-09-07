@@ -2,20 +2,20 @@
   <h3 style="grid-area: count">Deltagere - {{participants().length}}</h3>
   <div class="buttons" style="grid-area: buttons">
     @if (isLobbyOwner()) {
-      <button class="btn-tertiary" (click)="addParticipant.emit()">
+      <button class="btn-secondary-outlined" (click)="addParticipant.emit()">
         <material-icon icon="person_add"></material-icon>
         Tilføj deltager
       </button>
-      <button class="btn-tertiary" (click)="disconnect.emit()">
+      <button class="btn-secondary-outlined" (click)="disconnect.emit()">
         <material-icon icon="exit_to_app"></material-icon>
         Luk Lobby
       </button>
     } @else {
-      <button class="btn-tertiary" (click)="disconnect.emit()">
+      <button class="btn-secondary-outlined" (click)="disconnect.emit()">
         <material-icon icon="exit_to_app"></material-icon>
         Forlad lobby
       </button>
-      <button class="btn-tertiary" (click)="openParticipantSettings.emit(undefined)">Indstillinger</button>
+      <button class="btn-secondary-outlined" (click)="openParticipantSettings.emit(undefined)">Indstillinger</button>
     }
   </div>
   @if (participants().length && !isCompact()) {

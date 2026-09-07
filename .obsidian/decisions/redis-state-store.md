@@ -1,3 +1,10 @@
+---
+type: adr
+adr: 5
+status: accepted
+tags: [adr, backend, state]
+---
+
 # ADR-005: Redis as the State Store (supersedes ADR-001 [[no-database]])
 
 **Date**: 2026-08-25 (recording a change that happened earlier and was never written down)

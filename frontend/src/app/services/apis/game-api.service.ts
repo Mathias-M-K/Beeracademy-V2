@@ -1,11 +1,9 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ConfigService} from '../../../config.service';
 import {Observable} from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class GameApi {
 
   private readonly appConfig: ConfigService = inject(ConfigService)
@@ -18,6 +16,10 @@ export class GameApi {
       withCredentials: true
     };
     return this.httpClient.get<void>(`${this.apiUrl}/games/${partyId}/players/${participantId}/claim`, requestOptions);
+  }
+
+  public requestPlayerRelease(partyId: string, participantId: string): Observable<void> {
+    return this.httpClient.post<void>(`${this.apiUrl}/games/${partyId}/players/${participantId}/request-release`, null)
   }
 
 }

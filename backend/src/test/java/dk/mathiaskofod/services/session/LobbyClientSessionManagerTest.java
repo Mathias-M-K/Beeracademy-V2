@@ -25,7 +25,7 @@ import dk.mathiaskofod.services.session.actions.lobby.common.SendMessageAction;
 import dk.mathiaskofod.services.session.actions.lobby.common.UpdateSettingsAction;
 import dk.mathiaskofod.services.session.envelopes.LobbyClientActionEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayer;
+import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayerException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
@@ -250,7 +250,7 @@ class LobbyClientSessionManagerTest {
             LobbyClientActionEnvelope envelope = new LobbyClientActionEnvelope(action);
 
             // Act & Assert
-            assertThrows(CannotIdentifyPlayer.class, () -> sessionManager.onMessage(tokenInfo, envelope));
+            assertThrows(CannotIdentifyPlayerException.class, () -> sessionManager.onMessage(tokenInfo, envelope));
         }
 
         @DisplayName("SendEmojiAction broadcasts to the lobby participants")

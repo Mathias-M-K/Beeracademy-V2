@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{url}}/games/:partyId"
+method: GET
+pathVariables:
+  - key: partyId
+    value: ""
+    description: ""
+order: 1788110974318

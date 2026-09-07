@@ -1,0 +1,90 @@
+:host {
+  display: grid;
+  grid-template-areas:
+    'badge name btn'
+    'badge settings btn';
+
+  grid-template-columns: auto 1fr auto;
+  flex-direction: column;
+
+  border-radius: 10px;
+  border: 1px solid var(--color-grey-500);
+  background-color: white;
+
+  padding: 10px;
+
+  column-gap: 10px;
+  row-gap: 5px;
+}
+
+:host(.is-requested) {
+  background-color: color-mix(in oklab, var(--primary), white 80%);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.name, .status {
+  margin: 0
+}
+
+.name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.status {
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+button {
+  height: unset;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.1px;
+}
+
+
+.chips {
+  display: flex;
+  gap: 10px;
+}
+
+.chip {
+  display: flex;
+  height: 25px;
+  border-radius: 10px;
+  align-items: center;
+  font-size: 12px;
+  padding: 5px 10px;
+
+  font-weight: bold;
+
+  user-select: none;
+}
+
+.sips-indicator {
+  background-color: color-mix(in oklab, var(--primary), transparent 60%);
+}
+
+.ace-allowed-indicator {
+  background-color: black;
+  color: white;
+}
+
+.ace-allowed-indicator.not-allowed {
+  text-decoration: line-through;
+  background-color: unset;
+  color: var(--primary-disabled);
+  border: 1px solid grey;
+}
+
+.chip p {
+  margin: 0;
+}

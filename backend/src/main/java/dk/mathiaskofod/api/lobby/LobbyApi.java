@@ -51,20 +51,20 @@ public class LobbyApi {
             responseCode = "202",
             description = "Lobby created successfully. Returns the lobby ID and sets a JWT token in a cookie.",
             headers = {
-                @Header(
-                        name = "Set-Cookie",
-                        description = "Contains the JWT session token",
-                        schema = @Schema(type = SchemaType.STRING))
+                    @Header(
+                            name = "Set-Cookie",
+                            description = "Contains the JWT session token",
+                            schema = @Schema(type = SchemaType.STRING))
             },
             content =
-                    @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CreateLobbyResponse.class)))
+            @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CreateLobbyResponse.class)))
     @APIResponse(responseCode = "400", description = "Invalid lobby name or parameter format.")
     public Response createLobby(
             @Parameter(description = "The name of the lobby to be created", required = true, example = "My Beer Lobby")
-                    @NotEmpty @QueryParam("name")
-                    String name) {
+            @NotEmpty @QueryParam("name")
+            String name) {
         String partyId = lobbyService.createLobby(name);
         String jwt = authenticationService.createGameClientToken(name, partyId);
 
@@ -87,7 +87,7 @@ public class LobbyApi {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = LobbyDTO.class)))
     @APIResponse(responseCode = "400", description = "Invalid party ID format.")
     @APIResponse(responseCode = "404", description = "Lobby not found.")
-    public LobbyDTO getLobby(@Valid @BeanParam PartyIdDto partyIdDto) {
+    public LobbyDTO getLobby(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
         return LobbyDTO.fromLobby(lobbyService.getLobby(partyIdDto.partyId()));
     }
 
@@ -101,19 +101,17 @@ public class LobbyApi {
             responseCode = "200",
             description = "Player registered successfully. Returns registered player details and sets a JWT cookie.",
             content =
-                    @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = RegisterPlayerResponse.class)),
+            @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = RegisterPlayerResponse.class)),
             headers = {
-                @Header(
-                        name = "Set-Cookie",
-                        description = "Contains the JWT session token",
-                        schema = @Schema(type = SchemaType.STRING))
+                    @Header(
+                            name = "Set-Cookie",
+                            description = "Contains the JWT session token",
+                            schema = @Schema(type = SchemaType.STRING))
             })
     public Response registerParticipant(
-            @Valid
-            @BeanParam
-            PartyIdDto partyIdDto,
+            @Valid @PathParam("partyId") PartyIdDto partyIdDto,
 
             @Parameter(description = "The name of the player registering in the lobby", required = true, example = "Bob")
             @NotEmpty(message = "Player name must not be empty")

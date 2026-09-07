@@ -1,6 +1,6 @@
 <h3>{{ initials() }}</h3>
-@if (style() === 'active'){
-  <div class="active-indicator"></div>
+@if (style() === 'active' || style() === 'reserved'){
+  <div [class.active]="style() === 'active'" [class.reserved]="style() === 'reserved'" class="status-indicator"></div>
 }
 <div class="emoji-clip" [class.emoji-active]="showEmoji()">
   <div class="emoji">{{ emoji() }}</div>

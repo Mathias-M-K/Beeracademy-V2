@@ -1,3 +1,10 @@
+---
+type: adr
+adr: 1
+status: superseded
+tags: [adr, backend, state]
+---
+
 # ADR-001: No Database — In-Memory State Only
 
 **Date**: (before 2026-06-16, pre-existing decision)

@@ -1,0 +1,55 @@
+<div class="header">
+  <p class="title">Deltagere</p>
+</div>
+
+<div class="quick-overview">
+  <p>
+    <span class="title">{{this.gameService.players().filter(player => player.sessionInfo?.isConnected).length}}</span>
+    <span class="subtitle"> forbundet</span>
+  </p>
+
+  <div class="status-graph">
+    @for (player of gameService.players(); track player.id) {
+      @let session = player.sessionInfo;
+      <div
+        [class.connected]="session?.isConnected"
+        [class.reserved]="!session?.isConnected && session?.isClaimed"
+        [class.free]="!session?.isConnected && !session?.isClaimed"
+        class="connection-indicator-box"></div>
+    }
+  </div>
+
+  <div class="legend">
+
+    <div class="legend-element connected">
+      <div class="dot"></div>
+      <p>Forbundet</p>
+    </div>
+
+    <div class="legend-element reserved">
+      <div class="dot"></div>
+      <p>Reserveret</p>
+    </div>
+
+    <div class="legend-element free">
+      <div class="dot"></div>
+      <p>Ledig</p>
+    </div>
+
+  </div>
+  <div class="horizontal_line"></div>
+
+</div>
+
+<div class="players">
+  @for (player of gameService.players(); track player.id) {
+    <app-player-overview-entity
+      [player]="player"
+      [compact]="isCompact()"
+      [isRequestedReleased]="gameService.releaseRequests().includes(player.id)"
+      [controlsAvailable]="gameService.isGameClient()"
+      (disconnectOrRelease)="onDisconnectOrRelease(player)">
+    </app-player-overview-entity>
+  }
+</div>
+

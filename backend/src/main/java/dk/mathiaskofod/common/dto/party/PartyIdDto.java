@@ -2,17 +2,12 @@ package dk.mathiaskofod.common.dto.party;
 
 import jakarta.validation.constraints.Pattern;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.jboss.resteasy.reactive.RestPath;
 
-/**
- * The id of a party — the group of players that stays together across both the lobby and the game phase.
- *
- * <p>Bound from the {@code {partyId}} path template via {@link RestPath}, validated, and normalised: clients may send
- * the display form {@code ABC-DEF-GHI}, which is stored and compared without dashes.
- */
-@Schema()
+@Schema(name = "PartyId", description = "Identifies a party. Nine alphanumeric characters. " +
+        "Dashes are accepted for readability and " +
+        "stripped before validation, so 'A1B2C3D4E' and 'A1B-2C3-D4E' refer to the same party.")
 public record PartyIdDto(
-        @RestPath
+        @Schema(description = "The nine-character party ID.", required = true)
         @Pattern(regexp = PartyIdDto.PATTERN, message = PartyIdDto.MESSAGE)
         String partyId) {
 

@@ -1,0 +1,15 @@
+<div class="check-mark-circle">
+  <material-icon icon="check" [size]="40"></material-icon>
+</div>
+
+<div>
+  <p class="title">Anmodning sendt</p>
+  <p class="main-text">Værten er blevet spurgt om at frigive <b>{{participantName}}</b>. Så snart pladsen bliver frigivet, deltager du automatisk</p>
+</div>
+
+<div>
+  <div class="horizontal_line"></div>
+  <p class="footer-text">Du kan stadigvæk overtage andre pladser i mellemtiden hvis du ønsker det</p>
+</div>
+
+<button class="btn-secondary" (click)="overlayHandle.close()">Okay</button>

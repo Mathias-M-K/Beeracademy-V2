@@ -1,4 +1,4 @@
-import {ApplicationRef, computed, inject, Injectable, linkedSignal, signal} from '@angular/core';
+import {ApplicationRef, computed, inject, Service, linkedSignal, signal} from '@angular/core';
 import {WebsocketService} from '../websocket.service';
 import {LobbyDTO} from '../../../api-models/model/lobbyDTO';
 import {WebsocketEnvelope} from '../models/websocket-envelope';
@@ -51,9 +51,7 @@ import {OverlayService} from '../overlay/overlay.service';
 import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LobbyService {
 
   private readonly appRef = inject(ApplicationRef);

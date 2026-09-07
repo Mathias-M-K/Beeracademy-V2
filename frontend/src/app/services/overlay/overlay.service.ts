@@ -1,4 +1,4 @@
-import {inject, Injectable, Injector} from '@angular/core';
+import {inject, Service, Injector} from '@angular/core';
 import {ComponentType, GlobalPositionStrategy, Overlay, OverlayPositionBuilder, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal} from '@angular/cdk/portal';
 import {OVERLAY_DATA, OverlayHandle} from './models/overlay-handle';
@@ -7,27 +7,27 @@ export interface OverlayConf<D> {
   component: ComponentType<any>;
   data?: D;
   backdrop?: boolean;
+  componentClasses?: string[];
+  backdropClass?: string;
+  dismissOnBackdropClick?: boolean;
   position?: GlobalPositionStrategy;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class OverlayService {
-
-  //TODO create a shared modal component, that other components can wire themselves into, to get a shared design across overlays
   private readonly overlay = inject(Overlay);
   private readonly injector = inject(Injector);
   private readonly positionBuilder = inject(OverlayPositionBuilder);
 
-  public openOverlay<ReturnModel, D=unknown>(conf: OverlayConf<D>): OverlayHandle<ReturnModel> {
+  public openOverlay<ReturnModel, D = unknown>(conf: OverlayConf<D>): OverlayHandle<ReturnModel> {
 
     const position = conf.position ?? this.positionBuilder.global().centerVertically().centerHorizontally();
 
     const hasBackdrop = conf.backdrop ?? true;
+    const backdropClass = hasBackdrop ? conf.backdropClass ?? 'overlay-backdrop' : '';
     const overlayRef: OverlayRef = this.overlay.create({
       hasBackdrop: hasBackdrop,
-      backdropClass: hasBackdrop ? 'overlay-backdrop' : '',
+      backdropClass: backdropClass,
       positionStrategy: position,
       scrollStrategy: hasBackdrop ? this.overlay.scrollStrategies.block() : this.overlay.scrollStrategies.noop()
     });
@@ -43,6 +43,15 @@ export class OverlayService {
     });
 
     overlayRef.attach(new ComponentPortal(conf.component, null, injector));
+    const overlayComponentElement = overlayRef.overlayElement.firstElementChild;
+    overlayComponentElement?.classList.add(...(conf.componentClasses ?? []));
+
+    if(conf.dismissOnBackdropClick??false){
+      overlayRef.backdropClick().subscribe({
+        next: () => handle.close()
+      });
+    }
+
 
     return handle;
   }

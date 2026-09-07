@@ -1,4 +1,4 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Service, signal} from '@angular/core';
 import {MessageInfo} from './models/message-info';
 import {MessageDirection} from './models/message-direction';
 import {Subject} from 'rxjs';
@@ -7,9 +7,7 @@ import {Emoji} from '../../../api-models/model/emoji';
 import {LobbyService} from '../lobby/lobby.service';
 import {EMOJI_DISPLAY} from './models/emoji-display';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ChatService {
 
   private readonly lobbyService: LobbyService = inject(LobbyService);
