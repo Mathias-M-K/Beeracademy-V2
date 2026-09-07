@@ -1,7 +1,9 @@
 ---
 type: registry
-updated: 2026-09-04
-tags: [issues, open]
+updated: 2026-09-07
+tags:
+  - issues
+  - open
 ---
 
 # Known Issues
@@ -131,14 +133,54 @@ Both cosmetic, both frontend:
 - `party-api.service.ts` — a leftover `console.debug("Getting party:", partyId)` and a no-op
   `map(partyStateDto => partyStateDto)` with its now-redundant `map` import.
 
+
+## 14. `GameApi` reaches into a websocket session manager
+`api/game/GameApi.java` injects `GameClientSessionManager` and calls
+`requestParticipantRelease(partyId, participantId)` straight from the
+`GET /games/{partyId}/players/{participantId}/request-release` endpoint. Every other endpoint
+on that resource goes through `GameService` / `GameSessionService`; this one skips the service
+layer and lets an HTTP request drive a websocket broadcast directly.
+
+Consequence: the release-request rules (party membership, party leader connected, player not
+connected) live in a session manager, so nothing else can reuse them and they are only
+reachable through a manager whose other entry point is `onMessage()`.
+
+**Fix direction:** a service that owns the request-release policy, with the session manager
+reduced to the broadcast. Same shape as issue 12 — a layer rule in [[architecture-tests]]
+(API must not import `services.session.*SessionManager`) would catch the recurrence.
+
+Introduced by the session-ownership-transfer branch, 2026-09-07.
+
+## 15. SSE connection events are in-memory and single-instance
+`services/event/publisher/SseEventPublisher.java` holds a Mutiny `BroadcastProcessor` as an
+instance field of an `@ApplicationScoped` bean. Subscribers come from
+`GET /events/player-connection-events/{partyId}` ([[project-beeracademy]] SSE stream); publishers
+are `PlayerClientSessionManager` (CONNECTED / DISCONNECTED) and `GameClientSessionManager`
+(RELEASED).
+
+**Consequence:** the stream is asymmetric with the rest of the state story ([[rules]] §6,
+[[redis-state-store]]). Sessions and game snapshots survive a restart and could be shared across
+replicas; these events cannot. A subscriber on instance B never sees an event published on
+instance A, and a restart drops every open stream with no replay — `BroadcastProcessor` has no
+buffer for late subscribers either, so an event published between the release action and the
+client's `EventSource` connecting is simply lost.
+
+Fine while the backend is single-instance (as lobbies already force — issue 8), but it is a second
+thing blocking horizontal scaling, and unlike lobbies it silently degrades rather than failing.
+
+**Fix direction:** Redis pub/sub behind the same `playerConnectionEventStream` signature.
+
+Introduced by the session-ownership-transfer branch, 2026-09-07.
+
 ## Related
 
 - [[rules]] — the conventions several of these violate
 - [[security-issues]] — security defects, tracked separately
 - [[party-id-unification]] — the change during which issues 1–9 were found
 - [[party-state-endpoint-review]] — the archived review issues 10–13 were promoted from
-- [[architecture-tests]] — machine-enforced checks; issues 6 and 12 are what it must encode
+- [[architecture-tests]] — machine-enforced checks; issues 6, 12 and 14 are what it must encode
 - [[runtime-config]] — issue 9
-- [[redis-state-store]] — issues 5, 7, 8
+- [[redis-state-store]] — issues 5, 7, 8, 15
 - [[party-id-lifecycle]] — issue 6's boundary rule
+- [[websocket-session-managers]] — issue 14
 - [[README]] — vault index

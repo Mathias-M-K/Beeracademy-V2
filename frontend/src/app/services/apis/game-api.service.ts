@@ -19,7 +19,7 @@ export class GameApi {
   }
 
   public requestPlayerRelease(partyId: string, participantId: string): Observable<void> {
-    return this.httpClient.get<void>(`${this.apiUrl}/games/${partyId}/players/${participantId}/request-release`)
+    return this.httpClient.post<void>(`${this.apiUrl}/games/${partyId}/players/${participantId}/request-release`, null)
   }
 
 }

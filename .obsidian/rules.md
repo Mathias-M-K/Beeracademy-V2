@@ -1,7 +1,9 @@
 ---
 type: rules
-updated: 2026-09-04
-tags: [rules, conventions]
+updated: 2026-09-07
+tags:
+  - rules
+  - conventions
 ---
 
 # Rules
@@ -80,15 +82,29 @@ must not be swept into an id rename.
 
 ## 3. Declare validation once
 
-Id validation lives in `PartyIdDto` (`PATTERN` / `MESSAGE` constants) and is reused by
-every endpoint that accepts a party id, including the lobby ones.
+Id validation lives in the id DTO — `PartyIdDto` (`PATTERN` / `MESSAGE` constants) for party
+ids, `ParticipantIdDto` for participant/player ids — and is reused by every endpoint that
+accepts one, including the lobby ones.
 
 **Why:** the regex was previously written out three times, and the copies drifted — two of
 them carried the message "Invalid game ID format" on a *lobby* path param.
 
-`@RestPath` binds by **record component name**, so renaming the component renames the URI
-template. The DTO also normalises input (strips `-`), because the frontend displays ids as
-`ABC-DEF-GHI`.
+**Binding is `@PathParam`, not `@RestPath`/`@BeanParam`.** As of 2026-09-07 the id DTOs are
+bound explicitly by template name:
+
+```java
+public GameDto getGame(@Valid @PathParam("partyId") PartyIdDto partyIdDto) { ... }
+```
+
+JAX-RS converts the path segment through the record's single-`String` canonical constructor,
+which is also where normalisation happens (strips `-`, because the frontend displays ids as
+`ABC-DEF-GHI`). The component name no longer drives the URI template, so the template string
+in `@Path` and the name in `@PathParam` must be kept in sync by hand.
+
+**Check** — both return nothing:
+```bash
+grep -rn "RestPath\|BeanParam" src/main/java --include=*.java
+```
 
 ## 4. Websocket actions and events are annotation-declared
 

@@ -2,19 +2,14 @@ package dk.mathiaskofod.services.event.publisher;
 
 import dk.mathiaskofod.services.event.publisher.models.ConnectionEvent;
 import dk.mathiaskofod.services.event.publisher.models.PlayerConnectionEvent;
-import dk.mathiaskofod.services.game.GameService;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class SseEventPublisher {
-
-    @Inject
-    GameService gameService;
 
     private final BroadcastProcessor<PlayerConnectionEvent> playerConnectionEvents = BroadcastProcessor.create();
 
