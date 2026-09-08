@@ -47,7 +47,6 @@
       [player]="player"
       [compact]="isCompact()"
       [isRequestedReleased]="gameService.releaseRequests().includes(player.id)"
-      [controlsAvailable]="gameService.isGameClient()"
       (disconnectOrRelease)="onDisconnectOrRelease(player)">
     </app-player-overview-entity>
   }

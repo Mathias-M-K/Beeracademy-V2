@@ -3,12 +3,14 @@ import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 import {TimerState} from '../../../../api-models/model/timerState';
 import {GameInfo} from '../../../services/game/models/game-info';
 import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
+import {IsGameOwnerDirective} from '../../../is-game-owner.directive';
 
 @Component({
   selector: 'app-header',
   imports: [
     GameTimeFormatPipe,
-    MaterialIcon
+    MaterialIcon,
+    IsGameOwnerDirective
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss',

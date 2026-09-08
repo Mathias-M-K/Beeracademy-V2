@@ -6,12 +6,14 @@ import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 import {Player} from '../../../services/game/models/player';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {BreakpointObserver} from '@angular/cdk/layout';
+import {IsGameOwnerDirective} from '../../../is-game-owner.directive';
 
 @Component({
   selector: 'app-draw-panel',
   imports: [
     CardComponent,
-    GameTimeFormatPipe
+    GameTimeFormatPipe,
+    IsGameOwnerDirective
   ],
   templateUrl: './draw-panel.html',
   styleUrl: './draw-panel.scss',

@@ -3,13 +3,15 @@ import {Player} from '../../../services/game/models/player';
 import {
   ParticipantBadge
 } from '../../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
+import {IsGameOwnerDirective} from '../../../is-game-owner.directive';
 
 @Component({
   selector: 'app-player-overview-entity',
   styleUrl: './player-overview-entity.component.scss',
   templateUrl: './player-overview-entity.component.html',
   imports: [
-    ParticipantBadge
+    ParticipantBadge,
+    IsGameOwnerDirective
   ],
   host: {
     '[class.is-requested]': 'isRequestedReleased()'
@@ -20,7 +22,6 @@ export class PlayerOverviewEntity {
   readonly player = input.required<Player>();
   readonly isRequestedReleased = input(false);
   readonly compact = input<boolean>(false);
-  readonly controlsAvailable = input<boolean>(false);
 
   readonly disconnectOrRelease = output<void>();
 

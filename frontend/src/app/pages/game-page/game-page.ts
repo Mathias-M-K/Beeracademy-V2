@@ -14,6 +14,7 @@ import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
 import {DrawerService} from '../../services/drawer/drawer.service';
+import {IsGameOwnerDirective} from '../../is-game-owner.directive';
 
 @Component({
   selector: 'app-game-page',
@@ -22,7 +23,8 @@ import {DrawerService} from '../../services/drawer/drawer.service';
     CardCount,
     DrawPanel,
     PodiumComponent,
-    PlayerGrid
+    PlayerGrid,
+    IsGameOwnerDirective
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',

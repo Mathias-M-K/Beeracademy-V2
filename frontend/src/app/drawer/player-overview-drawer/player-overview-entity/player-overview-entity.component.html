@@ -8,12 +8,14 @@
 
 <p class="name">{{ player().name }}</p>
 
+<ng-container *isGameOwner>
+  @if (isConnected()) {
+    <button class="btn-secondary" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Fjern</button>
+  } @else if (isClaimed()) {
+    <button class="btn-secondary-outlined" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Frigiv</button>
+  }
+</ng-container>
 
-@if (isConnected() && controlsAvailable()) {
-  <button class="btn-secondary" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Fjern</button>
-} @else if (isClaimed() && controlsAvailable()) {
-  <button class="btn-secondary-outlined" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Frigiv</button>
-}
 
 
 <div class="chips" [style.grid-area]="'settings'">

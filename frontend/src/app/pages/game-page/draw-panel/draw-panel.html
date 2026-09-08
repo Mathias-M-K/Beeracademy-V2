@@ -1,10 +1,10 @@
 @if (isCompact()) {
   <div class="compact-card">
     <app-card [card]="currentCard()"></app-card>
-    <button (click)="drawCardClick.emit()">Draw!</button>
+    <button *isGameOwner (click)="drawCardClick.emit()">Draw!</button>
   </div>
 } @else {
-  <app-card (keydown)="drawCardClick.emit()" (click)="drawCardClick.emit()" [isBackside]="true"></app-card>
+  <app-card *isGameOwner (keydown)="drawCardClick.emit()" (click)="drawCardClick.emit()" [isBackside]="true"></app-card>
   <app-card [card]="currentCard()"></app-card>
 }
 
