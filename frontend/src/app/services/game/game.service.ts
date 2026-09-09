@@ -398,7 +398,6 @@ export class GameService {
 
   private handlePlayerConnected(event: GameEventEnvelope) {
     const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerConnectedEvent;
-    console.log("Player connected:", playerConnectedEvent.playerId);
     if(this.releaseRequests().includes(playerConnectedEvent.playerId)){
       this._releaseRequests.update(playerIds => playerIds.filter(playerId => playerId !== playerConnectedEvent.playerId));
     }
@@ -407,7 +406,6 @@ export class GameService {
 
   private handlePlayerDisconnected(event: GameEventEnvelope) {
     const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerDisconnectedEvent;
-    console.log("Player disconnected:", playerConnectedEvent.playerId);
     this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, false, true);
   }
 
