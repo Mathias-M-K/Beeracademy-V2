@@ -1,0 +1,50 @@
+<div class="header">
+  <div class="icon-circle">
+    <material-icon icon="pause" [fill]=true [size]="15"></material-icon>
+  </div>
+  <p class="subtitle">PAUSE</p>
+</div>
+<div>
+  <h2>Spillet er på pause</h2>
+  <div class="horizontal_line"></div>
+</div>
+
+<div class="info">
+  <div class="pause-timer">
+    <p class="subtitle">PAUSET I</p>
+    <h1 class="pause-time">{{ timer.elapsedTime() | gameTimeFormat: 'HH:mm:ss' }}</h1>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <h3>{{ gamePauseData.currentRound }}</h3>
+      <p class="subtitle">Runde af 13</p>
+    </div>
+    <div class="stat">
+      <h3>{{ gamePauseData.cardsLeft }}</h3>
+      <p class="subtitle">Kort tilbage</p>
+    </div>
+    <div class="stat">
+      <h3>{{ gamePauseData.elapsedGameTime | gameTimeFormat: 'HH:mm:ss' }}</h3>
+      <p class="subtitle">Spilletid</p>
+    </div>
+  </div>
+
+  <div class="next-player">
+    @let currentPlayer = gamePauseData.currentPlayer;
+    <app-participant-badge size="xs" [initials]="currentPlayer.name.substring(0,1)"
+                           [backgroundColor]="currentPlayer.color"></app-participant-badge>
+    <p class="subtitle">{{ currentPlayer.name }} trækker næste gang</p>
+  </div>
+</div>
+
+<div class="buttons">
+  <button *isGameOwner class="btn-secondary" (click)="resumeGame()">Forsæt Spillet</button>
+  <button *isGameOwner class="btn-secondary-outlined" (click)="drawerService.showPartyShareDrawer(gamePauseData.partyId)">Del</button>
+  <button *isGameOwner class="btn-secondary-outlined" [disabled]="true">Afslut Spillet</button> <!--TODO does nothing right no-->
+  <button *isPlayer class="btn-secondary-outlined" [disabled]="true">Forlad spillet</button> <!--TODO does nothing right no-->
+
+</div>
+
+
+

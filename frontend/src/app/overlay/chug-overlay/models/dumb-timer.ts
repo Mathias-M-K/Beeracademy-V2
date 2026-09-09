@@ -2,7 +2,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {interval} from 'rxjs';
 import {effect, signal} from '@angular/core';
 
-export class DumbTimer{
+export class DumbTimer {
 
   private readonly tick = toSignal(interval(31));
 
@@ -15,30 +15,27 @@ export class DumbTimer{
 
   private startTime!: number;
 
-  constructor() {
+  constructor(elapsedTime?: number) {
+    this._elapsedTime.set(elapsedTime ?? 0);
     effect(() => {
       this.tick();
+      if (!this._timerRunning()) return;
 
-      if (this._timerRunning()){
-        this._elapsedTime.set(Date.now() - this.startTime);
-      }else{
-        return;
-      }
-
+      this._elapsedTime.set(Date.now() - this.startTime);
     });
   }
 
-  public startTimer(){
-    this.startTime = Date.now();
+  public startTimer() {
+    this.startTime = Date.now() - this.elapsedTime();
     this._timerRunning.set(true);
   }
 
-  public stopTimer(){
+  public stopTimer() {
     this._timerRunning.set(false);
   }
 
   /** Stops as well as clears — otherwise the next tick would overwrite the 0. */
-  public resetTimer(){
+  public resetTimer() {
     this._timerRunning.set(false);
     this.startTime = 0;
     this._elapsedTime.set(0);

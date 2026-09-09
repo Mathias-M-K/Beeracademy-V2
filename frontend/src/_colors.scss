@@ -34,6 +34,7 @@
   --color-grey-500:     #c9c9c9;
   --color-grey-600:     #8f8f8f;
   --complementary:      #247edc;
+  --off-white:          #ecf0f1;
 
 
   /* Semantic */
@@ -52,4 +53,6 @@
   --success:          var(--color-emerald-500);
   --of-white:       var(--color-slate-100);
   --reserved:         var(--color-coffie-600);
+
+  --background: var(--off-white);
 }

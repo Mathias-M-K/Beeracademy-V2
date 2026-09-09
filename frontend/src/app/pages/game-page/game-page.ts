@@ -49,7 +49,8 @@ export class GamePage implements OnInit, OnDestroy {
   protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 
-  remainingCardsCount = this.gameService.remainingCardsCount;
+  protected remainingCardsByRank = this.gameService.remainingCardsByRank;
+
 
   ngOnInit(): void {
     this.gameService.connectToWebsocket();
