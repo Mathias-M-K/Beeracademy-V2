@@ -14,7 +14,6 @@ import {DrawPanel} from './draw-panel/draw-panel';
 import {PodiumComponent} from './podium/podium.component';
 import {PlayerGrid} from './player-grid/player-grid';
 import {DrawerService} from '../../services/drawer/drawer.service';
-import {IsGameOwnerDirective} from '../../is-game-owner.directive';
 
 @Component({
   selector: 'app-game-page',
@@ -23,8 +22,7 @@ import {IsGameOwnerDirective} from '../../is-game-owner.directive';
     CardCount,
     DrawPanel,
     PodiumComponent,
-    PlayerGrid,
-    IsGameOwnerDirective
+    PlayerGrid
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
@@ -79,6 +77,10 @@ export class GamePage implements OnInit, OnDestroy {
 
   protected showPlayerOverview(): void {
     this.drawerService.showPlayerOverviewDrawer();
+  }
+
+  protected showSharePanel(): void {
+    this.drawerService.showPartyShareDrawer(this.gameInfo()?.id!);
   }
 
   protected readonly TimerState = TimerState;

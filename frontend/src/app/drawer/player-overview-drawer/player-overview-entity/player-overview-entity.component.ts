@@ -3,7 +3,7 @@ import {Player} from '../../../services/game/models/player';
 import {
   ParticipantBadge
 } from '../../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {IsGameOwnerDirective} from '../../../is-game-owner.directive';
+import {IsGameOwnerDirective} from '../../../directives/is-game-owner.directive';
 
 @Component({
   selector: 'app-player-overview-entity',

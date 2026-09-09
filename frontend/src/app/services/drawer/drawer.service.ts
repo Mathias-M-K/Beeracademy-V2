@@ -8,6 +8,7 @@ import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map} from 'rxjs';
 import {ConfirmationDrawer} from '../../drawer/confirmation-drawer/confirmation-drawer';
+import {PartyShareDrawerComponent} from '../../drawer/party-share-drawer/party-share-drawer.component';
 
 @Service()
 export class DrawerService {
@@ -29,6 +30,10 @@ export class DrawerService {
 
   public showConfirmationDrawer(participantId: string){
     this.showDrawer(ConfirmationDrawer, participantId);
+  }
+
+  public showPartyShareDrawer(partyId: string){
+    this.showDrawer(PartyShareDrawerComponent, partyId);
   }
 
   private showDrawer(component: ComponentType<any>, data?: any): void {

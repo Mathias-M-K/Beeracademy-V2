@@ -27,7 +27,7 @@
     <material-icon icon="group"></material-icon>
   </button>
 
-  <button [style.grid-area]="'share-btn'" class="btn-secondary btn-icon">
+  <button [style.grid-area]="'share-btn'" class="btn-secondary btn-icon" (click)="shareClick.emit()">
     <material-icon icon="share"></material-icon>
   </button>
 </div>

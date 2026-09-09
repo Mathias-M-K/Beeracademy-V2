@@ -3,7 +3,7 @@ import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 import {TimerState} from '../../../../api-models/model/timerState';
 import {GameInfo} from '../../../services/game/models/game-info';
 import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
-import {IsGameOwnerDirective} from '../../../is-game-owner.directive';
+import {IsGameOwnerDirective} from '../../../directives/is-game-owner.directive';
 
 @Component({
   selector: 'app-header',
@@ -27,6 +27,7 @@ export class Header {
   readonly pauseClick = output<void>();
   readonly resumeClick = output<void>();
   readonly playerOverviewClick = output<void>();
+  readonly shareClick = output<void>();
 
   protected readonly TimerState = TimerState;
 }

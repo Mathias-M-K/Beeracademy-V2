@@ -1,5 +1,5 @@
 import {Directive, effect, inject, TemplateRef, ViewContainerRef} from '@angular/core';
-import {GameService} from './services/game/game.service';
+import {GameService} from '../services/game/game.service';
 
 @Directive({
   selector: '[isGameOwner]',
