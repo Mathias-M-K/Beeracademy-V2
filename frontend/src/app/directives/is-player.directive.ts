@@ -11,7 +11,7 @@ export class IsPlayerDirective {
 
   constructor() {
     effect(() => {
-      const isPlayer = !this.gameService.isGameClient();
+      const isPlayer = this.gameService.isPlayer();
 
       this.viewContainer.clear();
 

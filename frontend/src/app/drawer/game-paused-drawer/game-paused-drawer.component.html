@@ -39,7 +39,7 @@
 </div>
 
 <div class="buttons">
-  <button *isGameOwner class="btn-secondary" (click)="resumeGame()">Forsæt Spillet</button>
+  <button *isGameOwner class="btn-secondary" (click)="resumeGame()">Fortsæt spillet</button>
   <button *isGameOwner class="btn-secondary-outlined" (click)="drawerService.showPartyShareDrawer(gamePauseData.partyId)">Del</button>
   <button *isGameOwner class="btn-secondary-outlined" [disabled]="true">Afslut Spillet</button> <!--TODO does nothing right no-->
   <button *isPlayer class="btn-secondary-outlined" [disabled]="true">Forlad spillet</button> <!--TODO does nothing right no-->

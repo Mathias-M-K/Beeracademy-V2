@@ -107,15 +107,15 @@ export class GameService {
   private readonly _remainingCardsByRank = linkedSignal(() => this.gameStateObj()?.remainingCardsCount ?? []);
   public readonly remainingCardsByRank = this._remainingCardsByRank.asReadonly();
 
-  private readonly remainingCardsCount = computed(()=> {
+  private readonly remainingCardsCount = computed(() => {
     return this._remainingCardsByRank()
-      .flatMap(rankCountDto => rankCountDto.count??0)
-      .reduce((increase, current) => increase + current,0);
+      .reduce((total, rank) => total + (rank.count??0), 0);
   })
 
   private readonly identity = signal<Identity | undefined>(undefined)
   private readonly role = computed(() => this.identity()?.role);
   public readonly isGameClient = computed(() => this.role() === Role.GameClient);
+  public readonly isPlayer = computed(() => !this.isGameClient);
 
   private readonly _releaseRequests = signal<string[]>([]);
   public readonly releaseRequests = this._releaseRequests.asReadonly();
@@ -567,10 +567,6 @@ export class GameService {
     this.gamePausedPanel = this.drawerService.showGamePausedDrawer(gamePausedData);
 
     this.gamePausedPanel.closed.then(() => {
-      console.log("Closed!");
-      if (this.isGameClient()) {
-        this.dispatchResumeGameAction();
-      }
       this.gamePausedPanel = undefined;
     })
 
@@ -592,8 +588,10 @@ export class GameService {
 
     this.chugOverlay.closed.then((chugTime) => {
       this.chugOverlay = undefined;
-      if (!this.isGameClient()) return;
-      this.dispatchChugAction(chugTime ?? 0);
+      if (this.isGameClient()) {
+        this.dispatchChugAction(chugTime ?? 0);
+      }
+
     });
   }
 
