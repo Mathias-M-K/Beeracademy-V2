@@ -31,7 +31,6 @@ import {ToastState} from '../../overlay/toast/models/toast-data';
 import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
 import {identifyFromEvent, Identity} from '../models/identity';
 import {IdentityEvent} from '../models/categories/events/common/identity-event';
-import {GameNotStartedOverlay} from '../../overlay/game-state-overlay/game-not-started-overlay.component';
 import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {Role} from '../../../api-models/model/role';
 import {Router} from '@angular/router';
@@ -92,7 +91,13 @@ export class GameService {
   })
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
-  private readonly currentPlayerId = linkedSignal(() => this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,);
+  private readonly currentPlayerId = linkedSignal(() => {
+    if(this.gameState() === GameState.AwaitingChug){
+      return this.gameStateObj()?.lastPlayerToDraw;
+    }
+    // return this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw
+    return this.gameStateObj()?.nextPlayerToDraw
+  });
   public readonly currentPlayer = computed(() => {
     const id = this.currentPlayerId();
     if (!id) return undefined;
@@ -118,7 +123,6 @@ export class GameService {
   private readonly _releaseRequests = signal<string[]>([]);
   public readonly releaseRequests = this._releaseRequests.asReadonly();
 
-  private gameNotStartedOverlay?: OverlayHandle<void>;
   private gamePausedOverlay?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;
 
@@ -177,19 +181,7 @@ export class GameService {
       case GameState.AwaitingChug:
         return this.openChugOverlay();
       case GameState.AwaitingStart: {
-        this.gameNotStartedOverlay = this.overlayService.openOverlay<void, boolean>({
-          component: GameNotStartedOverlay,
-          data: this.isGameClient()
-        });
-
-        if (this.isGameClient()) {
-          this.gameNotStartedOverlay.closed.then(() => {
-            this.gameNotStartedOverlay = undefined;
-            this.dispatchStartGameAction();
-          })
-        }
-
-        break;
+        this.dispatchStartGameAction();
       }
     }
 
@@ -329,6 +321,15 @@ export class GameService {
   private handleDrawCardEvent(event: GameEventEnvelope) {
     const drawCardEvent: DrawCardEvent = event.payload as DrawCardEvent;
 
+    if (!this.currentCard()) {
+      this.startTimer(this.gameTimeReport);
+    }
+
+    let lastPlayer = this.players().at(this.players().length-1);
+    if (this.currentRound() === 1 && drawCardEvent.drawnBy === lastPlayer?.id) {
+      this.startTimer(this.playerTimeReport);
+    }
+
     const card = drawCardEvent.turn.card!;
     const isChugCard = card?.rank === 14;
     this.currentCard.set(card);
@@ -347,7 +348,11 @@ export class GameService {
 
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
-    this.resetTimer(this.playerTimeReport);
+
+    if(this.currentRound() > 1){
+      this.resetTimer(this.playerTimeReport);
+    }
+
 
     if (isChugCard) {
       this.openChugOverlay();
@@ -358,18 +363,18 @@ export class GameService {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
     this.currentPlayerId.set(chugEvent.nextToDraw);
-    this.startTimer(this.playerTimeReport);
+
+    if(this.currentRound() > 1){
+      this.startTimer(this.playerTimeReport);
+    }
+
     this.gameState.set(GameState.InProgress);
 
     this.chugOverlay?.close();
   }
 
   private handleGameStartEvent() {
-    this.startTimer(this.gameTimeReport);
-    this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
-
-    this.gameNotStartedOverlay?.close();
   }
 
   private handleGamePausedEvent(event: GameEventEnvelope) {
@@ -398,7 +403,7 @@ export class GameService {
 
   private handlePlayerConnected(event: GameEventEnvelope) {
     const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerConnectedEvent;
-    if(this.releaseRequests().includes(playerConnectedEvent.playerId)){
+    if (this.releaseRequests().includes(playerConnectedEvent.playerId)) {
       this._releaseRequests.update(playerIds => playerIds.filter(playerId => playerId !== playerConnectedEvent.playerId));
     }
     this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, true, true);
@@ -459,7 +464,7 @@ export class GameService {
   }
 
   public dispatchReleaseAction(playerId: string) {
-    if(this.releaseRequests().includes(playerId)) {
+    if (this.releaseRequests().includes(playerId)) {
       this._releaseRequests.update(playerIds => playerIds.filter(requestPlayerId => requestPlayerId !== playerId));
     }
     this.dispatchGameAction(releasePlayerAction(playerId))
@@ -603,12 +608,10 @@ export class GameService {
 
   // Guests can't close the chug/pause overlays themselves — don't strand them behind one
   private dismissAllOverlays(ignoreAnimation = false) {
-    this.gameNotStartedOverlay?.dismiss(ignoreAnimation);
     this.gamePausedOverlay?.dismiss(ignoreAnimation);
     this.chugOverlay?.dismiss(ignoreAnimation);
 
     // A dismissal never resolves `closed`, so the handlers that normally clear these don't run.
-    this.gameNotStartedOverlay = undefined;
     this.gamePausedOverlay = undefined;
     this.chugOverlay = undefined;
   }
