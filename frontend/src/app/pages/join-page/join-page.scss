@@ -59,7 +59,7 @@ label, span {
 .players {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 350px;
   gap: 5px;
   margin-bottom: 20px;
 }
@@ -68,12 +68,11 @@ label, span {
 
   :host {
     grid-template-rows: auto;
-    padding: 30px 30px 0 30px;
-
     align-items: start;
   }
 
   .players {
+    width: 90dvw;
     height: 100%;
   }
 

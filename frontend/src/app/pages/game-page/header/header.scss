@@ -27,7 +27,7 @@ button{
   grid-template-areas: 'clock time-btn player-overview-btn share-btn ';
   align-items: inherit;
   justify-content: end;
-  gap: inherit;
+  gap: 5px;
 }
 
 @media (max-width: 500px) {

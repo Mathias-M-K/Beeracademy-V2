@@ -79,5 +79,11 @@ export class GamePage implements OnInit, OnDestroy {
     this.drawerService.showPlayerOverviewDrawer();
   }
 
+  protected showSharePanel(): void {
+    const partyId = this.gameInfo()?.id;
+    if(!partyId || partyId === '') return;
+    this.drawerService.showPartyShareDrawer(partyId);
+  }
+
   protected readonly TimerState = TimerState;
 }

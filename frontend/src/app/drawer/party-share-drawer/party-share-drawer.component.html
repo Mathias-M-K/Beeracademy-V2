@@ -1,0 +1,17 @@
+<div class="header">
+  <p class="subtitle">Inviter</p>
+  <h2>Del spillet</h2>
+</div>
+
+<div class="sharing-information">
+  <qrcode [qrdata]="url" [width]="300"></qrcode>
+  <p class="subtitle">Spillekode</p>
+  <h1>{{ partyId | mask : 'AAA-AAA-AAA'}}</h1>
+</div>
+
+<div class="link">
+  <p class="link-text">{{ url.replace('https://',"") }}</p>
+  <button class="btn-icon btn-secondary" [cdkCopyToClipboard]="url">
+    <material-icon icon="content_copy"></material-icon>
+  </button>
+</div>
