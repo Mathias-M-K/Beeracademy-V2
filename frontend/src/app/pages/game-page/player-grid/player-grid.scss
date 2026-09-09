@@ -31,6 +31,7 @@
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: 100%;
+    background-color: var(--background);
   }
   .players::-webkit-scrollbar {
     display: none;

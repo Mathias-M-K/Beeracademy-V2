@@ -25,19 +25,16 @@ import {OverlayService} from '../overlay/overlay.service';
 import {ChugOverlay} from '../../overlay/chug-overlay/chug-overlay';
 import {Player} from './models/player';
 import {playerColor} from '../../common/theme/player-colors';
-import {RankCountDto} from '../../../api-models/model/rankCountDto';
 import {ToastService} from '../toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
 import {identifyFromEvent, Identity} from '../models/identity';
 import {IdentityEvent} from '../models/categories/events/common/identity-event';
-import {GameNotStartedOverlay} from '../../overlay/game-state-overlay/game-not-started-overlay.component';
 import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {Role} from '../../../api-models/model/role';
 import {Router} from '@angular/router';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
-import {GamePausedOverlay} from '../../overlay/game-paused-overlay/game-paused-overlay';
-import {GamePausedOverlayData} from '../../overlay/game-paused-overlay/models/game-paused-overlay-data';
+import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
 import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
 import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
 import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
@@ -50,6 +47,7 @@ import {PlayerKickedEvent} from '../models/categories/events/game/game-event/pla
 import {
   PlayerReleaseRequestedEvent
 } from '../models/categories/events/game/game-client-event/player-release-requested.event';
+import {DrawerService} from '../drawer/drawer.service';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -59,6 +57,7 @@ export class GameService {
   private readonly overlayService = inject(OverlayService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly drawerService = inject(DrawerService);
 
   private readonly gameStateObj = signal<GameDto | undefined>(undefined);
   public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
@@ -92,34 +91,36 @@ export class GameService {
   })
   public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
 
-  private readonly currentPlayerId = linkedSignal(() => this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw,);
+  private readonly currentPlayerId = linkedSignal(() => {
+    if (this.gameState() === GameState.AwaitingChug) {
+      return this.gameStateObj()?.lastPlayerToDraw;
+    }
+    // return this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw
+    return this.gameStateObj()?.nextPlayerToDraw
+  });
   public readonly currentPlayer = computed(() => {
     const id = this.currentPlayerId();
     if (!id) return undefined;
     return this.players().find((player) => player.id === id);
   });
 
-  private readonly _remainingCardsCount = linkedSignal(() => {
-    const list = this.gameStateObj()?.remainingCardsCount;
+  private readonly _remainingCardsByRank = linkedSignal(() => this.gameStateObj()?.remainingCardsCount ?? []);
+  public readonly remainingCardsByRank = this._remainingCardsByRank.asReadonly();
 
-    if (list) {
-      return list;
-    } else {
-      const otherList: RankCountDto[] = [];
-      return otherList;
-    }
-  });
-  public readonly remainingCardsCount = this._remainingCardsCount.asReadonly();
+  private readonly remainingCardsCount = computed(() => {
+    return this._remainingCardsByRank()
+      .reduce((total, rank) => total + (rank.count??0), 0);
+  })
 
   private readonly identity = signal<Identity | undefined>(undefined)
   private readonly role = computed(() => this.identity()?.role);
   public readonly isGameClient = computed(() => this.role() === Role.GameClient);
+  public readonly isPlayer = computed(() => !this.isGameClient);
 
   private readonly _releaseRequests = signal<string[]>([]);
   public readonly releaseRequests = this._releaseRequests.asReadonly();
 
-  private gameNotStartedOverlay?: OverlayHandle<void>;
-  private gamePausedOverlay?: OverlayHandle<void>;
+  private gamePausedPanel?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;
 
   private isReconnecting: boolean = false;
@@ -177,24 +178,12 @@ export class GameService {
       case GameState.AwaitingChug:
         return this.openChugOverlay();
       case GameState.AwaitingStart: {
-        this.gameNotStartedOverlay = this.overlayService.openOverlay<void, boolean>({
-          component: GameNotStartedOverlay,
-          data: this.isGameClient()
-        });
-
-        if (this.isGameClient()) {
-          this.gameNotStartedOverlay.closed.then(() => {
-            this.gameNotStartedOverlay = undefined;
-            this.dispatchStartGameAction();
-          })
-        }
-
-        break;
+        this.dispatchStartGameAction();
       }
     }
 
     if (this.gameTimeReport()?.state === TimerState.Paused) {
-      this.openPauseOverlay(this.gameTimeReport()!);
+      this.openPausePanel();
     }
 
 
@@ -329,11 +318,20 @@ export class GameService {
   private handleDrawCardEvent(event: GameEventEnvelope) {
     const drawCardEvent: DrawCardEvent = event.payload as DrawCardEvent;
 
+    if (!this.currentCard()) {
+      this.startTimer(this.gameTimeReport);
+    }
+
+    let lastPlayer = this.players().at(this.players().length - 1);
+    if (this.currentRound() === 1 && drawCardEvent.drawnBy === lastPlayer?.id) {
+      this.startTimer(this.playerTimeReport);
+    }
+
     const card = drawCardEvent.turn.card!;
     const isChugCard = card?.rank === 14;
     this.currentCard.set(card);
 
-    this._remainingCardsCount.update((counts) =>
+    this._remainingCardsByRank.update((counts) =>
       counts.map((entry) =>
         entry.rank === card.rank ? {...entry, count: (entry.count ?? 1) - 1} : entry,
       ),
@@ -347,7 +345,11 @@ export class GameService {
 
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
-    this.resetTimer(this.playerTimeReport);
+
+    if (this.currentRound() > 1) {
+      this.resetTimer(this.playerTimeReport);
+    }
+
 
     if (isChugCard) {
       this.openChugOverlay();
@@ -358,18 +360,18 @@ export class GameService {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
     this.currentPlayerId.set(chugEvent.nextToDraw);
-    this.startTimer(this.playerTimeReport);
+
+    if (this.currentRound() > 1) {
+      this.startTimer(this.playerTimeReport);
+    }
+
     this.gameState.set(GameState.InProgress);
 
     this.chugOverlay?.close();
   }
 
   private handleGameStartEvent() {
-    this.startTimer(this.gameTimeReport);
-    this.startTimer(this.playerTimeReport);
     this.gameState.set(GameState.InProgress);
-
-    this.gameNotStartedOverlay?.close();
   }
 
   private handleGamePausedEvent(event: GameEventEnvelope) {
@@ -377,7 +379,7 @@ export class GameService {
     this.gameTimeReport.set(gamePausedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gamePausedEvent.timerReports?.playerTimeReport);
 
-    this.openPauseOverlay(gamePausedEvent.timerReports.gameTimeReport!);
+    this.openPausePanel();
   }
 
   private handleGameResumedEvent(event: GameEventEnvelope) {
@@ -385,7 +387,7 @@ export class GameService {
     this.gameTimeReport.set(gameResumedEvent.timerReports?.gameTimeReport);
     this.playerTimeReport.set(gameResumedEvent.timerReports?.playerTimeReport);
 
-    this.gamePausedOverlay?.close();
+    this.gamePausedPanel?.close();
   }
 
   private handleGameEndEvent(event: GameEventEnvelope) {
@@ -398,8 +400,7 @@ export class GameService {
 
   private handlePlayerConnected(event: GameEventEnvelope) {
     const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerConnectedEvent;
-    console.log("Player connected:", playerConnectedEvent.playerId);
-    if(this.releaseRequests().includes(playerConnectedEvent.playerId)){
+    if (this.releaseRequests().includes(playerConnectedEvent.playerId)) {
       this._releaseRequests.update(playerIds => playerIds.filter(playerId => playerId !== playerConnectedEvent.playerId));
     }
     this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, true, true);
@@ -407,7 +408,6 @@ export class GameService {
 
   private handlePlayerDisconnected(event: GameEventEnvelope) {
     const playerConnectedEvent: PlayerConnectedEvent = event.payload as PlayerDisconnectedEvent;
-    console.log("Player disconnected:", playerConnectedEvent.playerId);
     this.updatePlayerConnectionStatus(playerConnectedEvent.playerId, false, true);
   }
 
@@ -461,7 +461,7 @@ export class GameService {
   }
 
   public dispatchReleaseAction(playerId: string) {
-    if(this.releaseRequests().includes(playerId)) {
+    if (this.releaseRequests().includes(playerId)) {
       this._releaseRequests.update(playerIds => playerIds.filter(requestPlayerId => requestPlayerId !== playerId));
     }
     this.dispatchGameAction(releasePlayerAction(playerId))
@@ -543,28 +543,33 @@ export class GameService {
     );
   }
 
-
-  //Overlay
-  private openPauseOverlay(timeReport: TimeReport) {
+  private openPausePanel() {
     // A reconnect and a paused-event can both land on the same pause — only ever show one.
-    if (this.gamePausedOverlay) return;
 
-    const elapsedTime = timeReport.activeTime ?? 0;
-    const gamePausedData: GamePausedOverlayData = {
+    const gameTimeReport = this.gameTimeReport();
+    const partyId = this.gameInfo()?.id;
+    console.log("gameTimeReport", gameTimeReport);
+    if (this.gamePausedPanel || !gameTimeReport || !partyId) return;
+
+    const pausesTotal = gameTimeReport.pausedTime ?? 0;
+    const registeredPausesSummed = gameTimeReport.pauses?.reduce((accumulated, current) => accumulated + current, 0) ?? 0;
+    const currentPause = pausesTotal - registeredPausesSummed;
+
+    const elapsedTime = gameTimeReport.activeTime ?? 0;
+    const gamePausedData: GamePausedData = {
+      cardsLeft: this.remainingCardsCount(),
+      currentRound: this.currentRound(),
+      currentPauseTime: currentPause,
       currentPlayer: this.currentPlayer()!,
-      time: elapsedTime,
-      isGameClient: this.isGameClient()
+      elapsedGameTime: elapsedTime,
+      partyId: partyId
     };
-    this.gamePausedOverlay = this.overlayService.openOverlay<void>({
-      component: GamePausedOverlay,
-      data: gamePausedData
-    });
+    this.gamePausedPanel = this.drawerService.showGamePausedDrawer(gamePausedData);
 
-    this.gamePausedOverlay.closed.then(() => {
-      this.gamePausedOverlay = undefined;
-      if (!this.isGameClient()) return;
-      this.dispatchResumeGameAction();
+    this.gamePausedPanel.closed.then(() => {
+      this.gamePausedPanel = undefined;
     })
+
 
   }
 
@@ -583,8 +588,10 @@ export class GameService {
 
     this.chugOverlay.closed.then((chugTime) => {
       this.chugOverlay = undefined;
-      if (!this.isGameClient()) return;
-      this.dispatchChugAction(chugTime ?? 0);
+      if (this.isGameClient()) {
+        this.dispatchChugAction(chugTime ?? 0);
+      }
+
     });
   }
 
@@ -605,13 +612,11 @@ export class GameService {
 
   // Guests can't close the chug/pause overlays themselves — don't strand them behind one
   private dismissAllOverlays(ignoreAnimation = false) {
-    this.gameNotStartedOverlay?.dismiss(ignoreAnimation);
-    this.gamePausedOverlay?.dismiss(ignoreAnimation);
+    this.gamePausedPanel?.dismiss(ignoreAnimation);
     this.chugOverlay?.dismiss(ignoreAnimation);
 
     // A dismissal never resolves `closed`, so the handlers that normally clear these don't run.
-    this.gameNotStartedOverlay = undefined;
-    this.gamePausedOverlay = undefined;
+    this.gamePausedPanel = undefined;
     this.chugOverlay = undefined;
   }
 

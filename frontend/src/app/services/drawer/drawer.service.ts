@@ -1,14 +1,17 @@
 import {inject, Service} from '@angular/core';
-import {OverlayService} from '../overlay/overlay.service';
+import {OverlayConf, OverlayService} from '../overlay/overlay.service';
 import {
   PlayerOverviewDrawerComponent
 } from '../../drawer/player-overview-drawer/player-overview-drawer.component';
-import {ComponentType, OverlayPositionBuilder} from '@angular/cdk/overlay';
+import {OverlayPositionBuilder} from '@angular/cdk/overlay';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map} from 'rxjs';
 import {ConfirmationDrawer} from '../../drawer/confirmation-drawer/confirmation-drawer';
 import {PartyShareDrawerComponent} from '../../drawer/party-share-drawer/party-share-drawer.component';
+import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
+import {GamePausedDrawerComponent} from '../../drawer/game-paused-drawer/game-paused-drawer.component';
+import {OverlayHandle} from '../overlay/models/overlay-handle';
 
 @Service()
 export class DrawerService {
@@ -25,35 +28,58 @@ export class DrawerService {
   )
 
   public showPlayerOverviewDrawer(): void {
-    this.showDrawer(PlayerOverviewDrawerComponent);
+    const overlayConf: Partial<OverlayConf<void>> = {
+      component: PlayerOverviewDrawerComponent
+    }
+    this.showDrawer(overlayConf);
   }
 
-  public showConfirmationDrawer(participantId: string){
-    this.showDrawer(ConfirmationDrawer, participantId);
+  public showConfirmationDrawer(participantId: string) {
+    const overlayConf: Partial<OverlayConf<string>> = {
+      component: ConfirmationDrawer,
+      data: participantId
+    }
+    this.showDrawer(overlayConf);
   }
 
-  public showPartyShareDrawer(partyId: string){
-    this.showDrawer(PartyShareDrawerComponent, partyId);
+  public showPartyShareDrawer(partyId: string) {
+    const overlayConf: Partial<OverlayConf<string>> = {
+      component: PartyShareDrawerComponent,
+      data: partyId
+    }
+    this.showDrawer(overlayConf);
   }
 
-  private showDrawer(component: ComponentType<any>, data?: any): void {
+  public showGamePausedDrawer(gamePauseData: GamePausedData): OverlayHandle<void> {
+    const overlayConf: OverlayConf<GamePausedData> = {
+      component: GamePausedDrawerComponent,
+      data: gamePauseData,
+      dismissOnBackdropClick: false
+    }
+    return this.showDrawer<void>(overlayConf);
+  }
+
+  private showDrawer<expectedReturnObj>(overlayConf: Partial<OverlayConf<any>>): OverlayHandle<expectedReturnObj> {
 
     const pos = this.isCompact() ?
       this.posBuilder.global().centerHorizontally().bottom() :
       this.posBuilder.global().centerHorizontally().centerVertically();
 
 
-    this.overlayService.openOverlay({
-      data: data,
-      component: component,
+    const defaultConf: OverlayConf<void> = {
+      component: GamePausedDrawerComponent,
       position: pos,
-      backdrop:true,
+      backdrop: true,
       componentClasses: this.isCompact()
         ? ['drawer-pane', 'drawer-pane--compact']
         : ['drawer-pane'],
       backdropClass: 'drawer-backdrop',
       dismissOnBackdropClick: true
-    })
+    }
+
+    const finalConf = {...defaultConf, ...overlayConf};
+
+    return this.overlayService.openOverlay<expectedReturnObj>(finalConf)
   }
 
 }

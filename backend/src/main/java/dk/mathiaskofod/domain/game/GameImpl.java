@@ -11,12 +11,14 @@ import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.timer.Timer;
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -124,10 +126,6 @@ public class GameImpl implements Game {
         }
 
         gameState = GameState.IN_PROGRESS;
-
-        gameTimer.start();
-        playerTimer.start();
-
         eventEmitter.onStartGame(this);
     }
 
@@ -178,6 +176,10 @@ public class GameImpl implements Game {
             throw new GameException("Can't draw card while game is paused", 400);
         }
 
+        if (lastCardDrawn == null) {
+            gameTimer.start();
+        }
+
         lastCardDrawn = deck.drawCard();
 
         // If first round, then time is set to zero, as players are just beginning
@@ -186,6 +188,10 @@ public class GameImpl implements Game {
         progressPlayerQueue();
 
         lastToDraw.stats().addTurn(turn);
+
+        if (getRound() == 2 && lastToDraw.id().equals(playerOrder.getLast())) {
+            playerTimer.start();
+        }
 
         eventEmitter.onDrawCard(turn, lastToDraw, nextToDraw, nextAfter, this);
 

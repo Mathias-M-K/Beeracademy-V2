@@ -13,7 +13,9 @@
         <material-icon icon="play_arrow"></material-icon>
       </button>
     } @else if (timerState() === TimerState.NotStarted) {
-      <button (click)="startClick.emit()">Start!</button>
+      <button class="btn-secondary-outlined btn-icon" [disabled]="true">
+        <material-icon icon="pause"></material-icon>
+      </button>
     } @else {
       <button class="btn-secondary-outlined btn-icon" (click)="pauseClick.emit()">
         <material-icon icon="pause"></material-icon>

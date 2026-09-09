@@ -1,6 +1,7 @@
 package dk.mathiaskofod.domain.game.timer;
 
 import dk.mathiaskofod.domain.game.timer.models.TimerState;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -56,6 +57,9 @@ public class Timer {
     }
 
     public void reset() {
+        if (state == TimerState.NOT_STARTED) {
+            return;
+        }
         this.startTime = clock.instant();
         pauses = new ArrayList<>();
     }

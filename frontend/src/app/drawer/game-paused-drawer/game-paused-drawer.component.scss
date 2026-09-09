@@ -1,0 +1,118 @@
+:host {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  align-items: end;
+}
+
+:host(:not(.drawer-pane--compact)) {
+  height: 600px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+h2{
+  margin: 10px 0;
+}
+
+.subtitle {
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-disabled-text);
+}
+
+.horizontal_line {
+  --horizontal-line-color: var(--color-grey-500);
+}
+
+.icon-circle {
+  display: flex;
+  justify-content: center;
+
+  $circle-size: 30px;
+  height: $circle-size;
+  width: $circle-size;
+  border-radius: calc($circle-size / 4);
+  background-color: color-mix(in oklab, var(--primary), white 70%);
+  color: var(--primary);
+}
+
+.info {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pause-timer {
+  background-color: var(--color-black);
+  color: white;
+  padding: 15px;
+
+  border-radius: 20px;
+}
+
+.pause-time {
+  font-size: 45px;
+  font-weight: 1000;
+}
+
+.stats {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 5px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-grey-500);
+  border-radius: 20px;
+  padding: 10px;
+}
+
+.stat p {
+  font-size: 10px;
+}
+
+.stat p, h3 {
+  margin: 0;
+}
+
+.next-player {
+  background-color: var(--color-white);
+  display: flex;
+  border-radius: 20px;
+
+  padding: 10px;
+  align-items: center;
+  gap: 5px;
+}
+
+h1 {
+  margin: 0;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+
+  > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  margin-bottom: 20px;
+}
+
+button {
+  width: 100%;
+}
+
+
