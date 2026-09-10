@@ -39,6 +39,14 @@
   color: var(--primary);
 }
 
+.main-stat{
+  display: grid;
+  gap: 5px;
+}
+.main-stat > p{
+  font-size: 12px;
+}
+
 .beer-count p:nth-child(1){
   font-size: 42px;
   font-weight: 1000;
@@ -55,10 +63,23 @@
   min-width: 0;
 }
 
+
+
+.last-player{
+  display: flex;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: color-mix(in oklab, var(--player-color), white 90%);
+}
+.last-player p:nth-child(2){
+  font-weight: bold;
+}
+
 .beer-indicator > app-beer-dot.dot-enter{
   animation: dot-enter 400ms ease-out;
 }
-
 @keyframes dot-enter {
   from { flex-grow: 0; }
   to   { flex-grow: 1; }

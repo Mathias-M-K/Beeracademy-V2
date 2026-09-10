@@ -1,6 +1,6 @@
 <div class="header">
   <h2 [style.grid-area]="'name'">{{ player().name }}</h2>
-  <p [style.grid-area]="'title'" class="subtitle">{{player().color}}</p>
+  <p [style.grid-area]="'title'" class="subtitle">{{ player().color }}</p>
   <p [style.grid-area]="'status'" class="status">TUR</p>
 </div>
 
@@ -11,13 +11,21 @@
   </div>
 
   <div class="beer-indicator">
-    @for (dot of beerDots(); track $index){
+    @for (dot of beerDots(); track $index) {
       <app-beer-dot
         [foregroundColor]="player().color"
         [fill]="dot.fillLevel"
         animate.enter="dot-enter">
-
       </app-beer-dot>
     }
   </div>
+
+  <p class="subtitle">{{ sipsLeftOfBeer() }} tåre tilbage</p>
 </div>
+
+<div class="last-player">
+  <p class="subtitle">Sidste kort trykket</p>
+  <p>♥ {{ lastCard()?.rank }}</p>
+</div>
+
+<div class="horizontal_line"></div>

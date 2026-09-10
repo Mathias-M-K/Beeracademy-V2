@@ -25,6 +25,11 @@ export class PlayerCard {
     return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
   });
 
+  protected readonly sipsLeftOfBeer = computed<number>(() => {
+    const sipsLeft = this.player().sipsInABeer - (this.totalSips() % this.player().sipsInABeer);
+    return sipsLeft === this.player().sipsInABeer ? 0 : sipsLeft;
+  })
+
   protected readonly beerCount: Signal<number> = computed(() => {
     return (this.totalSips() / (this.player().sipsInABeer ?? 1));
   });
@@ -56,7 +61,7 @@ export class PlayerCard {
     return this.sipsLeftInBeer() / (this.player().sipsInABeer ?? 0) * 100;
   })
 
-  private readonly lastCard = computed(() => {
+  protected readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;
   });
 
