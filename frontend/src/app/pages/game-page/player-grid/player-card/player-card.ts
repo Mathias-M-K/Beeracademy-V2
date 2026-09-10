@@ -2,6 +2,7 @@ import {Component, computed, input, Signal} from '@angular/core';
 import {Player} from '../../../../services/game/models/player';
 import {BeerDot} from './beer-dot/beer-dot';
 import {SuitIcon} from '../../../../common/components/suit-icon/suit-icon';
+import {tweenedNumber} from '../../../../common/tweened-number';
 
 export interface BeerIndicatorDot {
   fillLevel: number;
@@ -27,14 +28,20 @@ export class PlayerCard {
     return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
   });
 
-  protected readonly sipsLeftOfBeer = computed<number>(() => {
+  private readonly sipsLeftOfBeer = computed<number>(() => {
     const sipsLeft = this.player().sipsInABeer - (this.totalSips() % this.player().sipsInABeer);
     return sipsLeft === this.player().sipsInABeer ? 0 : sipsLeft;
   })
 
-  protected readonly beerCount: Signal<number> = computed(() => {
+  private readonly beerCount: Signal<number> = computed(() => {
     return (this.totalSips() / (this.player().sipsInABeer ?? 1));
   });
+
+  protected readonly displayedBeerCount = tweenedNumber(this.beerCount);
+
+  private readonly tweenedSipsLeft = tweenedNumber(this.sipsLeftOfBeer);
+
+  protected readonly displayedSipsLeft = computed(() => Math.round(this.tweenedSipsLeft()));
 
   protected readonly beerDots = computed<BeerIndicatorDot[]>(() => {
     const total = this.beerCount();
@@ -51,17 +58,6 @@ export class PlayerCard {
 
     return Number.isNaN(result) ? 0 : result.toFixed(1);
   });
-
-  //TODO remove if unused
-  private readonly sipsLeftInBeer = computed(() => {
-    if (this.totalSips() === 0) return 0;
-    return (this.player().sipsInABeer ?? 0) - (this.totalSips() % (this.player().sipsInABeer ?? 0));
-  })
-
-  //TODO remove if unused
-  private readonly sipsLeftInBeerAsPercentage = computed(() => {
-    return this.sipsLeftInBeer() / (this.player().sipsInABeer ?? 0) * 100;
-  })
 
   protected readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;

@@ -7,7 +7,7 @@
 <div class="main-stat">
 
   <div class="beer-count">
-    <p><span>{{ beerCount().toFixed(1) }}</span><span class="subtitle"> øl</span></p>
+    <p><span>{{ displayedBeerCount().toFixed(1) }}</span><span class="subtitle"> øl</span></p>
   </div>
 
   <div class="beer-indicator">
@@ -20,7 +20,7 @@
     }
   </div>
 
-  <p class="subtitle">{{ sipsLeftOfBeer() }} tåre tilbage</p>
+  <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
 </div>
 
 <div class="last-card">
