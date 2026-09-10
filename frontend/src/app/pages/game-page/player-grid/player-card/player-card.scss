@@ -7,6 +7,8 @@
 
   background-color: white;
   user-select: none;
+
+  --dot-height: 15px;
 }
 .subtitle{
   letter-spacing: 2px;
@@ -43,14 +45,25 @@
 }
 
 .beer-indicator{
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: 10px;
+  display: flex;
   gap: 2px;
+  min-height: var(--dot-height);
+}
+
+.beer-indicator > app-beer-dot{
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.beer-indicator > app-beer-dot.dot-enter{
+  animation: dot-enter 400ms ease-out;
+}
+
+@keyframes dot-enter {
+  from { flex-grow: 0; }
+  to   { flex-grow: 1; }
 }
 
 p, h2{
   margin: 0;
 }
-
-

@@ -21,31 +21,22 @@ export class PlayerCard {
 
   readonly player = input.required<Player>();
 
-  private readonly totalSips = computed(() =>
-    this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
-  );
+  private readonly totalSips = computed(() => {
+    return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
+  });
+
   protected readonly beerCount: Signal<number> = computed(() => {
     return (this.totalSips() / (this.player().sipsInABeer ?? 1));
   });
 
-  protected readonly beerDots = computed(() => {
+  protected readonly beerDots = computed<BeerIndicatorDot[]>(() => {
+    const total = this.beerCount();
 
-    let beerCount = this.beerCount();
-    const dots: BeerIndicatorDot[] = [];
-    for (let i = 0; i < this.beerCount(); i++) {
-
-      if(beerCount > 1){
-        dots.push({fillLevel: 100})
-      }else{
-        dots.push({fillLevel: (beerCount % 1)*100})
-      }
-
-      beerCount--;
-    }
-
-    return dots;
-
-  })
+    // Always render at least one dot, so a fresh card shows an empty beer rather than an empty row.
+    return Array.from({length: Math.max(Math.ceil(total), 1)}, (_, i) => ({
+      fillLevel: Math.min(total - i, 1) * 100
+    }));
+  });
 
   private readonly sipsAvg = computed(() => {
     const turns = this.player().stats?.turns?.length ?? 0;
@@ -68,6 +59,5 @@ export class PlayerCard {
   private readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;
   });
-
 
 }
