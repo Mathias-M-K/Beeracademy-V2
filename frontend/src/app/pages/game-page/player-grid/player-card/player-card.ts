@@ -1,6 +1,7 @@
 import {Component, computed, input, Signal} from '@angular/core';
 import {Player} from '../../../../services/game/models/player';
 import {BeerDot} from './beer-dot/beer-dot';
+import {SuitIcon} from '../../../../common/components/suit-icon/suit-icon';
 
 export interface BeerIndicatorDot {
   fillLevel: number;
@@ -11,7 +12,8 @@ export interface BeerIndicatorDot {
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
   imports: [
-    BeerDot
+    BeerDot,
+    SuitIcon
   ],
   host: {
     '[style.--player-color]': 'player().color'

@@ -58,7 +58,7 @@
 
 .chug-time{
   display: grid;
-  grid-template-areas: 'color-dot text' 'divider divider';
+  grid-template-areas: 'color-dot text suit' 'divider divider divider';
   grid-template-columns: 20px auto;
   align-content: center;
   align-items: center;

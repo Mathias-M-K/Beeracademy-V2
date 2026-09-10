@@ -23,9 +23,13 @@
   <p class="subtitle">{{ sipsLeftOfBeer() }} tåre tilbage</p>
 </div>
 
-<div class="last-player">
+<div class="last-card">
   <p class="subtitle">Sidste kort trykket</p>
-  <p>♥ {{ lastCard()?.rank }}</p>
+  <div>
+    <suit-icon [suit]="lastCard()?.suit!"></suit-icon>
+    <p> {{ lastCard()?.rank }}</p>
+  </div>
+
 </div>
 
 <div class="horizontal_line"></div>

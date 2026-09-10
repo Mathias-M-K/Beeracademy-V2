@@ -65,7 +65,7 @@
 
 
 
-.last-player{
+.last-card{
   display: flex;
   border-radius: 10px;
   align-items: center;
@@ -73,7 +73,11 @@
   padding: 10px;
   background-color: color-mix(in oklab, var(--player-color), white 90%);
 }
-.last-player p:nth-child(2){
+.last-card div{
+  display: flex;
+  flex-direction: row;
+}
+.last-card p:nth-child(2){
   font-weight: bold;
 }
 

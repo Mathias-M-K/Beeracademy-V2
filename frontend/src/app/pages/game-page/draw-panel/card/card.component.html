@@ -4,7 +4,13 @@
   </div>
 
   <div>
-    <h3>{{card()?.suit??'?'}}</h3>
+    @let suit = card()?.suit;
+    @if (suit) {
+      <suit-icon [suit]="suit" [size]="50"></suit-icon>
+    } @else {
+      <h3>?</h3>
+    }
+
   </div>
 
   <div>

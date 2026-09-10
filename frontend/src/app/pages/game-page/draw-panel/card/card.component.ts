@@ -1,9 +1,12 @@
 import {Component, input} from '@angular/core';
 import {Card} from '../../../../../api-models/model/card';
+import {SuitIcon} from '../../../../common/components/suit-icon/suit-icon';
 
 @Component({
   selector: 'app-card',
-  imports: [],
+  imports: [
+    SuitIcon
+  ],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
   host: {

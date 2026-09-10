@@ -18,7 +18,8 @@
   @for (chug of chugTimes(); track $index){
     <div class="chug-time">
       <div style="grid-area: color-dot" class="dot"></div>
-      <p style="grid-area: text">{{chug.name}} - {{chug.chugTimeMillis}}ms - {{chug.suit}}</p>
+      <p style="grid-area: text">{{chug.name}} - {{chug.chugTimeMillis}}ms</p>
+      <suit-icon style="grid-area: suit" [suit]="chug.suit!"></suit-icon>
       <div class="horizontal_line" style="grid-area: divider"></div>
     </div>
   }
