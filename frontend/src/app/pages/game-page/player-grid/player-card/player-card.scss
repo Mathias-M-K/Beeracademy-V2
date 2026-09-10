@@ -1,4 +1,4 @@
-:host{
+:host {
   display: grid;
   gap: 10px;
 
@@ -11,7 +11,8 @@
 
   --dot-height: 15px;
 }
-.subtitle{
+
+.subtitle {
   letter-spacing: 2px;
   text-transform: uppercase;
   font-size: 12px;
@@ -19,18 +20,19 @@
   color: var(--primary-disabled-text);
 }
 
-.header > .subtitle{
+.header > .subtitle {
   color: var(--player-color);
 }
 
-.header{
+.header {
   display: grid;
   grid-template-areas: 'name status' 'title status';
   grid-template-columns: 1fr auto;
 
   align-items: center;
 }
-.header > .status{
+
+.header > .status {
   padding: 5px;
   border-radius: 15px;
   background-color: color-mix(in oklab, var(--primary), white 80%);
@@ -38,37 +40,48 @@
   font-size: 12px;
   font-weight: bold;
   color: var(--primary);
+
+  transform: translateX(-50%);
+  opacity: 0;
+
+  transition: all .15s ease-in-out;
 }
 
-.main-stat{
+:host(.is-drawing) .header > .status {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+
+.main-stat {
   display: grid;
   gap: 5px;
 }
-.main-stat > p{
+
+.main-stat > p {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
-.beer-count p:nth-child(1){
+.beer-count p:nth-child(1) {
   font-size: 42px;
   font-weight: 1000;
   font-variant-numeric: tabular-nums;
 }
 
-.beer-indicator{
+.beer-indicator {
   display: flex;
   gap: 2px;
   min-height: var(--dot-height);
 }
 
-.beer-indicator > app-beer-dot{
+.beer-indicator > app-beer-dot {
   flex: 1 1 0;
   min-width: 0;
 }
 
 
-
-.last-card{
+.last-card {
   display: flex;
   border-radius: 10px;
   align-items: center;
@@ -76,38 +89,52 @@
   padding: 10px;
   background-color: color-mix(in oklab, var(--player-color), white 90%);
 }
-.last-card div{
+
+.last-card div {
   display: flex;
   flex-direction: row;
 }
-.last-card p:nth-child(2){
+
+.last-card p:nth-child(2) {
   font-weight: bold;
 }
 
-.horizontal_line{
+.horizontal_line {
   margin: 10px 0;
 }
 
-.minor-stats{
+.minor-stats {
   display: grid;
   grid-template-rows: 1fr 1fr;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
 
-.stat-value{
+.stat-value {
   font-weight: 800;
-  font-size: 32px
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
 }
 
-.beer-indicator > app-beer-dot.dot-enter{
+.beer-indicator > app-beer-dot.dot-enter {
   animation: dot-enter 400ms ease-out;
 }
+
 @keyframes dot-enter {
-  from { flex-grow: 0; }
-  to   { flex-grow: 1; }
+  from {
+    flex-grow: 0;
+  }
+  to {
+    flex-grow: 1;
+  }
 }
 
-p, h2{
+p, h2 {
   margin: 0;
+}
+
+@media (max-width: 500px) {
+  :host {
+    border: unset;
+  }
 }

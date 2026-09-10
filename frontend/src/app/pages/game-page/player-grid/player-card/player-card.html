@@ -27,7 +27,7 @@
   <p class="subtitle">Sidste kort trykket</p>
   <div>
     <suit-icon [suit]="lastCard()?.suit!"></suit-icon>
-    <p> {{ lastCard()?.rank }}</p>
+    <p> {{ lastCard()?.rank ?? '--' }}</p>
   </div>
 
 </div>
@@ -37,18 +37,18 @@
 <div class="minor-stats">
   <div class="stat">
     <p class="subtitle">Tåre</p>
-    <p class="stat-value">{{ totalSips() }}</p>
+    <p class="stat-value">{{ displayedTotalSips() }}</p>
   </div>
   <div class="stat">
     <p class="subtitle">Tåre/gns</p>
-    <p class="stat-value">{{ sipsAvg() }}</p>
+    <p class="stat-value">{{ displayedSipsAvg().toFixed(1) }}</p>
   </div>
   <div class="stat">
     <p class="subtitle">Sidste tid</p>
-    <p class="stat-value">{{ lastRoundTime()??0 | gameTimeFormat: 'mm:ss' }}</p>
+    <p class="stat-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss' }}</p>
   </div>
   <div class="stat">
     <p class="subtitle">Tid/gns</p>
-    <p class="stat-value">{{ roundTimesAvg() | gameTimeFormat: 'mm:ss' }}</p>
+    <p class="stat-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss' }}</p>
   </div>
 </div>

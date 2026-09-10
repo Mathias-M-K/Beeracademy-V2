@@ -1,9 +1,21 @@
-import {effect, signal, Signal, untracked} from '@angular/core';
+import {computed, effect, signal, Signal, untracked} from '@angular/core';
 
 /** Matches the .5s width transition on the beer dots, so number and dots move together. */
 const DEFAULT_DURATION_MS = 500;
 
+export interface TweenOptions {
+  /** How long the ease towards each new value takes. */
+  durationMs?: number;
+  /** Decimal places to round the output to. Omit to keep the raw eased value. */
+  decimals?: number;
+}
+
 const easeOut = (progress: number): number => 1 - Math.pow(1 - progress, 3);
+
+const roundTo = (value: number, decimals: number): number => {
+  const factor = Math.pow(10, decimals);
+  return Math.round(value * factor) / factor;
+};
 
 /**
  * Mirrors a number signal, but eases towards each new value instead of snapping to it.
@@ -11,7 +23,8 @@ const easeOut = (progress: number): number => 1 - Math.pow(1 - progress, 3);
  *
  * Must be called from an injection context, e.g. a field initializer.
  */
-export function tweenedNumber(source: Signal<number>, durationMs = DEFAULT_DURATION_MS): Signal<number> {
+export function tweenedNumber(source: Signal<number>, options: TweenOptions = {}): Signal<number> {
+  const {durationMs = DEFAULT_DURATION_MS, decimals} = options;
   const displayed = signal(0);
 
   effect((onCleanup) => {
@@ -39,5 +52,7 @@ export function tweenedNumber(source: Signal<number>, durationMs = DEFAULT_DURAT
     onCleanup(() => cancelAnimationFrame(frame));
   });
 
-  return displayed.asReadonly();
+  return decimals === undefined
+    ? displayed.asReadonly()
+    : computed(() => roundTo(displayed(), decimals));
 }

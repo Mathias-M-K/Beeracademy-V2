@@ -8,7 +8,6 @@ import {GameTimeFormatPipe} from '../../../../pipes/game-time-format-pipe';
 export interface BeerIndicatorDot {
   fillLevel: number;
 }
-
 @Component({
   selector: 'app-player-card',
   templateUrl: './player-card.html',
@@ -19,14 +18,16 @@ export interface BeerIndicatorDot {
     SuitIcon
   ],
   host: {
-    '[style.--player-color]': 'player().color'
+    '[style.--player-color]': 'player().color',
+    '[class.is-drawing]': 'isDrawing()'
   }
 })
 export class PlayerCard {
 
   readonly player = input.required<Player>();
+  readonly isDrawing = input<boolean>(false);
 
-  protected readonly totalSips = computed(() => {
+  private readonly totalSips = computed(() => {
     return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
   });
 
@@ -39,10 +40,34 @@ export class PlayerCard {
     return (this.totalSips() / (this.player().sipsInABeer ?? 1));
   });
 
-  protected readonly displayedBeerCount = tweenedNumber(this.beerCount);
+  private readonly sipsAvg = computed(() => {
+    const turns = this.player().stats?.turns?.length ?? 0;
+    const result = (this.totalSips() / turns);
 
-  private readonly tweenedSipsLeft = tweenedNumber(this.sipsLeftOfBeer);
-  protected readonly displayedSipsLeft = computed(() => Math.round(this.tweenedSipsLeft()));
+    return Number.isNaN(result) ? 0 : result;
+  });
+
+  private readonly lastRoundTime = computed(() => {
+    return this.player().stats?.turns?.at(-1)?.durationInMillis ?? 0;
+  })
+
+  private readonly roundTimesAvg = computed(() => {
+
+    const turns = this.player().stats?.turns;
+    if(!turns || turns?.length === 0) return 0;
+
+    const turnsCount = Math.max(1, turns.length-1);
+    const turnsSum = turns.reduce((sum, turn) => sum + (turn.durationInMillis??0), 0);
+
+    return turnsSum / turnsCount;
+  })
+
+  protected readonly displayedBeerCount = tweenedNumber(this.beerCount);
+  protected readonly displayedSipsLeft = tweenedNumber(this.sipsLeftOfBeer, {decimals: 0});
+  protected readonly displayedTotalSips = tweenedNumber(this.totalSips, {decimals: 0});
+  protected readonly displayedSipsAvg = tweenedNumber(this.sipsAvg);
+  protected readonly displayedLastRoundTime = tweenedNumber(this.lastRoundTime, {decimals: 0});
+  protected readonly displayedRoundTimesAvg = tweenedNumber(this.roundTimesAvg, {decimals: 0});
 
   protected readonly beerDots = computed<BeerIndicatorDot[]>(() => {
     const total = this.beerCount();
@@ -53,30 +78,8 @@ export class PlayerCard {
     }));
   });
 
-  protected readonly sipsAvg = computed(() => {
-    const turns = this.player().stats?.turns?.length ?? 0;
-    const result = (this.totalSips() / turns);
-
-    return Number.isNaN(result) ? 0 : result.toFixed(1);
-  });
-
   protected readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;
   });
-
-  protected readonly lastRoundTime = computed(() => {
-    return this.player().stats?.turns?.at(-1)?.durationInMillis;
-  })
-
-  protected readonly roundTimesAvg = computed(() => {
-
-    const turns = this.player().stats?.turns;
-    if(!turns) return 0;
-
-    const turnsCount = turns.length;
-    const turnsSum = turns.reduce((sum, turn) => sum + (turn.durationInMillis??0), 0);
-
-    return turnsSum / turnsCount;
-  })
 
 }
