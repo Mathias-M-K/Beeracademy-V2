@@ -3,6 +3,7 @@ import {Player} from '../../../../services/game/models/player';
 import {BeerDot} from './beer-dot/beer-dot';
 import {SuitIcon} from '../../../../common/components/suit-icon/suit-icon';
 import {tweenedNumber} from '../../../../common/tweened-number';
+import {GameTimeFormatPipe} from '../../../../pipes/game-time-format-pipe';
 
 export interface BeerIndicatorDot {
   fillLevel: number;
@@ -13,6 +14,7 @@ export interface BeerIndicatorDot {
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
   imports: [
+    GameTimeFormatPipe,
     BeerDot,
     SuitIcon
   ],
@@ -24,7 +26,7 @@ export class PlayerCard {
 
   readonly player = input.required<Player>();
 
-  private readonly totalSips = computed(() => {
+  protected readonly totalSips = computed(() => {
     return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
   });
 
@@ -40,7 +42,6 @@ export class PlayerCard {
   protected readonly displayedBeerCount = tweenedNumber(this.beerCount);
 
   private readonly tweenedSipsLeft = tweenedNumber(this.sipsLeftOfBeer);
-
   protected readonly displayedSipsLeft = computed(() => Math.round(this.tweenedSipsLeft()));
 
   protected readonly beerDots = computed<BeerIndicatorDot[]>(() => {
@@ -52,7 +53,7 @@ export class PlayerCard {
     }));
   });
 
-  private readonly sipsAvg = computed(() => {
+  protected readonly sipsAvg = computed(() => {
     const turns = this.player().stats?.turns?.length ?? 0;
     const result = (this.totalSips() / turns);
 
@@ -62,5 +63,20 @@ export class PlayerCard {
   protected readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;
   });
+
+  protected readonly lastRoundTime = computed(() => {
+    return this.player().stats?.turns?.at(-1)?.durationInMillis;
+  })
+
+  protected readonly roundTimesAvg = computed(() => {
+
+    const turns = this.player().stats?.turns;
+    if(!turns) return 0;
+
+    const turnsCount = turns.length;
+    const turnsSum = turns.reduce((sum, turn) => sum + (turn.durationInMillis??0), 0);
+
+    return turnsSum / turnsCount;
+  })
 
 }

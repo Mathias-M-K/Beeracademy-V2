@@ -33,3 +33,22 @@
 </div>
 
 <div class="horizontal_line"></div>
+
+<div class="minor-stats">
+  <div class="stat">
+    <p class="subtitle">Tåre</p>
+    <p class="stat-value">{{ totalSips() }}</p>
+  </div>
+  <div class="stat">
+    <p class="subtitle">Tåre/gns</p>
+    <p class="stat-value">{{ sipsAvg() }}</p>
+  </div>
+  <div class="stat">
+    <p class="subtitle">Sidste tid</p>
+    <p class="stat-value">{{ lastRoundTime()??0 | gameTimeFormat: 'mm:ss' }}</p>
+  </div>
+  <div class="stat">
+    <p class="subtitle">Tid/gns</p>
+    <p class="stat-value">{{ roundTimesAvg() | gameTimeFormat: 'mm:ss' }}</p>
+  </div>
+</div>
