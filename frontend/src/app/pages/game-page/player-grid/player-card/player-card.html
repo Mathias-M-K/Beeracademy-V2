@@ -1,44 +1,54 @@
-<div id="header">
-  <div class="dot"></div>
-  <h4>{{ player().name }}</h4>
+<div class="header">
+  <h2 [style.grid-area]="'name'">{{ player().name }}</h2>
+  <p [style.grid-area]="'title'" class="subtitle">{{ player().color }}</p>
+  <p [style.grid-area]="'status'" class="status">TUR</p>
 </div>
 
-<div id="center">
-  <app-beer-bottle [fillLevel]="sipsLeftInBeerAsPercentage()" [color]="player().color">{{ sipsLeftInBeer() }}</app-beer-bottle>
-  <div class="player-stats">
-    <div>
-      <p class="upper_subtitle">Øl</p>
-      <h1>{{ beers().toFixed(1) }}</h1>
+<div class="main-stat">
 
-    </div>
-    <div>
-      <div>
-        <p class="upper_subtitle">Sips</p>
-        <h3>{{ totalSips() }}</h3>
-      </div>
-      <div>
-        <p class="upper_subtitle">Snit</p>
-        <h3>{{ sipsAvg() }}</h3>
-      </div>
-      <div>
-        <p class="upper_subtitle">Sidst</p>
-        <h3>{{ lastCard()?.rank??'#' }}</h3>
-      </div>
-    </div>
-
+  <div class="beer-count">
+    <p><span>{{ displayedBeerCount().toFixed(1) }}</span><span class="subtitle"> øl</span></p>
   </div>
-</div>
 
-<div id="bottom">
-  <div class="horizontal_line"></div>
-  <div class="beer-rack">
-    @for (_ of beersConsumed(); track $index) {
-      <app-beer-bottle
-        [color]="player().color"
-        class="consumed-beer-container"
-        [style.animation-delay.ms]="$index * 60"></app-beer-bottle>
+  <div class="beer-indicator">
+    @for (dot of beerDots(); track $index) {
+      <app-beer-dot
+        [foregroundColor]="player().color"
+        [fill]="dot.fillLevel"
+        animate.enter="dot-enter">
+      </app-beer-dot>
     }
-
   </div>
 
+  <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
+</div>
+
+<div class="last-card">
+  <p class="subtitle">Sidste kort trykket</p>
+  <div>
+    <suit-icon [suit]="lastCard()?.suit!"></suit-icon>
+    <p> {{ lastCard()?.rank ?? '--' }}</p>
+  </div>
+
+</div>
+
+<div class="horizontal_line"></div>
+
+<div class="minor-stats">
+  <div class="stat">
+    <p class="subtitle">Tåre</p>
+    <p class="stat-value">{{ displayedTotalSips() }}</p>
+  </div>
+  <div class="stat">
+    <p class="subtitle">Tåre/gns</p>
+    <p class="stat-value">{{ displayedSipsAvg().toFixed(1) }}</p>
+  </div>
+  <div class="stat">
+    <p class="subtitle">Sidste tid</p>
+    <p class="stat-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss' }}</p>
+  </div>
+  <div class="stat">
+    <p class="subtitle">Tid/gns</p>
+    <p class="stat-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss' }}</p>
+  </div>
 </div>

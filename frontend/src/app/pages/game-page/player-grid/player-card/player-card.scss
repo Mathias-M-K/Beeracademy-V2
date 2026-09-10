@@ -1,87 +1,140 @@
-:host{
+:host {
   display: grid;
-  grid-template-rows: 50px auto 50px;
-  gap: 5px;
-
+  gap: 10px;
 
   border-radius: 10px;
-  padding: 10px;
+  padding: 20px;
 
   background-color: white;
+  border: 1px solid var(--color-grey-500);
   user-select: none;
+
+  --dot-height: 15px;
 }
 
-#header{
-  display: flex;
+.subtitle {
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-disabled-text);
+}
+
+.header > .subtitle {
+  color: var(--player-color);
+}
+
+.header {
+  display: grid;
+  grid-template-areas: 'name status' 'title status';
+  grid-template-columns: 1fr auto;
+
   align-items: center;
+}
+
+.header > .status {
+  padding: 5px;
+  border-radius: 15px;
+  background-color: color-mix(in oklab, var(--primary), white 80%);
+
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--primary);
+
+  transform: translateX(-50%);
+  opacity: 0;
+
+  transition: all .15s ease-in-out;
+}
+
+:host(.is-drawing) .header > .status {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+
+.main-stat {
+  display: grid;
   gap: 5px;
 }
 
-#center{
-  display: flex;
-  gap: 10px;
+.main-stat > p {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
-#bottom{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.beer-count p:nth-child(1) {
+  font-size: 42px;
+  font-weight: 1000;
+  font-variant-numeric: tabular-nums;
 }
 
-.beer-rack{
+.beer-indicator {
   display: flex;
-  gap: 5px;
-  overflow: hidden;
+  gap: 2px;
+  min-height: var(--dot-height);
 }
 
-.player-stats{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.beer-indicator > app-beer-dot {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-.player-stats > div:nth-child(2){
+
+.last-card {
   display: flex;
-  gap: 10px;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: color-mix(in oklab, var(--player-color), white 90%);
 }
 
-h1,h3{
-  padding: 0;
+.last-card div {
+  display: flex;
+  flex-direction: row;
+}
+
+.last-card p:nth-child(2) {
+  font-weight: bold;
+}
+
+.horizontal_line {
+  margin: 10px 0;
+}
+
+.minor-stats {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.stat-value {
+  font-weight: 800;
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.beer-indicator > app-beer-dot.dot-enter {
+  animation: dot-enter 400ms ease-out;
+}
+
+@keyframes dot-enter {
+  from {
+    flex-grow: 0;
+  }
+  to {
+    flex-grow: 1;
+  }
+}
+
+p, h2 {
   margin: 0;
 }
 
-
-.upper_subtitle{
-  font-size: 14px;
-}
-
-.consumed-beer-container{
-  width: 10px;
-  animation: beer-fly-in 0.75s cubic-bezier(0.38, 1.21, 0.22, 1.00) backwards;
-}
-
-@keyframes beer-fly-in {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+@media (max-width: 500px) {
+  :host {
+    border: unset;
   }
 }
-
-.beer-indicator{
-  height: 100%;
-  width: 30px;
-}
-
-.dot{
-  display: flex;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--player-color);
-}
-
-

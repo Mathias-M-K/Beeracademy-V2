@@ -568,6 +568,9 @@ export class GameService {
 
     this.gamePausedPanel.closed.then(() => {
       this.gamePausedPanel = undefined;
+      if (this.isGameClient()) {
+        this.dispatchResumeGameAction();
+      }
     })
 
 

@@ -1,11 +1,13 @@
 import {Component, computed, input} from '@angular/core';
 import {ParticipantBadge} from '../../lobby-page/participant-overview/participant/participant-badge/participant-badge';
 import {Player} from '../../../services/game/models/player';
+import {SuitIcon} from '../../../common/components/suit-icon/suit-icon';
 
 @Component({
   selector: 'app-podium',
   imports: [
-    ParticipantBadge
+    ParticipantBadge,
+    SuitIcon
   ],
   templateUrl: './podium.component.html',
   styleUrl: './podium.component.scss',

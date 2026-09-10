@@ -1,30 +1,30 @@
-:host{
+:host {
   display: grid;
   grid-template-columns:1fr;
   gap: 10px;
 }
 
-.players{
+.players {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 10px;
 }
 
-.dot-indicator{
+.dot-indicator {
   display: none;
   justify-content: center;
 }
 
 @media (max-width: 500px) {
 
-  :host{
-    background-color: var(--color-white);
+  :host {
+    gap: 0;
     padding-bottom: 10px;
     border-radius: 10px;
   }
 
-  .players{
-    gap: 5px;
+  .players {
+    gap: 15px;
     scroll-snap-type: x mandatory;
     scroll-behavior: auto;
     overflow: auto;
@@ -36,11 +36,15 @@
   .players::-webkit-scrollbar {
     display: none;
   }
-  .dot-indicator{
+  .dot-indicator {
     display: flex;
+    margin-top: 5px;
+    border-radius: 5px;
+    padding: 10px 0;
+
   }
 
-  app-player-card{
+  app-player-card {
     scroll-snap-align: start;
   }
 }

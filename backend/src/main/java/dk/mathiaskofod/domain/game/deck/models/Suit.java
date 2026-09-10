@@ -10,7 +10,9 @@ public enum Suit {
     STAR,
     CIRCLE,
     TRIANGLE,
-    PLUS,
-    MINUS,
+    SEMICIRCLE,
+    MOON,
     THUMBS_UP
 }
+
+

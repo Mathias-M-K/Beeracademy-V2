@@ -4,7 +4,7 @@
   (scroll)="onScroll()"
   (pointerdown)="playerDragActive.set(true)">
   @for (player of players(); track player.id){
-    <app-player-card #playerElement [player]="player"></app-player-card>
+    <app-player-card #playerElement [player]="player" [isDrawing]="player.id === activePlayerId()"></app-player-card>
   }
 </div>
 

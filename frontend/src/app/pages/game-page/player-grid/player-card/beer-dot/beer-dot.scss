@@ -1,0 +1,28 @@
+:host{
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+  height: var(--dot-height, 15px);
+}
+
+#foreground{
+  background-color: var(--foreground-color);
+  width: var(--fill-level);
+  transition: width .5s ease-in-out;
+}
+
+@starting-style {
+  #foreground{
+    width: 0;
+  }
+}
+
+#background{
+  background-color: color-mix(in oklab, var(--foreground-color), white 70%);
+  width: 100%;
+}
+
+div{
+  position: absolute;
+  height: 100%;
+}

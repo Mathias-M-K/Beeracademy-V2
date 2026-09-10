@@ -1,48 +1,85 @@
 import {Component, computed, input, Signal} from '@angular/core';
-import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle';
 import {Player} from '../../../../services/game/models/player';
+import {BeerDot} from './beer-dot/beer-dot';
+import {SuitIcon} from '../../../../common/components/suit-icon/suit-icon';
+import {tweenedNumber} from '../../../../common/tweened-number';
+import {GameTimeFormatPipe} from '../../../../pipes/game-time-format-pipe';
 
+export interface BeerIndicatorDot {
+  fillLevel: number;
+}
 @Component({
   selector: 'app-player-card',
-  imports: [
-    BeerBottle
-  ],
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
-  host:{
-    '[style.--player-color]': 'player().color'
+  imports: [
+    GameTimeFormatPipe,
+    BeerDot,
+    SuitIcon
+  ],
+  host: {
+    '[style.--player-color]': 'player().color',
+    '[class.is-drawing]': 'isDrawing()'
   }
 })
 export class PlayerCard {
 
   readonly player = input.required<Player>();
+  readonly isDrawing = input<boolean>(false);
 
-  readonly totalSips = computed(() =>
-    this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
-  );
-  readonly beers: Signal<number> = computed(() =>{
-    return (this.totalSips() / (this.player().sipsInABeer ?? 1));
+  private readonly totalSips = computed(() => {
+    return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
+  });
+
+  private readonly sipsLeftOfBeer = computed<number>(() => {
+    const sipsLeft = this.player().sipsInABeer - (this.totalSips() % this.player().sipsInABeer);
+    return sipsLeft === this.player().sipsInABeer ? 0 : sipsLeft;
   })
-  readonly sipsAvg = computed(() =>{
+
+  private readonly beerCount: Signal<number> = computed(() => {
+    return (this.totalSips() / (this.player().sipsInABeer ?? 1));
+  });
+
+  private readonly sipsAvg = computed(() => {
     const turns = this.player().stats?.turns?.length ?? 0;
     const result = (this.totalSips() / turns);
 
-    return Number.isNaN(result) ? 0 : result.toFixed(1);
+    return Number.isNaN(result) ? 0 : result;
   });
-  readonly sipsLeftInBeer = computed(() =>{
-    if (this.totalSips() === 0) return 0;
-    return (this.player().sipsInABeer??0) - (this.totalSips() % (this.player().sipsInABeer ?? 0));
+
+  private readonly lastRoundTime = computed(() => {
+    return this.player().stats?.turns?.at(-1)?.durationInMillis ?? 0;
   })
 
-  readonly sipsLeftInBeerAsPercentage = computed(()=>{
-    return this.sipsLeftInBeer() / (this.player().sipsInABeer??0) * 100;
+  private readonly roundTimesAvg = computed(() => {
+
+    const turns = this.player().stats?.turns;
+    if(!turns || turns?.length === 0) return 0;
+
+    const turnsCount = Math.max(1, turns.length-1);
+    const turnsSum = turns.reduce((sum, turn) => sum + (turn.durationInMillis??0), 0);
+
+    return turnsSum / turnsCount;
   })
 
-  readonly lastCard = computed(() => {
+  protected readonly displayedBeerCount = tweenedNumber(this.beerCount);
+  protected readonly displayedSipsLeft = tweenedNumber(this.sipsLeftOfBeer, {decimals: 0});
+  protected readonly displayedTotalSips = tweenedNumber(this.totalSips, {decimals: 0});
+  protected readonly displayedSipsAvg = tweenedNumber(this.sipsAvg);
+  protected readonly displayedLastRoundTime = tweenedNumber(this.lastRoundTime, {decimals: 0});
+  protected readonly displayedRoundTimesAvg = tweenedNumber(this.roundTimesAvg, {decimals: 0});
+
+  protected readonly beerDots = computed<BeerIndicatorDot[]>(() => {
+    const total = this.beerCount();
+
+    // Always render at least one dot, so a fresh card shows an empty beer rather than an empty row.
+    return Array.from({length: Math.max(Math.ceil(total), 1)}, (_, i) => ({
+      fillLevel: Math.min(total - i, 1) * 100
+    }));
+  });
+
+  protected readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;
   });
-
-  // One entry per fully consumed beer; the template only cares about the count.
-  readonly beersConsumed = computed(() => Array.from({length: Math.floor(this.beers())}));
 
 }
