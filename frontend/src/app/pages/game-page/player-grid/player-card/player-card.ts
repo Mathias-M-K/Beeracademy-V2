@@ -1,15 +1,19 @@
 import {Component, computed, input, Signal} from '@angular/core';
-import {BeerBottle} from '../../../../common/components/beer-bottle/beer-bottle';
 import {Player} from '../../../../services/game/models/player';
+import {BeerDot} from './beer-dot/beer-dot';
+
+export interface BeerIndicatorDot {
+  fillLevel: number;
+}
 
 @Component({
   selector: 'app-player-card',
-  imports: [
-    BeerBottle
-  ],
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
-  host:{
+  imports: [
+    BeerDot
+  ],
+  host: {
     '[style.--player-color]': 'player().color'
   }
 })
@@ -17,32 +21,53 @@ export class PlayerCard {
 
   readonly player = input.required<Player>();
 
-  readonly totalSips = computed(() =>
+  private readonly totalSips = computed(() =>
     this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0
   );
-  readonly beers: Signal<number> = computed(() =>{
+  protected readonly beerCount: Signal<number> = computed(() => {
     return (this.totalSips() / (this.player().sipsInABeer ?? 1));
+  });
+
+  protected readonly beerDots = computed(() => {
+
+    let beerCount = this.beerCount();
+    const dots: BeerIndicatorDot[] = [];
+    for (let i = 0; i < this.beerCount(); i++) {
+
+      if(beerCount > 1){
+        dots.push({fillLevel: 100})
+      }else{
+        dots.push({fillLevel: (beerCount % 1)*100})
+      }
+
+      beerCount--;
+    }
+
+    return dots;
+
   })
-  readonly sipsAvg = computed(() =>{
+
+  private readonly sipsAvg = computed(() => {
     const turns = this.player().stats?.turns?.length ?? 0;
     const result = (this.totalSips() / turns);
 
     return Number.isNaN(result) ? 0 : result.toFixed(1);
   });
-  readonly sipsLeftInBeer = computed(() =>{
+
+  //TODO remove if unused
+  private readonly sipsLeftInBeer = computed(() => {
     if (this.totalSips() === 0) return 0;
-    return (this.player().sipsInABeer??0) - (this.totalSips() % (this.player().sipsInABeer ?? 0));
+    return (this.player().sipsInABeer ?? 0) - (this.totalSips() % (this.player().sipsInABeer ?? 0));
   })
 
-  readonly sipsLeftInBeerAsPercentage = computed(()=>{
-    return this.sipsLeftInBeer() / (this.player().sipsInABeer??0) * 100;
+  //TODO remove if unused
+  private readonly sipsLeftInBeerAsPercentage = computed(() => {
+    return this.sipsLeftInBeer() / (this.player().sipsInABeer ?? 0) * 100;
   })
 
-  readonly lastCard = computed(() => {
+  private readonly lastCard = computed(() => {
     return this.player().stats?.turns?.at(-1)?.card;
   });
 
-  // One entry per fully consumed beer; the template only cares about the count.
-  readonly beersConsumed = computed(() => Array.from({length: Math.floor(this.beers())}));
 
 }

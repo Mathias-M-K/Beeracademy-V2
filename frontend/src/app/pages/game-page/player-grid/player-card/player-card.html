@@ -1,44 +1,24 @@
-<div id="header">
-  <div class="dot"></div>
-  <h4>{{ player().name }}</h4>
+<div class="header">
+  <h2 [style.grid-area]="'name'">{{ player().name }}</h2>
+  <p [style.grid-area]="'title'" class="subtitle">{{player().color}}</p>
+  <p [style.grid-area]="'status'" class="status">TUR</p>
 </div>
 
-<div id="center">
-  <app-beer-bottle [fillLevel]="sipsLeftInBeerAsPercentage()" [color]="player().color">{{ sipsLeftInBeer() }}</app-beer-bottle>
-  <div class="player-stats">
-    <div>
-      <p class="upper_subtitle">Øl</p>
-      <h1>{{ beers().toFixed(1) }}</h1>
+<div class="main-stat">
 
-    </div>
-    <div>
-      <div>
-        <p class="upper_subtitle">Sips</p>
-        <h3>{{ totalSips() }}</h3>
-      </div>
-      <div>
-        <p class="upper_subtitle">Snit</p>
-        <h3>{{ sipsAvg() }}</h3>
-      </div>
-      <div>
-        <p class="upper_subtitle">Sidst</p>
-        <h3>{{ lastCard()?.rank??'#' }}</h3>
-      </div>
-    </div>
-
+  <div class="beer-count">
+    <p><span>{{ beerCount().toFixed(1) }}</span><span class="subtitle"> øl</span></p>
   </div>
-</div>
 
-<div id="bottom">
-  <div class="horizontal_line"></div>
-  <div class="beer-rack">
-    @for (_ of beersConsumed(); track $index) {
-      <app-beer-bottle
-        [color]="player().color"
-        class="consumed-beer-container"
-        [style.animation-delay.ms]="$index * 60"></app-beer-bottle>
+  <div class="beer-indicator">
+    @for (dot of beerDots(); track $index){
+      <app-beer-dot
+        [foregroundColor]="player().color"
+        [fill]="dot.fillLevel"
+        animate.enter="animate-in">
+
+      </app-beer-dot>
     }
-
   </div>
-
 </div>
+

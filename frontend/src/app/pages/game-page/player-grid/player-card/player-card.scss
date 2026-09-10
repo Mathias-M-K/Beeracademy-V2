@@ -1,8 +1,6 @@
 :host{
   display: grid;
-  grid-template-rows: 50px auto 50px;
-  gap: 5px;
-
+  gap: 10px;
 
   border-radius: 10px;
   padding: 10px;
@@ -10,78 +8,49 @@
   background-color: white;
   user-select: none;
 }
+.subtitle{
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-disabled-text);
+}
 
-#header{
-  display: flex;
+.header > .subtitle{
+  color: var(--player-color);
+}
+
+.header{
+  display: grid;
+  grid-template-areas: 'name status' 'title status';
+  grid-template-columns: 1fr auto;
+
   align-items: center;
-  gap: 5px;
+}
+.header > .status{
+  padding: 5px;
+  border-radius: 15px;
+  background-color: color-mix(in oklab, var(--primary), white 80%);
+
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--primary);
 }
 
-#center{
-  display: flex;
-  gap: 10px;
-}
-
-#bottom{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.beer-rack{
-  display: flex;
-  gap: 5px;
-  overflow: hidden;
-}
-
-.player-stats{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.player-stats > div:nth-child(2){
-  display: flex;
-  gap: 10px;
-}
-
-h1,h3{
-  padding: 0;
-  margin: 0;
-}
-
-
-.upper_subtitle{
-  font-size: 14px;
-}
-
-.consumed-beer-container{
-  width: 10px;
-  animation: beer-fly-in 0.75s cubic-bezier(0.38, 1.21, 0.22, 1.00) backwards;
-}
-
-@keyframes beer-fly-in {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.beer-count p:nth-child(1){
+  font-size: 42px;
+  font-weight: 1000;
 }
 
 .beer-indicator{
-  height: 100%;
-  width: 30px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: 10px;
+  gap: 2px;
 }
 
-.dot{
-  display: flex;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--player-color);
+p, h2{
+  margin: 0;
 }
 
 

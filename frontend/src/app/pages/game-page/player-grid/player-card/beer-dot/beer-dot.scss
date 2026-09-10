@@ -1,0 +1,35 @@
+:host{
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#foreground{
+  background-color: var(--foreground-color);
+  width: var(--fill-level);
+  transition: width 1s ease-in-out;
+}
+
+#background{
+  background-color: color-mix(in oklab, var(--foreground-color), white 70%);
+  width: 100%;
+}
+
+div{
+  position: absolute;
+  height: 100%;
+}
+
+:host(.animate-in){
+  animation: wipe-in 1s ease-in-out;
+}
+
+@keyframes wipe-in {
+  from{
+    width: 0;
+  }
+  to{
+    width: 100%;
+  }
+
+}
