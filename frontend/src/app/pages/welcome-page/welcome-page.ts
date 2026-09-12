@@ -114,7 +114,11 @@ export class WelcomePage {
   }
 
   private openQrScanner() {
-    this.drawerService.showQrScanner();
+    this.drawerService.showQrScanner().closed.then(partyId => {
+      if (partyId) {
+        this.router.navigate(['/join', partyId]);
+      }
+    });
   }
 
 

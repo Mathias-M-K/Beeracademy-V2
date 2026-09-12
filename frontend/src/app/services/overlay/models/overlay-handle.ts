@@ -40,7 +40,7 @@ export class OverlayHandle<R = unknown> {
   }
 
   public async dismiss(ignoreAnimation = false): Promise<void> {
-    return this.teardown(undefined, ignoreAnimation);
+    return this.teardown(() => this.resolveClosed(undefined), ignoreAnimation);
   }
 
   private async teardown(report?: () => void, ignoreAnimation = false): Promise<void> {

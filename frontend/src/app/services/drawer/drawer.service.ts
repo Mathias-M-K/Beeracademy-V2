@@ -60,8 +60,9 @@ export class DrawerService {
     return this.showDrawer<void>(overlayConf);
   }
 
-  public showQrScanner() {
+  public showQrScanner(): OverlayHandle<string> {
     const overlayConf: Partial<OverlayConf<string>> = {
+      dismissOnBackdropClick: false,
       component: QrScannerDrawer
     }
     return this.showDrawer(overlayConf);

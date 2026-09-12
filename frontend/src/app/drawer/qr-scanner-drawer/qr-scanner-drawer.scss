@@ -3,18 +3,95 @@
   grid-template-rows: auto auto 1fr;
   align-items: end;
   padding-bottom: 15px !important;
+  gap: 5px;
+}
+:host(:not(.drawer-pane--compact)){
+  height: fit-content !important;
+}
+h1,h2, p{
+  margin: 0;
+}
+
+.video-feed{
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.video-feed .overlay{
+  position: absolute;
+  color: white;
+  z-index: 1;
+
+  height: 100%;
+  width: 100%;
+  background-color: rgb(0 0 0 / 0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-feed .overlay.found{
+  background-color: color-mix(in oklab, var(--success), transparent 20%);
+  animation: blink 300ms ease-in-out 3;
+}
+
+.waiting-icon{
+  animation: hover .3s ease-in-out infinite alternate;
+}
+
+@keyframes hover {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waiting-icon,
+  .video-feed .overlay.found {
+    animation: none;
+  }
 }
 
 .preview {
+  position: relative;
   display: block;
   width: 100%;
   aspect-ratio: 1/1;
   max-height: 60vh;
   object-fit: cover;
-  border-radius: 0.5rem;
   background: black;
+  z-index: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 button{
   width: 100%;
+}
+
+:host(.drawer-pane--compact){
+  //height: unset;
 }

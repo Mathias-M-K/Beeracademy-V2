@@ -1,4 +1,22 @@
-<h2>QR scanner!</h2>
+<div class="header">
+  <p class="subtitle">QR Kode</p>
+  <h2 id="qr-scanner-title">Scan en QR kode</h2>
+</div>
+<div class="video-feed">
+  @switch (scanState()) {
+    @case ('waiting') {
+      <div class="overlay">
+        <material-icon class="waiting-icon" icon="videocam" [size]="100"></material-icon>
+      </div>
+    }
+    @case ('found') {
+      <div class="overlay found">
+        <material-icon icon="qr_code" [size]="100"></material-icon>
+      </div>
+    }
+  }
+  <video #video class="preview" playsinline muted aria-labelledby="qr-scanner-title" aria-describedby="qr-scanner-status"></video>
+</div>
+<p id="qr-scanner-status" class="visually-hidden" role="status">{{ statusText() }}</p>
 
-<video #video class="preview" playsinline muted></video>
 <button class="btn-secondary" (click)="closeDrawer()">Luk</button>
