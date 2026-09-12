@@ -14,6 +14,7 @@ import {CurrentPartyDto} from '../../../api-models/model/currentPartyDto';
 import {Role} from '../../../api-models/model/role';
 import {PartyState} from '../../../api-models/model/partyState';
 import {BreakpointObserver} from '@angular/cdk/layout';
+import {DrawerService} from '../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-welcome-page',
@@ -25,12 +26,13 @@ export class WelcomePage {
 
   private readonly router: Router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly breakpointObserver= inject(BreakpointObserver);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   private readonly lobbyApi: LobbyApi = inject(LobbyApi);
   private readonly partyApi: PartyApi = inject(PartyApi);
 
   private readonly toastService = inject(ToastService);
+  private readonly drawerService = inject(DrawerService);
 
   protected readonly creatingLobby = signal<boolean>(false);
   protected readonly fetchingExistingGame = signal<boolean>(false);
@@ -53,7 +55,7 @@ export class WelcomePage {
     this.breakpointObserver
       .observe('(max-width: 500px)')
       .pipe(map((result) => result.matches)),
-    { initialValue: false },
+    {initialValue: false},
   );
 
   constructor() {
@@ -99,6 +101,20 @@ export class WelcomePage {
     } else if (partyState === PartyState.Lobby) {
       this.navigateToLobbyPage();
     }
+  }
+
+  protected openCameraBtnClicked() {
+    return this.openQrScanner();
+  }
+
+  protected qrScannerPanelClick() {
+    if (this.isCompact()) {
+      this.openQrScanner();
+    }
+  }
+
+  private openQrScanner() {
+    this.drawerService.showQrScanner();
   }
 
 

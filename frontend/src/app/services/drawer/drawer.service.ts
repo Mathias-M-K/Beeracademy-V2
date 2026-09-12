@@ -12,6 +12,7 @@ import {PartyShareDrawerComponent} from '../../drawer/party-share-drawer/party-s
 import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
 import {GamePausedDrawerComponent} from '../../drawer/game-paused-drawer/game-paused-drawer.component';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
+import {QrScannerDrawer} from '../../drawer/qr-scanner-drawer/qr-scanner-drawer';
 
 @Service()
 export class DrawerService {
@@ -57,6 +58,13 @@ export class DrawerService {
       dismissOnBackdropClick: false
     }
     return this.showDrawer<void>(overlayConf);
+  }
+
+  public showQrScanner() {
+    const overlayConf: Partial<OverlayConf<string>> = {
+      component: QrScannerDrawer
+    }
+    return this.showDrawer(overlayConf);
   }
 
   private showDrawer<expectedReturnObj>(overlayConf: Partial<OverlayConf<any>>): OverlayHandle<expectedReturnObj> {

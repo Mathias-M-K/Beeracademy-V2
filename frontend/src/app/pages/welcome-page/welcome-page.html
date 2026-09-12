@@ -54,7 +54,7 @@
     </div>
   </div>
 
-  <div class="option panel">
+  <div class="option panel" (click)="qrScannerPanelClick()">
     @let optionTwoCardTitle = "Scan en QR-kode";
     @if (isCompact()) {
 
@@ -80,11 +80,9 @@
 
     @if (!isCompact()) {
       <div>
-        <button class="btn-secondary">Åbn Kamera</button>
+        <button class="btn-secondary" (click)="openCameraBtnClicked()">Åbn Kamera</button>
       </div>
     }
-
-
   </div>
 
 </div>
