@@ -1,7 +1,7 @@
 import {ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router} from '@angular/router';
 import {inject} from '@angular/core';
 import {catchError, finalize, Observable, of, timeout} from 'rxjs';
-import {PartyApiService} from '../services/apis/party-api.service';
+import {PartyApi} from '../services/apis/party.api';
 import {ToastService} from '../services/toast/toast.service';
 import {ToastState} from '../overlay/toast/models/toast-data';
 import {OverlayService} from '../services/overlay/overlay.service';
@@ -11,7 +11,7 @@ import {OverlayHandle} from '../services/overlay/models/overlay-handle';
 
 
 export const partyStateResolver: ResolveFn<PartyDto> = (route: ActivatedRouteSnapshot) => {
-  const partyApi = inject(PartyApiService);
+  const partyApi = inject(PartyApi);
   const toastService = inject(ToastService);
   const router = inject(Router);
   const overlayService = inject(OverlayService);

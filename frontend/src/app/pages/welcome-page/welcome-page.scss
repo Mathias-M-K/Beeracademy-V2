@@ -1,19 +1,20 @@
 $panel-border-radius: 10px;
 $panel-padding: 15px;
-$panel-gap: 30px;
 
-h2{
+
+h2 {
   font-size: 40px;
 }
 
 :host {
+  --panel-gap: 30px;
   display: grid;
   justify-self: center;
   align-items: start;
   align-self: center;
 
   grid-template-rows: auto auto 1fr;
-  gap: $panel-gap;
+  gap: var(--panel-gap);
 
   height: 100vh;
   max-width: 900px;
@@ -28,6 +29,14 @@ h2{
   border: 1px solid var(--color-grey-600);
   border-radius: $panel-border-radius;
   padding: $panel-padding;
+}
+
+#header {
+  font-size: 5rem;
+  text-align: center;
+
+  cursor: pointer;
+  user-select: none;
 }
 
 @property --angle {
@@ -66,18 +75,6 @@ h2{
   }
 }
 
-#header {
-  font-size: 55px;
-  text-align: center;
-
-  cursor: pointer;
-  user-select: none;
-}
-
-#header > span {
-  font-size: 5rem;
-}
-
 #existing-game {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -107,7 +104,7 @@ h2{
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: 1fr 1fr;
-  gap: $panel-gap;
+  gap: var(--panel-gap);
 }
 
 .option {
@@ -134,8 +131,65 @@ h2{
   justify-content: end;
   gap: 5px
 }
-.option > div > button, input{
+
+.option > div > button, input {
   width: 100%;
 }
 
+@media (max-width: 750px) {
+  :host {
+    --panel-gap: 15px;
+    padding-top: 0;
+  }
+  #header {
+    font-size: 11vw;
+  }
+  #options {
+    grid-auto-flow: row;
+    grid-template-columns: unset;
+  }
+}
+
+@media (max-width: 500px) {
+  h2 {
+    font-size: 28px;
+  }
+  #existing-game {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  #existing-game > button {
+    align-self: unset;
+    width: 100%;
+  }
+  .option > .header {
+    justify-content: start;
+  }
+  #options > .option:nth-child(1){
+    grid-template-rows: auto auto;
+  }
+  #options > .option:nth-child(2) {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+
+    column-gap: 10px;
+    row-gap: 5px;
+
+    material-icon{
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+    p{
+      margin: 0;
+    }
+  }
+  #options > .option:nth-child(2):active{
+    background-color: rgb(0 0 0 / 0.07);
+  }
+
+
+
+}
 
