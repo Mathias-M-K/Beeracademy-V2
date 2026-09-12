@@ -1,11 +1,14 @@
 package dk.mathiaskofod.services.auth.models;
 
 import dk.mathiaskofod.services.auth.exceptions.TokenException;
+
 import java.util.Optional;
+
 import lombok.Getter;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 public class TokenInfo {
+
     @Getter
     private final String name;
 
@@ -24,21 +27,22 @@ public class TokenInfo {
         this.role = Role.fromJsonWebToken(token);
 
         if (partyId == null) {
-            throw new TokenException("No Party-ID found in token", 500);
+            throw new TokenException("No Party-ID found in token", 403);
+        }
+        if (role == Role.PLAYER_CLIENT && playerId == null) {
+            throw new TokenException("No Player-ID found in token", 403);
         }
     }
 
     public String getPlayerId() {
-
         return Optional.ofNullable(playerId)
-                .orElseThrow(() -> new TokenException("Token doesn't contain Player-ID", 500));
+                .orElseThrow(() -> new TokenException("Game client has no Player-ID", 403));
     }
 
-    /**
-     * Returns the ID of the client, whether is a game- or player-client
-     *
-     * @return client ID
-     */
+    public Optional<String> findPlayerId() {
+        return Optional.ofNullable(playerId);
+    }
+
     public String getClientId() {
         return switch (role) {
             case GAME_CLIENT -> this.partyId;
