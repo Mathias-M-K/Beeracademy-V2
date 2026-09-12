@@ -1,18 +1,20 @@
 import {Component, DestroyRef, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
-import {NgxMaskDirective} from 'ngx-mask';
+
 import {LobbyApi} from '../../services/apis/lobby-api.service';
 import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs';
+import {SuitIcon} from '../../common/components/suit-icon/suit-icon';
+import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 
 @Component({
   selector: 'app-welcome-page',
   templateUrl: './welcome-page.html',
   styleUrl: './welcome-page.scss',
-  imports: [NgxMaskDirective, DotLoader],
+  imports: [SuitIcon, MaterialIcon, DotLoader],
 })
 export class WelcomePage {
 
