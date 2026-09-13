@@ -12,4 +12,5 @@ import {Component, input} from '@angular/core';
 export class DotLoader {
 
   readonly color = input('#DC8224FF');
+  readonly label = input('Indlæser');
 }

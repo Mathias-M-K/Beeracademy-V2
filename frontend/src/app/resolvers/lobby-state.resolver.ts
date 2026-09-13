@@ -11,7 +11,6 @@ export const lobbyStateResolver: ResolveFn<void> = async () => {
   const toastService = inject(ToastService);
 
   const handleError = (cause: number) => {
-
     switch (cause) {
       case WebsocketCode.SessionOccupied:
         return onSessionOccupied();

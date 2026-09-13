@@ -12,7 +12,13 @@
       {{ existingPartyParticipantName() ? ' | ' + existingPartyParticipantName() : '' }}
 
     </p>
-    <button class="btn-secondary" (click)="joinExistingParty()">{{ existingPartyJoinBtnText() }}</button>
+    <button class="btn-secondary" [disabled]="buttonsDisabled()" [attr.aria-busy]="joiningExistingParty()" (click)="joinExistingParty()">
+      @if (joiningExistingParty()) {
+        <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+      } @else {
+        {{ existingPartyJoinBtnText() }}
+      }
+    </button>
   </div>
 }
 
@@ -43,7 +49,7 @@
     <div>
       <input placeholder="Fx. Hygge aften" #lobbyName aria-label="lobby name"
              (keyup.enter)="createLobby(lobbyName.value)">
-      <button class="btn-secondary" (click)="createLobby(lobbyName.value)" [disabled]="creatingLobby()">
+      <button class="btn-secondary" (click)="createLobby(lobbyName.value)" [disabled]="buttonsDisabled()" [attr.aria-busy]="creatingLobby()">
         @if (creatingLobby()) {
           <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
         } @else {
