@@ -1,0 +1,5 @@
+$kind: http-request
+name: Current party
+url: "{{url}}/parties/current"
+method: GET
+order: 1789206779948

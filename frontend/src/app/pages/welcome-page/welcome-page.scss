@@ -1,47 +1,195 @@
-:host{
-  display: grid;
-  justify-self: center;
+$panel-border-radius: 10px;
+$panel-padding: 15px;
+
+
+h2 {
+  font-size: 40px;
 }
 
-.content{
+:host {
+  --panel-gap: 30px;
   display: grid;
   justify-self: center;
-  gap: 15px;
-  width: 350px;
+  align-items: start;
+  align-self: center;
+
+  grid-template-rows: auto auto 1fr;
+  gap: var(--panel-gap);
+
+  height: 100vh;
+  max-width: 900px;
+  width: 90vw;
+
+  padding: 20vh 0;
 }
 
-#header{
-  font-size: 55px;
+.panel {
+  position: relative;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-grey-600);
+  border-radius: $panel-border-radius;
+  padding: $panel-padding;
+}
+
+#header {
+  font-size: 5rem;
   text-align: center;
 
   cursor: pointer;
   user-select: none;
 }
-h1 > span{
-  font-size: 5rem;
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
 }
 
-input, button{
+.panel.glowing::after, .panel.glowing::before {
+
+  content: '';
+  position: absolute;
+  height: 100%;
   width: 100%;
-  justify-self: center;
-}
-input{
-  text-align: center;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  background-image: conic-gradient(from var(--angle), var(--primary), transparent, var(--primary), transparent, var(--primary));
+  z-index: -1;
+  padding: 2px;
+  border-radius: $panel-border-radius;
+  animation: 3s spin linear infinite;
 }
 
-#party-id-input{
-  text-transform: uppercase;
+.panel.glowing::before {
+  filter: blur(1rem);
+  opacity: 0.5;
 }
 
-
-@media (max-width: 450px) {
-  .content{
-    width: 80vw;
+@keyframes spin {
+  from {
+    --angle: 0deg;
   }
+  to {
+    --angle: 360deg;
+  }
+}
+
+#existing-game {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px;
+  border: unset;
+}
+
+#existing-game > :not(button) {
+  grid-column: 1;
+}
+
+#existing-game > button {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: center;
+}
+
+#existing-game > p:nth-child(1) {
+  color: var(--primary);
+}
+
+#existing-game > p, h2 {
+  margin: 0;
+}
+
+#options {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--panel-gap);
+}
+
+.option {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 10px;
+}
+
+.option > .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.option > p {
+  font-size: 14px;
+  color: var(--primary-disabled-text);
+}
+
+.option > div:not(.header) {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: end;
+  gap: 5px
+}
+
+.option > div > button, input {
+  width: 100%;
 }
 
 @media (max-width: 750px) {
-  #header > span{
-    font-size: 10vw;
+  :host {
+    --panel-gap: 15px;
+    padding-top: 0;
+  }
+  #header {
+    font-size: 11vw;
+  }
+  #options {
+    grid-auto-flow: row;
+    grid-template-columns: unset;
   }
 }
+
+@media (max-width: 500px) {
+  h2 {
+    font-size: 28px;
+  }
+  #existing-game {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  #existing-game > button {
+    align-self: unset;
+    width: 100%;
+  }
+  .option > .header {
+    justify-content: start;
+  }
+  #options > .option:nth-child(1){
+    grid-template-rows: auto auto;
+  }
+  #options > .option:nth-child(2) {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+
+    column-gap: 10px;
+    row-gap: 5px;
+
+    material-icon{
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+    p{
+      margin: 0;
+    }
+  }
+  #options > .option:nth-child(2):active{
+    background-color: rgb(0 0 0 / 0.07);
+  }
+
+
+
+}
+

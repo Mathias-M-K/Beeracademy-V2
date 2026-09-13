@@ -1,0 +1,9 @@
+$kind: http-request
+url: /games/:partyId/players/:participantId/claim
+method: GET
+pathVariables:
+  - key: partyId
+    value: RTN-BUX-ST9
+  - key: participantId
+    value: HJ9J7CHODDJV
+order: 3985862391376176

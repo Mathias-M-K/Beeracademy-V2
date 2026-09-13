@@ -5,18 +5,23 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import dk.mathiaskofod.api.party.models.CurrentPartyDto;
 import dk.mathiaskofod.api.party.models.PartyDto;
 import dk.mathiaskofod.api.party.models.PartyParticipantDto;
 import dk.mathiaskofod.common.dto.session.SessionDto;
+import dk.mathiaskofod.services.auth.AuthenticationService;
+import dk.mathiaskofod.services.auth.models.Role;
 import dk.mathiaskofod.services.party.PartyService;
 import dk.mathiaskofod.services.party.exceptions.PartyNotFoundException;
 import dk.mathiaskofod.services.party.models.PartyState;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +32,9 @@ class PartyApiTest {
 
     @InjectMock
     PartyService partyService;
+
+    @Inject
+    AuthenticationService authenticationService;
 
     private final String url = "api/parties";
 
@@ -94,6 +102,81 @@ class PartyApiTest {
         // Act & Assert
         given().when()
                 .get(url + "/" + PARTY_ID)
+                .then()
+                .statusCode(404)
+                .body("exception", equalTo("PartyNotFoundException"));
+    }
+
+    @Test
+    @DisplayName("The current party is resolved from a player-client token")
+    void currentPartyForPlayerClient() {
+
+        // Arrange
+        Mockito.when(partyService.getPartyState(PARTY_ID)).thenReturn(partyDto());
+        String token = authenticationService.createPlayerClientToken("Alice", PARTY_ID, "alice");
+
+        // Act
+        CurrentPartyDto current = given().cookie("session_jwt", token)
+                .when()
+                .get(url + "/current")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(CurrentPartyDto.class);
+
+        // Assert
+        assertThat(current.role(), is(Role.PLAYER_CLIENT));
+        assertThat(current.playerId(), is("alice"));
+        assertThat(current.partyState().id(), is(PARTY_ID));
+        verify(partyService).getPartyState(PARTY_ID);
+    }
+
+    @Test
+    @DisplayName("The current party is resolved from a game-client token without a player id")
+    void currentPartyForGameClient() {
+
+        // Arrange
+        Mockito.when(partyService.getPartyState(PARTY_ID)).thenReturn(partyDto());
+        String token = authenticationService.createGameClientToken("Beer Party", PARTY_ID);
+
+        // Act
+        CurrentPartyDto current = given().cookie("session_jwt", token)
+                .when()
+                .get(url + "/current")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(CurrentPartyDto.class);
+
+        // Assert
+        assertThat(current.role(), is(Role.GAME_CLIENT));
+        assertThat(current.playerId(), is(nullValue()));
+        assertThat(current.partyState().id(), is(PARTY_ID));
+    }
+
+    @Test
+    @DisplayName("The current party requires authentication")
+    void currentPartyWithoutTokenIsRejected() {
+
+        // Act
+        when().get(url + "/current").then().statusCode(401);
+
+        // Assert
+        verify(partyService, never()).getPartyState(anyString());
+    }
+
+    @Test
+    @DisplayName("The current party returns 404 when the token's party no longer exists")
+    void currentPartyUnknownReturnsNotFound() {
+
+        // Arrange
+        Mockito.when(partyService.getPartyState(PARTY_ID)).thenThrow(new PartyNotFoundException(PARTY_ID));
+        String token = authenticationService.createGameClientToken("Beer Party", PARTY_ID);
+
+        // Act & Assert
+        given().cookie("session_jwt", token)
+                .when()
+                .get(url + "/current")
                 .then()
                 .statusCode(404)
                 .body("exception", equalTo("PartyNotFoundException"));

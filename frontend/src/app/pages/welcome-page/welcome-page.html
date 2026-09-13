@@ -1,27 +1,88 @@
-<h1 id="header" (click)="onTitleClick()" (keydown.space)="onTitleClick()">
+<h1 id="header">
   <span>BEER</span><span style="color: var(--primary)">ACADEMY</span>
 </h1>
 
-<div class="content">
-  <input aria-label="lobby id" #partyIdInput id="party-id-input" placeholder="LOBBY ID" mask="AAA-AAA-AAA">
-  <input aria-label="participant name" #participantNameInput placeholder="DELTAGER NAVN">
-  <button (click)="registerParticipant(participantNameInput.value,partyIdInput.value)" class="btn-primary">
-    @if (joiningLobby()) {
-      <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+@if (existingPartyName()) {
+  <div id="existing-game" class="panel glowing">
+    <p class="subtitle">{{ existingPartyText() }}</p>
+    <h2>{{ existingPartyName() }}</h2>
+    <p class="subtitle">
+      Du er {{ existingPartyRole() }} |
+      {{ existingPartyParticipantCount() }} deltagere
+      {{ existingPartyParticipantName() ? ' | ' + existingPartyParticipantName() : '' }}
+
+    </p>
+    <button class="btn-secondary" (click)="joinExistingParty()">{{ existingPartyJoinBtnText() }}</button>
+  </div>
+}
+
+
+<div id="options">
+
+
+  <div class="option panel">
+    @let optionOneCardTitle = "Opret en lobby";
+    @if (isCompact()) {
+      <div class="header">
+        <suit-icon suit="SPADE" [size]="30"></suit-icon>
+        <h2>{{ optionOneCardTitle }}</h2>
+      </div>
     } @else {
-      Deltag
+      <div class="header">
+        <p class="subtitle">Vært</p>
+        <suit-icon suit="SPADE" [size]="30"></suit-icon>
+      </div>
     }
-  </button>
-  <div class="horizontal_line"><span>eller</span></div>
-  <input aria-label="lobbyNameInput" #lobbyNameInput placeholder="LOBBY NAVN"
-         (keyup.enter)="createLobby(lobbyNameInput.value)">
-  <button (click)="createLobby(lobbyNameInput.value)" class="btn-secondary">
-    @if (creatingLobby()) {
-      <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+
+    @if (!isCompact()) {
+      <h2>{{ optionOneCardTitle }}</h2>
+    }
+
+    @if (!isCompact()) {
+      <p>Opret din egen lobby. Giv den et navn så folk kan se hvad de hopper ind i</p>
+    }
+    <div>
+      <input placeholder="Fx. Hygge aften" #lobbyName aria-label="lobby name"
+             (keyup.enter)="createLobby(lobbyName.value)">
+      <button class="btn-secondary" (click)="createLobby(lobbyName.value)" [disabled]="creatingLobby()">
+        @if (creatingLobby()) {
+          <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+        } @else {
+          Opret lobby
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="option panel" (click)="qrScannerPanelClick()">
+    @let optionTwoCardTitle = "Scan en QR-kode";
+    @if (isCompact()) {
+
+      <material-icon icon="qr_code" [size]="30"></material-icon>
+      <h2>{{ optionTwoCardTitle }}</h2>
+
     } @else {
-      Opret en ny lobby
+      <div class="header">
+        <p class="subtitle">Spiller</p>
+        <material-icon icon="qr_code" [size]="30"></material-icon>
+      </div>
     }
-  </button>
+    @if (!isCompact()) {
+      <h2>{{ optionTwoCardTitle }}</h2>
+    }
+
+    @if (!isCompact()) {
+      <p>Åbn kameraet for at scanne QR kode. Du kan få QR koden fra andre deltagere som allerede har fået adgang, eller
+        fra vedkommende som har oprettet lobbyen</p>
+    } @else {
+      <p>Åbn kameraet for at scanne QR kode</p>
+    }
+
+    @if (!isCompact()) {
+      <div>
+        <button class="btn-secondary" (click)="openCameraBtnClicked()">Åbn Kamera</button>
+      </div>
+    }
+  </div>
+
 </div>
-
-

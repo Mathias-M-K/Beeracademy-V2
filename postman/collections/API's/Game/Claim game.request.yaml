@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{url}}/games/:partyId/claim"
+method: GET
+pathVariables:
+  - key: partyId
+    value: RTN-BUX-ST9
+order: 4465963903184589

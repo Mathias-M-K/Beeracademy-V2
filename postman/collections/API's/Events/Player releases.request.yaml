@@ -1,11 +1,8 @@
 $kind: http-request
-url: "{{url}}/events/player-releases/:partyId"
+url: "{{url}}/events/player-connection-events/:partyId"
 method: GET
 pathVariables:
   - key: partyId
-    value: "123"
+    value: FDC70UEWX
     description: ""
-body:
-  type: text
-  content: Hejsa
 order: 1000

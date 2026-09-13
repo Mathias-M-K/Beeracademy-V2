@@ -2,7 +2,6 @@ package dk.mathiaskofod.services.auth;
 
 import dk.mathiaskofod.services.auth.models.CustomJwtClaims;
 import dk.mathiaskofod.services.auth.models.Role;
-import dk.mathiaskofod.services.game.id.generator.IdGenerator;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Duration;
@@ -28,11 +27,6 @@ public class AuthenticationService {
                 .sign();
     }
 
-    public String createPlayerClientToken(String playerName, String partyId) {
-        String id = IdGenerator.generatePlayerId();
-        return createPlayerClientToken(playerName, partyId, id);
-    }
-
     public String createGameClientToken(String gameName, String partyId) {
         return Jwt.issuer(issuer)
                 .subject(gameName)
@@ -40,10 +34,5 @@ public class AuthenticationService {
                 .claim(CustomJwtClaims.PARTY_ID.getName(), partyId)
                 .expiresIn(TOKEN_DURATION)
                 .sign();
-    }
-
-    public String createGameClientToken(String gameName) {
-        String id = IdGenerator.generatePartyId();
-        return createGameClientToken(gameName, id);
     }
 }
