@@ -45,7 +45,6 @@ export class GamePage implements OnInit, OnDestroy {
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
 
-
   protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 

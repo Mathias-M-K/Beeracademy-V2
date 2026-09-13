@@ -37,7 +37,7 @@ import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
@@ -86,7 +86,7 @@ class PlayerClientSessionManagerTest {
 
     /** An ordinary client-side disconnect, as opposed to the server closing the connection with a kick. */
     private static final CloseReason CLIENT_LEFT =
-            new CloseReason(WebsocketCodes.GOING_AWAY.getCode(), "Client left");
+            new CloseReason(WebsocketCode.GOING_AWAY.getCode(), "Client left");
 
     @BeforeEach
     void setUp() {
@@ -263,7 +263,7 @@ class PlayerClientSessionManagerTest {
             Session gameClientSession = mock(Session.class);
             when(sessionRegistry.getSession(PARTY_ID)).thenReturn(Optional.of(gameClientSession));
 
-            CloseReason kicked = new CloseReason(WebsocketCodes.KICKED.getCode(), "Kicked by the party leader");
+            CloseReason kicked = new CloseReason(WebsocketCode.KICKED.getCode(), "Kicked by the party leader");
 
             // Act
             sessionManager.onConnectionClosed(tokenInfo, kicked);
@@ -315,7 +315,7 @@ class PlayerClientSessionManagerTest {
             ArgumentCaptor<CloseReason> closeReasonCaptor = ArgumentCaptor.forClass(CloseReason.class);
             verify(playerConnection).closeAndAwait(closeReasonCaptor.capture());
             assertEquals(
-                    WebsocketCodes.PLAYER_RELINQUISHED.getCode(),
+                    WebsocketCode.PLAYER_RELINQUISHED.getCode(),
                     closeReasonCaptor.getValue().getCode());
 
             verify(sessionRegistry).removeSession(PLAYER_ID);

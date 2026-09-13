@@ -37,7 +37,6 @@ import {OverlayHandle} from '../overlay/models/overlay-handle';
 import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
 import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
 import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
-import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
 import {releasePlayerAction} from '../models/categories/actions/game/game-client-action/release-player-action';
 import {PlayerConnectedEvent} from '../models/categories/events/game/player-client-event/player-connected-event';
 import {PlayerDisconnectedEvent} from '../models/categories/events/game/player-client-event/player-disconnected-event';
@@ -48,6 +47,7 @@ import {
   PlayerReleaseRequestedEvent
 } from '../models/categories/events/game/game-client-event/player-release-requested.event';
 import {DrawerService} from '../drawer/drawer.service';
+import {WebsocketCode} from '../../../api-models/model/websocketCode';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -223,15 +223,15 @@ export class GameService {
     console.debug("Lost connection to game-websocket. Message: ", errorObj?.message, ', code: ', errorObj?.cause);
 
     switch (errorObj.cause) {
-      case WebsocketCodes.GameNotFound: {
+      case WebsocketCode.GameNotFound: {
         this.toastService.showToast("Der skete en fejl", "Spillet findes ikke længere", 'error', ToastState.error);
         this.navigateToWelcome();
         break;
       }
-      case WebsocketCodes.GoingAway:
-      case WebsocketCodes.AbnormalClosure:
-      case WebsocketCodes.ServiceRestart:
-      case WebsocketCodes.TryAgainLater: {
+      case WebsocketCode.GoingAway:
+      case WebsocketCode.AbnormalClosure:
+      case WebsocketCode.ServiceRestart:
+      case WebsocketCode.TryAgainLater: {
         const visibilityState = document.visibilityState;
         console.warn('Transient disconnect, awaiting resume. Code:', errorObj.cause, ', Page visible:', visibilityState);
         if (visibilityState !== 'visible') return;
@@ -239,7 +239,7 @@ export class GameService {
         this.reconnectToWebsocket();
         break;
       }
-      case WebsocketCodes.Kicked: {
+      case WebsocketCode.Kicked: {
         this.toastService.showToast("Fjernet fra spillet", "Du blev fjernet fra spillet", 'sports_martial_arts');
         this.navigateToWelcome();
         break;

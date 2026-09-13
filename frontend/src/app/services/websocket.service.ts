@@ -7,13 +7,8 @@ import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
 import {GameEventEnvelope} from './models/categories/events/game/game-event-envelope';
 import {ExceptionResponse} from '../../api-models/model/exceptionResponse';
 import {ExceptionEvent} from './models/categories/events/common/exception-event';
-import {WebsocketCodes} from '../../api-models/model/websocketCodes';
+import {WebsocketCode} from '../../api-models/model/websocketCode';
 
-
-export const LocalWebsocketCodes = {
-  Unknown: 0,
-  Exception: 1
-}
 
 @Service()
 export class WebsocketService {
@@ -44,6 +39,7 @@ export class WebsocketService {
 
     let resolveConnection!: (messages$: Observable<WebsocketEnvelope>) => void;
     let rejectConnection!: (reason: Error) => void;
+
     const connection = new Promise<Observable<WebsocketEnvelope>>((resolve, reject): void => {
       resolveConnection = resolve;
       rejectConnection = reject;
@@ -94,23 +90,19 @@ export class WebsocketService {
           resolveConnection(messages);
         } else if (this.isException(message)) {
           const exception: ExceptionResponse = ((message as GameEventEnvelope).payload as ExceptionEvent).response;
-          let cause = LocalWebsocketCodes.Exception;
-          switch (exception.exception) {
-            case 'GameNotFoundException': {
-              cause = WebsocketCodes.GameNotFound
-              break;
-            }
-          }
+          const websocketCode = this.getWebsocketCodeFromException(exception);
           console.debug("⚠️ Exception thrown from websocket", exception);
-          rejectConnection(new Error("Exception thrown from websocket", {cause: cause}));
+          rejectConnection(new Error(undefined, {cause: websocketCode}));
           return;
+        } else {
+          messages.next(message);
         }
 
-        messages.next(message);
+
       },
       error: (error: Event) => {
         clearTimeout(timeoutHandle);
-        rejectConnection(new Error('Websocket disconnected', {cause: LocalWebsocketCodes.Unknown}));
+        rejectConnection(new Error('Websocket disconnected', {cause: 0})); //FIXME use actual code, or not
         console.debug("⚠️ Error when attempting to connect to websocket.", error, "url:", url);
       }
     });
@@ -124,6 +116,19 @@ export class WebsocketService {
 
   private isException(message: WebsocketEnvelope) {
     return (message as Partial<GameEventEnvelope>).payload?.type === 'EXCEPTION_RESPONSE';
+  }
+
+  private getWebsocketCodeFromException(exception: ExceptionResponse): WebsocketCode {
+
+    switch (exception.exception) {
+      case 'GameNotFoundException':
+        return WebsocketCode.GameNotFound;
+      case 'SessionConnectedException':
+        return WebsocketCode.SessionOccupied;
+      default:
+        return WebsocketCode.Unknown;
+
+    }
   }
 
   public send(envelope: WebsocketEnvelope): void {

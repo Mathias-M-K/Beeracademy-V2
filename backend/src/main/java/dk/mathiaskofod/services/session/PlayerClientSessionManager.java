@@ -15,7 +15,7 @@ import dk.mathiaskofod.services.session.events.game.playerclient.PlayerConnected
 import dk.mathiaskofod.services.session.events.game.playerclient.PlayerDisconnectedEvent;
 import dk.mathiaskofod.services.session.events.game.playerclient.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +65,7 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
             return;
         }
 
-        if (closeReason.getCode() == WebsocketCodes.KICKED.getCode()) {
+        if (closeReason.getCode() == WebsocketCode.KICKED.getCode()) {
             log.info("Player leave have already been reported");
             return;
         }
@@ -107,7 +107,7 @@ public class PlayerClientSessionManager extends AbstractGameSessionManager {
     }
 
     private void relinquishPlayer(String partyId, String playerId) {
-        disconnectAndReleasePlayer(playerId, WebsocketCodes.PLAYER_RELINQUISHED, "Player relinquished by player");
+        disconnectAndReleasePlayer(playerId, WebsocketCode.PLAYER_RELINQUISHED, "Player relinquished by player");
 
         sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.RELEASED);
         log.info("Player disconnected and released! PlayerID:{}, PartyID:{}", playerId, partyId);

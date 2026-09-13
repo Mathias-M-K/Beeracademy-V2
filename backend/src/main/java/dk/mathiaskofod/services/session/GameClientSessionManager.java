@@ -13,10 +13,9 @@ import dk.mathiaskofod.services.session.events.game.gameclient.GameClientConnect
 import dk.mathiaskofod.services.session.events.game.gameclient.PlayerKickedEvent;
 import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleaseRequestedEvent;
 import dk.mathiaskofod.services.session.events.game.gameclient.PlayerReleasedEvent;
-import dk.mathiaskofod.services.session.events.game.playerclient.PlayerRelinquishedEvent;
 import dk.mathiaskofod.services.session.exceptions.*;
 import dk.mathiaskofod.services.session.repository.Session;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -24,7 +23,6 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.function.Function;
 
 @Slf4j
 @ApplicationScoped
@@ -126,7 +124,7 @@ public class GameClientSessionManager extends AbstractGameSessionManager {
     }
 
     private void kickPlayer(String partyId, String playerId, String reason) {
-        disconnectAndReleasePlayer(playerId, WebsocketCodes.KICKED, reason);
+        disconnectAndReleasePlayer(playerId, WebsocketCode.KICKED, reason);
 
         sseEventPublisher.publishNewConnectionEvent(partyId, playerId, ConnectionEvent.RELEASED);
         log.info("Player kicked! PlayerID:{}, PartyID:{}, Reason:{}", playerId, partyId, reason);

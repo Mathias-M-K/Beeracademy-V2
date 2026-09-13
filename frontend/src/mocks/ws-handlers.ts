@@ -3,8 +3,8 @@ import type { WebSocketHandler } from 'msw';
 import { GameState } from '../api-models/model/gameState';
 import { Role } from '../api-models/model/role';
 import { TimerState } from '../api-models/model/timerState';
-import { WebsocketCodes } from '../api-models/model/websocketCodes';
 import { db } from './db';
+import {WebsocketCode} from '../api-models/model/websocketCode';
 
 /**
  * MSW patches the global WebSocket constructor, so these run entirely in the page — the
@@ -41,7 +41,7 @@ const lobbyHandler = lobbyLink.addEventListener('connection', ({ client }) => {
 
   if (!session || !lobby) {
     // Same close code the backend uses when the JWT points at nothing.
-    client.close(WebsocketCodes.SessionNotFound, 'No mock session — create or join a lobby first');
+    client.close(WebsocketCode.SessionNotFound, 'No mock session — create or join a lobby first');
     return;
   }
 
@@ -132,8 +132,8 @@ const lobbyHandler = lobbyLink.addEventListener('connection', ({ client }) => {
       case 'LOBBY_START_GAME': {
         db.startGame(session.partyId);
         // The backend hands over to the game socket by closing this one with
-        // Transitioning; the lobby service reads that code and routes to /game.
-        setTimeout(() => client.close(WebsocketCodes.Transitioning, 'Game starting'), 20);
+        // Transitioning; the lobby service reads that code and resolvers to /game.
+        setTimeout(() => client.close(WebsocketCode.Transitioning, 'Game starting'), 20);
         return;
       }
 
@@ -150,7 +150,7 @@ const gameHandler = gameLink.addEventListener('connection', ({ client }) => {
   const game = session && db.getGame(session.partyId);
 
   if (!session || !game) {
-    client.close(WebsocketCodes.GameNotFound, 'No mock game — start one from the lobby first');
+    client.close(WebsocketCode.GameNotFound, 'No mock game — start one from the lobby first');
     return;
   }
 

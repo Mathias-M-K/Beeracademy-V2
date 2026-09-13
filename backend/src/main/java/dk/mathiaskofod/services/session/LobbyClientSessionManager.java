@@ -22,7 +22,7 @@ import dk.mathiaskofod.services.session.events.lobby.participant.NewParticipantE
 import dk.mathiaskofod.services.session.exceptions.CannotIdentifyPlayerException;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -55,17 +55,17 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                 closeReason.getCode(),
                 closeReason.getMessage());
 
-        boolean isTransitioning = closeReason.getCode() == WebsocketCodes.TRANSITIONING.getCode();
+        boolean isTransitioning = closeReason.getCode() == WebsocketCode.TRANSITIONING.getCode();
 
         CloseReason participantCloseReason;
         if (isTransitioning) {
             lobbyService.markLobbyAsTransitioning(partyId);
             sessionRegistry.clearConnectionId(partyId);
-            participantCloseReason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
+            participantCloseReason = new CloseReason(WebsocketCode.TRANSITIONING.getCode());
         } else {
             lobbyService.markLobbyAsAbandoned(partyId);
             participantCloseReason =
-                    new CloseReason(WebsocketCodes.LOBBY_LEADER_LEFT.getCode(), "Leader left the lobby");
+                    new CloseReason(WebsocketCode.LOBBY_LEADER_LEFT.getCode(), "Leader left the lobby");
         }
 
         lobbyService.getLobby(partyId).getParticipants().stream()
@@ -98,7 +98,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
                 ParticipantRemovedEvent event = new ParticipantRemovedEvent(participantId);
 
                 try {
-                    CloseReason closeReason = new CloseReason(WebsocketCodes.KICKED.getCode());
+                    CloseReason closeReason = new CloseReason(WebsocketCode.KICKED.getCode());
                     disconnectParticipant(participantId, closeReason);
                 } catch (SessionNotFoundException snf) {
                     log.info("Participant: {}, is not active. Proceeding to remove from lobby", participantId);
@@ -147,7 +147,7 @@ public class LobbyClientSessionManager extends AbstractLobbySessionManager {
     }
 
     private void transitionToGameWebsocket(String partyId) {
-        CloseReason reason = new CloseReason(WebsocketCodes.TRANSITIONING.getCode());
+        CloseReason reason = new CloseReason(WebsocketCode.TRANSITIONING.getCode());
         getWebsocketConnection(partyId).closeAndAwait(reason);
     }
 

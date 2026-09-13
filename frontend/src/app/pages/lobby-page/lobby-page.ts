@@ -26,16 +26,12 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
     DotLoader
   ]
 })
-export class LobbyPage implements OnInit {
+export class LobbyPage {
 
   public readonly lobbyService = inject(LobbyService)
   private readonly overlayService = inject(OverlayService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
-
-  ngOnInit(): void {
-    this.lobbyService.connectToWebsocket();
-  }
 
   addParticipant(name: string) {
     this.lobbyService.requestParticipantCreation(name);
