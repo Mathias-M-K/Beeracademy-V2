@@ -1,0 +1,74 @@
+<div class="header">
+  <p class="subtitle">QR Kode</p>
+  <h2 id="qr-scanner-title">Scan en QR kode</h2>
+</div>
+<div class="video-feed">
+  <video #video class="preview" playsinline muted
+         [class.revealed]="scanState() !== 'waiting'"
+         [class.frozen]="scanState() === 'found'"
+         aria-labelledby="qr-scanner-title" aria-describedby="qr-scanner-status"></video>
+
+  @if (scanState() !== 'waiting') {
+    <div class="layer viewfinder" animate.enter="viewfinder-enter" aria-hidden="true"
+         [class.found]="scanState() === 'found'"
+         [class.rejected]="rejecting()">
+      <div class="frame"
+           [style.left.%]="frameBox().left"
+           [style.top.%]="frameBox().top"
+           [style.width.%]="frameBox().width"
+           [style.height.%]="frameBox().height">
+        <span class="corner top-left"></span>
+        <span class="corner top-right"></span>
+        <span class="corner bottom-left"></span>
+        <span class="corner bottom-right"></span>
+        @if (scanState() === 'scanning') {
+          <div class="laser-track" animate.leave="fade-out">
+            <div class="laser"></div>
+          </div>
+        }
+      </div>
+
+      @if (scanState() === 'scanning') {
+        <div class="pill hint" animate.enter="rise-in" animate.leave="fade-out">
+          <material-icon icon="qr_code_scanner" [size]="18"></material-icon>
+          <p>Ret kameraet mod QR-koden</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (scanState() === 'waiting') {
+    <div class="layer waiting" animate.leave="waiting-leave" aria-hidden="true">
+      <div class="beacon">
+        <span class="ring"></span>
+        <span class="ring"></span>
+        <span class="ring"></span>
+        <material-icon class="beacon-icon" icon="photo_camera" [size]="44"></material-icon>
+      </div>
+      <p class="waiting-text">Starter kameraet</p>
+    </div>
+  }
+
+  @if (scanState() === 'found') {
+    <div class="layer success" aria-hidden="true">
+      <div class="flash"></div>
+      <div class="burst">
+        <span class="ripple"></span>
+        <span class="ripple"></span>
+        @for (angle of particleAngles; track angle) {
+          <span class="particle" [style.--angle]="angle + 'deg'"></span>
+        }
+        <div class="badge">
+          <material-icon icon="check" [size]="60" [weight]="700"></material-icon>
+        </div>
+      </div>
+      <div class="pill found-pill">
+        <material-icon icon="celebration" [size]="18"></material-icon>
+        <p>Fundet! Tilslutter</p>
+      </div>
+    </div>
+  }
+</div>
+<p id="qr-scanner-status" class="visually-hidden">{{ statusText() }}</p>
+
+<button class="btn-secondary" (click)="closeDrawer()">Luk</button>

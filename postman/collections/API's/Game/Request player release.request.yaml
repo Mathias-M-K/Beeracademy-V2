@@ -1,4 +1,11 @@
 $kind: http-request
-url: ""
+url: "{{url}}/games/:partyId/players/:player-id/request-release"
 method: GET
+pathVariables:
+  - key: partyId
+    value: T71CQ2ZL0
+    description: ""
+  - key: player-id
+    value: 0KA41OEC4D8G
+    description: ""
 order: 63742700431333

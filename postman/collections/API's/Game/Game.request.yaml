@@ -3,6 +3,22 @@ url: "{{url}}/games/:partyId"
 method: GET
 pathVariables:
   - key: partyId
-    value: ""
+    value: RTN-BUX-ST9
     description: ""
+scripts:
+  - type: afterResponse
+    code: "const pausesSummed = pm.response.json().timerReports.gameTimeReport.pauses.reduce(\r
+
+      \    (accum, current) => accum + current, 0\r
+
+      );\r
+
+      \r
+
+      const currentPause = (pm.response.json().timerReports.gameTimeReport.pausedTime)-pausesSummed;\r
+
+      \r
+
+      console.log(pausesSummed + \"-\" + pm.response.json().timerReports.gameTimeReport.pausedTime + ' | ' + currentPause)"
+    language: text/javascript
 order: 1788110974318
