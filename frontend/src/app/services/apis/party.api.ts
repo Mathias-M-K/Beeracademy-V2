@@ -22,8 +22,8 @@ export class PartyApi {
       );
   }
 
-  public getCurrentParty(): Observable<CurrentPartyDto> {
-    return this.httpClient.get<CurrentPartyDto>(`${this.apiUrl}/parties/current`, {withCredentials: true});
+  public getCurrentParty(): Observable<CurrentPartyDto | null> {
+    return this.httpClient.get<CurrentPartyDto | null>(`${this.apiUrl}/parties/current`, {withCredentials: true});
   }
 
 

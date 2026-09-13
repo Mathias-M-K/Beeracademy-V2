@@ -69,7 +69,9 @@ export class QrScannerDrawer implements OnDestroy {
   private rejectTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
-    afterNextRender(() => this.start());
+    afterNextRender(() => {
+      this.start().catch(() => this.fail('Scanneren kunne ikke starte', 'QR-scanneren kunne ikke indlæses', 'qr_code_scanner'));
+    });
   }
 
   private async start() {
@@ -86,6 +88,7 @@ export class QrScannerDrawer implements OnDestroy {
     try {
       await video.play();
     } catch {
+      this.fail('Kameraet kunne ikke vises', 'Videostrømmen kunne ikke startes', 'video_camera_front_off');
       return;
     }
     this.scanState.set('scanning');

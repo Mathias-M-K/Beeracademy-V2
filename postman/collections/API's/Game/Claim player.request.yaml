@@ -1,5 +1,5 @@
 $kind: http-request
-url: /games/:partyId/players/:participantId/claim
+url: "{{url}}/games/:partyId/players/:participantId/claim"
 method: GET
 pathVariables:
   - key: partyId

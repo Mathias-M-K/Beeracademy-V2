@@ -54,7 +54,12 @@
     </div>
   </div>
 
-  <div class="option panel" (click)="qrScannerPanelClick()">
+  <div class="option panel"
+       [attr.role]="isCompact() ? 'button' : null"
+       [attr.tabindex]="isCompact() ? 0 : null"
+       (click)="qrScannerPanelClick()"
+       (keydown.enter)="qrScannerPanelClick()"
+       (keydown.space)="qrScannerPanelClick()">
     @let optionTwoCardTitle = "Scan en QR-kode";
     @if (isCompact()) {
 

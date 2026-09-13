@@ -1,5 +1,6 @@
 import {Component, computed, DestroyRef, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
+import {HttpErrorResponse} from '@angular/common/http';
 
 import {LobbyApi} from '../../services/apis/lobby-api.service';
 import {ToastService} from '../../services/toast/toast.service';
@@ -66,7 +67,12 @@ export class WelcomePage {
         finalize(() => this.fetchingExistingGame.set(false)),
       )
       .subscribe({
-        next: existingGame => this.existingParty.set(existingGame)
+        next: existingGame => this.existingParty.set(existingGame ?? undefined),
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 401 || error.status === 404) {
+            this.existingParty.set(undefined);
+          }
+        },
       })
   }
 

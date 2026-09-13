@@ -155,30 +155,32 @@ class PartyApiTest {
     }
 
     @Test
-    @DisplayName("The current party requires authentication")
-    void currentPartyWithoutTokenIsRejected() {
+    @DisplayName("The current party returns 204 without a token")
+    void currentPartyWithoutTokenReturnsNoContent() {
 
         // Act
-        when().get(url + "/current").then().statusCode(401);
+        when().get(url + "/current").then().statusCode(204);
 
         // Assert
         verify(partyService, never()).getPartyState(anyString());
     }
 
     @Test
-    @DisplayName("The current party returns 404 when the token's party no longer exists")
-    void currentPartyUnknownReturnsNotFound() {
+    @DisplayName("The current party returns 204 when the token's party no longer exists")
+    void currentPartyUnknownReturnsNoContent() {
 
         // Arrange
         Mockito.when(partyService.getPartyState(PARTY_ID)).thenThrow(new PartyNotFoundException(PARTY_ID));
         String token = authenticationService.createGameClientToken("Beer Party", PARTY_ID);
 
-        // Act & Assert
+        // Act
         given().cookie("session_jwt", token)
                 .when()
                 .get(url + "/current")
                 .then()
-                .statusCode(404)
-                .body("exception", equalTo("PartyNotFoundException"));
+                .statusCode(204);
+
+        // Assert
+        verify(partyService).getPartyState(PARTY_ID);
     }
 }
