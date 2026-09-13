@@ -6,12 +6,29 @@ import {ToastState} from '../../overlay/toast/models/toast-data';
 import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 
 type QrDetector = Pick<BarcodeDetector, 'detect'>;
+type DetectedCode = Awaited<ReturnType<QrDetector['detect']>>[number];
 type ZxingOverrides = { locateFile: (path: string, prefix: string) => string };
 type ScanState = 'waiting' | 'scanning' | 'found';
 
+interface FrameBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+interface JoinCode {
+  partyId: string;
+  code: DetectedCode;
+}
+
 const SCAN_INTERVAL_MS = 250;
 const SCAN_SIZE_PX = 480;
-const FOUND_BLINK_MS = 900;
+const FOUND_ANIMATION_MS = 1500;
+const REJECT_ANIMATION_MS = 500;
+const LOCK_PADDING_PCT = 4;
+const PARTICLE_COUNT = 12;
+const DEFAULT_FRAME: FrameBox = {left: 18, top: 18, width: 64, height: 64};
 const JOIN_HASH_PATTERN = /^#\/join\/([^/?#]+)$/;
 
 let zxingOverrides: ZxingOverrides | undefined;
@@ -32,6 +49,9 @@ export class QrScannerDrawer implements OnDestroy {
   private readonly videoRef = viewChild.required<ElementRef<HTMLVideoElement>>('video');
 
   protected readonly scanState = signal<ScanState>('waiting');
+  protected readonly rejecting = signal(false);
+  protected readonly frameBox = signal<FrameBox>(DEFAULT_FRAME);
+  protected readonly particleAngles = Array.from({length: PARTICLE_COUNT}, (_, index) => index * 360 / PARTICLE_COUNT);
   protected readonly statusText = computed(() => {
     switch (this.scanState()) {
       case 'waiting':
@@ -46,6 +66,7 @@ export class QrScannerDrawer implements OnDestroy {
   private stream: MediaStream | null = null;
   private destroyed = false;
   private lastInvalidValue: string | null = null;
+  private rejectTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     afterNextRender(() => this.start());
@@ -143,17 +164,17 @@ export class QrScannerDrawer implements OnDestroy {
     if (!context) return;
 
     while (!this.destroyed) {
-      let partyId: string | null = null;
+      let match: JoinCode | null = null;
       try {
         const frame = this.grabFrame(video, context);
-        const hits = frame ? await detector.detect(frame) : [];
-        partyId = this.findPartyId(hits.map(hit => hit.rawValue));
+        const codes = frame ? await detector.detect(frame) : [];
+        match = this.findJoinCode(codes);
       } catch {
         // Frame not ready yet; try again on the next tick.
       }
 
-      if (partyId) {
-        await this.confirmScan(partyId, video);
+      if (match) {
+        await this.confirmScan(match, video);
         return;
       }
       await new Promise(resolve => setTimeout(resolve, SCAN_INTERVAL_MS));
@@ -169,27 +190,55 @@ export class QrScannerDrawer implements OnDestroy {
     return context.getImageData(0, 0, SCAN_SIZE_PX, SCAN_SIZE_PX);
   }
 
-  private findPartyId(rawValues: string[]): string | null {
-    for (const rawValue of rawValues) {
-      const partyId = this.parsePartyId(rawValue);
-      if (partyId) return partyId;
+  private findJoinCode(codes: DetectedCode[]): JoinCode | null {
+    for (const code of codes) {
+      const partyId = this.parsePartyId(code.rawValue);
+      if (partyId) return {partyId, code};
 
-      if (rawValue !== this.lastInvalidValue) {
-        this.lastInvalidValue = rawValue;
+      if (code.rawValue !== this.lastInvalidValue) {
+        this.lastInvalidValue = code.rawValue;
+        this.flashRejected();
         this.toastService.showToast('Ukendt QR-kode', 'Koden er ikke et link til et spil', 'qr_code', ToastState.error);
       }
     }
     return null;
   }
 
-  private async confirmScan(partyId: string, video: HTMLVideoElement) {
+  private flashRejected() {
+    clearTimeout(this.rejectTimer);
+    this.rejecting.set(true);
+    this.rejectTimer = setTimeout(() => this.rejecting.set(false), REJECT_ANIMATION_MS);
+  }
+
+  private async confirmScan(match: JoinCode, video: HTMLVideoElement) {
+    this.frameBox.set(this.toFrameBox(match.code.boundingBox, video));
     video.pause();
     this.scanState.set('found');
-    await new Promise(resolve => setTimeout(resolve, FOUND_BLINK_MS));
+    navigator.vibrate?.([40, 60, 80]);
+
+    await new Promise(resolve => setTimeout(resolve, FOUND_ANIMATION_MS));
     if (this.destroyed) return;
 
     this.stopCamera();
-    this.overlayHandle.close(partyId);
+    this.overlayHandle.close(match.partyId);
+  }
+
+  private toFrameBox(box: DOMRectReadOnly, video: HTMLVideoElement): FrameBox {
+    const {videoWidth, videoHeight, clientWidth, clientHeight} = video;
+    if (!videoWidth || !videoHeight || !clientWidth || !clientHeight) return this.frameBox();
+
+    const side = Math.min(videoWidth, videoHeight);
+    const cropScale = side / SCAN_SIZE_PX;
+    const coverScale = Math.max(clientWidth / videoWidth, clientHeight / videoHeight);
+    const scale = cropScale * coverScale;
+    const toPct = (value: number, client: number) => ((value * cropScale - side / 2) * coverScale + client / 2) / client * 100;
+
+    return {
+      left: toPct(box.x, clientWidth) - LOCK_PADDING_PCT,
+      top: toPct(box.y, clientHeight) - LOCK_PADDING_PCT,
+      width: box.width * scale / clientWidth * 100 + 2 * LOCK_PADDING_PCT,
+      height: box.height * scale / clientHeight * 100 + 2 * LOCK_PADDING_PCT,
+    };
   }
 
   private parsePartyId(rawValue: string): string | null {
@@ -218,6 +267,7 @@ export class QrScannerDrawer implements OnDestroy {
 
   public ngOnDestroy() {
     this.destroyed = true;
+    clearTimeout(this.rejectTimer);
     this.stopCamera();
   }
 }
