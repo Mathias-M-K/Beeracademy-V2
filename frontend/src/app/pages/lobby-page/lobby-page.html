@@ -17,6 +17,7 @@
       (openParticipantSettings)="openParticipantSettingsOverlay($event)"
       (participantsRearranged)="onParticipantsRearranged($event)"
       (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
+
     @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
       <button
         class="start-btn"

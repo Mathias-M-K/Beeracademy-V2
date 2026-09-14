@@ -30,7 +30,6 @@ import {ToastState} from '../../overlay/toast/models/toast-data';
 import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
 import {identifyFromEvent, Identity} from '../models/identity';
 import {IdentityEvent} from '../models/categories/events/common/identity-event';
-import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {Role} from '../../../api-models/model/role';
 import {Router} from '@angular/router';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
@@ -138,12 +137,10 @@ export class GameService {
     if (isReconnect) {
       this.reconnectCount++;
       overlayHandle = this.overlayService.openOverlay<void>({component: ReconnectingOverlay});
-    } else {
-      const loaderMsg = ['Henter øl', 'Blander kort', 'Varmer serveren op', 'Tjekker vejeret', 'Drikker en øl']
-      overlayHandle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay, data: loaderMsg});
     }
 
-    this.websocketService.connectToGameWebsocket(timeoutMs).then(msgObs => {
+    const connection = this.websocketService.connectToGameWebsocket(timeoutMs);
+    connection.then(msgObs => {
       this.reconnectCount = 0;
       msgObs.subscribe({
         next: message => this.handleWebsocketMessage(message),
@@ -151,15 +148,15 @@ export class GameService {
         complete: () => this.handleWebsocketConnectionDroppedClean(),
       });
     }).catch((error) => {
-      this.handleWebsocketConnectionDroppedWithError(error);
+      if (isReconnect) this.handleWebsocketConnectionDroppedWithError(error);
     }).finally(() => {
       this.isReconnecting = false;
-
-      const closed = overlayHandle ? overlayHandle.close() : Promise.resolve();
-      closed.then(() => {
-        this.onGameLoad();
-      })
+      if(overlayHandle){
+        overlayHandle.close();
+      }
     });
+
+    return connection;
   }
 
   public reconnectToWebsocket() {
@@ -171,22 +168,6 @@ export class GameService {
     }
     this.isReconnecting = true;
     this.connectToWebsocket(true, 15000);
-  }
-
-  private onGameLoad() {
-    switch (this.gameState()) {
-      case GameState.AwaitingChug:
-        return this.openChugOverlay();
-      case GameState.AwaitingStart: {
-        this.dispatchStartGameAction();
-      }
-    }
-
-    if (this.gameTimeReport()?.state === TimerState.Paused) {
-      this.openPausePanel();
-    }
-
-
   }
 
   /**
@@ -213,7 +194,6 @@ export class GameService {
   }
 
   private handleWebsocketConnectionDroppedClean() {
-    // do nothing yet, but log the error. A game can be reconnected, implementation is soon
     console.warn("Lost connection to game-websocket, no errors");
   }
 
@@ -313,6 +293,18 @@ export class GameService {
   private handleGameSnapshot(event: GameEventEnvelope) {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
     this.gameStateObj.set(stateEvent.gameState);
+
+    switch (this.gameState()) {
+      case GameState.AwaitingChug:
+        return this.openChugOverlay();
+      case GameState.AwaitingStart: {
+        this.dispatchStartGameAction();
+      }
+    }
+
+    if (this.gameTimeReport()?.state === TimerState.Paused) {
+      this.openPausePanel();
+    }
   }
 
   private handleDrawCardEvent(event: GameEventEnvelope) {

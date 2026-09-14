@@ -77,7 +77,7 @@ export class WelcomePage {
       })
   }
 
-  protected createLobby(lobbyName: string): void {
+  protected createAndJoinLobby(lobbyName: string): void {
     if (this.buttonsDisabled()) return;
 
     if (lobbyName.trim().length === 0) {

@@ -48,8 +48,8 @@
     }
     <div>
       <input placeholder="Fx. Hygge aften" #lobbyName aria-label="lobby name"
-             (keyup.enter)="createLobby(lobbyName.value)">
-      <button class="btn-secondary" (click)="createLobby(lobbyName.value)" [disabled]="buttonsDisabled()" [attr.aria-busy]="creatingLobby()">
+             (keyup.enter)="createAndJoinLobby(lobbyName.value)">
+      <button class="btn-secondary" (click)="createAndJoinLobby(lobbyName.value)" [disabled]="buttonsDisabled()" [attr.aria-busy]="creatingLobby()">
         @if (creatingLobby()) {
           <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
         } @else {

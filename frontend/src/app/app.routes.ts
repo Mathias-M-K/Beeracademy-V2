@@ -6,6 +6,7 @@ import {LobbyPage} from './pages/lobby-page/lobby-page';
 import {JoinPage} from './pages/join-page/join-page';
 import {partyStateResolver} from './resolvers/party-state.resolver';
 import {lobbyStateResolver} from './resolvers/lobby-state.resolver';
+import {gameStateResolver} from './resolvers/game-state.resolver';
 
 export const routes: Routes = [
   {
@@ -24,7 +25,8 @@ export const routes: Routes = [
   },
   {
     path: 'game',
-    component: GamePage
+    component: GamePage,
+    resolve: {gameInfo: gameStateResolver}
   },
   {
     path: 'serial',

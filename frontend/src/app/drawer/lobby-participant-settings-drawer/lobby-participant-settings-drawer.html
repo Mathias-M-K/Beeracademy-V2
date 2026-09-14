@@ -6,7 +6,7 @@
     <p>Hvor mange slurke tæller for en øl</p>
   </div>
   <div class="sips-buttons">
-    <button class="btn-secondary" (click)="decreaseSipsInABeer()" [disabled]="settings().sipsInABeer <= 0">-</button>
+    <button class="btn-secondary" (click)="decreaseSipsInABeer()" [disabled]="settings().sipsInABeer <= 1">-</button>
     <h2>{{ settings().sipsInABeer }}</h2>
     <button class="btn-secondary" (click)="increaseSipsInABeer()" [disabled]="settings().sipsInABeer >= 99">+</button>
   </div>

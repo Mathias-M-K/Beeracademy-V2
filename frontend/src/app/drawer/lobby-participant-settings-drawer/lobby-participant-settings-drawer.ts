@@ -39,7 +39,7 @@ export class LobbyParticipantSettingsDrawer {
   }
 
   protected decreaseSipsInABeer(): void {
-    if (this.settings().sipsInABeer <= 0) return;
+    if (this.settings().sipsInABeer <= 1) return;
     this.settings.update(settings => ({...settings, sipsInABeer: settings.sipsInABeer - 1}));
   }
 

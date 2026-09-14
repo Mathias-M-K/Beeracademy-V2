@@ -80,10 +80,7 @@ export class LobbyService {
   public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''));
   public readonly isHost = computed(() => this.role() === Role.GameClient);
 
-  private readonly _creatingGame = linkedSignal(() => {
-    this.lobbyState();
-    return false;
-  })
+  private readonly _creatingGame = signal<boolean>(false)
   public readonly creatingGame = this._creatingGame.asReadonly();
 
   private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();
@@ -113,10 +110,6 @@ export class LobbyService {
     this.dispatchLobbyAction(startGameAction())
   }
 
-  public onGameStarted() {
-    this.router.navigate(['/game']);
-  }
-
   private onWebsocketConnectionDroppedClean() {
     this.lobbyState.set(undefined);
     console.log("Connection dropped");
@@ -126,9 +119,7 @@ export class LobbyService {
     this.router.navigateByUrl(this.handleConnectionDropped(error));
   }
 
-  /**
-   * Shows the toast matching a websocket connection error and returns where the user should be sent.
-   */
+
   private handleConnectionDropped(error: unknown): UrlTree {
     const cause = error instanceof Error ? error.cause as number : undefined;
 
@@ -182,15 +173,12 @@ export class LobbyService {
         return this.handleNewMessageEvent(event);
       case "EMOJI_SENT" :
         return this.handleNewEmojiEvent(event);
-      case "PARTICIPANT_REMOVED" : {
+      case "PARTICIPANT_REMOVED" :
         return this.handleParticipantRemoved(event);
-      }
-      case "PARTICIPANT_DISCONNECTED" : {
+      case "PARTICIPANT_DISCONNECTED" :
         return this.handleParticipantDisconnected(event);
-      }
-      case "SETTINGS_UPDATED" : {
+      case "SETTINGS_UPDATED" :
         return this.handleParticipantSettingsUpdate(event);
-      }
       case "PARTICIPANTS_REARRANGED": {
         return this.handleParticipantRearranged(event);
       }
