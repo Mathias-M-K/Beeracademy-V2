@@ -109,6 +109,9 @@ button:active {
 .btn-secondary:active {
   background-color: color-mix(in oklab, var(--btn-background), black 5%);
 }
+.btn-secondary:disabled{
+  border: 1px solid var(--primary-disabled);
+}
 
 .btn-secondary-outlined {
   --btn-background: var(--color-white);
