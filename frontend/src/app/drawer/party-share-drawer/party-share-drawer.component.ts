@@ -5,13 +5,15 @@ import {OVERLAY_DATA} from '../../services/overlay/models/overlay-handle';
 import {ConfigService} from '../../../config.service';
 import {NgxMaskPipe} from 'ngx-mask';
 import {CdkCopyToClipboard} from '@angular/cdk/clipboard';
+import {DrawerDefaultHeaderComponent} from '../common/drawer-default-header/drawer-default-header.component';
 
 @Component({
   imports: [
     QRCodeComponent,
     MaterialIcon,
     NgxMaskPipe,
-    CdkCopyToClipboard
+    CdkCopyToClipboard,
+    DrawerDefaultHeaderComponent
   ],
   selector: 'app-party-share-drawer',
   styleUrl: './party-share-drawer.component.scss',

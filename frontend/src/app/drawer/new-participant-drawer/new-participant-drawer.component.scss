@@ -1,0 +1,12 @@
+:host{
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 10px;
+  height: fit-content !important;
+  padding-bottom: 15px !important;
+}
+button{
+  justify-self: flex-end;
+  align-self: flex-end;
+  width: 100%;
+}

@@ -1,4 +1,4 @@
-import {Component, inject, linkedSignal, OnInit} from '@angular/core';
+import {Component, inject, linkedSignal} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {Chat} from './chat/chat';
@@ -7,10 +7,8 @@ import {OverlayService} from '../../services/overlay/overlay.service';
 import {ParticipantSettingsOverlay} from '../../overlay/participant-settings-overlay/participant-settings.overlay';
 import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
 import {LobbyService} from '../../services/lobby/lobby.service';
-import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-participant-overlay';
-import {QrCodeOverlay} from '../../overlay/qr-code-overlay/qr-code-overlay';
-import {LobbyJoinData} from '../../services/lobby/models/lobby-join-data';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
+import {DrawerService} from '../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-lobby-page',
@@ -30,6 +28,7 @@ export class LobbyPage {
 
   public readonly lobbyService = inject(LobbyService)
   private readonly overlayService = inject(OverlayService);
+  private readonly drawerService = inject(DrawerService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
 
@@ -76,18 +75,15 @@ export class LobbyPage {
   showQrCode() {
     const partyId = this.lobbyService.partyId();
     if(!partyId) return;
-
-    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), partyId: this.lobbyService.partyId() ?? 'Ukendt'}
-    this.overlayService.openOverlay<void>({component: QrCodeOverlay, data: joinData});
+    this.drawerService.showPartyShareDrawer(partyId);
   }
 
   openNewParticipantOverlay(): void {
-    const overlayHandle = this.overlayService.openOverlay<string>({component: NewParticipantOverlay});
-    overlayHandle.closed.then(participantName => {
-      if (participantName) {
-        this.addParticipant(participantName)
-      }
+    this.drawerService.showNewParticipantOverlay().closed.then(participantName => {
+      if (!participantName) return;
+      this.addParticipant(participantName)
     })
+
   }
 
   addUsualSuspects() {

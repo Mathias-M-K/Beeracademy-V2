@@ -1,0 +1,15 @@
+<drawer-default-header title="Tilføj ny deltager" subtitle="spillere"></drawer-default-header>
+
+<input
+  placeholder="Spiller navn"
+  aria-label="Participant name"
+  [formField]="newParticipantForm.participantName"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  (keyup.enter)="addParticipant(newParticipantModel().participantName)">
+<button
+  class="btn-secondary"
+  (click)="addParticipant(newParticipantModel().participantName)"
+  [disabled]="newParticipantForm().invalid()">Tilføj
+</button>
+

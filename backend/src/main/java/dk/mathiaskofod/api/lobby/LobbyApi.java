@@ -111,7 +111,9 @@ public class LobbyApi {
                             schema = @Schema(type = SchemaType.STRING))
             })
     public Response registerParticipant(
-            @Valid @PathParam("partyId") PartyIdDto partyIdDto,
+            @Valid
+            @PathParam("partyId")
+            PartyIdDto partyIdDto,
 
             @Parameter(description = "The name of the player registering in the lobby", required = true, example = "Bob")
             @NotEmpty(message = "Player name must not be empty")
