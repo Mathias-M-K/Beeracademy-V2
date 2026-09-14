@@ -3,7 +3,6 @@ import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {Chat} from './chat/chat';
 import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
-import {OverlayService} from '../../services/overlay/overlay.service';
 import {LobbyService} from '../../services/lobby/lobby.service';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 import {DrawerService} from '../../services/drawer/drawer.service';
@@ -25,7 +24,6 @@ import {DrawerService} from '../../services/drawer/drawer.service';
 export class LobbyPage {
 
   public readonly lobbyService = inject(LobbyService)
-  private readonly overlayService = inject(OverlayService);
   private readonly drawerService = inject(DrawerService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());

@@ -2,7 +2,6 @@ import {Component, inject} from '@angular/core';
 import {QRCodeComponent} from 'angularx-qrcode';
 import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 import {OVERLAY_DATA} from '../../services/overlay/models/overlay-handle';
-import {ConfigService} from '../../../config.service';
 import {NgxMaskPipe} from 'ngx-mask';
 import {CdkCopyToClipboard} from '@angular/cdk/clipboard';
 import {DrawerDefaultHeaderComponent} from '../common/drawer-default-header/drawer-default-header.component';
@@ -21,7 +20,5 @@ import {DrawerDefaultHeaderComponent} from '../common/drawer-default-header/draw
 })
 export class PartyShareDrawerComponent {
   protected readonly partyId = inject(OVERLAY_DATA) as string;
-  private readonly configService = inject(ConfigService);
-  // protected readonly url = this.configService.apiUrl + `/#/join/${this.partyId}`
   protected readonly url = `${document.baseURI}#/join/${encodeURIComponent(this.partyId)}`;
 }
