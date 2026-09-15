@@ -31,7 +31,9 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
   - **In deploy, the frontend `needs: backend` and downloads the artifact**, so its models come from exactly the backend build being shipped. The upload uses `if-no-files-found: error`, so a missing spec fails the backend job.
   - **The spec survives the build cache** because `backend/build.gradle` declares `build/generated-openapi` as an output of `quarkusAppPartsBuild`. Without that, a cache hit restores the task without the spec.
 - **The deploy runs no tests and no Sonar.** It trusts CI on `main`.
-  - `main` is deliberately **unprotected**. Path-filtered workflows plus required checks leave skipped checks pending forever.
+  - **`main` is protected by the `protect-main` ruleset** (2026-09-15): changes only through pull requests (0 approvals), no force pushes, no deletion, empty bypass list.
+    - CI is deliberately **not** a required status check: path-filtered workflows don't run on every PR, so a required check would stay pending forever on PRs that skip it.
+    - Keep the push-to-`main` CI runs. They produce SonarCloud's main-branch analysis (a PR analysis never becomes the main analysis), they're what `verify-ci` checks before a deploy, and they catch breakages that only appear once PRs are combined (PR #29 merged unformatted code after the Prettier reformat, and only the `main` run caught it).
   - **The `verify-ci` job is the guard instead.** It waits up to 15 min for the push runs of `backend-ci`/`frontend-ci` on the tagged commit, and fails if either did not pass. No CI runs at all (e.g. a commit touching neither side) only produces a warning.
 - **Concurrency.** PR runs cancel superseded runs; `main` runs don't. Deploys and runner maintenance share the `deploy` group and are never cancelled, so pruning never happens mid-build.
 - **Caching is local, not GitHub cache.**
