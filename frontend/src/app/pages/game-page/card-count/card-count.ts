@@ -1,6 +1,6 @@
-import {Component, computed, input} from '@angular/core';
-import {RANK_DISPLAY} from '../../../services/game/models/rank-display';
-import {RankCountDto} from '../../../../api-models/model/rankCountDto';
+import { Component, computed, input } from '@angular/core';
+import { RANK_DISPLAY } from '../../../services/game/models/rank-display';
+import { RankCountDto } from '../../../../api-models/model/rankCountDto';
 
 @Component({
   selector: 'app-card-count',
@@ -9,7 +9,6 @@ import {RankCountDto} from '../../../../api-models/model/rankCountDto';
   styleUrl: './card-count.scss',
 })
 export class CardCount {
-
   cards = input.required<RankCountDto[]>();
   maxCardsPrRank = input.required<number>();
 

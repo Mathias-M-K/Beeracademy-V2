@@ -58,53 +58,48 @@ p > span.title {
   background-color: var(--reserved);
 }
 
-.legend{
+.legend {
   display: flex;
   gap: 25px;
 }
-.legend-element{
+.legend-element {
   display: flex;
   align-items: center;
   gap: 5px;
 }
-.legend-element p{
+.legend-element p {
   font-size: 12px;
   color: var(--primary-disabled-text);
 }
-.legend-element.connected .dot{
+.legend-element.connected .dot {
   background-color: var(--success);
 }
-.legend-element.reserved .dot{
+.legend-element.reserved .dot {
   background-color: var(--reserved);
 }
-.legend-element.free .dot{
+.legend-element.free .dot {
   background-color: var(--color-silver);
 }
 
-.dot{
+.dot {
   $radius: 10px;
   width: $radius;
   height: $radius;
   border-radius: 5px;
-
 }
 
-.horizontal_line{
+.horizontal_line {
   --horizontal-line-color: var(--color-grey-500);
 }
-
 
 .players {
   height: 100%;
   overflow: auto;
   display: flex;
   flex-direction: column;
-  gap: 5px
+  gap: 5px;
 }
 
-:host(.drawer-pane--compact) .players{
+:host(.drawer-pane--compact) .players {
   padding-bottom: 15px;
 }
-
-
-

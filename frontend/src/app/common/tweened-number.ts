@@ -1,4 +1,4 @@
-import {computed, effect, signal, Signal, untracked} from '@angular/core';
+import { computed, effect, signal, Signal, untracked } from '@angular/core';
 
 /** Matches the .5s width transition on the beer dots, so number and dots move together. */
 const DEFAULT_DURATION_MS = 500;
@@ -24,7 +24,7 @@ const roundTo = (value: number, decimals: number): number => {
  * Must be called from an injection context, e.g. a field initializer.
  */
 export function tweenedNumber(source: Signal<number>, options: TweenOptions = {}): Signal<number> {
-  const {durationMs = DEFAULT_DURATION_MS, decimals} = options;
+  const { durationMs = DEFAULT_DURATION_MS, decimals } = options;
   const displayed = signal(0);
 
   effect((onCleanup) => {

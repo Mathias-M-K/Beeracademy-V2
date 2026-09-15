@@ -1,4 +1,4 @@
-:host{
+:host {
   height: fit-content;
   display: grid;
   grid-template-rows: 50px 200px auto;
@@ -9,7 +9,7 @@
   border-radius: 10px;
 }
 
-.columns{
+.columns {
   display: flex;
   flex-direction: row;
   gap: 10px;
@@ -25,7 +25,7 @@
   max-width: 150px;
 }
 
-.podium-shape{
+.podium-shape {
   display: grid;
   justify-items: center;
   align-items: end;
@@ -36,27 +36,27 @@
   padding: 10px 0;
 }
 
-.columns > div:nth-child(1) > .podium-shape{
+.columns > div:nth-child(1) > .podium-shape {
   background-color: goldenrod;
   height: 100px;
 }
-.columns > div:nth-child(2) > .podium-shape{
+.columns > div:nth-child(2) > .podium-shape {
   background-color: silver;
   height: 80px;
 }
-.columns > div:nth-child(3) > .podium-shape{
+.columns > div:nth-child(3) > .podium-shape {
   background-color: sandybrown;
   height: 65px;
 }
 
-.columns > div > p{
+.columns > div > p {
   margin: 0;
 }
-.columns > div > div > h2{
+.columns > div > div > h2 {
   margin: 0;
 }
 
-.chug-time{
+.chug-time {
   display: grid;
   grid-template-areas: 'color-dot text suit' 'divider divider divider';
   grid-template-columns: 20px auto;
@@ -65,7 +65,7 @@
   flex-direction: row;
 }
 
-.dot{
+.dot {
   width: 10px;
   height: 10px;
   background-color: var(--color-black);

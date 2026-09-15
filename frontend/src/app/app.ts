@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {RouterOutlet} from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +10,6 @@ import {RouterOutlet} from '@angular/router';
     :host {
       display: grid;
     }
-  `
+  `,
 })
-export class App {
-
-}
+export class App {}

@@ -1,6 +1,6 @@
 <div class="header">
   <div class="icon-circle">
-    <material-icon icon="pause" [fill]=true [size]="15"></material-icon>
+    <material-icon icon="pause" [fill]="true" [size]="15"></material-icon>
   </div>
   <p class="subtitle">PAUSE</p>
 </div>
@@ -32,19 +32,26 @@
 
   <div class="next-player">
     @let currentPlayer = gamePauseData.currentPlayer;
-    <app-participant-badge size="xs" [initials]="currentPlayer.name.substring(0,1)"
-                           [backgroundColor]="currentPlayer.color"></app-participant-badge>
+    <app-participant-badge
+      size="xs"
+      [initials]="currentPlayer.name.substring(0, 1)"
+      [backgroundColor]="currentPlayer.color"
+    ></app-participant-badge>
     <p class="subtitle">{{ currentPlayer.name }} trækker næste gang</p>
   </div>
 </div>
 
 <div class="buttons">
   <button *isGameOwner class="btn-secondary" (click)="resumeGame()">Fortsæt spillet</button>
-  <button *isGameOwner class="btn-secondary-outlined" (click)="drawerService.showPartyShareDrawer(gamePauseData.partyId)">Del</button>
-  <button *isGameOwner class="btn-secondary-outlined" [disabled]="true">Afslut Spillet</button> <!--TODO does nothing right no-->
-  <button *isPlayer class="btn-secondary-outlined" [disabled]="true">Forlad spillet</button> <!--TODO does nothing right no-->
-
+  <button
+    *isGameOwner
+    class="btn-secondary-outlined"
+    (click)="drawerService.showPartyShareDrawer(gamePauseData.partyId)"
+  >
+    Del
+  </button>
+  <button *isGameOwner class="btn-secondary-outlined" [disabled]="true">Afslut Spillet</button>
+  <!--TODO does nothing right no-->
+  <button *isPlayer class="btn-secondary-outlined" [disabled]="true">Forlad spillet</button>
+  <!--TODO does nothing right no-->
 </div>
-
-
-

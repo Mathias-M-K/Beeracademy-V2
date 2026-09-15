@@ -1,5 +1,5 @@
 <h3>Serial reader</h3>
-<div>Serial Supported:{{ serialSupported ? "yes" : "no" }}</div>
+<div>Serial Supported:{{ serialSupported ? 'yes' : 'no' }}</div>
 <div>Light:{{ currentLightState() }}</div>
 <div>Potmeter:{{ currentPotValue() }}</div>
 
@@ -9,11 +9,9 @@
 <button (click)="sendCommand('off')">Off</button>
 <button (click)="userInitiateSerialData()">Start serial read</button>
 
-<div style="margin-top: 20px;">Serial input</div>
-<div style="height: 250px; overflow: auto;" #scrollMe>
-
+<div style="margin-top: 20px">Serial input</div>
+<div style="height: 250px; overflow: auto" #scrollMe>
   @for (message of messages; track $index) {
     <div>{{ message }}</div>
   }
-
 </div>

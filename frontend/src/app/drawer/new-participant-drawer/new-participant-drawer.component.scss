@@ -1,33 +1,33 @@
-:host{
+:host {
   display: grid;
   grid-template-rows: auto auto auto 1fr;
   gap: 15px;
   padding-bottom: 15px !important;
   height: fit-content !important;
 }
-:host:not(.drawer-pane--compact){
+:host:not(.drawer-pane--compact) {
   height: fit-content !important;
   width: 300px;
 }
 
-drawer-default-header{
+drawer-default-header {
   margin-bottom: 10px;
 }
 
-.participant-form{
+.participant-form {
   display: contents;
 }
 
-.name-field{
+.name-field {
   display: grid;
   gap: 5px;
 }
 
-button{
+button {
   justify-self: flex-end;
   align-self: flex-end;
   width: 100%;
 }
-p{
+p {
   margin: 0;
 }

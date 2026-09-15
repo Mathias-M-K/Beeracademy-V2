@@ -1,4 +1,4 @@
-:host{
+:host {
   display: grid;
 
   background-color: white;
@@ -7,23 +7,23 @@
   border-radius: 10px;
 
   padding: 10px;
-  grid-template-areas: 'header header''participants participants';
+  grid-template-areas: 'header header' 'participants participants';
 }
 
-.header{
+.header {
   display: grid;
   justify-content: space-between;
-  grid-template-areas: 'count buttons''line line';
+  grid-template-areas: 'count buttons' 'line line';
 
   align-items: center;
 }
 
-.buttons{
+.buttons {
   display: flex;
   gap: 5px;
 }
 
-.participants{
+.participants {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -42,20 +42,19 @@
   }
 }
 @media (max-width: 500px) {
-
-  .header{
+  .header {
     gap: 10px;
     justify-content: unset;
-    grid-template-areas: 'count''buttons''line';
+    grid-template-areas: 'count' 'buttons' 'line';
     width: 100%;
   }
-  .buttons{
+  .buttons {
     justify-content: space-around;
   }
-  .buttons > button{
+  .buttons > button {
     width: 100%;
   }
-  .cdk-drag-preview{
+  .cdk-drag-preview {
     border-radius: 10px !important;
   }
 }
@@ -65,7 +64,7 @@
   cursor: grabbing;
 }
 
-.cdk-drag:not(.cdk-drag-disabled){
+.cdk-drag:not(.cdk-drag-disabled) {
   cursor: grab;
 }
 
@@ -107,5 +106,3 @@
     padding: 0;
   }
 }
-
-

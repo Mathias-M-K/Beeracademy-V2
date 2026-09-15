@@ -11,9 +11,9 @@
   padding: 5px;
 }
 
-.ranks{
+.ranks {
   display: grid;
-  grid-template-columns: repeat(13,minmax(auto, 1fr));
+  grid-template-columns: repeat(13, minmax(auto, 1fr));
   justify-content: space-between;
   gap: 5px;
 }
@@ -29,34 +29,32 @@
   align-items: center;
 }
 
-.panel.empty{
+.panel.empty {
   color: var(--color-silver);
 }
 .panel.empty p {
   border-color: var(--color-cloud) !important;
 }
 
-.progress-bar{
+.progress-bar {
   position: relative;
   align-self: start;
   height: 3px;
   border-radius: 10px;
   width: 100%;
-
-
 }
-.progress-bar > div{
+.progress-bar > div {
   position: absolute;
   height: 100%;
 }
-.progress-bar .backdrop{
+.progress-bar .backdrop {
   width: 100%;
   background-color: var(--color-cloud);
 }
-.progress-bar .primary{
+.progress-bar .primary {
   width: var(--progress-bar-value);
   background-color: var(--primary);
-  transition: width .2s ease-in-out;
+  transition: width 0.2s ease-in-out;
 }
 
 .panel > p:first-child {
@@ -65,15 +63,15 @@
   border-radius: 3px;
 }
 
-p{
+p {
   margin: 5px;
 }
 
-.horizontal_line{
+.horizontal_line {
   width: 100%;
 }
 
-.counter{
+.counter {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -81,11 +79,11 @@ p{
   gap: 5px;
 }
 
-label{
+label {
   color: var(--color-grey-500);
   white-space: nowrap;
 }
-h3{
+h3 {
   display: flex;
   margin: 0;
 }
@@ -94,12 +92,12 @@ h3 > div:nth-child(2) {
 }
 
 @media (max-width: 700px) {
-  :host{
+  :host {
     grid-template-columns: auto;
   }
-  .ranks{
+  .ranks {
     padding-bottom: 10px;
-    grid-template-columns: repeat(13,55px);
+    grid-template-columns: repeat(13, 55px);
     width: 100%;
     overflow: auto;
   }

@@ -7,20 +7,23 @@
     [value]="elapsedTime()"
     [rotation]="10000"
     [thickness]="5"
-    [animated]="animateLoader()">
-    <p class="seconds">{{ (elapsedTime() | gameTimeFormat: 'ss.SSS') }}</p>
+    [animated]="animateLoader()"
+  >
+    <p class="seconds">{{ elapsedTime() | gameTimeFormat: 'ss.SSS' }}</p>
     <p class="unit">SEKUNDER</p>
   </circle-loader>
 }
 
 @let badgeSize = isGameClient ? 'xs' : 'm';
 <p class="player" [style.grid-area]="'player'">
-  <app-participant-badge [initials]="initial" [size]="badgeSize" backgroundColor="white"
-                         [style.color]="'var(--color-coffie-700)'"></app-participant-badge>
+  <app-participant-badge
+    [initials]="initial"
+    [size]="badgeSize"
+    backgroundColor="white"
+    [style.color]="'var(--color-coffie-700)'"
+  ></app-participant-badge>
   {{ overlayData.playerToChug.name }} bunder
 </p>
-
-
 
 @if (!isGameClient && chugTimes.length > 0) {
   <div class="chug-time-container">
@@ -30,25 +33,35 @@
       @for (chugTime of chugTimes; track chugTime.place) {
         <div class="chug-time">
           <p>{{ chugTime.place }}</p>
-          <app-participant-badge size="xs" [initials]="chugTime.initial" backgroundColor="white"
-                                 [style.color]="'var(--primary)'"></app-participant-badge>
+          <app-participant-badge
+            size="xs"
+            [initials]="chugTime.initial"
+            backgroundColor="white"
+            [style.color]="'var(--primary)'"
+          ></app-participant-badge>
           <p>{{ chugTime.name }}</p>
           <p>{{ (chugTime.time / 1000).toFixed(2) }}s</p>
         </div>
       }
-
     </div>
   </div>
-
 }
 
 @if (isGameClient) {
   <div class="buttons">
-    <button class="btn-rounded timer-btn" (click)="dynamicBtnClick()" [class.stopped]="btnState() === 'stop'"
-            [attr.aria-label]="btnLabel()">
-      <div class="texts" aria-hidden="true" [class.start]="btnState() === 'start'"
-           [class.stop]="btnState() === 'stop'"
-           [class.try-again]="btnState() === 'try-again'">
+    <button
+      class="btn-rounded timer-btn"
+      (click)="dynamicBtnClick()"
+      [class.stopped]="btnState() === 'stop'"
+      [attr.aria-label]="btnLabel()"
+    >
+      <div
+        class="texts"
+        aria-hidden="true"
+        [class.start]="btnState() === 'start'"
+        [class.stop]="btnState() === 'stop'"
+        [class.try-again]="btnState() === 'try-again'"
+      >
         <span>START</span>
         <span>STOP</span>
         <span>PRØV IGEN</span>
@@ -58,7 +71,9 @@
       class="btn-rounded apply-btn"
       [class.hidden]="btnState() != 'try-again'"
       [attr.inert]="btnState() != 'try-again' ? '' : null"
-      (click)="overlayHandle.close(elapsedTime())">AFSLUT
+      (click)="overlayHandle.close(elapsedTime())"
+    >
+      AFSLUT
     </button>
   </div>
 }

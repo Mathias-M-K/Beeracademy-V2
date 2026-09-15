@@ -1,4 +1,4 @@
-import {Component, computed, input} from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'app-beer-bottle',
@@ -11,9 +11,10 @@ import {Component, computed, input} from '@angular/core';
   },
 })
 export class BeerBottle {
-
   readonly color = input('rebeccapurple');
   readonly fillLevel = input(100);
 
-  protected readonly fillPercent = computed(() => `${Math.max(0, Math.min(100, this.fillLevel()))}%`);
+  protected readonly fillPercent = computed(
+    () => `${Math.max(0, Math.min(100, this.fillLevel()))}%`,
+  );
 }

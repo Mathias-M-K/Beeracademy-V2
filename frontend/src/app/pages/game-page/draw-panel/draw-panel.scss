@@ -9,45 +9,43 @@
   padding: 30px;
 }
 
-.chips{
+.chips {
   width: 100%;
 }
 
-.player-stats{
+.player-stats {
   display: flex;
   gap: 20px;
 }
 
-.compact-card{
+.compact-card {
   display: grid;
   align-items: center;
   flex-direction: column;
   gap: 5px;
 }
 
-.player-stats > div > h4{
+.player-stats > div > h4 {
   margin-top: 7px;
 }
 
-@media (max-width: 650px){
-  :host{
+@media (max-width: 650px) {
+  :host {
     padding: 15px;
     grid-template-columns: auto 3fr;
     grid-template-rows: 1fr;
   }
 
-  .player-stats{
+  .player-stats {
     flex-direction: column;
     gap: 5px;
   }
 
-  .compact-card > app-card{
+  .compact-card > app-card {
     width: 120px;
   }
 
-  .compact-card > button{
+  .compact-card > button {
     width: 100%;
   }
 }
-
-

@@ -1,5 +1,5 @@
-import {ChatInfo} from './chat-info';
+import { ChatInfo } from './chat-info';
 
-export interface MessageInfo extends ChatInfo{
+export interface MessageInfo extends ChatInfo {
   message: string;
 }

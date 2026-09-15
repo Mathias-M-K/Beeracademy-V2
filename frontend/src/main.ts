@@ -1,6 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
-import {App} from './app/app';
+import { App } from './app/app';
 
 // Replaced at build time by the `define` entry in angular.json. Only the `mock`
 // configuration sets it to true; everywhere else the import below is dead code and
@@ -13,9 +13,9 @@ const mocksReady = USE_MOCKS
 
 mocksReady
   .then(() => fetch('/config.json'))
-  .then(response => response.json())
-  .then(config => {
+  .then((response) => response.json())
+  .then((config) => {
     (window as any).APP_CONFIG = config;
     return bootstrapApplication(App, appConfig);
   })
-  .catch(err => console.error('Failed to load config', err));
+  .catch((err) => console.error('Failed to load config', err));

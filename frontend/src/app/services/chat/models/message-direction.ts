@@ -1,4 +1,4 @@
 export enum MessageDirection {
   IN,
-  OUT
+  OUT,
 }

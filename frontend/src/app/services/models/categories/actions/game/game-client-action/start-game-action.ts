@@ -1,11 +1,7 @@
-import {GameAction} from '../game-action';
+import { GameAction } from '../game-action';
 
-interface StartGameAction extends GameAction {
-
-}
+interface StartGameAction extends GameAction {}
 
 export function startGameAction(): StartGameAction {
-  return {type: 'START_GAME'};
+  return { type: 'START_GAME' };
 }
-
-

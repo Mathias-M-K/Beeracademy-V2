@@ -1,7 +1,11 @@
 <div id="left">
   <h1>{{ gameInfo()?.name }}</h1>
-  <p>Runde <span>{{ currentRound() }}/13</span></p>
-  <p>Spillere <span>{{ nrOfPlayers() }}</span></p>
+  <p>
+    Runde <span>{{ currentRound() }}/13</span>
+  </p>
+  <p>
+    Spillere <span>{{ nrOfPlayers() }}</span>
+  </p>
 </div>
 
 <div id="right">
@@ -25,17 +29,17 @@
 
   <button
     [style.grid-area]="'player-overview-btn'"
-    class="btn-secondary-outlined btn-icon" (click)="playerOverviewClick.emit()">
+    class="btn-secondary-outlined btn-icon"
+    (click)="playerOverviewClick.emit()"
+  >
     <material-icon icon="group"></material-icon>
   </button>
 
-  <button [style.grid-area]="'share-btn'" class="btn-secondary btn-icon" (click)="shareClick.emit()">
+  <button
+    [style.grid-area]="'share-btn'"
+    class="btn-secondary btn-icon"
+    (click)="shareClick.emit()"
+  >
     <material-icon icon="share"></material-icon>
   </button>
 </div>
-
-
-
-
-
-

@@ -1,14 +1,12 @@
-import {Component, computed, inject, signal} from '@angular/core';
-import {OVERLAY_DATA, OverlayHandle} from '../../services/overlay/models/overlay-handle';
-import {DumbTimer} from './models/dumb-timer';
-import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
-import {Player} from '../../services/game/models/player';
-import {CircleLoader} from '../../common/circle-loader/circle-loader';
-import {
-  ParticipantBadge
-} from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {ChugOverlayData} from './models/chug-overlay-data';
-import {Chug} from '../../../api-models/model/chug';
+import { Component, computed, inject, signal } from '@angular/core';
+import { OVERLAY_DATA, OverlayHandle } from '../../services/overlay/models/overlay-handle';
+import { DumbTimer } from './models/dumb-timer';
+import { GameTimeFormatPipe } from '../../pipes/game-time-format-pipe';
+import { Player } from '../../services/game/models/player';
+import { CircleLoader } from '../../common/circle-loader/circle-loader';
+import { ParticipantBadge } from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
+import { ChugOverlayData } from './models/chug-overlay-data';
+import { Chug } from '../../../api-models/model/chug';
 
 export interface OverlayChug {
   place: number;
@@ -20,8 +18,8 @@ export interface OverlayChug {
 type ButtonState = 'start' | 'stop' | 'try-again';
 
 const BUTTON_LABELS: Record<ButtonState, string> = {
-  'start': 'Start tid',
-  'stop': 'Stop tid',
+  start: 'Start tid',
+  stop: 'Stop tid',
   'try-again': 'Prøv igen',
 };
 
@@ -29,17 +27,12 @@ const BUTTON_LABELS: Record<ButtonState, string> = {
   selector: 'app-chug-overlay',
   templateUrl: './chug-overlay.html',
   styleUrl: './chug-overlay.scss',
-  imports: [
-    GameTimeFormatPipe,
-    CircleLoader,
-    ParticipantBadge
-  ],
+  imports: [GameTimeFormatPipe, CircleLoader, ParticipantBadge],
   host: {
-    '[class.guest]': '!isGameClient'
-  }
+    '[class.guest]': '!isGameClient',
+  },
 })
 export class ChugOverlay {
-
   readonly overlayData = inject(OVERLAY_DATA) as ChugOverlayData;
   readonly overlayHandle = inject(OverlayHandle) as OverlayHandle<number>;
 
@@ -59,17 +52,19 @@ export class ChugOverlay {
 
   private static extractChugTimes(players: Player[]): OverlayChug[] {
     return players
-      .flatMap((player: Player) => (player.stats?.chugs ?? [])
-        .filter((chug: Chug) => chug.chugTimeMillis != null)
-        .map((chug: Chug) => {
-        const overlayChug: OverlayChug = {
-          name: player.name,
-          initial: ChugOverlay.initialOf(player.name),
-          place: 0,
-          time: chug.chugTimeMillis ?? 0,
-        };
-        return overlayChug;
-      }))
+      .flatMap((player: Player) =>
+        (player.stats?.chugs ?? [])
+          .filter((chug: Chug) => chug.chugTimeMillis != null)
+          .map((chug: Chug) => {
+            const overlayChug: OverlayChug = {
+              name: player.name,
+              initial: ChugOverlay.initialOf(player.name),
+              place: 0,
+              time: chug.chugTimeMillis ?? 0,
+            };
+            return overlayChug;
+          }),
+      )
       .sort((chug1, chug2) => chug1.time - chug2.time)
       .map((chug, index) => {
         chug.place = index + 1;
@@ -84,9 +79,9 @@ export class ChugOverlay {
   protected dynamicBtnClick() {
     switch (this.btnState()) {
       case 'start':
-        return this.startTimer()
+        return this.startTimer();
       case 'stop':
-        return this.stopTimer()
+        return this.stopTimer();
       case 'try-again':
         return this.reset();
     }

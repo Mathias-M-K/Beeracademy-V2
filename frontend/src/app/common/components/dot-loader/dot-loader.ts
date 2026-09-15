@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-dot-loader',
@@ -7,10 +7,9 @@ import {Component, input} from '@angular/core';
   styleUrl: './dot-loader.scss',
   host: {
     '[style.--dot-color]': 'color()',
-  }
+  },
 })
 export class DotLoader {
-
   readonly color = input('#DC8224FF');
   readonly label = input('Indlæser');
 }

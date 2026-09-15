@@ -7,7 +7,6 @@ export interface AppConfig {
 
 @Service()
 export class ConfigService {
-
   private get config(): AppConfig {
     return (window as any).APP_CONFIG;
   }

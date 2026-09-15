@@ -1,6 +1,6 @@
-@use "colors";
-@use "../src/app/overlay/overlay-styling";
-@use "../src/app/drawer/drawer-styling";
+@use 'colors';
+@use '../src/app/overlay/overlay-styling';
+@use '../src/app/drawer/drawer-styling';
 /* You can add global styles to this file, and also import other style files */
 * {
   box-sizing: border-box;
@@ -10,7 +10,7 @@
   --btn-background: var(--primary);
   --btn-foreground: var(--color-white);
 
-  --font: "Archivo", sans-serif;
+  --font: 'Archivo', sans-serif;
 }
 
 body {
@@ -18,8 +18,16 @@ body {
   background-color: #ecf0f1;
 }
 
-h1, h2, h3, h4, h5, h6, p, input, label {
-  font-family: "Archivo", sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+input,
+label {
+  font-family: 'Archivo', sans-serif;
 }
 
 .subtitle {
@@ -35,7 +43,7 @@ button {
   align-items: center;
   justify-content: center;
 
-  font-family: "Archivo", sans-serif;
+  font-family: 'Archivo', sans-serif;
   font-weight: bold;
   font-size: 16px;
 
@@ -74,7 +82,6 @@ button > material-icon {
   margin: calc(var(--btn-padding) * -1);
 }
 
-
 @media (hover: hover) {
   button:hover {
     --btn-background: var(--primary-hover);
@@ -109,7 +116,7 @@ button:active {
 .btn-secondary:active {
   background-color: color-mix(in oklab, var(--btn-background), black 5%);
 }
-.btn-secondary:disabled{
+.btn-secondary:disabled {
   border: 1px solid var(--primary-disabled);
 }
 
@@ -122,7 +129,6 @@ button:active {
 .btn-secondary-outlined:active {
   background-color: color-mix(in oklab, var(--btn-background), white 30%);
 }
-
 
 .btn-rounded {
   padding: 0 20px;
@@ -138,7 +144,6 @@ button:active {
   border: 1px solid var(--primary);
 }
 
-
 .btn-warning {
   --btn-background: var(--color-white);
   --btn-background-hover: var(--color-black);
@@ -149,7 +154,6 @@ button:active {
 .btn-icon {
   padding: 5px 10px;
 }
-
 
 input {
   border-style: solid;
@@ -193,12 +197,11 @@ input::placeholder {
 
 .horizontal_line::before,
 .horizontal_line::after {
-  content: "";
+  content: '';
   flex: 1;
   height: 1px;
   background: var(--horizontal-line-color);
 }
-
 
 @keyframes opaque-out {
   from {
@@ -219,8 +222,3 @@ input::placeholder {
     backdrop-filter: blur(20px);
   }
 }
-
-
-
-
-

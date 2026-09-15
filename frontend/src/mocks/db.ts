@@ -42,13 +42,15 @@ let session: MockSession | undefined;
 
 const ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const randomId = (length: number): string =>
-  Array.from({ length }, () => ID_ALPHABET[Math.floor(Math.random() * ID_ALPHABET.length)]).join('');
+  Array.from({ length }, () => ID_ALPHABET[Math.floor(Math.random() * ID_ALPHABET.length)]).join(
+    '',
+  );
 
 const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const SUITS = [Suit.Diamond, Suit.Club, Suit.Heart, Suit.Spade];
 
 function buildDeck(playerCount: number): Card[] {
-  const deck = RANKS.flatMap(rank =>
+  const deck = RANKS.flatMap((rank) =>
     Array.from({ length: playerCount }, (_, i) => ({ rank, suit: SUITS[i % SUITS.length] })),
   );
 
@@ -110,7 +112,7 @@ export const db = {
   removeParticipant(partyId: string, participantId: string): void {
     const lobby = lobbies.get(partyId);
     if (lobby) {
-      lobby.participants = (lobby.participants ?? []).filter(p => p.id !== participantId);
+      lobby.participants = (lobby.participants ?? []).filter((p) => p.id !== participantId);
     }
   },
 
@@ -121,7 +123,7 @@ export const db = {
   ): void {
     const lobby = lobbies.get(partyId);
     if (lobby) {
-      lobby.participants = (lobby.participants ?? []).map(p =>
+      lobby.participants = (lobby.participants ?? []).map((p) =>
         p.id === participantId ? { ...p, ...changes } : p,
       );
     }
@@ -133,10 +135,10 @@ export const db = {
       return [];
     }
 
-    const byId = new Map((lobby.participants ?? []).map(p => [p.id, p]));
+    const byId = new Map((lobby.participants ?? []).map((p) => [p.id, p]));
     const reordered = [...positions]
       .sort((a, b) => (a.newPosition ?? 0) - (b.newPosition ?? 0))
-      .map(position => byId.get(position.participantId))
+      .map((position) => byId.get(position.participantId))
       .filter((p): p is LobbyParticipantDTO => !!p);
 
     lobby.participants = reordered;
@@ -154,7 +156,7 @@ export const db = {
       name: lobby.name!,
       partyState: games.has(partyId) ? PartyState.Game : PartyState.Lobby,
       session: { isClaimed: true, isConnected: true },
-      participants: (lobby.participants ?? []).map(p => ({
+      participants: (lobby.participants ?? []).map((p) => ({
         id: p.id!,
         name: p.name!,
         session: { isClaimed: true, isConnected: true },
@@ -169,7 +171,7 @@ export const db = {
       return undefined;
     }
 
-    const players: PlayerDto[] = (lobby.participants ?? []).map(p => ({
+    const players: PlayerDto[] = (lobby.participants ?? []).map((p) => ({
       id: p.id,
       name: p.name,
       sipsInABeer: p.sipsInABeer,
@@ -178,7 +180,7 @@ export const db = {
       session: { isClaimed: true, isConnected: true },
     }));
 
-    const remainingCardsCount: RankCountDto[] = RANKS.map(rank => ({
+    const remainingCardsCount: RankCountDto[] = RANKS.map((rank) => ({
       rank,
       count: players.length,
     }));
@@ -193,8 +195,20 @@ export const db = {
       nextPlayerToDraw: players.at(0)?.id,
       playerToDrawNextAfter: players.at(1)?.id,
       timerReports: {
-        gameTimeReport: { state: TimerState.NotStarted, elapsedTime: 0, activeTime: 0, pausedTime: 0, pauses: [] },
-        playerTimeReport: { state: TimerState.NotStarted, elapsedTime: 0, activeTime: 0, pausedTime: 0, pauses: [] },
+        gameTimeReport: {
+          state: TimerState.NotStarted,
+          elapsedTime: 0,
+          activeTime: 0,
+          pausedTime: 0,
+          pauses: [],
+        },
+        playerTimeReport: {
+          state: TimerState.NotStarted,
+          elapsedTime: 0,
+          activeTime: 0,
+          pausedTime: 0,
+          pauses: [],
+        },
       },
       session: { isClaimed: true, isConnected: true },
     };

@@ -4,7 +4,7 @@ import { GameState } from '../api-models/model/gameState';
 import { Role } from '../api-models/model/role';
 import { TimerState } from '../api-models/model/timerState';
 import { db } from './db';
-import {WebsocketCode} from '../api-models/model/websocketCode';
+import { WebsocketCode } from '../api-models/model/websocketCode';
 
 /**
  * MSW patches the global WebSocket constructor, so these run entirely in the page — the
@@ -57,7 +57,7 @@ const lobbyHandler = lobbyLink.addEventListener('connection', ({ client }) => {
     { category, payload: { type: 'HELLO_LOBBY_SNAPSHOT', lobby } },
   ]);
 
-  client.addEventListener('message', event => {
+  client.addEventListener('message', (event) => {
     const action = JSON.parse(String(event.data)).payload as { type: string } & Record<string, any>;
 
     switch (action['type']) {
@@ -164,15 +164,27 @@ const gameHandler = gameLink.addEventListener('connection', ({ client }) => {
     { category, payload: { type: 'HELLO_GAME_SNAPSHOT', gameState: game } },
   ]);
 
-  client.addEventListener('message', event => {
+  client.addEventListener('message', (event) => {
     const action = JSON.parse(String(event.data)).payload as { type: string } & Record<string, any>;
 
     switch (action['type']) {
       case 'START_GAME': {
         game.gameState = GameState.InProgress;
         game.timerReports = {
-          gameTimeReport: { state: TimerState.Running, elapsedTime: 0, activeTime: 0, pausedTime: 0, pauses: [] },
-          playerTimeReport: { state: TimerState.Running, elapsedTime: 0, activeTime: 0, pausedTime: 0, pauses: [] },
+          gameTimeReport: {
+            state: TimerState.Running,
+            elapsedTime: 0,
+            activeTime: 0,
+            pausedTime: 0,
+            pauses: [],
+          },
+          playerTimeReport: {
+            state: TimerState.Running,
+            elapsedTime: 0,
+            activeTime: 0,
+            pausedTime: 0,
+            pauses: [],
+          },
         };
         return sendSequence(client, [{ category: 'GAME_EVENT', payload: { type: 'GAME_START' } }]);
       }
@@ -183,14 +195,19 @@ const gameHandler = gameLink.addEventListener('connection', ({ client }) => {
           return sendSequence(client, [
             {
               category: 'GAME_EVENT',
-              payload: { type: 'GAME_END', gameReport: {}, playerReports: [], timeReports: game.timerReports },
+              payload: {
+                type: 'GAME_END',
+                gameReport: {},
+                playerReports: [],
+                timeReports: game.timerReports,
+              },
             },
           ]);
         }
 
         const players = game.players ?? [];
         const drawnBy = game.nextPlayerToDraw!;
-        const drawnIndex = players.findIndex(p => p.id === drawnBy);
+        const drawnIndex = players.findIndex((p) => p.id === drawnBy);
         const nextToDraw = players[(drawnIndex + 1) % players.length]?.id;
         const nextAfter = players[(drawnIndex + 2) % players.length]?.id;
 
@@ -232,12 +249,18 @@ const gameHandler = gameLink.addEventListener('connection', ({ client }) => {
 
       case 'PAUSE_GAME':
         return sendSequence(client, [
-          { category: 'GAME_EVENT', payload: { type: 'GAME_PAUSED', timerReports: game.timerReports } },
+          {
+            category: 'GAME_EVENT',
+            payload: { type: 'GAME_PAUSED', timerReports: game.timerReports },
+          },
         ]);
 
       case 'RESUME_GAME':
         return sendSequence(client, [
-          { category: 'GAME_EVENT', payload: { type: 'GAME_RESUMED', timerReports: game.timerReports } },
+          {
+            category: 'GAME_EVENT',
+            payload: { type: 'GAME_RESUMED', timerReports: game.timerReports },
+          },
         ]);
 
       default:

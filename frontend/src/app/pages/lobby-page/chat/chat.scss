@@ -51,7 +51,7 @@
   cursor: pointer;
   user-select: none;
 
-  transition: all 0.200s cubic-bezier(0.38, 1.21, 0.22, 1.00);
+  transition: all 0.2s cubic-bezier(0.38, 1.21, 0.22, 1);
 }
 
 .emoji-row > div:hover {
@@ -67,7 +67,7 @@
 input {
   width: 100%;
 }
-.msg-input{
+.msg-input {
   display: flex;
   gap: 10px;
 }

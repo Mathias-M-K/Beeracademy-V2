@@ -7,6 +7,12 @@ metadata:
     app: beer-academy-backend # Labels to identify this deployment and its pods
 spec:
   replicas: 1 # How many instances (pods) of your application you want to run
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: beer-academy-backend # This must match the labels in the pod template below
@@ -28,5 +34,22 @@ spec:
           env:
             - name: TZ
               value: Europe/Copenhagen
+          startupProbe:
+            httpGet:
+              path: /q/health/started
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: http
+            periodSeconds: 20
+            failureThreshold: 3
       imagePullSecrets:
         - name: ghcr-secret # <--- This MUST match the name you used when creating the secret

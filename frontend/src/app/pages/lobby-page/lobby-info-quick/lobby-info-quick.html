@@ -1,11 +1,11 @@
 <p class="header_subtitle" style="grid-area: header">Lobbykode</p>
 
+<h2 style="grid-area: id">{{ partyId() | mask: 'AAA-AAA-AAA' }}</h2>
 
-<h2 style="grid-area: id">{{ partyId() | mask : 'AAA-AAA-AAA' }}</h2>
-
-
-<button [style.grid-area]="'share-btn'" class="btn-secondary btn-icon" (click)="shareBtnClick.emit()">
+<button
+  [style.grid-area]="'share-btn'"
+  class="btn-secondary btn-icon"
+  (click)="shareBtnClick.emit()"
+>
   <material-icon icon="share"></material-icon>
 </button>
-
-

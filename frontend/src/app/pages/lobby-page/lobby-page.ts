@@ -1,29 +1,23 @@
-import {Component, inject, linkedSignal} from '@angular/core';
-import {ParticipantOverview} from './participant-overview/participant-overview';
-import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
-import {Chat} from './chat/chat';
-import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
-import {LobbyService} from '../../services/lobby/lobby.service';
-import {DotLoader} from '../../common/components/dot-loader/dot-loader';
-import {DrawerService} from '../../services/drawer/drawer.service';
+import { Component, inject, linkedSignal } from '@angular/core';
+import { ParticipantOverview } from './participant-overview/participant-overview';
+import { LobbyInfoQuick } from './lobby-info-quick/lobby-info-quick';
+import { Chat } from './chat/chat';
+import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
+import { LobbyService } from '../../services/lobby/lobby.service';
+import { DotLoader } from '../../common/components/dot-loader/dot-loader';
+import { DrawerService } from '../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-lobby-page',
   templateUrl: './lobby-page.html',
   styleUrl: './lobby-page.scss',
   host: {
-    'tabindex': '-1',
+    tabindex: '-1',
   },
-  imports: [
-    ParticipantOverview,
-    LobbyInfoQuick,
-    Chat,
-    DotLoader
-  ]
+  imports: [ParticipantOverview, LobbyInfoQuick, Chat, DotLoader],
 })
 export class LobbyPage {
-
-  public readonly lobbyService = inject(LobbyService)
+  public readonly lobbyService = inject(LobbyService);
   private readonly drawerService = inject(DrawerService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
@@ -47,10 +41,16 @@ export class LobbyPage {
       return;
     }
 
-    this.drawerService.showLobbyParticipantSettingsDrawer(actualParticipant).closed.then(newSettings => {
-      if (!newSettings) return;
-      this.lobbyService.requestParticipantSettingsUpdate(newSettings?.sipsInABeer, newSettings?.canDrawAce, actualParticipant.id)
-    });
+    this.drawerService
+      .showLobbyParticipantSettingsDrawer(actualParticipant)
+      .closed.then((newSettings) => {
+        if (!newSettings) return;
+        this.lobbyService.requestParticipantSettingsUpdate(
+          newSettings?.sipsInABeer,
+          newSettings?.canDrawAce,
+          actualParticipant.id,
+        );
+      });
   }
 
   showSharePanel() {
@@ -60,17 +60,17 @@ export class LobbyPage {
   }
 
   openNewParticipantOverlay(): void {
-    this.drawerService.showNewParticipantDrawer().closed.then(participantName => {
+    this.drawerService.showNewParticipantDrawer().closed.then((participantName) => {
       if (!participantName) return;
-      this.addParticipant(participantName)
-    })
+      this.addParticipant(participantName);
+    });
   }
 
   addUsualSuspects() {
-    this.lobbyService.requestParticipantCreation("Mathias");
-    this.lobbyService.requestParticipantCreation("Lasse");
-    this.lobbyService.requestParticipantCreation("Frederik");
-    this.lobbyService.requestParticipantCreation("Andreas");
-    this.lobbyService.requestParticipantCreation("Jakob");
+    this.lobbyService.requestParticipantCreation('Mathias');
+    this.lobbyService.requestParticipantCreation('Lasse');
+    this.lobbyService.requestParticipantCreation('Frederik');
+    this.lobbyService.requestParticipantCreation('Andreas');
+    this.lobbyService.requestParticipantCreation('Jakob');
   }
 }

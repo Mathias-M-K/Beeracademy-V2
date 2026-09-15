@@ -54,6 +54,9 @@ Established conventions — the *how*, where the ADRs are the *why*.
 - [[runtime-config]] — the API URL is runtime config, not build-time
 - [[overlay-exit-animations]] — playing an exit animation before a CDK overlay disposes
 
+**Infra**
+- [[ci-workflows]] — the three GitHub Actions workflows and the runner constraints behind them
+
 ## Dead ends
 
 Approaches already tried and rejected. **Read before proposing an alternative.**

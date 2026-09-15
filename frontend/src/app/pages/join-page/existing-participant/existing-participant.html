@@ -8,7 +8,6 @@
   <p>{{ statusText() }}</p>
 </div>
 
-
 @if (isBeingWatched()) {
   <button class="btn-primary-outlined btn-icon" (click)="removeWatcher.emit()">
     <material-icon icon="close"></material-icon>
@@ -18,6 +17,8 @@
   <button
     (click)="isClaimed ? requestRelease.emit(participant()) : connect.emit(participant())"
     [class.btn-primary-outlined]="isClaimed"
-    [class.btn-secondary]="!isClaimed">{{ btnText }}
+    [class.btn-secondary]="!isClaimed"
+  >
+    {{ btnText }}
   </button>
 }

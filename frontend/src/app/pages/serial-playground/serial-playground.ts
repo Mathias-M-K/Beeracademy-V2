@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  signal,
-  ViewChild
-} from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, signal, ViewChild } from '@angular/core';
 
 interface SerialInput {
   state: string;
@@ -17,7 +11,6 @@ interface SerialInput {
   styleUrl: './serial-playground.scss',
 })
 export class SerialPlayground {
-
   @ViewChild('scrollMe')
   private myScrollContainer!: ElementRef;
 
@@ -37,19 +30,18 @@ export class SerialPlayground {
   private port!: any;
 
   constructor(private cdr: ChangeDetectorRef) {
-    this.serialSupported = "serial" in window.navigator;
+    this.serialSupported = 'serial' in window.navigator;
   }
 
   async connectSerial() {
-
     try {
       this.port = await (navigator as any).serial.requestPort();
-      await this.port.open({baudRate: 9600}); // Consider 115200 for even better speed
+      await this.port.open({ baudRate: 9600 }); // Consider 115200 for even better speed
 
       // 2. Access the writer directly from the port
       this.writer = this.port.writable.getWriter();
 
-      console.log("Serial Connected & Ready");
+      console.log('Serial Connected & Ready');
     } catch (e) {
       console.error(e);
     }
@@ -75,17 +67,14 @@ export class SerialPlayground {
   }
 
   private async checkSerialData() {
-
     this.reader = this.port.readable.getReader();
 
-    let buffer = "";
+    let buffer = '';
 
     while (this.port.readable && this.keepReading) {
-
       try {
         while (true) {
-
-          const {value, done} = await this.reader.read();
+          const { value, done } = await this.reader.read();
 
           if (done) {
             break;
@@ -96,37 +85,35 @@ export class SerialPlayground {
 
           buffer += text;
 
-          const newMessages: string[] = buffer.split("\n");
+          const newMessages: string[] = buffer.split('\n');
 
           for (const message of newMessages) {
-            const isComplete = message.startsWith("{") && message.endsWith("\r");
+            const isComplete = message.startsWith('{') && message.endsWith('\r');
             if (isComplete) {
               this.handleSerialData(message);
             }
           }
 
-          buffer = buffer.substring(buffer.lastIndexOf("\n"), buffer.length);
-
+          buffer = buffer.substring(buffer.lastIndexOf('\n'), buffer.length);
         }
       } catch (error) {
-        console.error("Some error happened with serial communication", error);
+        console.error('Some error happened with serial communication', error);
         break;
       } finally {
         this.reader.releaseLock();
       }
     }
-
   }
 
   private handleSerialData(value: string) {
     const valueAsJson: SerialInput = JSON.parse(value);
     console.log(valueAsJson);
 
-    if (valueAsJson.state === 'pot'){
+    if (valueAsJson.state === 'pot') {
       this.currentPotValue.set(valueAsJson.val);
     }
 
-    if(valueAsJson.state === 'light'){
+    if (valueAsJson.state === 'light') {
       this.currentLightState.set(valueAsJson.val);
     }
 
@@ -139,5 +126,4 @@ export class SerialPlayground {
     this.myScrollContainer.nativeElement.scrollTop =
       this.myScrollContainer.nativeElement.scrollHeight;
   }
-
 }

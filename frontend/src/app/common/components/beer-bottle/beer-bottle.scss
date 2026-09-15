@@ -1,32 +1,32 @@
-:host{
+:host {
   width: 30px;
   position: relative;
   aspect-ratio: 1 / 4;
 
   // The bottle silhouette clips everything inside :host.
-  mask: url("/beer-bottle.png") center / contain no-repeat;
+  mask: url('/beer-bottle.png') center / contain no-repeat;
 }
 
-.beer{
+.beer {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
 }
 
-.backdrop{
+.backdrop {
   height: 100%;
   background-color: var(--beer-color, rebeccapurple);
   opacity: 0.25;
 }
 
-.foreground{
+.foreground {
   transition: height 0.5s ease-in-out;
   height: var(--beer-fill, 100%);
   background-color: var(--beer-color, rebeccapurple);
 }
 
-.text{
+.text {
   display: flex;
   color: white;
   justify-content: center;
@@ -34,6 +34,6 @@
   height: 50%;
   align-items: center;
 }
-.text > h3{
+.text > h3 {
   font-size: 100%;
 }

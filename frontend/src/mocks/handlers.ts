@@ -1,4 +1,4 @@
-import {DefaultBodyType, http, HttpResponse, JsonBodyType, PathParams, RequestHandler} from 'msw';
+import { DefaultBodyType, http, HttpResponse, JsonBodyType, PathParams, RequestHandler } from 'msw';
 import { CreateLobbyResponse } from '../api-models/model/createLobbyResponse';
 import { LobbyDTO } from '../api-models/model/lobbyDTO';
 import { PartyDto } from '../api-models/model/partyDto';
@@ -26,33 +26,43 @@ export const handlers: RequestHandler[] = [
   }),
 
   // LobbyApi.getLobby
-  http.get<PathParams, DefaultBodyType, LobbyDTO | ExceptionResponse>(`${API}/lobbies/:partyId`, ({ params }) => {
-    const lobby = db.getLobby(params['partyId'] as string);
+  http.get<PathParams, DefaultBodyType, LobbyDTO | ExceptionResponse>(
+    `${API}/lobbies/:partyId`,
+    ({ params }) => {
+      const lobby = db.getLobby(params['partyId'] as string);
 
-    return lobby ? HttpResponse.json(lobby) : notFound<LobbyDTO>('Lobby not found');
-  }),
+      return lobby ? HttpResponse.json(lobby) : notFound<LobbyDTO>('Lobby not found');
+    },
+  ),
 
   // LobbyApi.fetchParticipantToken
-  http.post<PathParams, DefaultBodyType, RegisterPlayerResponse | ExceptionResponse>(`${API}/lobbies/:partyId/register`, ({ request, params }) => {
-    const participantName = new URL(request.url).searchParams.get('participantName') ?? 'Anonymous';
-    const participant = db.registerParticipant(params['partyId'] as string, participantName);
+  http.post<PathParams, DefaultBodyType, RegisterPlayerResponse | ExceptionResponse>(
+    `${API}/lobbies/:partyId/register`,
+    ({ request, params }) => {
+      const participantName =
+        new URL(request.url).searchParams.get('participantName') ?? 'Anonymous';
+      const participant = db.registerParticipant(params['partyId'] as string, participantName);
 
-    if (!participant) {
-      return notFound<RegisterPlayerResponse>('Lobby not found');
-    }
+      if (!participant) {
+        return notFound<RegisterPlayerResponse>('Lobby not found');
+      }
 
-    return HttpResponse.json<RegisterPlayerResponse>(
-      { id: participant.id },
-      { headers: { 'Set-Cookie': `participantToken=mock-jwt-${participant.id}; Path=/` } },
-    );
-  }),
+      return HttpResponse.json<RegisterPlayerResponse>(
+        { id: participant.id },
+        { headers: { 'Set-Cookie': `participantToken=mock-jwt-${participant.id}; Path=/` } },
+      );
+    },
+  ),
 
   // PartyApiService.getParty
-  http.get<PathParams, DefaultBodyType, PartyDto | ExceptionResponse>(`${API}/parties/:partyId`, ({ params }) => {
-    const party = db.getParty(params['partyId'] as string);
+  http.get<PathParams, DefaultBodyType, PartyDto | ExceptionResponse>(
+    `${API}/parties/:partyId`,
+    ({ params }) => {
+      const party = db.getParty(params['partyId'] as string);
 
-    return party ? HttpResponse.json(party) : notFound<PartyDto>('Party not found');
-  }),
+      return party ? HttpResponse.json(party) : notFound<PartyDto>('Party not found');
+    },
+  ),
 
   // GameApi.getGamePlayerToken
   http.get(`${API}/games/:partyId/players/:participantId/claim`, ({ params }) => {

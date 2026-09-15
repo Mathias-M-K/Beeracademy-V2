@@ -1,4 +1,4 @@
-:host{
+:host {
   width: 600px;
   background-color: white;
   padding: 20px;
@@ -14,30 +14,27 @@
     'ace-text ace-actions'
     'action-btn action-btn';
 }
-h2{
+h2 {
   margin: 5px 0 15px 0;
   padding: 0;
 }
 
-.action{
+.action {
   display: flex;
   align-items: center;
   justify-content: end;
   gap: 20px;
 }
 
-
-.action_buttons{
+.action_buttons {
   margin-top: 50px;
   display: flex;
   gap: 15px;
   justify-content: center;
 }
 
-
-
-@media(max-width: 600px) {
-  :host{
+@media (max-width: 600px) {
+  :host {
     align-content: start;
     width: 100vw;
     height: 100vh;

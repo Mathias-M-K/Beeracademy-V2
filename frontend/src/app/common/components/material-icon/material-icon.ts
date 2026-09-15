@@ -10,7 +10,8 @@ import { Component, computed, input } from '@angular/core';
       [attr.aria-hidden]="label() ? null : 'true'"
       [attr.aria-label]="label() || null"
       [attr.role]="label() ? 'img' : null"
-    >{{ icon() }}</span>
+      >{{ icon() }}</span
+    >
   `,
   styleUrl: './material-icon.scss',
 })

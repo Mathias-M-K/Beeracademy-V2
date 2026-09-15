@@ -1,4 +1,4 @@
-import {Emoji} from '../../../../api-models/model/emoji';
+import { Emoji } from '../../../../api-models/model/emoji';
 
 /**
  * Maps the generated {@link Emoji} codes to their display characters.

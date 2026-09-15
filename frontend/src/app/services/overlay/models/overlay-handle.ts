@@ -1,18 +1,14 @@
 // src/app/services/overlay/overlay-handle.ts
-import {InjectionToken} from '@angular/core';
-import {OverlayRef} from '@angular/cdk/overlay';
-
+import { InjectionToken } from '@angular/core';
+import { OverlayRef } from '@angular/cdk/overlay';
 
 export const OVERLAY_DATA = new InjectionToken<unknown>('OVERLAY_DATA');
 
 export class OverlayHandle<R = unknown> {
-
-
   readonly closed: Promise<R | undefined>;
 
   private resolveClosed!: (result: R | undefined) => void;
   private isClosed = false;
-
 
   constructor(private readonly overlayRef: OverlayRef) {
     this.closed = new Promise<R | undefined>((resolve) => {
@@ -21,21 +17,19 @@ export class OverlayHandle<R = unknown> {
   }
 
   private async startExitAnimation(): Promise<void> {
-
     const element = this.overlayRef.overlayElement.firstElementChild;
     const backdropElement = this.overlayRef.backdropElement;
     if (!element) return;
 
-    if(backdropElement){
+    if (backdropElement) {
       this.overlayRef.backdropElement?.classList.add('backdrop-exiting');
     }
 
     element.classList.add('overlay-leaving');
-    await Promise.all(element.getAnimations().map(a => a.finished.catch(() => {})));
+    await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => {})));
   }
 
   public async close(result?: R): Promise<void> {
-
     return this.teardown(() => this.resolveClosed(result));
   }
 
@@ -53,7 +47,6 @@ export class OverlayHandle<R = unknown> {
       if (!ignoreAnimation) {
         await this.startExitAnimation();
       }
-
     } finally {
       report?.();
       this.overlayRef.dispose();

@@ -7,46 +7,42 @@ import {
   viewChild,
   viewChildren,
   linkedSignal,
-  inject
+  inject,
 } from '@angular/core';
-import {PlayerCard} from './player-card/player-card';
-import {Player} from '../../../services/game/models/player';
-import {DotIndicator} from '../../../common/dot-indicator/dot-indicator';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {map} from 'rxjs';
-import {BreakpointObserver} from '@angular/cdk/layout';
+import { PlayerCard } from './player-card/player-card';
+import { Player } from '../../../services/game/models/player';
+import { DotIndicator } from '../../../common/dot-indicator/dot-indicator';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-player-grid',
-  imports: [
-    PlayerCard,
-    DotIndicator
-  ],
+  imports: [PlayerCard, DotIndicator],
   templateUrl: './player-grid.html',
   styleUrl: './player-grid.scss',
 })
 export class PlayerGrid {
-
   private readonly breakpointObserver = inject(BreakpointObserver);
 
   readonly players = input.required<Player[] | undefined>();
   readonly activePlayerId = input<string>();
 
-  private readonly scroller = viewChild('scroller', {read: ElementRef<HTMLElement>});
-  private readonly playerCardElements = viewChildren('playerElement', {read: ElementRef<HTMLElement>});
+  private readonly scroller = viewChild('scroller', { read: ElementRef<HTMLElement> });
+  private readonly playerCardElements = viewChildren('playerElement', {
+    read: ElementRef<HTMLElement>,
+  });
 
   /** Live index of the card nearest the carousel centre — drives the dots. */
   protected readonly visiblePlayerIndex = signal(0);
 
-  readonly playerDragActive = linkedSignal(()=> {
+  readonly playerDragActive = linkedSignal(() => {
     this.activePlayerId();
     return false;
   });
 
   protected readonly isCompact = toSignal(
-    this.breakpointObserver
-      .observe('(max-width: 500px)')
-      .pipe(map((result) => result.matches)),
+    this.breakpointObserver.observe('(max-width: 500px)').pipe(map((result) => result.matches)),
     { initialValue: false },
   );
 
@@ -76,7 +72,7 @@ export class PlayerGrid {
 
   /** Live-updates the visible index as the user scrolls, batched to one write per frame. Template: `(scroll)`. */
   protected onScroll(): void {
-    if(!this.playerDragActive()) return;
+    if (!this.playerDragActive()) return;
     if (this.rafId) return;
     this.rafId = requestAnimationFrame(() => {
       this.rafId = 0;

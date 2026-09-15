@@ -14,18 +14,18 @@
 
   background-color: var(--color-white);
 
-  transition: transform .1s ease-out;
+  transition: transform 0.1s ease-out;
 }
 
-:host(.isReserved){
+:host(.isReserved) {
   background-color: color-mix(in oklab, var(--primary), white 95%);
   border-color: var(--primary);
 }
 
-:host(.isReserved) .dot{
+:host(.isReserved) .dot {
   background-color: var(--primary-hover);
 }
-:host(.isFree) .dot{
+:host(.isFree) .dot {
   background-color: var(--color-grey-500);
 }
 .dot {
@@ -37,7 +37,7 @@
   border-radius: 50%;
 }
 
-h3{
+h3 {
   font-weight: 500;
 }
 
@@ -48,9 +48,8 @@ p {
   color: var(--color-grey-600);
 }
 
-button{
+button {
   font-weight: 500;
   font-size: 14px;
   letter-spacing: 0.1px;
 }
-

@@ -1,14 +1,13 @@
-import {ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router} from '@angular/router';
-import {inject} from '@angular/core';
-import {catchError, finalize, Observable, of, timeout} from 'rxjs';
-import {PartyApi} from '../services/apis/party.api';
-import {ToastService} from '../services/toast/toast.service';
-import {ToastState} from '../overlay/toast/models/toast-data';
-import {OverlayService} from '../services/overlay/overlay.service';
-import {PartyDto} from '../../api-models/model/partyDto';
-import {BeerLoaderOverlay} from '../overlay/beer-loader-overlay/beer-loader-overlay';
-import {OverlayHandle} from '../services/overlay/models/overlay-handle';
-
+import { ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { catchError, finalize, Observable, of, timeout } from 'rxjs';
+import { PartyApi } from '../services/apis/party.api';
+import { ToastService } from '../services/toast/toast.service';
+import { ToastState } from '../overlay/toast/models/toast-data';
+import { OverlayService } from '../services/overlay/overlay.service';
+import { PartyDto } from '../../api-models/model/partyDto';
+import { BeerLoaderOverlay } from '../overlay/beer-loader-overlay/beer-loader-overlay';
+import { OverlayHandle } from '../services/overlay/models/overlay-handle';
 
 export const partyStateResolver: ResolveFn<PartyDto> = (route: ActivatedRouteSnapshot) => {
   const partyApi = inject(PartyApi);
@@ -26,24 +25,31 @@ export const partyStateResolver: ResolveFn<PartyDto> = (route: ActivatedRouteSna
     return of(new RedirectCommand(router.parseUrl('/start')));
   };
 
-  const beerLoaderMessages: string[] = ['Tjekker om der er plads','Henter øl','Blander kort','Tjekker ting']
+  const beerLoaderMessages: string[] = [
+    'Tjekker om der er plads',
+    'Henter øl',
+    'Blander kort',
+    'Tjekker ting',
+  ];
   let overlayHandle: OverlayHandle<void>;
   const loadingScreenTimer = setTimeout(() => {
-    overlayHandle = overlayService.openOverlay<void, string[]>({component: BeerLoaderOverlay, data: beerLoaderMessages});
+    overlayHandle = overlayService.openOverlay<void, string[]>({
+      component: BeerLoaderOverlay,
+      data: beerLoaderMessages,
+    });
   }, TIME_BEFORE_SHOWING_LOADER);
-
 
   return partyApi.getParty(partyId).pipe(
     finalize(() => {
       clearTimeout(loadingScreenTimer);
 
       if (overlayHandle) {
-        overlayHandle.dismiss()
+        overlayHandle.dismiss();
       }
     }),
     timeout({
       each: PARTY_LOOKUP_TIMEOUT,
-      with: () => bail('Timeout', 'Måske tager serveren en pause')
+      with: () => bail('Timeout', 'Måske tager serveren en pause'),
     }),
     catchError(() => bail('Miv :(', 'Kunne ikke forbinde')),
   );

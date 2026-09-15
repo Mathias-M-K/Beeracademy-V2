@@ -1,15 +1,15 @@
-:host{
+:host {
   display: flex;
   flex-direction: column;
   gap: 10px;
   height: fit-content !important;
 }
 
-:host(.drawer-pane--compact){
+:host(.drawer-pane--compact) {
   padding-bottom: 25px;
 }
 
-.subtitle{
+.subtitle {
   margin: 0;
   font-size: 12px;
   font-weight: 500;
@@ -18,17 +18,18 @@
   text-transform: uppercase;
 }
 
-.header{
+.header {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-h1,h2{
+h1,
+h2 {
   margin: 0;
 }
 
-.sharing-information{
+.sharing-information {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,7 +39,7 @@ h1,h2{
   padding-bottom: 15px;
 }
 
-.link{
+.link {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -47,7 +48,7 @@ h1,h2{
   padding: 5px 10px;
 }
 
-.link-text{
+.link-text {
   font-size: 12px;
   letter-spacing: 1px;
   color: var(--primary-disabled-text);

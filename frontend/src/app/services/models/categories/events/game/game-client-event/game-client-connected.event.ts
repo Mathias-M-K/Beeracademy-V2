@@ -1,5 +1,3 @@
-import {GameEvent} from '../game-event';
+import { GameEvent } from '../game-event';
 
-export interface GameClientConnectedEvent extends GameEvent {
-
-}
+export interface GameClientConnectedEvent extends GameEvent {}

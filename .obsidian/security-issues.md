@@ -86,6 +86,27 @@ from the repo. Verify against the running cluster.
 
 ---
 
+
+## SEC-2 — Quarkus `/q` endpoints are publicly routed
+
+**LOW · OPEN · discovered 2026-09-15**
+
+`deployment/ingress.yaml` routes the `/q` prefix on `beeracademy.mathiaskofod.dk` straight to the backend. That publicly exposes:
+- `/q/metrics`: Prometheus metrics, including endpoint names and traffic patterns
+- `/q/swagger-ui`: `quarkus.swagger-ui.always-include = true`
+- `/q/health`: added 2026-09-15 for the k8s probes. The readiness output names the Redis check.
+
+Nothing here is a credential, but it is free reconnaissance. The probes and the Prometheus scrape reach the pod directly, not through the ingress, so none of them need the public route.
+
+**Fix direction:** drop the `/q` path from the ingress. Only move metrics to Quarkus's separate management port (`quarkus.management.enabled=true`, port 9000) if the scrape annotations are updated at the same time.
+
+**Check** — must return nothing:
+```bash
+grep -n "path: /q" deployment/ingress.yaml
+```
+
+---
+
 ## Related
 - [[known-issues]] — correctness and architecture violations
 - [[redis-state-store]] — what is actually stored in Valkey

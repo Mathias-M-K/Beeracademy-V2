@@ -1,5 +1,5 @@
-import {WebsocketEnvelope} from '../../../websocket-envelope';
-import {LobbyEvent} from './lobby-event';
+import { WebsocketEnvelope } from '../../../websocket-envelope';
+import { LobbyEvent } from './lobby-event';
 
 /**
  * LobbyEventEnvelope is used for all envelopes from frontend

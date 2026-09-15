@@ -1,21 +1,19 @@
-import {inject, Service} from '@angular/core';
-import {ConfigService} from '../../config.service';
-import {webSocket} from 'rxjs/webSocket';
-import {WebsocketEnvelope} from './models/websocket-envelope';
-import {Observable, Subject} from 'rxjs';
-import {WebSocketSubject} from 'rxjs/internal/observable/dom/WebSocketSubject';
-import {GameEventEnvelope} from './models/categories/events/game/game-event-envelope';
-import {ExceptionResponse} from '../../api-models/model/exceptionResponse';
-import {ExceptionEvent} from './models/categories/events/common/exception-event';
-import {WebsocketCode} from '../../api-models/model/websocketCode';
-
+import { inject, Service } from '@angular/core';
+import { ConfigService } from '../../config.service';
+import { webSocket } from 'rxjs/webSocket';
+import { WebsocketEnvelope } from './models/websocket-envelope';
+import { Observable, Subject } from 'rxjs';
+import { WebSocketSubject } from 'rxjs/internal/observable/dom/WebSocketSubject';
+import { GameEventEnvelope } from './models/categories/events/game/game-event-envelope';
+import { ExceptionResponse } from '../../api-models/model/exceptionResponse';
+import { ExceptionEvent } from './models/categories/events/common/exception-event';
+import { WebsocketCode } from '../../api-models/model/websocketCode';
 
 @Service()
 export class WebsocketService {
-  private readonly applicationConfig = inject(ConfigService)
-  private readonly lobbyWebsocketUrl = this.applicationConfig.apiUrl + "/ws/lobby"
-  private readonly gameWebsocketUrl = this.applicationConfig.apiUrl + "/ws/game"
-
+  private readonly applicationConfig = inject(ConfigService);
+  private readonly lobbyWebsocketUrl = this.applicationConfig.apiUrl + '/ws/lobby';
+  private readonly gameWebsocketUrl = this.applicationConfig.apiUrl + '/ws/game';
 
   private websocket?: WebSocketSubject<WebsocketEnvelope>;
 
@@ -31,8 +29,11 @@ export class WebsocketService {
     return this.connectToWebsocket(this.gameWebsocketUrl, timeoutMs);
   }
 
-  private connectToWebsocket(url: string, timeoutMs?: number): Promise<Observable<WebsocketEnvelope>> {
-    console.debug("Connecting to Websocket", url);
+  private connectToWebsocket(
+    url: string,
+    timeoutMs?: number,
+  ): Promise<Observable<WebsocketEnvelope>> {
+    console.debug('Connecting to Websocket', url);
     this.disconnect();
 
     const messages = new Subject<WebsocketEnvelope>();
@@ -46,21 +47,26 @@ export class WebsocketService {
     });
 
     const timeoutHandle = setTimeout(() => {
-      rejectConnection(new Error("Did not receive handshake", {cause: 0}));
+      rejectConnection(new Error('Did not receive handshake', { cause: 0 }));
       this.disconnect();
     }, timeoutMs ?? 6000);
 
-    const socket = this.websocket = webSocket<WebsocketEnvelope>({
+    const socket = (this.websocket = webSocket<WebsocketEnvelope>({
       url: url,
       openObserver: {
-        next: () => console.log("🟨 Connected! Waiting for handshake.")
+        next: () => console.log('🟨 Connected! Waiting for handshake.'),
       },
       closeObserver: {
         next: (closeEvent: CloseEvent) => {
-          console.log("⚠️ Websocket disconnected. Code:", closeEvent.code, ', clean:', closeEvent.wasClean);
+          console.log(
+            '⚠️ Websocket disconnected. Code:',
+            closeEvent.code,
+            ', clean:',
+            closeEvent.wasClean,
+          );
           clearTimeout(timeoutHandle);
 
-          const error = new Error('Websocket was closed', {cause: closeEvent.code});
+          const error = new Error('Websocket was closed', { cause: closeEvent.code });
           rejectConnection(error);
 
           const isNormalClose = closeEvent.code === 1000 || closeEvent.code === 1005;
@@ -74,40 +80,38 @@ export class WebsocketService {
           if (this.websocket === socket) {
             this.disconnect();
           }
-
-        }
+        },
       },
-    });
+    }));
 
     let handshakeReceived = false;
 
     this.websocket.subscribe({
-      next: message => {
-
-        console.debug("Websocket message received:", message);
+      next: (message) => {
+        console.debug('Websocket message received:', message);
 
         if (this.isHandshake(message)) {
-          console.log("✅ Websocket handshake received");
+          console.log('✅ Websocket handshake received');
           handshakeReceived = true;
           clearTimeout(timeoutHandle);
           resolveConnection(messages);
         } else if (this.isException(message) && !handshakeReceived) {
-          const exception: ExceptionResponse = ((message as GameEventEnvelope).payload as ExceptionEvent).response;
+          const exception: ExceptionResponse = (
+            (message as GameEventEnvelope).payload as ExceptionEvent
+          ).response;
           const websocketCode = this.getWebsocketCodeFromException(exception);
-          console.debug("⚠️ Exception thrown from websocket", exception);
-          rejectConnection(new Error(undefined, {cause: websocketCode}));
+          console.debug('⚠️ Exception thrown from websocket', exception);
+          rejectConnection(new Error(undefined, { cause: websocketCode }));
           return;
         } else {
           messages.next(message);
         }
-
-
       },
       error: (error: Event) => {
         clearTimeout(timeoutHandle);
-        rejectConnection(new Error('Websocket disconnected', {cause: 0})); //FIXME use actual code, or not
-        console.debug("⚠️ Error when attempting to connect to websocket.", error, "url:", url);
-      }
+        rejectConnection(new Error('Websocket disconnected', { cause: 0 })); //FIXME use actual code, or not
+        console.debug('⚠️ Error when attempting to connect to websocket.', error, 'url:', url);
+      },
     });
 
     return connection;
@@ -122,7 +126,6 @@ export class WebsocketService {
   }
 
   private getWebsocketCodeFromException(exception: ExceptionResponse): WebsocketCode {
-
     switch (exception.exception) {
       case 'GameNotFoundException':
         return WebsocketCode.GameNotFound;
@@ -130,19 +133,16 @@ export class WebsocketService {
         return WebsocketCode.SessionOccupied;
       default:
         return WebsocketCode.Unknown;
-
     }
   }
 
   public send(envelope: WebsocketEnvelope): void {
-    console.debug("Sending envelope", envelope);
+    console.debug('Sending envelope', envelope);
     this.websocket?.next(envelope);
   }
 
   public disconnect(): void {
-    this.websocket?.complete()
+    this.websocket?.complete();
     this.websocket = undefined;
   }
-
 }
-

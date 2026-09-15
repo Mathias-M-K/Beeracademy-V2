@@ -5,10 +5,10 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: auto auto 250px;
   grid-template-areas:
-  'header header header header'
-  'card-count card-count card-count card-count'
-  'draw-panel draw-panel draw-panel podium'
-  'players players players podium';
+    'header header header header'
+    'card-count card-count card-count card-count'
+    'draw-panel draw-panel draw-panel podium'
+    'players players players podium';
 
   justify-self: center;
 
@@ -26,7 +26,6 @@
   align-content: flex-start;
   gap: 25px;
 }
-
 
 .action_buttons {
   display: flex;
@@ -89,6 +88,3 @@
       'podium';
   }
 }
-
-
-

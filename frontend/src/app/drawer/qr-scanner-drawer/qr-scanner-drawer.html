@@ -3,20 +3,32 @@
   <h2 id="qr-scanner-title">Scan en QR kode</h2>
 </div>
 <div class="video-feed">
-  <video #video class="preview" playsinline muted
-         [class.revealed]="scanState() !== 'waiting'"
-         [class.frozen]="scanState() === 'found'"
-         aria-labelledby="qr-scanner-title" aria-describedby="qr-scanner-status"></video>
+  <video
+    #video
+    class="preview"
+    playsinline
+    muted
+    [class.revealed]="scanState() !== 'waiting'"
+    [class.frozen]="scanState() === 'found'"
+    aria-labelledby="qr-scanner-title"
+    aria-describedby="qr-scanner-status"
+  ></video>
 
   @if (scanState() !== 'waiting') {
-    <div class="layer viewfinder" animate.enter="viewfinder-enter" aria-hidden="true"
-         [class.found]="scanState() === 'found'"
-         [class.rejected]="rejecting()">
-      <div class="frame"
-           [style.left.%]="frameBox().left"
-           [style.top.%]="frameBox().top"
-           [style.width.%]="frameBox().width"
-           [style.height.%]="frameBox().height">
+    <div
+      class="layer viewfinder"
+      animate.enter="viewfinder-enter"
+      aria-hidden="true"
+      [class.found]="scanState() === 'found'"
+      [class.rejected]="rejecting()"
+    >
+      <div
+        class="frame"
+        [style.left.%]="frameBox().left"
+        [style.top.%]="frameBox().top"
+        [style.width.%]="frameBox().width"
+        [style.height.%]="frameBox().height"
+      >
         <span class="corner top-left"></span>
         <span class="corner top-right"></span>
         <span class="corner bottom-left"></span>

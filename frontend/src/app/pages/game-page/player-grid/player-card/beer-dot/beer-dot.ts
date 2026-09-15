@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   imports: [],
@@ -7,11 +7,10 @@ import {Component, input} from '@angular/core';
   templateUrl: './beer-dot.html',
   host: {
     '[style.--foreground-color]': 'foregroundColor()',
-    '[style.--fill-level.%]': 'fill()'
-  }
+    '[style.--fill-level.%]': 'fill()',
+  },
 })
 export class BeerDot {
-
   readonly foregroundColor = input<string>('foregroundColor');
   readonly fill = input<number>(100);
 }
