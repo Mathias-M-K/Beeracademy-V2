@@ -47,7 +47,7 @@ export class LobbyPage {
       return;
     }
 
-    this.drawerService.showLobbyParticipantSettingsOverlay(actualParticipant).closed.then(newSettings => {
+    this.drawerService.showLobbyParticipantSettingsDrawer(actualParticipant).closed.then(newSettings => {
       if (!newSettings) return;
       this.lobbyService.requestParticipantSettingsUpdate(newSettings?.sipsInABeer, newSettings?.canDrawAce, actualParticipant.id)
     });
@@ -60,7 +60,7 @@ export class LobbyPage {
   }
 
   openNewParticipantOverlay(): void {
-    this.drawerService.showNewParticipantOverlay().closed.then(participantName => {
+    this.drawerService.showNewParticipantDrawer().closed.then(participantName => {
       if (!participantName) return;
       this.addParticipant(participantName)
     })

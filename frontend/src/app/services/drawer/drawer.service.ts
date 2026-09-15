@@ -74,14 +74,14 @@ export class DrawerService {
     return this.showDrawer(overlayConf);
   }
 
-  public showNewParticipantOverlay(): OverlayHandle<string> {
+  public showNewParticipantDrawer(): OverlayHandle<string> {
     const overlayConf: Partial<OverlayConf<string>> = {
       component: NewParticipantDrawerComponent
     }
     return this.showDrawer(overlayConf);
   }
 
-  public showLobbyParticipantSettingsOverlay(participant: LobbyParticipantDTO): OverlayHandle<ParticipantSettingsResult> {
+  public showLobbyParticipantSettingsDrawer(participant: LobbyParticipantDTO): OverlayHandle<ParticipantSettingsResult> {
     const overlayConf: Partial<OverlayConf<LobbyParticipantDTO>> = {
       component: LobbyParticipantSettingsDrawer,
       data: participant
