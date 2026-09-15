@@ -45,7 +45,7 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
   - **After an apply, pin the release tag again** with `kubectl set image ... :vX.Y.Z` for both deployments, so the cluster shows which release it runs.
 - **Probes:**
   - Backend: startup `/q/health/started`, readiness `/q/health/ready` (includes the Redis check), liveness `/q/health/live`, from `quarkus-smallrye-health`.
-  - Frontend: `/` on nginx.
+  - Frontend: startup `/` (1s initial delay, every 1s, 30 attempts), then readiness and liveness `/` on nginx. Without the startup probe, the first readiness check hit nginx before it was listening and logged a `connection refused` warning on every rollout. A failed startup check is also a warning event, so the 1s delay is what keeps normal deploys warning-free.
   - `maxSurge: 1, maxUnavailable: 0` keeps the old pod until the new one is ready.
 - **Rollback.** Rollouts time out after 5 min. If the rollout step fails, both deployments are `rollout undo`ne together, so the frontend models stay matched to the backend API.
 - **ReplicaSets.** `revisionHistoryLimit: 3` on both. Old sets are scaled to 0 and are what `rollout undo` uses; the backend previously kept the default 10.

@@ -35,6 +35,13 @@ spec:
               value: "production"
             - name: TZ
               value: Europe/Copenhagen
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /
