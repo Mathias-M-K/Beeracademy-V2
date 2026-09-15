@@ -28,7 +28,8 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
 - **The OpenAPI spec is generated, never committed.** `frontend/src/api-models/` and `frontend/openapi-spec/` are gitignored. `quarkusBuild` writes `backend/build/generated-openapi/openapi.json`.
   - **In CI, the frontend job builds the spec itself.** A job cannot `needs` a job in another workflow, and waiting on backend tests would cost about 3 min.
   - This duplicates the backend compile when both CI workflows run (about 34s), but with the two jobs running in parallel it adds no waiting time. Serialising to avoid it would take PRs from about 3 min to 4–5.5 min.
-  - **In deploy, the frontend `needs: backend` and downloads the artifact**, so its models come from exactly the backend build being shipped.
+  - **In deploy, the frontend `needs: backend` and downloads the artifact**, so its models come from exactly the backend build being shipped. The upload uses `if-no-files-found: error`, so a missing spec fails the backend job.
+  - **The spec survives the build cache** because `backend/build.gradle` declares `build/generated-openapi` as an output of `quarkusAppPartsBuild`. Without that, a cache hit restores the task without the spec.
 - **The deploy runs no tests and no Sonar.** It trusts CI on `main`.
   - `main` is deliberately **unprotected**. Path-filtered workflows plus required checks leave skipped checks pending forever.
   - **The `verify-ci` job is the guard instead.** It waits up to 15 min for the push runs of `backend-ci`/`frontend-ci` on the tagged commit, and fails if either did not pass. No CI runs at all (e.g. a commit touching neither side) only produces a warning.
@@ -39,13 +40,16 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
 
 ## Deploying to Kubernetes
 
-- **Structure lives in `deployment/`; the release tag lives in the cluster.** The deploy only runs `kubectl set image`. Changes to `deployment/` (probes, env, strategy) are applied by hand with `microk8s.kubectl apply -f deployment/backend -f deployment/frontend`. That resets the image to `:latest` and causes one extra rollout; harmless, since every deploy pushes `latest`.
+- **Structure lives in `deployment/`; the release tag lives in the cluster.** The deploy only runs `kubectl set image`. Changes to `deployment/` (probes, env, strategy) are applied by hand with `microk8s.kubectl apply -f deployment/backend -f deployment/frontend`.
+  - **An apply resets the image to `:latest` and rolls the pods.** Both containers set `imagePullPolicy: Always`, so the node pulls the current `latest` instead of reusing a cached copy. With the default `IfNotPresent`, the frontend once came back on a months-old cached `latest`.
+  - **After an apply, pin the release tag again** with `kubectl set image ... :vX.Y.Z` for both deployments, so the cluster shows which release it runs.
 - **Probes:**
   - Backend: startup `/q/health/started`, readiness `/q/health/ready` (includes the Redis check), liveness `/q/health/live`, from `quarkus-smallrye-health`.
   - Frontend: `/` on nginx.
   - `maxSurge: 1, maxUnavailable: 0` keeps the old pod until the new one is ready.
 - **Rollback.** Rollouts time out after 5 min. If the rollout step fails, both deployments are `rollout undo`ne together, so the frontend models stay matched to the backend API.
 - **ReplicaSets.** `revisionHistoryLimit: 3` on both. Old sets are scaled to 0 and are what `rollout undo` uses; the backend previously kept the default 10.
+- **Checking what actually runs.** Compare the pod's `imageID` digest (`kubectl get pods -o custom-columns=...:.status.containerStatuses[0].imageID`) with the registry (`docker buildx imagetools inspect ghcr.io/mathias-m-k/<image>:<tag>`). The image *name* on the pod can say `latest` while the digest is something else.
 
 ## Supply chain
 
@@ -56,7 +60,9 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
   - Dependabot runs don't get repo secrets, so both Sonar steps skip `dependabot[bot]`.
   - Quarkus versions sit in `gradle.properties` and may not be picked up by Dependabot.
   - Wait for green CI before merging a Dependabot PR.
-- **GHCR pushes use `GITHUB_TOKEN`** (`packages: write`), not a PAT. Images carry `org.opencontainers.image.source` to link the packages to the repo.
+- **GHCR pushes use `GITHUB_TOKEN`** (`packages: write`), not a PAT.
+  - Each package (`beer-academy-backend`, `beer-academy-frontend`) must grant `Beeracademy-V2` the **Write** role under *Manage Actions access* in the package settings. Without it the push fails with `denied: permission_denied: write_package`.
+  - The `org.opencontainers.image.source` label on the images does not grant access to packages that already exist.
 - **Every workflow declares `permissions:`**; the deploy grants `packages: write` and `contents: write` only to the jobs that need them.
 
 ## History
@@ -68,6 +74,9 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
   - Dependabot's first run opened 16 ungrouped PRs, which queued about 40 runs on the two runners.
   - Fixed in PR #47: restored `deploy.yml`, deleted the old workflows, and switched Dependabot to grouped minor/patch updates with majors ignored. The stray PRs were closed and their runs cancelled.
   - First green CI on the new setup: `311aa00` (Backend CI 2m44s, Frontend CI 3m00s).
+- **2026-09-15, v1.0.13 → v1.0.14:**
+  - v1.0.13 failed twice. First GHCR refused the `GITHUB_TOKEN` push until both packages granted the repo Write access. Then the frontend job found no `openapi-spec`, because `quarkusAppPartsBuild` was restored from the build cache without the spec. Fixed in PR #50.
+  - v1.0.14 deployed. The one-time manual apply for the probes then reset both images to `:latest`, and the frontend pod reused a cached `latest` from 2026-06-29 because its pull policy was `IfNotPresent`. Fixed by setting the image back to v1.0.14 and adding `imagePullPolicy: Always` to both manifests.
 
 ## Related
 
