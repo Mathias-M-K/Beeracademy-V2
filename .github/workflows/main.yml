@@ -95,7 +95,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build and test with Gradle
         if: env.RUN_SCAN_AND_TEST == 'true'
