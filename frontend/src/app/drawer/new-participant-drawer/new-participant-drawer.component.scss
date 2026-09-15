@@ -14,7 +14,11 @@ drawer-default-header{
   margin-bottom: 10px;
 }
 
-:host > div:nth-child(3){
+.participant-form{
+  display: contents;
+}
+
+.name-field{
   display: grid;
   gap: 5px;
 }

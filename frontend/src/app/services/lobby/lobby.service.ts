@@ -48,6 +48,7 @@ import {
 import {ToastService} from '../toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 import {WebsocketCode} from '../../../api-models/model/websocketCode';
+import {ExceptionEvent} from '../models/categories/events/common/exception-event';
 
 @Service()
 export class LobbyService {
@@ -95,6 +96,7 @@ export class LobbyService {
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
   public connectToWebsocket(): Promise<Observable<WebsocketEnvelope>> {
+    this._creatingGame.set(false);
     return this.websocketService.connectToLobbyWebsocket().then(msgObs => {
       msgObs.subscribe({
         next: msg => this.handleWebsocketMessage(msg),
@@ -112,6 +114,7 @@ export class LobbyService {
 
   private onWebsocketConnectionDroppedClean() {
     this.lobbyState.set(undefined);
+    this._creatingGame.set(false);
     console.log("Connection dropped");
   }
 
@@ -122,6 +125,10 @@ export class LobbyService {
 
   private handleConnectionDropped(error: unknown): UrlTree {
     const cause = error instanceof Error ? error.cause as number : undefined;
+
+    if (cause !== WebsocketCode.Transitioning) {
+      this._creatingGame.set(false);
+    }
 
     switch (cause) {
       case WebsocketCode.LobbyLeaderLeft:
@@ -153,6 +160,10 @@ export class LobbyService {
   //Handle websocket messages
   private handleWebsocketMessage(msg: WebsocketEnvelope) {
 
+    if ((msg as LobbyEventEnvelope).payload?.type === 'EXCEPTION_RESPONSE') {
+      return this.handleExceptionEvent(msg as LobbyEventEnvelope);
+    }
+
     const supportedEventCategories: string[] = ['LOBBY_CLIENT_EVENT', 'LOBBY_PARTICIPANT_EVENT'];
 
     if (!supportedEventCategories.includes(msg.category)) {
@@ -183,6 +194,13 @@ export class LobbyService {
         return this.handleParticipantRearranged(event);
       }
     }
+  }
+
+  private handleExceptionEvent(event: LobbyEventEnvelope) {
+    const exceptionEvent = event.payload as ExceptionEvent;
+    console.warn("Lobby action failed", exceptionEvent.response);
+    this._creatingGame.set(false);
+    this.toastService.showToast("Der skete en fejl", "Handlingen kunne ikke udføres", "error", ToastState.error);
   }
 
   private handleNewMessageEvent(event: LobbyEventEnvelope) {

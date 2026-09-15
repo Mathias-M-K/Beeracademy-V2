@@ -26,7 +26,7 @@ export class NewParticipantDrawerComponent {
   protected readonly newParticipantForm = form(this.newParticipantModel, (model) => {
     required(model.participantName);
     minLength(model.participantName, 2);
-    uniqueNameValidator(model.participantName, this.lobbyService.participants().map(participant => participant.name ?? ''));
+    uniqueNameValidator(model.participantName, () => this.lobbyService.participants().map(participant => participant.name ?? ''));
   });
 
 

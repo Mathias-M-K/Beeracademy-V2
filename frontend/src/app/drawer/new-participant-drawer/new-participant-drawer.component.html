@@ -1,19 +1,19 @@
 <drawer-default-header title="Tilføj ny deltager" subtitle="spillere"></drawer-default-header>
 <div class="horizontal_line"></div>
 
-<div>
-  <p class="subtitle">Navn</p>
-  <input
-    placeholder="fx. Jakob"
-    aria-label="Participant name"
-    [formField]="newParticipantForm.participantName"
-    cdkTrapFocus
-    [cdkTrapFocusAutoCapture]="true"
-    (keyup.enter)="addParticipant(newParticipantModel().participantName)">
+<div class="participant-form" cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+  <div class="name-field">
+    <p class="subtitle">Navn</p>
+    <input
+      placeholder="fx. Jakob"
+      aria-label="Participant name"
+      [formField]="newParticipantForm.participantName"
+      (keyup.enter)="addParticipant(newParticipantModel().participantName)">
+  </div>
+  <button
+    class="btn-secondary"
+    (click)="addParticipant(newParticipantModel().participantName)"
+    [disabled]="newParticipantForm().invalid()">Tilføj
+  </button>
 </div>
-<button
-  class="btn-secondary"
-  (click)="addParticipant(newParticipantModel().participantName)"
-  [disabled]="newParticipantForm().invalid()">Tilføj
-</button>
 

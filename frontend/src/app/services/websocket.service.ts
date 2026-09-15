@@ -79,6 +79,8 @@ export class WebsocketService {
       },
     });
 
+    let handshakeReceived = false;
+
     this.websocket.subscribe({
       next: message => {
 
@@ -86,9 +88,10 @@ export class WebsocketService {
 
         if (this.isHandshake(message)) {
           console.log("✅ Websocket handshake received");
+          handshakeReceived = true;
           clearTimeout(timeoutHandle);
           resolveConnection(messages);
-        } else if (this.isException(message)) {
+        } else if (this.isException(message) && !handshakeReceived) {
           const exception: ExceptionResponse = ((message as GameEventEnvelope).payload as ExceptionEvent).response;
           const websocketCode = this.getWebsocketCodeFromException(exception);
           console.debug("⚠️ Exception thrown from websocket", exception);
