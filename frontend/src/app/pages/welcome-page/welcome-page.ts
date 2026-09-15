@@ -7,7 +7,7 @@ import {ToastService} from '../../services/toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
-import {finalize, map} from 'rxjs';
+import {map} from 'rxjs';
 import {SuitIcon} from '../../common/components/suit-icon/suit-icon';
 import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 import {PartyApi} from '../../services/apis/party.api';
@@ -36,7 +36,10 @@ export class WelcomePage {
   private readonly drawerService = inject(DrawerService);
 
   protected readonly creatingLobby = signal<boolean>(false);
-  protected readonly fetchingExistingGame = signal<boolean>(false);
+  protected readonly joiningExistingParty = signal<boolean>(false);
+  protected readonly buttonsDisabled = computed<boolean>(() => {
+    return this.creatingLobby() || this.joiningExistingParty()
+  })
 
   private readonly existingParty = signal<CurrentPartyDto | undefined>(undefined);
   protected readonly existingPartyText = computed(() => {
@@ -60,11 +63,9 @@ export class WelcomePage {
   );
 
   constructor() {
-    this.fetchingExistingGame.set(true);
     this.partyApi.getCurrentParty()
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.fetchingExistingGame.set(false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: existingGame => this.existingParty.set(existingGame ?? undefined),
@@ -76,7 +77,8 @@ export class WelcomePage {
       })
   }
 
-  protected createLobby(lobbyName: string): void {
+  protected createAndJoinLobby(lobbyName: string): void {
+    if (this.buttonsDisabled()) return;
 
     if (lobbyName.trim().length === 0) {
       this.toastService.showToast("Du er dum", "Lobbyen skal have et navn", "sentiment_extremely_dissatisfied", ToastState.error)
@@ -86,13 +88,11 @@ export class WelcomePage {
     this.creatingLobby.set(true);
 
     this.lobbyApi.createLobby(lobbyName)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.creatingLobby.set(false))
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.navigateToLobbyPage(),
+        next: () => this.navigateToLobbyPage().finally(() => this.creatingLobby.set(false)),
         error: () => {
+          this.creatingLobby.set(false);
           this.toastService.showToast("Der skete en fejl", "Lobbyen kunne ikke oprettes", "error", ToastState.error);
         }
       })
@@ -102,10 +102,11 @@ export class WelcomePage {
     const partyState = this.existingParty()?.partyState?.partyState;
     if (!partyState) return;
 
+    this.joiningExistingParty.set(true);
     if (partyState === PartyState.Game) {
-      this.navigateToGamePage();
+      this.navigateToGamePage().finally(() => this.joiningExistingParty.set(false));
     } else if (partyState === PartyState.Lobby) {
-      this.navigateToLobbyPage();
+      this.navigateToLobbyPage().finally(() => this.joiningExistingParty.set(false));
     }
   }
 
@@ -128,11 +129,11 @@ export class WelcomePage {
   }
 
 
-  private navigateToLobbyPage(): void {
-    this.router.navigate(['/lobby']);
+  private navigateToLobbyPage(): Promise<boolean> {
+    return this.router.navigate(['/lobby']);
   }
 
-  private navigateToGamePage(): void {
-    this.router.navigate(['/game']);
+  private navigateToGamePage(): Promise<boolean> {
+    return this.router.navigate(['/game']);
   }
 }

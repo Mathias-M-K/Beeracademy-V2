@@ -13,6 +13,12 @@ import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused
 import {GamePausedDrawerComponent} from '../../drawer/game-paused-drawer/game-paused-drawer.component';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
 import {QrScannerDrawer} from '../../drawer/qr-scanner-drawer/qr-scanner-drawer';
+import {NewParticipantDrawerComponent} from '../../drawer/new-participant-drawer/new-participant-drawer.component';
+import {
+  LobbyParticipantSettingsDrawer
+} from '../../drawer/lobby-participant-settings-drawer/lobby-participant-settings-drawer';
+import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
+import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
 
 @Service()
 export class DrawerService {
@@ -65,6 +71,22 @@ export class DrawerService {
       dismissOnBackdropClick: false,
       component: QrScannerDrawer
     }
+    return this.showDrawer(overlayConf);
+  }
+
+  public showNewParticipantDrawer(): OverlayHandle<string> {
+    const overlayConf: Partial<OverlayConf<string>> = {
+      component: NewParticipantDrawerComponent
+    }
+    return this.showDrawer(overlayConf);
+  }
+
+  public showLobbyParticipantSettingsDrawer(participant: LobbyParticipantDTO): OverlayHandle<ParticipantSettingsResult> {
+    const overlayConf: Partial<OverlayConf<LobbyParticipantDTO>> = {
+      component: LobbyParticipantSettingsDrawer,
+      data: participant
+    }
+
     return this.showDrawer(overlayConf);
   }
 

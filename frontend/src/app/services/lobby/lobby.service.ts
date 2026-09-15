@@ -19,7 +19,7 @@ import {removePlayerAction} from '../models/categories/actions/lobby/lobby-clien
 import {ParticipantRemovedEvent} from '../models/categories/events/lobby/lobby-client-event/participant-removed-event';
 import {LobbyEventEnvelope} from '../models/categories/events/lobby/lobby-event-envelope';
 import {sendMessageAction} from '../models/categories/actions/lobby/common/send-message-action';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {MessageInfo} from '../chat/models/message-info';
 import {NewMessageEvent} from '../models/categories/events/lobby/common/new-message-event';
 import {MessageDirection} from '../chat/models/message-direction';
@@ -37,7 +37,7 @@ import {
 } from '../models/categories/events/lobby/common/participant-settings-updated-event';
 import {identifyFromEvent, Identity} from '../models/identity';
 import {startGameAction} from '../models/categories/actions/lobby/lobby-client-action/start-game-action';
-import {Router} from '@angular/router';
+import {Router, UrlTree} from '@angular/router';
 import {ParticipantPosition} from '../../../api-models/model/participantPosition';
 import {
   rearrangeParticipantAction
@@ -47,9 +47,8 @@ import {
 } from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
 import {ToastService} from '../toast/toast.service';
 import {ToastState} from '../../overlay/toast/models/toast-data';
-import {OverlayService} from '../overlay/overlay.service';
-import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
-import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
+import {WebsocketCode} from '../../../api-models/model/websocketCode';
+import {ExceptionEvent} from '../models/categories/events/common/exception-event';
 
 @Service()
 export class LobbyService {
@@ -58,7 +57,6 @@ export class LobbyService {
   private readonly router: Router = inject(Router);
   private readonly websocketService = inject(WebsocketService);
   private readonly toastService: ToastService = inject(ToastService);
-  private readonly overlayService = inject(OverlayService);
 
   private readonly lobbyState = signal<LobbyDTO | undefined>(undefined);
 
@@ -83,10 +81,7 @@ export class LobbyService {
   public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''));
   public readonly isHost = computed(() => this.role() === Role.GameClient);
 
-  private readonly _creatingGame = linkedSignal(()=>{
-    this.lobbyState();
-    return false;
-  })
+  private readonly _creatingGame = signal<boolean>(false)
   public readonly creatingGame = this._creatingGame.asReadonly();
 
   private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();
@@ -100,23 +95,15 @@ export class LobbyService {
   private readonly _lobbyReset = new Subject<void>()
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
-  public connectToWebsocket(): void {
-
-    const handle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay});
-
-    this.websocketService.connectToLobbyWebsocket().then(msgObs => {
+  public connectToWebsocket(): Promise<Observable<WebsocketEnvelope>> {
+    this._creatingGame.set(false);
+    return this.websocketService.connectToLobbyWebsocket().then(msgObs => {
       msgObs.subscribe({
         next: msg => this.handleWebsocketMessage(msg),
         error: err => this.onWebsocketConnectionDroppedWithError(err),
         complete: () => this.onWebsocketConnectionDroppedClean()
-      })
-    }).catch((error: Error) => {
-      handle.closed.then(() => {
-        this.onWebsocketConnectionDroppedWithError(error);
       });
-
-    }).finally(() => {
-      handle.close();
+      return msgObs;
     });
   }
 
@@ -125,57 +112,57 @@ export class LobbyService {
     this.dispatchLobbyAction(startGameAction())
   }
 
-  public onGameStarted() {
-    this.router.navigate(['/game']);
-  }
-
   private onWebsocketConnectionDroppedClean() {
     this.lobbyState.set(undefined);
+    this._creatingGame.set(false);
     console.log("Connection dropped");
   }
 
   private onWebsocketConnectionDroppedWithError(error: unknown): void {
+    this.router.navigateByUrl(this.handleConnectionDropped(error));
+  }
 
-    if (!(error instanceof Error)) {
-      return;
+
+  private handleConnectionDropped(error: unknown): UrlTree {
+    const cause = error instanceof Error ? error.cause as number : undefined;
+
+    if (cause !== WebsocketCode.Transitioning) {
+      this._creatingGame.set(false);
     }
 
-    switch (error.cause as number) {
-      case WebsocketCodes.LobbyLeaderLeft:
+    switch (cause) {
+      case WebsocketCode.LobbyLeaderLeft:
         return this.handleLobbyLeaderLeft();
-      case WebsocketCodes.Kicked:
+      case WebsocketCode.Kicked:
         return this.handleKicked();
-      case WebsocketCodes.SessionNotFound:
-        return this.handleSessionNotFound();
-      case WebsocketCodes.Transitioning:
-        return this.onGameStarted();
+      case WebsocketCode.Transitioning:
+        return this.router.parseUrl('/game');
       default:
         return this.handleUnknownError();
     }
   }
 
-  private handleUnknownError() {
+  private handleUnknownError(): UrlTree {
     this.toastService.showToast("Ukendt fejl", "Der skete en ukendt fejl", "error", ToastState.error);
-    this.navigateToWelcomeScreen();
+    return this.router.parseUrl('/');
   }
 
-  private handleLobbyLeaderLeft() {
+  private handleLobbyLeaderLeft(): UrlTree {
     this.toastService.showToast("Leder forlod lobbyen", "Lobby lederen har forladt lobbyen", "door_open");
-    this.navigateToWelcomeScreen();
+    return this.router.parseUrl('/');
   }
 
-  private handleKicked() {
+  private handleKicked(): UrlTree {
     this.toastService.showToast("Kicked", "Du er blevet smidt ud af lobbyen", "sports_martial_arts");
-    this.navigateToWelcomeScreen();
-  }
-
-  private handleSessionNotFound() {
-    this.toastService.showToast("Fejl", "Kunne ikke finde lobbyen", "error", ToastState.error);
-    this.navigateToWelcomeScreen();
+    return this.router.parseUrl('/');
   }
 
   //Handle websocket messages
   private handleWebsocketMessage(msg: WebsocketEnvelope) {
+
+    if ((msg as LobbyEventEnvelope).payload?.type === 'EXCEPTION_RESPONSE') {
+      return this.handleExceptionEvent(msg as LobbyEventEnvelope);
+    }
 
     const supportedEventCategories: string[] = ['LOBBY_CLIENT_EVENT', 'LOBBY_PARTICIPANT_EVENT'];
 
@@ -197,19 +184,23 @@ export class LobbyService {
         return this.handleNewMessageEvent(event);
       case "EMOJI_SENT" :
         return this.handleNewEmojiEvent(event);
-      case "PARTICIPANT_REMOVED" : {
+      case "PARTICIPANT_REMOVED" :
         return this.handleParticipantRemoved(event);
-      }
-      case "PARTICIPANT_DISCONNECTED" : {
+      case "PARTICIPANT_DISCONNECTED" :
         return this.handleParticipantDisconnected(event);
-      }
-      case "SETTINGS_UPDATED" : {
+      case "SETTINGS_UPDATED" :
         return this.handleParticipantSettingsUpdate(event);
-      }
       case "PARTICIPANTS_REARRANGED": {
         return this.handleParticipantRearranged(event);
       }
     }
+  }
+
+  private handleExceptionEvent(event: LobbyEventEnvelope) {
+    const exceptionEvent = event.payload as ExceptionEvent;
+    console.warn("Lobby action failed", exceptionEvent.response);
+    this._creatingGame.set(false);
+    this.toastService.showToast("Der skete en fejl", "Handlingen kunne ikke udføres", "error", ToastState.error);
   }
 
   private handleNewMessageEvent(event: LobbyEventEnvelope) {

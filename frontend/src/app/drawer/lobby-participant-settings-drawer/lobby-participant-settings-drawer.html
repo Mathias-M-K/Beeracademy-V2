@@ -1,0 +1,27 @@
+<drawer-default-header [title]="participantName" subtitle="INDSTILLINGER"></drawer-default-header>
+<div class="horizontal_line"></div>
+<div class="setting">
+  <div class="label">
+    <p>Slurke pr. øl</p>
+    <p>Hvor mange slurke tæller for en øl</p>
+  </div>
+  <div class="sips-buttons">
+    <button class="btn-secondary" (click)="decreaseSipsInABeer()" [disabled]="settings().sipsInABeer <= 1">-</button>
+    <h2>{{ settings().sipsInABeer }}</h2>
+    <button class="btn-secondary" (click)="increaseSipsInABeer()" [disabled]="settings().sipsInABeer >= 99">+</button>
+  </div>
+</div>
+
+<div class="horizontal_line"></div>
+<div class="setting">
+  <div class="label">
+    <p>Må trække es</p>
+    <p>Om spilleren må trække es</p>
+  </div>
+  <div>
+    <button class="btn-secondary" (click)="toggleCanDrawAce()">{{ settings().canDrawAce ? 'Ja' : 'Nej' }}
+    </button>
+  </div>
+</div>
+
+<button class="btn-secondary" [disabled]="isUnchanged()" (click)="submitChanges()">Gem</button>

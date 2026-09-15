@@ -67,7 +67,7 @@ import dk.mathiaskofod.services.session.exceptions.UnknownCategoryException;
 import dk.mathiaskofod.services.session.exceptions.UnknownEventException;
 import dk.mathiaskofod.services.session.repository.Session;
 import dk.mathiaskofod.services.session.repository.SessionRegistry;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocketConnection;
@@ -582,7 +582,7 @@ class GameClientSessionManagerTest {
             // Assert
             ArgumentCaptor<CloseReason> closeReasonCaptor = ArgumentCaptor.forClass(CloseReason.class);
             verify(playerConnection).closeAndAwait(closeReasonCaptor.capture());
-            assertEquals(WebsocketCodes.KICKED.getCode(), closeReasonCaptor.getValue().getCode());
+            assertEquals(WebsocketCode.KICKED.getCode(), closeReasonCaptor.getValue().getCode());
             assertEquals(reason, closeReasonCaptor.getValue().getMessage());
 
             verify(sessionRegistry).removeSession(PLAYER_ID);

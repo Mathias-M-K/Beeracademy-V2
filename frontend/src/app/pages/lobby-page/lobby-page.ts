@@ -1,16 +1,11 @@
-import {Component, inject, linkedSignal, OnInit} from '@angular/core';
+import {Component, inject, linkedSignal} from '@angular/core';
 import {ParticipantOverview} from './participant-overview/participant-overview';
 import {LobbyInfoQuick} from './lobby-info-quick/lobby-info-quick';
 import {Chat} from './chat/chat';
 import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
-import {OverlayService} from '../../services/overlay/overlay.service';
-import {ParticipantSettingsOverlay} from '../../overlay/participant-settings-overlay/participant-settings.overlay';
-import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
 import {LobbyService} from '../../services/lobby/lobby.service';
-import {NewParticipantOverlay} from '../../overlay/new-participant-overlay/new-participant-overlay';
-import {QrCodeOverlay} from '../../overlay/qr-code-overlay/qr-code-overlay';
-import {LobbyJoinData} from '../../services/lobby/models/lobby-join-data';
 import {DotLoader} from '../../common/components/dot-loader/dot-loader';
+import {DrawerService} from '../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-lobby-page',
@@ -26,16 +21,12 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
     DotLoader
   ]
 })
-export class LobbyPage implements OnInit {
+export class LobbyPage {
 
   public readonly lobbyService = inject(LobbyService)
-  private readonly overlayService = inject(OverlayService);
+  private readonly drawerService = inject(DrawerService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
-
-  ngOnInit(): void {
-    this.lobbyService.connectToWebsocket();
-  }
 
   addParticipant(name: string) {
     this.lobbyService.requestParticipantCreation(name);
@@ -49,48 +40,29 @@ export class LobbyPage implements OnInit {
     this.lobbyService.requestParticipantsRearranged(reorderedParticipantList);
   }
 
-  openEditParticipantSettingsOverlay(participant: LobbyParticipantDTO | undefined): void {
-
+  openParticipantSettingsOverlay(participant: LobbyParticipantDTO | undefined): void {
     const actualParticipant = participant ?? this.lobbyService.self();
     if (!actualParticipant) {
       console.error("Didn't find participant when attempting to open settings", participant);
       return;
     }
 
-    const overlayHandle =
-      this.overlayService
-        .openOverlay<ParticipantSettingsResult, LobbyParticipantDTO>({
-          component: ParticipantSettingsOverlay,
-          data: actualParticipant
-        });
-
-    overlayHandle.closed.then(result => {
-      if (!result) {
-        return;
-      }
-      this.lobbyService.requestParticipantSettingsUpdate(result.sipsInABeer, result.canDrawAce, actualParticipant.id);
-    })
+    this.drawerService.showLobbyParticipantSettingsDrawer(actualParticipant).closed.then(newSettings => {
+      if (!newSettings) return;
+      this.lobbyService.requestParticipantSettingsUpdate(newSettings?.sipsInABeer, newSettings?.canDrawAce, actualParticipant.id)
+    });
   }
 
-  createJoinLink() {
+  showSharePanel() {
     const partyId = this.lobbyService.partyId();
-    return partyId ? `${document.baseURI}#/join/${encodeURIComponent(partyId)}` : '';
-  }
-
-  showQrCode() {
-    const partyId = this.lobbyService.partyId();
-    if(!partyId) return;
-
-    const joinData: LobbyJoinData = {joinLink: this.createJoinLink(), partyId: this.lobbyService.partyId() ?? 'Ukendt'}
-    this.overlayService.openOverlay<void>({component: QrCodeOverlay, data: joinData});
+    if (!partyId) return;
+    this.drawerService.showPartyShareDrawer(partyId);
   }
 
   openNewParticipantOverlay(): void {
-    const overlayHandle = this.overlayService.openOverlay<string>({component: NewParticipantOverlay});
-    overlayHandle.closed.then(participantName => {
-      if (participantName) {
-        this.addParticipant(participantName)
-      }
+    this.drawerService.showNewParticipantDrawer().closed.then(participantName => {
+      if (!participantName) return;
+      this.addParticipant(participantName)
     })
   }
 

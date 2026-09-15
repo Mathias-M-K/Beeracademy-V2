@@ -47,13 +47,11 @@ export class JoinPage {
 
   protected readonly autoJoinAsIfAvailable = signal<PartyParticipantDto | undefined>(undefined);
 
-
   readonly nameModel = signal({'participantName': ''});
   readonly nameForm = form(this.nameModel, (model) => {
     required(model.participantName);
     minLength(model.participantName, 2)
   });
-
 
   private readonly routeData = toSignal(this.route.data, {requireSync: true});
   readonly partyInfo = computed(() => this.routeData()['partyInfo'] as PartyDto);
@@ -143,7 +141,6 @@ export class JoinPage {
         ? {...participant, session: {isConnected: connected, isClaimed: claimed}}
         : participant));
   }
-
 
   protected readonly PartyState = PartyState;
 }

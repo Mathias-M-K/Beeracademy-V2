@@ -11,7 +11,7 @@ import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
 import dk.mathiaskofod.services.session.events.game.common.GameSnapshotEvent;
 import dk.mathiaskofod.services.session.exceptions.SessionNotFoundException;
 import dk.mathiaskofod.services.session.repository.Session;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public abstract class AbstractGameSessionManager extends AbstractSessionManager 
         sendMessage(tokenInfo.getClientId(), envelope.apply(gameSnapshotEvent));
     }
 
-    protected void disconnectAndReleasePlayer(String playerId, WebsocketCodes closeCode, String reason) {
+    protected void disconnectAndReleasePlayer(String playerId, WebsocketCode closeCode, String reason) {
 
         if (sessionRegistry.getSession(playerId).isEmpty()) {
             throw new SessionNotFoundException(playerId);

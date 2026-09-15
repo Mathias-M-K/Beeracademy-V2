@@ -1,8 +1,7 @@
 import {
   Component,
   computed,
-  inject, OnDestroy,
-  OnInit
+  inject, OnDestroy
 } from '@angular/core';
 import {GameService} from '../../services/game/game.service';
 import {TimerService} from '../../services/timer-service/timer.service';
@@ -30,7 +29,7 @@ import {DrawerService} from '../../services/drawer/drawer.service';
     '(document:keyup.space)': 'drawCard()',
   },
 })
-export class GamePage implements OnInit, OnDestroy {
+export class GamePage implements OnDestroy {
 
   private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
   private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
@@ -45,16 +44,11 @@ export class GamePage implements OnInit, OnDestroy {
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
 
-
   protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 
   protected remainingCardsByRank = this.gameService.remainingCardsByRank;
 
-
-  ngOnInit(): void {
-    this.gameService.connectToWebsocket();
-  }
 
   ngOnDestroy() {
     this.gameService.onGamePageDestroyed();

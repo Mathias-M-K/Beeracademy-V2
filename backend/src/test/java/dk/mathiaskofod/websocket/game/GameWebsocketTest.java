@@ -16,7 +16,7 @@ import dk.mathiaskofod.services.session.GameClientSessionManager;
 import dk.mathiaskofod.services.session.PlayerClientSessionManager;
 import dk.mathiaskofod.services.session.envelopes.GameClientEventEnvelope;
 import dk.mathiaskofod.services.session.envelopes.WebsocketEnvelope;
-import dk.mathiaskofod.websocket.game.models.WebsocketCodes;
+import dk.mathiaskofod.websocket.game.models.WebsocketCode;
 import io.quarkus.websockets.next.CloseReason;
 import io.quarkus.websockets.next.WebSocketConnection;
 import java.util.Set;
@@ -114,7 +114,7 @@ class GameWebsocketTest {
     void onCloseSessionNotFound() {
         // Arrange
         asRole(Role.GAME_CLIENT);
-        CloseReason reason = new CloseReason(WebsocketCodes.SESSION_NOT_FOUND.getCode());
+        CloseReason reason = new CloseReason(WebsocketCode.SESSION_NOT_FOUND.getCode());
 
         // Act
         websocket.onWebsocketConnectionClosed(reason);
@@ -148,7 +148,7 @@ class GameWebsocketTest {
 
         // Assert
         verify(connection).sendTextAndAwait(any(GameClientEventEnvelope.class));
-        assertEquals(WebsocketCodes.GAME_NOT_FOUND.getCode(), capturedCloseCode());
+        assertEquals(WebsocketCode.GAME_NOT_FOUND.getCode(), capturedCloseCode());
     }
 
     @DisplayName("onError reports other errors without closing the connection")

@@ -30,14 +30,12 @@ import {ToastState} from '../../overlay/toast/models/toast-data';
 import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
 import {identifyFromEvent, Identity} from '../models/identity';
 import {IdentityEvent} from '../models/categories/events/common/identity-event';
-import {BeerLoaderOverlay} from '../../overlay/beer-loader-overlay/beer-loader-overlay';
 import {Role} from '../../../api-models/model/role';
 import {Router} from '@angular/router';
 import {OverlayHandle} from '../overlay/models/overlay-handle';
 import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
 import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
 import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
-import {WebsocketCodes} from '../../../api-models/model/websocketCodes';
 import {releasePlayerAction} from '../models/categories/actions/game/game-client-action/release-player-action';
 import {PlayerConnectedEvent} from '../models/categories/events/game/player-client-event/player-connected-event';
 import {PlayerDisconnectedEvent} from '../models/categories/events/game/player-client-event/player-disconnected-event';
@@ -48,6 +46,7 @@ import {
   PlayerReleaseRequestedEvent
 } from '../models/categories/events/game/game-client-event/player-release-requested.event';
 import {DrawerService} from '../drawer/drawer.service';
+import {WebsocketCode} from '../../../api-models/model/websocketCode';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -138,12 +137,10 @@ export class GameService {
     if (isReconnect) {
       this.reconnectCount++;
       overlayHandle = this.overlayService.openOverlay<void>({component: ReconnectingOverlay});
-    } else {
-      const loaderMsg = ['Henter øl', 'Blander kort', 'Varmer serveren op', 'Tjekker vejeret', 'Drikker en øl']
-      overlayHandle = this.overlayService.openOverlay<void>({component: BeerLoaderOverlay, data: loaderMsg});
     }
 
-    this.websocketService.connectToGameWebsocket(timeoutMs).then(msgObs => {
+    const connection = this.websocketService.connectToGameWebsocket(timeoutMs);
+    connection.then(msgObs => {
       this.reconnectCount = 0;
       msgObs.subscribe({
         next: message => this.handleWebsocketMessage(message),
@@ -151,15 +148,15 @@ export class GameService {
         complete: () => this.handleWebsocketConnectionDroppedClean(),
       });
     }).catch((error) => {
-      this.handleWebsocketConnectionDroppedWithError(error);
+      if (isReconnect) this.handleWebsocketConnectionDroppedWithError(error);
     }).finally(() => {
       this.isReconnecting = false;
-
-      const closed = overlayHandle ? overlayHandle.close() : Promise.resolve();
-      closed.then(() => {
-        this.onGameLoad();
-      })
+      if(overlayHandle){
+        overlayHandle.close();
+      }
     });
+
+    return connection;
   }
 
   public reconnectToWebsocket() {
@@ -171,22 +168,6 @@ export class GameService {
     }
     this.isReconnecting = true;
     this.connectToWebsocket(true, 15000);
-  }
-
-  private onGameLoad() {
-    switch (this.gameState()) {
-      case GameState.AwaitingChug:
-        return this.openChugOverlay();
-      case GameState.AwaitingStart: {
-        this.dispatchStartGameAction();
-      }
-    }
-
-    if (this.gameTimeReport()?.state === TimerState.Paused) {
-      this.openPausePanel();
-    }
-
-
   }
 
   /**
@@ -213,7 +194,6 @@ export class GameService {
   }
 
   private handleWebsocketConnectionDroppedClean() {
-    // do nothing yet, but log the error. A game can be reconnected, implementation is soon
     console.warn("Lost connection to game-websocket, no errors");
   }
 
@@ -223,15 +203,15 @@ export class GameService {
     console.debug("Lost connection to game-websocket. Message: ", errorObj?.message, ', code: ', errorObj?.cause);
 
     switch (errorObj.cause) {
-      case WebsocketCodes.GameNotFound: {
+      case WebsocketCode.GameNotFound: {
         this.toastService.showToast("Der skete en fejl", "Spillet findes ikke længere", 'error', ToastState.error);
         this.navigateToWelcome();
         break;
       }
-      case WebsocketCodes.GoingAway:
-      case WebsocketCodes.AbnormalClosure:
-      case WebsocketCodes.ServiceRestart:
-      case WebsocketCodes.TryAgainLater: {
+      case WebsocketCode.GoingAway:
+      case WebsocketCode.AbnormalClosure:
+      case WebsocketCode.ServiceRestart:
+      case WebsocketCode.TryAgainLater: {
         const visibilityState = document.visibilityState;
         console.warn('Transient disconnect, awaiting resume. Code:', errorObj.cause, ', Page visible:', visibilityState);
         if (visibilityState !== 'visible') return;
@@ -239,7 +219,7 @@ export class GameService {
         this.reconnectToWebsocket();
         break;
       }
-      case WebsocketCodes.Kicked: {
+      case WebsocketCode.Kicked: {
         this.toastService.showToast("Fjernet fra spillet", "Du blev fjernet fra spillet", 'sports_martial_arts');
         this.navigateToWelcome();
         break;
@@ -313,6 +293,18 @@ export class GameService {
   private handleGameSnapshot(event: GameEventEnvelope) {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
     this.gameStateObj.set(stateEvent.gameState);
+
+    switch (this.gameState()) {
+      case GameState.AwaitingChug:
+        return this.openChugOverlay();
+      case GameState.AwaitingStart: {
+        this.dispatchStartGameAction();
+      }
+    }
+
+    if (this.gameTimeReport()?.state === TimerState.Paused) {
+      this.openPausePanel();
+    }
   }
 
   private handleDrawCardEvent(event: GameEventEnvelope) {

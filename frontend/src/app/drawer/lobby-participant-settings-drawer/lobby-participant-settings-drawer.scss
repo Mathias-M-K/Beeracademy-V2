@@ -1,0 +1,50 @@
+:host {
+  display: grid;
+  grid-template-rows: repeat(5, auto) 1fr;
+  align-content: start;
+  gap: 15px;
+  padding-bottom: 15px !important;
+}
+
+:host:not(.drawer-pane--compact) {
+  height: 500px !important;
+}
+
+:host > button {
+  width: 100%;
+  align-self: end;
+}
+
+.horizontal_line ~ .horizontal_line {
+  --horizontal-line-color: var(--color-grey-500);
+}
+
+.label > p {
+  margin: 0;
+}
+
+.label > p:nth-of-type(1) {
+  font-weight: bold;
+}
+
+.label > p:nth-of-type(2) {
+  color: var(--color-silver);
+  font-size: 14px;
+}
+
+.setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sips-buttons {
+  display: grid;
+  grid-template-columns: auto 30px auto;
+  align-items: center;
+  justify-items: center;
+  gap: 5px;
+}
+
+
+
