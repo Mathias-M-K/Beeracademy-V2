@@ -27,18 +27,20 @@ class WebsocketCodeSchemaFilterTest {
                         "SERVICE_RESTART",
                         "TRY_AGAIN_LATER",
                         "SESSION_NOT_FOUND",
+                        "SESSION_OCCUPIED",
                         "LOBBY_NOT_FOUND",
                         "GAME_NOT_FOUND",
                         "LOBBY_LEADER_LEFT",
                         "KICKED",
                         "TRANSITIONING",
+                        "UNKNOWN",
                         "PLAYER_RELINQUISHED"));
 
         return OASFactory.createOpenAPI()
-                .components(OASFactory.createComponents().addSchema("WebsocketCodes", schema));
+                .components(OASFactory.createComponents().addSchema("WebsocketCode", schema));
     }
 
-    @DisplayName("The WebsocketCodes schema is rewritten to an integer enum of the numeric close codes")
+    @DisplayName("The WebsocketCode schema is rewritten to an integer enum of the numeric close codes")
     @Test
     void rewritesToIntegerEnum() {
         // Arrange
@@ -48,11 +50,11 @@ class WebsocketCodeSchemaFilterTest {
         filter.filterOpenAPI(openAPI);
 
         // Assert
-        Schema schema = openAPI.getComponents().getSchemas().get("WebsocketCodes");
+        Schema schema = openAPI.getComponents().getSchemas().get("WebsocketCode");
         assertTrue(schema.getType().contains(Schema.SchemaType.INTEGER));
         assertEquals("int32", schema.getFormat());
         assertEquals(
-                List.of(1001, 1006, 1012, 1013, 4000, 4001, 4002, 4010, 4020, 4030, 4040),
+                List.of(1001, 1006, 1012, 1013, 4000, 4001, 4002, 4003, 4010, 4020, 4030, 4040, 4050),
                 schema.getEnumeration());
     }
 
@@ -66,7 +68,7 @@ class WebsocketCodeSchemaFilterTest {
         filter.filterOpenAPI(openAPI);
 
         // Assert
-        Schema schema = openAPI.getComponents().getSchemas().get("WebsocketCodes");
+        Schema schema = openAPI.getComponents().getSchemas().get("WebsocketCode");
         assertEquals(
                 List.of(
                         "GoingAway",
@@ -74,11 +76,13 @@ class WebsocketCodeSchemaFilterTest {
                         "ServiceRestart",
                         "TryAgainLater",
                         "SessionNotFound",
+                        "SessionOccupied",
                         "LobbyNotFound",
                         "GameNotFound",
                         "LobbyLeaderLeft",
                         "Kicked",
                         "Transitioning",
+                        "Unknown",
                         "PlayerRelinquished"),
                 schema.getExtensions().get("x-enum-varnames"));
     }
@@ -86,7 +90,7 @@ class WebsocketCodeSchemaFilterTest {
     @DisplayName("The filter is a no-op when the schema is absent")
     @Test
     void noopWhenSchemaMissing() {
-        // Arrange - a non-null schemas map that does not contain the WebsocketCodes schema
+        // Arrange - a non-null schemas map that does not contain the WebsocketCode schema
         OpenAPI openAPI = OASFactory.createOpenAPI()
                 .components(OASFactory.createComponents()
                         .addSchema("SomethingElse", OASFactory.createSchema().type(List.of(Schema.SchemaType.STRING))));

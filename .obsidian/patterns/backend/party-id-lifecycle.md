@@ -1,8 +1,11 @@
 ---
 type: pattern
 layer: backend
-updated: 2026-09-04
-tags: [pattern, backend, party-id]
+updated: 2026-09-15
+tags:
+  - pattern
+  - backend
+  - party-id
 ---
 
 # Pattern: The Party ID Lifecycle
@@ -17,11 +20,13 @@ starts, `LobbyService.createGame(partyId)` passes the **same** id to
 `GameService.createGame(...)`. There is no second id.
 
 ## The lobby→game seam
+
 Lobby and Game are two classes, two stores, two state models — with **no pointer between
 them**. The only link is the id. The handoff is:
 
 1. `StartGameAction` → `lobbyService.createGame(partyId)`
-2. websocket closed with `WebsocketCodes.TRANSITIONING` (4030)
+2. websocket closed with `WebsocketCode.TRANSITIONING` (4030) — see
+   [[websocket-session-managers]] for the full code table
 3. close handler calls `sessionRegistry.clearConnectionId(partyId)` — **not**
    `removeSession` — so the session survives with its connection slot freed
 4. `deleteLobby(partyId, preserveSession=true)` drops the Lobby object
