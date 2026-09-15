@@ -114,6 +114,7 @@ jobs:
         with:
           name: ${{ env.OPENAPI_ARTIFACT }}
           path: backend/build/generated-openapi/openapi.json
+          if-no-files-found: error
 
       - name: Log in to the container registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0

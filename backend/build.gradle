@@ -90,6 +90,10 @@ compileJava {
 compileTestJava {
     options.encoding = 'UTF-8'
 }
+
+tasks.named('quarkusAppPartsBuild') {
+    outputs.dir(layout.buildDirectory.dir('generated-openapi'))
+}
 tasks.withType(Test).configureEach {
     jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }.absolutePath}"
 }
