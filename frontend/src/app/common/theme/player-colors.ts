@@ -1,4 +1,4 @@
-export  const PLAYER_COLORS = [
+export const PLAYER_COLORS = [
   '#27ae60',
   '#3498db',
   '#9b59b6',
@@ -11,9 +11,8 @@ export  const PLAYER_COLORS = [
   '#fdcb6e',
   '#5352ed',
   '#7f8c8d',
-]
+];
 
 export const playerColor = (index: number): string => {
   return PLAYER_COLORS[index];
-
-}
+};

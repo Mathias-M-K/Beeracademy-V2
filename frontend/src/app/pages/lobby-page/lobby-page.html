@@ -5,7 +5,10 @@
       <p class="header_subtitle">Du er {{ lobbyService.readableRole() }}</p>
     </div>
 
-    <app-lobby-info-quick [partyId]="lobbyService.partyId() ?? ''" (shareBtnClick)="showSharePanel()"></app-lobby-info-quick>
+    <app-lobby-info-quick
+      [partyId]="lobbyService.partyId() ?? ''"
+      (shareBtnClick)="showSharePanel()"
+    ></app-lobby-info-quick>
   </div>
 
   <div style="grid-area: participant-list" class="participant-list">
@@ -16,23 +19,25 @@
       (removeParticipant)="onRemoveParticipant($event)"
       (openParticipantSettings)="openParticipantSettingsOverlay($event)"
       (participantsRearranged)="onParticipantsRearranged($event)"
-      (disconnect)="lobbyService.leaveLobby()"></app-participant-overview>
+      (disconnect)="lobbyService.leaveLobby()"
+    ></app-participant-overview>
 
     @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
       <button
         class="start-btn"
-        (click)="lobbyService.startGame()" [disabled]="lobbyService.creatingGame()" [style.view-transition-name]="'start-btn'">
+        (click)="lobbyService.startGame()"
+        [disabled]="lobbyService.creatingGame()"
+        [style.view-transition-name]="'start-btn'"
+      >
         @if (lobbyService.creatingGame()) {
           <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
         } @else {
           Opret spil • {{ lobbyService.participants().length }} Spillere
         }
       </button>
-
     }
     <button (click)="addUsualSuspects()">Add testers</button>
   </div>
 
   <app-chat [style.grid-area]="'chat'"></app-chat>
-
 }

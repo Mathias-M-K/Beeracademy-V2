@@ -1,5 +1,5 @@
-import {GameEvent} from '../game-event';
+import { GameEvent } from '../game-event';
 
-export interface PlayerReleaseRequestedEvent extends GameEvent{
+export interface PlayerReleaseRequestedEvent extends GameEvent {
   playerId: string;
 }

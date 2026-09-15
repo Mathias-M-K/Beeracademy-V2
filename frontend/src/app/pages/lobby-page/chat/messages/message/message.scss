@@ -5,7 +5,7 @@
   justify-self: start;
 }
 
-:host(.outbound)  {
+:host(.outbound) {
   justify-self: end;
 }
 
@@ -38,6 +38,6 @@ h3 {
 :host(.isFromToHost:not(.outbound)) .message-background {
   background-color: darkseagreen;
 }
-:host(.isFromToHost:not(.outbound))  p {
+:host(.isFromToHost:not(.outbound)) p {
   color: darkseagreen;
 }

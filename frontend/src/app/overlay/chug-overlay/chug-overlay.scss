@@ -8,7 +8,7 @@
   color: white;
   background-color: var(--primary);
 
-  animation: animate-in .4s ease;
+  animation: animate-in 0.4s ease;
 
   justify-items: center;
   grid-template-areas: 'header' 'timer' 'player' 'buttons';
@@ -72,7 +72,6 @@
   justify-self: end;
 }
 
-
 .header {
   align-self: start;
 
@@ -85,7 +84,6 @@
   align-self: end;
   width: 70dvw;
   max-width: 50dvh;
-
 }
 
 .seconds {
@@ -117,7 +115,6 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-
 }
 
 .buttons button {
@@ -134,7 +131,7 @@
   grid-template-rows: repeat(3, 40px);
   align-items: center;
 
-  transition: transform .15s ease-out;
+  transition: transform 0.15s ease-out;
 
   &.start {
     transform: translateY(0);
@@ -159,11 +156,10 @@ button:focus-visible {
 }
 
 .btn-rounded {
-  transition: all .15s ease-out;
+  transition: all 0.15s ease-out;
 }
 
 .timer-btn {
-
   &.stopped {
     --btn-background: var(--color-alizarin-500);
     border-radius: 5px;
@@ -195,13 +191,11 @@ button:focus-visible {
 }
 
 @media (min-width: 1000px) {
-
   :host {
     width: 700px;
     height: unset;
     aspect-ratio: 5 / 6;
     border-radius: 10px;
-
   }
   .timer {
     width: 500px;

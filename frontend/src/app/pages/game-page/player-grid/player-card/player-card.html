@@ -5,9 +5,11 @@
 </div>
 
 <div class="main-stat">
-
   <div class="beer-count">
-    <p><span>{{ displayedBeerCount().toFixed(1) }}</span><span class="subtitle"> øl</span></p>
+    <p>
+      <span>{{ displayedBeerCount().toFixed(1) }}</span
+      ><span class="subtitle"> øl</span>
+    </p>
   </div>
 
   <div class="beer-indicator">
@@ -15,7 +17,8 @@
       <app-beer-dot
         [foregroundColor]="player().color"
         [fill]="dot.fillLevel"
-        animate.enter="dot-enter">
+        animate.enter="dot-enter"
+      >
       </app-beer-dot>
     }
   </div>
@@ -27,9 +30,8 @@
   <p class="subtitle">Sidste kort trykket</p>
   <div>
     <suit-icon [suit]="lastCard()?.suit!"></suit-icon>
-    <p> {{ lastCard()?.rank ?? '--' }}</p>
+    <p>{{ lastCard()?.rank ?? '--' }}</p>
   </div>
-
 </div>
 
 <div class="horizontal_line"></div>

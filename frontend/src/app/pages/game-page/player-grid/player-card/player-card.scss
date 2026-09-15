@@ -44,14 +44,13 @@
   transform: translateX(-50%);
   opacity: 0;
 
-  transition: all .15s ease-in-out;
+  transition: all 0.15s ease-in-out;
 }
 
 :host(.is-drawing) .header > .status {
   transform: translateX(0);
   opacity: 1;
 }
-
 
 .main-stat {
   display: grid;
@@ -79,7 +78,6 @@
   flex: 1 1 0;
   min-width: 0;
 }
-
 
 .last-card {
   display: flex;
@@ -129,7 +127,8 @@
   }
 }
 
-p, h2 {
+p,
+h2 {
   margin: 0;
 }
 

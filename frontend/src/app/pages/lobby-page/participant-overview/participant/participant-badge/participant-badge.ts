@@ -1,5 +1,5 @@
-import {Component, effect, input, signal, OnDestroy} from '@angular/core';
-import {EmojiInfo} from '../../../../../services/chat/models/emoji-info';
+import { Component, effect, input, signal, OnDestroy } from '@angular/core';
+import { EmojiInfo } from '../../../../../services/chat/models/emoji-info';
 
 /** How long the emoji stays fully visible before it animates back out (ms). */
 const EMOJI_HOLD_MS = 2500;
@@ -14,14 +14,14 @@ const EMOJI_HOLD_MS = 2500;
     '[class.local]': 'style() === "local"',
     '[class.small]': 'size() === "s"',
     '[class.x-small]': 'size() === "xs"',
-    '[style.background-color]': 'backgroundColor()'
+    '[style.background-color]': 'backgroundColor()',
   },
 })
 export class ParticipantBadge implements OnDestroy {
   readonly initials = input<string>('');
   readonly style = input<'default' | 'active' | 'local' | 'reserved'>('default');
 
-  readonly size = input<'xs' | 's' | 'm'>('m');  //small, medium
+  readonly size = input<'xs' | 's' | 'm'>('m'); //small, medium
   readonly backgroundColor = input<string>('');
 
   readonly reaction = input<EmojiInfo>();
@@ -32,7 +32,6 @@ export class ParticipantBadge implements OnDestroy {
   private hideTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
-
     effect(() => {
       const reaction = this.reaction();
       if (!reaction) {

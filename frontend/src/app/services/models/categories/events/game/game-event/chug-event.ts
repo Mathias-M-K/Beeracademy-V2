@@ -1,8 +1,8 @@
-import {GameEvent} from '../game-event';
-import {Chug} from '../../../../../../../api-models/model/chug';
+import { GameEvent } from '../game-event';
+import { Chug } from '../../../../../../../api-models/model/chug';
 
 export interface ChugEvent extends GameEvent {
   nextToDraw: string;
-  chuggedBy: string
-  chug: Chug
+  chuggedBy: string;
+  chug: Chug;
 }

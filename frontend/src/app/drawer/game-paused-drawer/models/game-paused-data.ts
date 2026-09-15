@@ -1,4 +1,4 @@
-import {Player} from '../../../services/game/models/player';
+import { Player } from '../../../services/game/models/player';
 
 export interface GamePausedData {
   currentRound: number;

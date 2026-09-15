@@ -26,8 +26,9 @@
   justify-content: space-between;
 }
 
-.name, .status {
-  margin: 0
+.name,
+.status {
+  margin: 0;
 }
 
 .name {
@@ -49,7 +50,6 @@ button {
   font-size: 14px;
   letter-spacing: 0.1px;
 }
-
 
 .chips {
   display: flex;

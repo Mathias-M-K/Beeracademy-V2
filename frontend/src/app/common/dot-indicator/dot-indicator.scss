@@ -1,5 +1,5 @@
 $gap: 15px;
-:host{
+:host {
   display: flex;
   position: relative;
   gap: $gap;
@@ -7,7 +7,7 @@ $gap: 15px;
 
 $area: 10px;
 $offset: $gap + $area;
-.dot{
+.dot {
   height: $area;
   width: $area;
   padding: 0;
@@ -16,10 +16,10 @@ $offset: $gap + $area;
   border-radius: 50%;
   cursor: pointer;
 }
-.indicator{
+.indicator {
   left: 0;
   position: absolute;
   background-color: var(--color-grey-600);
   transform: translateX(calc($offset * var(--active-index)));
-  transition: transform .2s ease-out;
+  transition: transform 0.2s ease-out;
 }

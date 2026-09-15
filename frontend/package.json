@@ -7,6 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
     "openApi:fetch": "shx mkdir -p ./openapi-spec && shx cp ../backend/build/generated-openapi/openapi.json ./openapi-spec/openapi.json",
     "openApi": "openapi-generator-cli generate -g typescript-angular -i ./openapi-spec/openapi.json -o ./src/api-models --global-property=models",
     "openApi:local": "npm run openApi:fetch && npm run openApi",
@@ -18,6 +20,7 @@
   },
   "prettier": {
     "printWidth": 100,
+    "endOfLine": "auto",
     "singleQuote": true,
     "overrides": [
       {
@@ -52,6 +55,7 @@
     "@openapitools/openapi-generator-cli": "^2.16.3",
     "jsdom": "^27.1.0",
     "msw": "^2.15.0",
+    "prettier": "^3.9.6",
     "shx": "^0.4.0",
     "typescript": "~6.0.3",
     "vitest": "^4.0.17"

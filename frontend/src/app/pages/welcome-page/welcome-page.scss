@@ -1,7 +1,6 @@
 $panel-border-radius: 10px;
 $panel-padding: 15px;
 
-
 h2 {
   font-size: 40px;
 }
@@ -40,13 +39,13 @@ h2 {
 }
 
 @property --angle {
-  syntax: "<angle>";
+  syntax: '<angle>';
   initial-value: 0deg;
   inherits: false;
 }
 
-.panel.glowing::after, .panel.glowing::before {
-
+.panel.glowing::after,
+.panel.glowing::before {
   content: '';
   position: absolute;
   height: 100%;
@@ -54,7 +53,14 @@ h2 {
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  background-image: conic-gradient(from var(--angle), var(--primary), transparent, var(--primary), transparent, var(--primary));
+  background-image: conic-gradient(
+    from var(--angle),
+    var(--primary),
+    transparent,
+    var(--primary),
+    transparent,
+    var(--primary)
+  );
   z-index: -1;
   padding: 2px;
   border-radius: $panel-border-radius;
@@ -96,7 +102,8 @@ h2 {
   color: var(--primary);
 }
 
-#existing-game > p, h2 {
+#existing-game > p,
+h2 {
   margin: 0;
 }
 
@@ -129,10 +136,11 @@ h2 {
   flex-direction: column;
   width: 100%;
   justify-content: end;
-  gap: 5px
+  gap: 5px;
 }
 
-.option > div > button, input {
+.option > div > button,
+input {
   width: 100%;
 }
 
@@ -166,7 +174,7 @@ h2 {
   .option > .header {
     justify-content: start;
   }
-  #options > .option:nth-child(1){
+  #options > .option:nth-child(1) {
     grid-template-rows: auto auto;
   }
   #options > .option:nth-child(2) {
@@ -177,19 +185,15 @@ h2 {
     column-gap: 10px;
     row-gap: 5px;
 
-    material-icon{
+    material-icon {
       grid-column: 1;
       grid-row: 1 / span 2;
     }
-    p{
+    p {
       margin: 0;
     }
   }
-  #options > .option:nth-child(2):active{
+  #options > .option:nth-child(2):active {
     background-color: rgb(0 0 0 / 0.07);
   }
-
-
-
 }
-

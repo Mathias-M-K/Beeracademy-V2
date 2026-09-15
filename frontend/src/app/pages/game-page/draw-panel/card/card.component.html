@@ -1,6 +1,6 @@
 @if (!isBackside()) {
   <div>
-    <h1>{{card()?.rank??'?'}}</h1>
+    <h1>{{ card()?.rank ?? '?' }}</h1>
   </div>
 
   <div>
@@ -10,11 +10,10 @@
     } @else {
       <h3>?</h3>
     }
-
   </div>
 
   <div>
-    <h1>{{card()?.rank??'?'}}</h1>
+    <h1>{{ card()?.rank ?? '?' }}</h1>
   </div>
 } @else {
   <h3>Træk et kort</h3>

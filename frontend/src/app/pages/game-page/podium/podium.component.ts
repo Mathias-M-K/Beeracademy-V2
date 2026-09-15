@@ -1,14 +1,11 @@
-import {Component, computed, input} from '@angular/core';
-import {ParticipantBadge} from '../../lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {Player} from '../../../services/game/models/player';
-import {SuitIcon} from '../../../common/components/suit-icon/suit-icon';
+import { Component, computed, input } from '@angular/core';
+import { ParticipantBadge } from '../../lobby-page/participant-overview/participant/participant-badge/participant-badge';
+import { Player } from '../../../services/game/models/player';
+import { SuitIcon } from '../../../common/components/suit-icon/suit-icon';
 
 @Component({
   selector: 'app-podium',
-  imports: [
-    ParticipantBadge,
-    SuitIcon
-  ],
+  imports: [ParticipantBadge, SuitIcon],
   templateUrl: './podium.component.html',
   styleUrl: './podium.component.scss',
 })
@@ -18,8 +15,8 @@ export class PodiumComponent {
   readonly topThreePlayers = computed(() =>
     [...(this.players() ?? [])]
       .sort((a, b) => this.bestChugTime(a) - this.bestChugTime(b))
-      .filter((player)=> this.bestChugTime(player) !== Infinity)
-      .slice(0, 3)
+      .filter((player) => this.bestChugTime(player) !== Infinity)
+      .slice(0, 3),
   );
 
   readonly chugTimes = computed(() =>
@@ -27,7 +24,7 @@ export class PodiumComponent {
       (player.stats?.chugs ?? []).map((chug) => ({
         name: player.name,
         chugTimeMillis: chug.chugTimeMillis,
-        suit: chug.suit
+        suit: chug.suit,
       })),
     ),
   );

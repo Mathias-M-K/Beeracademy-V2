@@ -1,6 +1,6 @@
 :host {
   display: grid;
-  grid-template-columns:1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -16,7 +16,6 @@
 }
 
 @media (max-width: 500px) {
-
   :host {
     gap: 0;
     padding-bottom: 10px;
@@ -41,7 +40,6 @@
     margin-top: 5px;
     border-radius: 5px;
     padding: 10px 0;
-
   }
 
   app-player-card {

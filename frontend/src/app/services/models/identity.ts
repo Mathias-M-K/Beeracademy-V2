@@ -1,5 +1,5 @@
-import {IdentityEvent} from './categories/events/common/identity-event';
-import {Role} from '../../../api-models/model/role';
+import { IdentityEvent } from './categories/events/common/identity-event';
+import { Role } from '../../../api-models/model/role';
 
 export interface Identity {
   id: string;
@@ -7,5 +7,5 @@ export interface Identity {
 }
 
 export function identifyFromEvent(identityEvent: IdentityEvent): Identity {
-  return {id: identityEvent.id, role: identityEvent.role};
+  return { id: identityEvent.id, role: identityEvent.role };
 }

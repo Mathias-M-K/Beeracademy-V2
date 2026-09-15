@@ -1,58 +1,47 @@
-import {ApplicationRef, computed, inject, Service, linkedSignal, signal} from '@angular/core';
-import {WebsocketService} from '../websocket.service';
-import {LobbyDTO} from '../../../api-models/model/lobbyDTO';
-import {WebsocketEnvelope} from '../models/websocket-envelope';
-import {LobbyStateEvent} from '../models/categories/events/lobby/common/lobby-state-event';
-import {Role} from '../../../api-models/model/role';
-import {IdentityEvent} from '../models/categories/events/common/identity-event';
-import {newPlayerAction} from '../models/categories/actions/lobby/lobby-client-action/new-player-action';
-import {LobbyAction} from '../models/categories/actions/lobby/lobby-action';
+import { ApplicationRef, computed, inject, Service, linkedSignal, signal } from '@angular/core';
+import { WebsocketService } from '../websocket.service';
+import { LobbyDTO } from '../../../api-models/model/lobbyDTO';
+import { WebsocketEnvelope } from '../models/websocket-envelope';
+import { LobbyStateEvent } from '../models/categories/events/lobby/common/lobby-state-event';
+import { Role } from '../../../api-models/model/role';
+import { IdentityEvent } from '../models/categories/events/common/identity-event';
+import { newPlayerAction } from '../models/categories/actions/lobby/lobby-client-action/new-player-action';
+import { LobbyAction } from '../models/categories/actions/lobby/lobby-action';
 import {
   lobbyClientActionEnvelope,
-  lobbyParticipantActionEnvelope
+  lobbyParticipantActionEnvelope,
 } from '../models/categories/actions/lobby/lobby-action-envelope';
-import {NewParticipantEvent} from '../models/categories/events/lobby/common/new-participant-event';
-import {
-  ParticipantDisconnectedEvent
-} from '../models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
-import {removePlayerAction} from '../models/categories/actions/lobby/lobby-client-action/remove-player-action';
-import {ParticipantRemovedEvent} from '../models/categories/events/lobby/lobby-client-event/participant-removed-event';
-import {LobbyEventEnvelope} from '../models/categories/events/lobby/lobby-event-envelope';
-import {sendMessageAction} from '../models/categories/actions/lobby/common/send-message-action';
-import {Observable, Subject} from 'rxjs';
-import {MessageInfo} from '../chat/models/message-info';
-import {NewMessageEvent} from '../models/categories/events/lobby/common/new-message-event';
-import {MessageDirection} from '../chat/models/message-direction';
-import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
-import {Emoji} from '../../../api-models/model/emoji';
-import {sendEmojiAction} from '../models/categories/actions/lobby/common/send-emoji-action';
-import {EmojiInfo} from '../chat/models/emoji-info';
-import {EMOJI_DISPLAY} from '../chat/models/emoji-display';
-import {NewEmojiEvent} from '../models/categories/events/lobby/common/new-emoji.event';
-import {
-  changeParticipantSettingsAction
-} from '../models/categories/actions/lobby/common/update-participant-settings-action';
-import {
-  ParticipantSettingsUpdatedEvent
-} from '../models/categories/events/lobby/common/participant-settings-updated-event';
-import {identifyFromEvent, Identity} from '../models/identity';
-import {startGameAction} from '../models/categories/actions/lobby/lobby-client-action/start-game-action';
-import {Router, UrlTree} from '@angular/router';
-import {ParticipantPosition} from '../../../api-models/model/participantPosition';
-import {
-  rearrangeParticipantAction
-} from '../models/categories/actions/lobby/lobby-client-action/rearrange-participant-action';
-import {
-  ParticipantsRearrangedEvent
-} from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
-import {ToastService} from '../toast/toast.service';
-import {ToastState} from '../../overlay/toast/models/toast-data';
-import {WebsocketCode} from '../../../api-models/model/websocketCode';
-import {ExceptionEvent} from '../models/categories/events/common/exception-event';
+import { NewParticipantEvent } from '../models/categories/events/lobby/common/new-participant-event';
+import { ParticipantDisconnectedEvent } from '../models/categories/events/lobby/lobby-participant-event/participant-disconnected-event';
+import { removePlayerAction } from '../models/categories/actions/lobby/lobby-client-action/remove-player-action';
+import { ParticipantRemovedEvent } from '../models/categories/events/lobby/lobby-client-event/participant-removed-event';
+import { LobbyEventEnvelope } from '../models/categories/events/lobby/lobby-event-envelope';
+import { sendMessageAction } from '../models/categories/actions/lobby/common/send-message-action';
+import { Observable, Subject } from 'rxjs';
+import { MessageInfo } from '../chat/models/message-info';
+import { NewMessageEvent } from '../models/categories/events/lobby/common/new-message-event';
+import { MessageDirection } from '../chat/models/message-direction';
+import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
+import { Emoji } from '../../../api-models/model/emoji';
+import { sendEmojiAction } from '../models/categories/actions/lobby/common/send-emoji-action';
+import { EmojiInfo } from '../chat/models/emoji-info';
+import { EMOJI_DISPLAY } from '../chat/models/emoji-display';
+import { NewEmojiEvent } from '../models/categories/events/lobby/common/new-emoji.event';
+import { changeParticipantSettingsAction } from '../models/categories/actions/lobby/common/update-participant-settings-action';
+import { ParticipantSettingsUpdatedEvent } from '../models/categories/events/lobby/common/participant-settings-updated-event';
+import { identifyFromEvent, Identity } from '../models/identity';
+import { startGameAction } from '../models/categories/actions/lobby/lobby-client-action/start-game-action';
+import { Router, UrlTree } from '@angular/router';
+import { ParticipantPosition } from '../../../api-models/model/participantPosition';
+import { rearrangeParticipantAction } from '../models/categories/actions/lobby/lobby-client-action/rearrange-participant-action';
+import { ParticipantsRearrangedEvent } from '../models/categories/events/lobby/lobby-client-event/participants-rearranged-event';
+import { ToastService } from '../toast/toast.service';
+import { ToastState } from '../../overlay/toast/models/toast-data';
+import { WebsocketCode } from '../../../api-models/model/websocketCode';
+import { ExceptionEvent } from '../models/categories/events/common/exception-event';
 
 @Service()
 export class LobbyService {
-
   private readonly appRef = inject(ApplicationRef);
   private readonly router: Router = inject(Router);
   private readonly websocketService = inject(WebsocketService);
@@ -69,39 +58,39 @@ export class LobbyService {
   public readonly role = computed(() => this._identity()?.role);
   public readonly readableRole = computed(() => {
     switch (this.role()) {
-      case Role.PlayerClient :
-        return 'Deltager'
-      case Role.GameClient :
-        return 'Vært'
-      default :
-        return 'Ukendt'
+      case Role.PlayerClient:
+        return 'Deltager';
+      case Role.GameClient:
+        return 'Vært';
+      default:
+        return 'Ukendt';
     }
   });
   public readonly selfId = computed(() => this._identity()?.id);
   public readonly self = computed(() => this.getParticipant(this.selfId() ?? ''));
   public readonly isHost = computed(() => this.role() === Role.GameClient);
 
-  private readonly _creatingGame = signal<boolean>(false)
+  private readonly _creatingGame = signal<boolean>(false);
   public readonly creatingGame = this._creatingGame.asReadonly();
 
   private readonly participantsQueuedForRemoval: Set<string> = new Set<string>();
 
-  private readonly _chatMessages = new Subject<MessageInfo>()
+  private readonly _chatMessages = new Subject<MessageInfo>();
   public readonly chatMessages = this._chatMessages.asObservable();
 
   private readonly _emojiReactions = new Subject<EmojiInfo>();
   public readonly emojiReactions = this._emojiReactions.asObservable();
 
-  private readonly _lobbyReset = new Subject<void>()
+  private readonly _lobbyReset = new Subject<void>();
   public readonly lobbyReset = this._lobbyReset.asObservable();
 
   public connectToWebsocket(): Promise<Observable<WebsocketEnvelope>> {
     this._creatingGame.set(false);
-    return this.websocketService.connectToLobbyWebsocket().then(msgObs => {
+    return this.websocketService.connectToLobbyWebsocket().then((msgObs) => {
       msgObs.subscribe({
-        next: msg => this.handleWebsocketMessage(msg),
-        error: err => this.onWebsocketConnectionDroppedWithError(err),
-        complete: () => this.onWebsocketConnectionDroppedClean()
+        next: (msg) => this.handleWebsocketMessage(msg),
+        error: (err) => this.onWebsocketConnectionDroppedWithError(err),
+        complete: () => this.onWebsocketConnectionDroppedClean(),
       });
       return msgObs;
     });
@@ -109,22 +98,21 @@ export class LobbyService {
 
   public startGame(): void {
     this._creatingGame.set(true);
-    this.dispatchLobbyAction(startGameAction())
+    this.dispatchLobbyAction(startGameAction());
   }
 
   private onWebsocketConnectionDroppedClean() {
     this.lobbyState.set(undefined);
     this._creatingGame.set(false);
-    console.log("Connection dropped");
+    console.log('Connection dropped');
   }
 
   private onWebsocketConnectionDroppedWithError(error: unknown): void {
     this.router.navigateByUrl(this.handleConnectionDropped(error));
   }
 
-
   private handleConnectionDropped(error: unknown): UrlTree {
-    const cause = error instanceof Error ? error.cause as number : undefined;
+    const cause = error instanceof Error ? (error.cause as number) : undefined;
 
     if (cause !== WebsocketCode.Transitioning) {
       this._creatingGame.set(false);
@@ -143,23 +131,35 @@ export class LobbyService {
   }
 
   private handleUnknownError(): UrlTree {
-    this.toastService.showToast("Ukendt fejl", "Der skete en ukendt fejl", "error", ToastState.error);
+    this.toastService.showToast(
+      'Ukendt fejl',
+      'Der skete en ukendt fejl',
+      'error',
+      ToastState.error,
+    );
     return this.router.parseUrl('/');
   }
 
   private handleLobbyLeaderLeft(): UrlTree {
-    this.toastService.showToast("Leder forlod lobbyen", "Lobby lederen har forladt lobbyen", "door_open");
+    this.toastService.showToast(
+      'Leder forlod lobbyen',
+      'Lobby lederen har forladt lobbyen',
+      'door_open',
+    );
     return this.router.parseUrl('/');
   }
 
   private handleKicked(): UrlTree {
-    this.toastService.showToast("Kicked", "Du er blevet smidt ud af lobbyen", "sports_martial_arts");
+    this.toastService.showToast(
+      'Kicked',
+      'Du er blevet smidt ud af lobbyen',
+      'sports_martial_arts',
+    );
     return this.router.parseUrl('/');
   }
 
   //Handle websocket messages
   private handleWebsocketMessage(msg: WebsocketEnvelope) {
-
     if ((msg as LobbyEventEnvelope).payload?.type === 'EXCEPTION_RESPONSE') {
       return this.handleExceptionEvent(msg as LobbyEventEnvelope);
     }
@@ -174,23 +174,23 @@ export class LobbyService {
     const event: LobbyEventEnvelope = msg as LobbyEventEnvelope;
 
     switch (event.payload.type) {
-      case "HELLO_LOBBY_SNAPSHOT" :
+      case 'HELLO_LOBBY_SNAPSHOT':
         return this.handleHelloLobbySnapshotEvent(event);
-      case "HELLO_IDENTITY" :
+      case 'HELLO_IDENTITY':
         return this.handleHelloLobbyIdentityEvent(event);
-      case "NEW_PARTICIPANT" :
+      case 'NEW_PARTICIPANT':
         return this.handleNewParticipantEvent(event);
-      case "MESSAGE_SENT" :
+      case 'MESSAGE_SENT':
         return this.handleNewMessageEvent(event);
-      case "EMOJI_SENT" :
+      case 'EMOJI_SENT':
         return this.handleNewEmojiEvent(event);
-      case "PARTICIPANT_REMOVED" :
+      case 'PARTICIPANT_REMOVED':
         return this.handleParticipantRemoved(event);
-      case "PARTICIPANT_DISCONNECTED" :
+      case 'PARTICIPANT_DISCONNECTED':
         return this.handleParticipantDisconnected(event);
-      case "SETTINGS_UPDATED" :
+      case 'SETTINGS_UPDATED':
         return this.handleParticipantSettingsUpdate(event);
-      case "PARTICIPANTS_REARRANGED": {
+      case 'PARTICIPANTS_REARRANGED': {
         return this.handleParticipantRearranged(event);
       }
     }
@@ -198,9 +198,14 @@ export class LobbyService {
 
   private handleExceptionEvent(event: LobbyEventEnvelope) {
     const exceptionEvent = event.payload as ExceptionEvent;
-    console.warn("Lobby action failed", exceptionEvent.response);
+    console.warn('Lobby action failed', exceptionEvent.response);
     this._creatingGame.set(false);
-    this.toastService.showToast("Der skete en fejl", "Handlingen kunne ikke udføres", "error", ToastState.error);
+    this.toastService.showToast(
+      'Der skete en fejl',
+      'Handlingen kunne ikke udføres',
+      'error',
+      ToastState.error,
+    );
   }
 
   private handleNewMessageEvent(event: LobbyEventEnvelope) {
@@ -208,13 +213,11 @@ export class LobbyService {
 
     const isSenderHost: boolean = newMessageEvent.senderId === this.partyId();
 
-    let senderName = isSenderHost ?
-      'Vært' :
-      this.getParticipant(newMessageEvent.senderId)?.name;
+    let senderName = isSenderHost ? 'Vært' : this.getParticipant(newMessageEvent.senderId)?.name;
 
     if (!senderName) {
       console.error("Can't identify message owner, somehow?", event);
-      senderName = 'Unknown'
+      senderName = 'Unknown';
     }
 
     const messageInfo: MessageInfo = {
@@ -222,10 +225,10 @@ export class LobbyService {
       message: newMessageEvent.message,
       senderName: senderName,
       senderId: newMessageEvent.senderId,
-      fromHost: isSenderHost
+      fromHost: isSenderHost,
     };
 
-    this._chatMessages.next(messageInfo)
+    this._chatMessages.next(messageInfo);
   }
 
   private handleNewEmojiEvent(event: LobbyEventEnvelope) {
@@ -233,13 +236,11 @@ export class LobbyService {
 
     const isSenderHost: boolean = newEmojiEvent.senderId === this.partyId();
 
-    let senderName = isSenderHost ?
-      'Vært' :
-      this.getParticipant(newEmojiEvent.senderId)?.name;
+    let senderName = isSenderHost ? 'Vært' : this.getParticipant(newEmojiEvent.senderId)?.name;
 
     if (!senderName) {
       console.error("Can't identify emoji owner, somehow?", event);
-      senderName = 'Unknown'
+      senderName = 'Unknown';
     }
 
     const emojiInfo: EmojiInfo = {
@@ -248,7 +249,7 @@ export class LobbyService {
       emojiAsString: EMOJI_DISPLAY[newEmojiEvent.emoji],
       senderName: senderName,
       senderId: newEmojiEvent.senderId,
-      fromHost: isSenderHost
+      fromHost: isSenderHost,
     };
 
     this._emojiReactions.next(emojiInfo);
@@ -261,7 +262,7 @@ export class LobbyService {
 
   private handleHelloLobbySnapshotEvent(event: LobbyEventEnvelope) {
     const lobbyStateExchangeEvent = event.payload as LobbyStateEvent;
-    this.lobbyState.set(lobbyStateExchangeEvent.lobby)
+    this.lobbyState.set(lobbyStateExchangeEvent.lobby);
   }
 
   private handleHelloLobbyIdentityEvent(event: LobbyEventEnvelope) {
@@ -270,46 +271,55 @@ export class LobbyService {
   }
 
   private handleParticipantSettingsUpdate(event: LobbyEventEnvelope) {
-    const updatedSettingsEvent: ParticipantSettingsUpdatedEvent = event.payload as ParticipantSettingsUpdatedEvent;
+    const updatedSettingsEvent: ParticipantSettingsUpdatedEvent =
+      event.payload as ParticipantSettingsUpdatedEvent;
     this.updateParticipant(updatedSettingsEvent.participantId, {
       sipsInABeer: updatedSettingsEvent.sipsInABeer,
-      canDrawAce: updatedSettingsEvent.canDrawAce
+      canDrawAce: updatedSettingsEvent.canDrawAce,
     });
   }
 
   private handleParticipantRearranged(event: LobbyEventEnvelope) {
     const participantsRearrangedEvent = event.payload as ParticipantsRearrangedEvent;
 
-    this.animateStateChange(() =>
-      this._participants.set(participantsRearrangedEvent.participants),
-    );
+    this.animateStateChange(() => this._participants.set(participantsRearrangedEvent.participants));
   }
 
   private handleParticipantRemoved(event: LobbyEventEnvelope) {
     const participantRemovedEvent = event.payload as ParticipantRemovedEvent;
     this.participantsQueuedForRemoval.add(participantRemovedEvent.participantId);
 
-    const participant = this.getParticipant(participantRemovedEvent.participantId)
+    const participant = this.getParticipant(participantRemovedEvent.participantId);
     if (participant) {
-      this.toastService.showToast("Spiller fjernet", `${participant.name} blev fjernet fra spillet`, 'person_remove');
+      this.toastService.showToast(
+        'Spiller fjernet',
+        `${participant.name} blev fjernet fra spillet`,
+        'person_remove',
+      );
     }
 
     this.removeParticipant(participantRemovedEvent.participantId);
   }
 
   private handleParticipantDisconnected(event: LobbyEventEnvelope) {
-    const participantDisconnectedEvent: ParticipantDisconnectedEvent = event.payload as ParticipantDisconnectedEvent;
+    const participantDisconnectedEvent: ParticipantDisconnectedEvent =
+      event.payload as ParticipantDisconnectedEvent;
 
     if (this.participantsQueuedForRemoval.has(participantDisconnectedEvent.participantId)) {
       this.participantsQueuedForRemoval.delete(participantDisconnectedEvent.participantId);
       return;
     }
 
-    const participant = this.getParticipant(participantDisconnectedEvent.participantId)
+    const participant = this.getParticipant(participantDisconnectedEvent.participantId);
     if (participant) {
-      this.toastService.showToast("Spiller forlod lobbyen", `${participant.name} forlod lobbyen`, 'person_remove', ToastState.error);
+      this.toastService.showToast(
+        'Spiller forlod lobbyen',
+        `${participant.name} forlod lobbyen`,
+        'person_remove',
+        ToastState.error,
+      );
     }
-    return this.removeParticipant(participantDisconnectedEvent.participantId)
+    return this.removeParticipant(participantDisconnectedEvent.participantId);
   }
 
   /**
@@ -332,35 +342,36 @@ export class LobbyService {
   //Dispatch action
   public requestParticipantCreation(name: string): void {
     if (!name.trim()) {
-      console.warn("Tried to create participant with blank name");
+      console.warn('Tried to create participant with blank name');
       return;
     }
     this.dispatchLobbyAction(newPlayerAction(name));
   }
 
   public requestParticipantRemoval(participantId: string): void {
-    this.dispatchLobbyAction(removePlayerAction(participantId))
+    this.dispatchLobbyAction(removePlayerAction(participantId));
   }
 
-  public requestParticipantSettingsUpdate(sipsInABeer: number, canDrawAce: boolean, behalfOf?: string) {
+  public requestParticipantSettingsUpdate(
+    sipsInABeer: number,
+    canDrawAce: boolean,
+    behalfOf?: string,
+  ) {
     if (this.isHost()) {
       this.dispatchLobbyAction(changeParticipantSettingsAction(sipsInABeer, canDrawAce, behalfOf));
     } else {
       this.dispatchLobbyAction(changeParticipantSettingsAction(sipsInABeer, canDrawAce));
     }
-
   }
 
   public requestParticipantsRearranged(newParticipantList: LobbyParticipantDTO[]): void {
-
     const newParticipantPositions: ParticipantPosition[] = [];
 
     newParticipantList.forEach((participant: LobbyParticipantDTO, index) => {
-      newParticipantPositions.push({participantId: participant.id, newPosition: index})
+      newParticipantPositions.push({ participantId: participant.id, newPosition: index });
     });
 
     this.dispatchLobbyAction(rearrangeParticipantAction(newParticipantPositions));
-
   }
 
   private dispatchLobbyAction(action: LobbyAction): void {
@@ -382,30 +393,43 @@ export class LobbyService {
 
   //UI
   public addParticipant(newParticipant: LobbyParticipantDTO): void {
-
     if (newParticipant.active) {
-      this.toastService.showToast("Ny spiller forbundet!", "Velkommen " + newParticipant.name, "person_add", ToastState.success);
+      this.toastService.showToast(
+        'Ny spiller forbundet!',
+        'Velkommen ' + newParticipant.name,
+        'person_add',
+        ToastState.success,
+      );
     } else {
-      this.toastService.showToast("Ny spiller tilføjet", "Velkommen " + newParticipant.name, "person_add", ToastState.success);
+      this.toastService.showToast(
+        'Ny spiller tilføjet',
+        'Velkommen ' + newParticipant.name,
+        'person_add',
+        ToastState.success,
+      );
     }
 
-    this._participants.update(current => [...current, newParticipant]);
+    this._participants.update((current) => [...current, newParticipant]);
   }
 
   public removeParticipant(participantId: string): void {
     this.animateStateChange(() =>
-      this._participants.update(current => current.filter(participant => participant.id !== participantId)),
+      this._participants.update((current) =>
+        current.filter((participant) => participant.id !== participantId),
+      ),
     );
   }
 
   //Helper
   private getParticipant(participantId: string): LobbyParticipantDTO | undefined {
-    return this._participants().find(participant => participant.id === participantId);
+    return this._participants().find((participant) => participant.id === participantId);
   }
 
   private updateParticipant(participantId: string, changes: Partial<LobbyParticipantDTO>) {
     this._participants.update((participants) =>
-      participants.map(participant => participant.id === participantId ? {...participant, ...changes} : participant)
+      participants.map((participant) =>
+        participant.id === participantId ? { ...participant, ...changes } : participant,
+      ),
     );
   }
 
@@ -416,6 +440,6 @@ export class LobbyService {
   }
 
   private navigateToWelcomeScreen(): void {
-    this.router.navigate(["/"]);
+    this.router.navigate(['/']);
   }
 }

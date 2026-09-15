@@ -1,8 +1,8 @@
-import {MessageDirection} from './message-direction';
+import { MessageDirection } from './message-direction';
 
 export interface ChatInfo {
   senderId: string;
   senderName: string;
-  direction: MessageDirection
+  direction: MessageDirection;
   fromHost: boolean;
 }

@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { MaterialIcon } from '../../common/components/material-icon/material-icon';
-import {OVERLAY_DATA} from '../../services/overlay/models/overlay-handle';
-import {DotLoader} from '../../common/components/dot-loader/dot-loader';
+import { OVERLAY_DATA } from '../../services/overlay/models/overlay-handle';
+import { DotLoader } from '../../common/components/dot-loader/dot-loader';
 
 @Component({
   selector: 'app-beer-loader-overlay',
@@ -15,7 +15,11 @@ import {DotLoader} from '../../common/components/dot-loader/dot-loader';
 export class BeerLoaderOverlay implements OnDestroy {
   private readonly loaderMessages = inject(OVERLAY_DATA) as string[];
 
-  private readonly messages = this.loaderMessages ?? ['Henter lobby…', 'Tapper øl…', 'Pakker kortene…'];
+  private readonly messages = this.loaderMessages ?? [
+    'Henter lobby…',
+    'Tapper øl…',
+    'Pakker kortene…',
+  ];
   private readonly index = signal(0);
 
   protected readonly statusText = computed(() => this.messages[this.index()]);

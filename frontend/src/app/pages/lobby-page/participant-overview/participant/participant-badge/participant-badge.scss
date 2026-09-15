@@ -1,4 +1,4 @@
-:host{
+:host {
   position: relative;
   display: flex;
   align-items: center;
@@ -10,32 +10,32 @@
   cursor: default;
 }
 
-:host(.small){
+:host(.small) {
   width: 40px;
   height: 40px;
 }
 
-:host(.x-small){
+:host(.x-small) {
   width: 30px;
   height: 30px;
 }
 
-:host(.active){
+:host(.active) {
   background-color: #222222;
   color: white;
 }
 
-:host(.local){
+:host(.local) {
   border: 2px dashed grey;
   background-color: white;
   color: grey;
 }
 
-:host(.with-border){
+:host(.with-border) {
   border: 3px solid var(--border-color);
 }
 
-.status-indicator{
+.status-indicator {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -45,22 +45,22 @@
 
   border: 2px solid white;
 }
-.status-indicator.active{
+.status-indicator.active {
   background-color: #4caf50;
 }
-.status-indicator.reserved{
+.status-indicator.reserved {
   background-color: var(--reserved);
 }
 
-.emoji-clip{
+.emoji-clip {
   position: absolute;
-  inset: 0;              // fills the 60x60 host
-  border-radius: 50%;    // match the circle
-  overflow: hidden;      // clips ONLY the emoji
-  background-color: rgba(00,00,00,0);
+  inset: 0; // fills the 60x60 host
+  border-radius: 50%; // match the circle
+  overflow: hidden; // clips ONLY the emoji
+  background-color: rgba(00, 00, 00, 0);
   transition: all 500ms ease;
 }
-.emoji{
+.emoji {
   font-size: 30px;
   position: absolute;
   top: 50%;
@@ -73,11 +73,11 @@
   transition: all 200ms ease;
 }
 
-.emoji-clip.emoji-active{
-  background-color: rgba(00,00,00,0.8);
+.emoji-clip.emoji-active {
+  background-color: rgba(00, 00, 00, 0.8);
 }
 
-.emoji-active .emoji{
+.emoji-active .emoji {
   opacity: 1;
   padding-top: 0;
 }

@@ -1,4 +1,4 @@
-$timer-bar-width : 3px;
+$timer-bar-width: 3px;
 
 :host {
   background-color: white;
@@ -21,19 +21,20 @@ $timer-bar-width : 3px;
   user-select: none;
 }
 
-:host:hover .timer-bar{
+:host:hover .timer-bar {
   animation-play-state: paused;
 }
 
-h4, p {
+h4,
+p {
   margin: 0;
 }
-p{
+p {
   color: var(--color-grey-600);
 }
 
-#icon{
-  color: rgba(0,0,0,0.8);
+#icon {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .timer-bar {
@@ -57,21 +58,16 @@ $area: 30px;
 }
 
 @keyframes timer {
-  from{
+  from {
     width: 100%;
   }
-  to{
+  to {
     width: 0;
   }
 }
 
 @media (max-width: 500px) {
-  :host{
+  :host {
     width: 95dvw;
   }
-
 }
-
-
-
-

@@ -1,4 +1,4 @@
-:host{
+:host {
   display: grid;
   grid-template-rows: 20% auto 20%;
   align-items: center;
@@ -15,15 +15,15 @@
 
   transition: all ease-in-out 100ms;
 }
-:host(.backside){
+:host(.backside) {
   justify-items: center;
   grid-template-rows: auto;
   cursor: pointer;
 }
-:host(.backside):hover{
+:host(.backside):hover {
   box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.3);
 }
-:host(.backside):active{
+:host(.backside):active {
   box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.4);
 }
 

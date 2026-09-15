@@ -8,12 +8,14 @@
       placeholder="fx. Jakob"
       aria-label="Participant name"
       [formField]="newParticipantForm.participantName"
-      (keyup.enter)="addParticipant(newParticipantModel().participantName)">
+      (keyup.enter)="addParticipant(newParticipantModel().participantName)"
+    />
   </div>
   <button
     class="btn-secondary"
     (click)="addParticipant(newParticipantModel().participantName)"
-    [disabled]="newParticipantForm().invalid()">Tilføj
+    [disabled]="newParticipantForm().invalid()"
+  >
+    Tilføj
   </button>
 </div>
-

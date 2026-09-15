@@ -1,6 +1,6 @@
-import {Player} from '../../../services/game/models/player';
+import { Player } from '../../../services/game/models/player';
 
-export interface ChugOverlayData{
+export interface ChugOverlayData {
   players: Player[];
   playerToChug: Player;
   isGameClient: boolean;

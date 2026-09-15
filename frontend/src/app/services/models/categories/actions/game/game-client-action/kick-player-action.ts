@@ -1,4 +1,4 @@
-import {GameAction} from '../game-action';
+import { GameAction } from '../game-action';
 
 interface KickPlayerAction extends GameAction {
   playerId: string;
@@ -6,5 +6,5 @@ interface KickPlayerAction extends GameAction {
 }
 
 export function kickPlayerAction(playerId: string, reason: string): KickPlayerAction {
-  return {type: 'KICK_PLAYER', playerId, reason}
+  return { type: 'KICK_PLAYER', playerId, reason };
 }

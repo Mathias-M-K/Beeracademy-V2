@@ -3,21 +3,23 @@ $danger: #ff5a5f;
 $ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 $ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-:host{
+:host {
   display: grid;
   grid-template-rows: auto auto 1fr;
   align-items: end;
   padding-bottom: 15px !important;
   gap: 5px;
 }
-:host(:not(.drawer-pane--compact)){
+:host(:not(.drawer-pane--compact)) {
   height: fit-content !important;
 }
-h1,h2, p{
+h1,
+h2,
+p {
   margin: 0;
 }
 
-.video-feed{
+.video-feed {
   position: relative;
   border-radius: 0.5rem;
   overflow: hidden;
@@ -58,7 +60,7 @@ h1,h2, p{
 .waiting {
   z-index: 2;
   display: grid;
-  padding:10px;
+  padding: 10px;
   align-content: center;
   grid-template-rows: 1fr 1fr 1fr;
   gap: 24px;
@@ -90,8 +92,12 @@ h1,h2, p{
   border: 2px solid rgba($gold, 0.6);
   animation: ring 2.4s $ease-out infinite;
 }
-.beacon .ring:nth-child(2) { animation-delay: 0.8s; }
-.beacon .ring:nth-child(3) { animation-delay: 1.6s; }
+.beacon .ring:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.beacon .ring:nth-child(3) {
+  animation-delay: 1.6s;
+}
 
 .waiting-text {
   grid-row: 3;
@@ -119,7 +125,12 @@ h1,h2, p{
   position: absolute;
   border-radius: 18px;
   box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.45);
-  transition: left 420ms $ease-spring, top 420ms $ease-spring, width 420ms $ease-spring, height 420ms $ease-spring, box-shadow 400ms ease;
+  transition:
+    left 420ms $ease-spring,
+    top 420ms $ease-spring,
+    width 420ms $ease-spring,
+    height 420ms $ease-spring,
+    box-shadow 400ms ease;
 }
 
 .corner {
@@ -130,10 +141,38 @@ h1,h2, p{
   transition: border-color 200ms ease;
   animation: breathe 1.6s ease-in-out infinite;
 }
-.corner.top-left { top: 0; left: 0; border-width: 4px 0 0 4px; border-top-left-radius: 18px; --dx: 1; --dy: 1; }
-.corner.top-right { top: 0; right: 0; border-width: 4px 4px 0 0; border-top-right-radius: 18px; --dx: -1; --dy: 1; }
-.corner.bottom-left { bottom: 0; left: 0; border-width: 0 0 4px 4px; border-bottom-left-radius: 18px; --dx: 1; --dy: -1; }
-.corner.bottom-right { bottom: 0; right: 0; border-width: 0 4px 4px 0; border-bottom-right-radius: 18px; --dx: -1; --dy: -1; }
+.corner.top-left {
+  top: 0;
+  left: 0;
+  border-width: 4px 0 0 4px;
+  border-top-left-radius: 18px;
+  --dx: 1;
+  --dy: 1;
+}
+.corner.top-right {
+  top: 0;
+  right: 0;
+  border-width: 4px 4px 0 0;
+  border-top-right-radius: 18px;
+  --dx: -1;
+  --dy: 1;
+}
+.corner.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 4px 4px;
+  border-bottom-left-radius: 18px;
+  --dx: 1;
+  --dy: -1;
+}
+.corner.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-width: 0 4px 4px 0;
+  border-bottom-right-radius: 18px;
+  --dx: -1;
+  --dy: -1;
+}
 
 .laser-track {
   position: absolute;
@@ -145,7 +184,13 @@ h1,h2, p{
 .laser {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba($gold, 0.12) 85%, rgba($gold, 0.35) 98%, transparent);
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba($gold, 0.12) 85%,
+    rgba($gold, 0.35) 98%,
+    transparent
+  );
   animation: sweep 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 .laser::after {
@@ -238,7 +283,9 @@ h1,h2, p{
   place-items: center;
   border-radius: 50%;
   background: var(--success);
-  box-shadow: 0 10px 40px rgb(0 0 0 / 0.35), inset 0 -6px 0 rgb(0 0 0 / 0.12);
+  box-shadow:
+    0 10px 40px rgb(0 0 0 / 0.35),
+    inset 0 -6px 0 rgb(0 0 0 / 0.12);
   animation: pop 600ms $ease-spring 480ms backwards;
 }
 .badge material-icon {
@@ -271,8 +318,15 @@ h1,h2, p{
   opacity: 0;
   animation: particle 850ms $ease-out 520ms;
 }
-.particle:nth-of-type(3n) { background: var(--success); border-radius: 50%; }
-.particle:nth-of-type(3n + 1) { background: white; width: 7px; height: 7px; }
+.particle:nth-of-type(3n) {
+  background: var(--success);
+  border-radius: 50%;
+}
+.particle:nth-of-type(3n + 1) {
+  background: white;
+  width: 7px;
+  height: 7px;
+}
 
 .found-pill {
   background: var(--success);
@@ -291,87 +345,160 @@ h1,h2, p{
   border: 0;
 }
 
-button{
+button {
   width: 100%;
 }
 
 @keyframes iris {
-  from { clip-path: circle(0% at 50% 50%); }
-  to { clip-path: circle(75% at 50% 50%); }
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    clip-path: circle(75% at 50% 50%);
+  }
 }
 
 @keyframes waiting-leave {
-  to { opacity: 0; transform: scale(1.15); }
+  to {
+    opacity: 0;
+    transform: scale(1.15);
+  }
 }
 
 @keyframes ring {
-  from { opacity: 0.9; transform: scale(1); }
-  to { opacity: 0; transform: scale(2.6); }
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
 }
 
 @keyframes float {
-  from { transform: translateY(5px); }
-  to { transform: translateY(-5px); }
+  from {
+    transform: translateY(5px);
+  }
+  to {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes breathe-text {
-  from { opacity: 0.45; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes viewfinder-enter {
-  from { opacity: 0; transform: scale(1.25); }
+  from {
+    opacity: 0;
+    transform: scale(1.25);
+  }
 }
 
 @keyframes breathe {
-  50% { transform: translate(calc(var(--dx) * 5px), calc(var(--dy) * 5px)); }
+  50% {
+    transform: translate(calc(var(--dx) * 5px), calc(var(--dy) * 5px));
+  }
 }
 
 @keyframes sweep {
-  0% { transform: translateY(-100%); opacity: 0; }
-  15%, 85% { opacity: 1; }
-  100% { transform: translateY(0); opacity: 0; }
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
 }
 
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(12px); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
 @keyframes fade-out {
-  to { opacity: 0; }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes shake {
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
 }
 
 @keyframes absorb {
-  to { opacity: 0; transform: scale(1.2); }
+  to {
+    opacity: 0;
+    transform: scale(1.2);
+  }
 }
 
 @keyframes flash {
-  0% { opacity: 0; }
-  25% { opacity: 0.55; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes pop {
-  from { opacity: 0; transform: scale(0) rotate(-30deg); }
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-30deg);
+  }
 }
 
 @keyframes check-in {
-  from { opacity: 0; transform: scale(0.2) rotate(-45deg); }
+  from {
+    opacity: 0;
+    transform: scale(0.2) rotate(-45deg);
+  }
 }
 
 @keyframes ripple {
-  from { opacity: 0.9; transform: scale(0.8); }
-  to { opacity: 0; transform: scale(2.4); }
+  from {
+    opacity: 0.9;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.4);
+  }
 }
 
 @keyframes particle {
-  0% { opacity: 1; transform: rotate(var(--angle)) translateY(0) scale(1); }
-  100% { opacity: 0; transform: rotate(var(--angle)) translateY(-44cqi) scale(0.3) rotate(180deg); }
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-44cqi) scale(0.3) rotate(180deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,22 +1,28 @@
 <app-participant-badge
   [style.grid-area]="'badge'"
   size="s"
-  [initials]="player().name.substring(0,1)"
-  [style]="badgeStyle()">
+  [initials]="player().name.substring(0, 1)"
+  [style]="badgeStyle()"
+>
 </app-participant-badge>
-
 
 <p class="name">{{ player().name }}</p>
 
 <ng-container *isGameOwner>
   @if (isConnected()) {
-    <button class="btn-secondary" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Fjern</button>
+    <button class="btn-secondary" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">
+      Fjern
+    </button>
   } @else if (isClaimed()) {
-    <button class="btn-secondary-outlined" (click)="disconnectOrRelease.emit()" [style.grid-area]="'btn'">Frigiv</button>
+    <button
+      class="btn-secondary-outlined"
+      (click)="disconnectOrRelease.emit()"
+      [style.grid-area]="'btn'"
+    >
+      Frigiv
+    </button>
   }
 </ng-container>
-
-
 
 <div class="chips" [style.grid-area]="'settings'">
   <div class="chip sips-indicator">
@@ -26,4 +32,3 @@
     <p>ES Tilladt</p>
   </div>
 </div>
-

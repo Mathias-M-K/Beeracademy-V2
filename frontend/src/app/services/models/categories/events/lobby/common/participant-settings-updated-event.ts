@@ -1,4 +1,4 @@
-import {LobbyEvent} from '../lobby-event';
+import { LobbyEvent } from '../lobby-event';
 
 export interface ParticipantSettingsUpdatedEvent extends LobbyEvent {
   canDrawAce: boolean;

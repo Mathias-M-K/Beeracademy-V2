@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   imports: [],
@@ -9,6 +9,4 @@ import {Component, input} from '@angular/core';
 export class DrawerDefaultHeaderComponent {
   readonly title = input<string>('');
   readonly subtitle = input<string>('');
-
-
 }

@@ -1,7 +1,6 @@
 $area: 200px;
 $lift: 55px;
 
-
 :host {
   display: flex;
   flex-direction: column;
@@ -10,8 +9,8 @@ $lift: 55px;
 }
 
 // Exit animation, triggered by the OverlayHandle before disposal.
-:host(.overlay-leaving){
-  animation: leave .5s ease-in forwards;
+:host(.overlay-leaving) {
+  animation: leave 0.5s ease-in forwards;
 }
 
 @keyframes leave {
@@ -65,11 +64,7 @@ $lift: 55px;
   height: 26px;
   border-radius: 50%;
 
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0, 0, 0, 0.55),
-    rgba(0, 0, 0, 0) 70%
-  );
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 70%);
 
   transform: translateX(-50%);
 

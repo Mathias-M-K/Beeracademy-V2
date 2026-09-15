@@ -1,12 +1,10 @@
-import {Pipe, PipeTransform} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'gameTimeFormat',
 })
 export class GameTimeFormatPipe implements PipeTransform {
-
   transform(timer: number, format: string = 'HH:mm:ss.SSS'): string {
-
     const millis = timer % 1000;
     const seconds = Math.floor((timer / 1000) % 60);
     const minutes = Math.floor((timer / 1000 / 60) % 60);
@@ -25,5 +23,4 @@ export class GameTimeFormatPipe implements PipeTransform {
 
     return result;
   }
-
 }

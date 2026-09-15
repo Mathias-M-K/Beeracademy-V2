@@ -4,7 +4,6 @@
   <div class="horizontal_line"></div>
 </div>
 
-
 <div style="grid-area: beer-text">
   <h3>Slurke pr øl</h3>
   <p class="header_subtitle">Hvor mange slurke tæller for en øl</p>
@@ -14,7 +13,6 @@
   <h4>{{ sipsInABeer() }}</h4>
   <button class="btn-secondary" (click)="increaseSips()">+</button>
 </div>
-
 
 <div style="grid-area: ace-text">
   <h3>Kan trække es'?</h3>
@@ -26,6 +24,7 @@
 </div>
 
 <div class="action_buttons" style="grid-area: action-btn">
-  <button class="btn-secondary" (click)="isChanged() ? save() : close()">{{ isChanged() ? 'Gem' : 'Tilbage' }}</button>
+  <button class="btn-secondary" (click)="isChanged() ? save() : close()">
+    {{ isChanged() ? 'Gem' : 'Tilbage' }}
+  </button>
 </div>
-

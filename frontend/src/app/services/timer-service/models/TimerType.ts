@@ -1,4 +1,4 @@
 export enum TimerType {
   GAME,
-  PLAYER
+  PLAYER,
 }

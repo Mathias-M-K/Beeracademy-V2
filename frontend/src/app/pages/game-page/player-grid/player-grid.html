@@ -1,10 +1,16 @@
 <div
-  class="players" #scroller
+  class="players"
+  #scroller
   (scrollend)="onScrollEnd()"
   (scroll)="onScroll()"
-  (pointerdown)="playerDragActive.set(true)">
-  @for (player of players(); track player.id){
-    <app-player-card #playerElement [player]="player" [isDrawing]="player.id === activePlayerId()"></app-player-card>
+  (pointerdown)="playerDragActive.set(true)"
+>
+  @for (player of players(); track player.id) {
+    <app-player-card
+      #playerElement
+      [player]="player"
+      [isDrawing]="player.id === activePlayerId()"
+    ></app-player-card>
   }
 </div>
 
@@ -12,6 +18,7 @@
   <app-dot-indicator
     [dotCount]="players()?.length ?? 0"
     [activeIndex]="visiblePlayerIndex()"
-    (dotClick)="scrollToPlayerCard($event)">
+    (dotClick)="scrollToPlayerCard($event)"
+  >
   </app-dot-indicator>
 </div>
