@@ -58,7 +58,7 @@
     "prettier": "^3.9.6",
     "shx": "^0.4.0",
     "typescript": "~6.0.3",
-    "vitest": "^4.0.17"
+    "vitest": "^5.0.0"
   },
   "msw": {
     "workerDirectory": [
