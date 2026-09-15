@@ -61,6 +61,9 @@ dependencies {
     //OpenApi
     implementation 'io.quarkus:quarkus-smallrye-openapi'
 
+    //Health checks
+    implementation 'io.quarkus:quarkus-smallrye-health'
+
     //Test coverage
     testImplementation("io.quarkus:quarkus-jacoco")
 }

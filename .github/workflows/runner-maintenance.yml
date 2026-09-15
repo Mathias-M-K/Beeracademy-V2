@@ -1,0 +1,29 @@
+name: Runner Maintenance
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+
+  prune-docker:
+    name: Prune Docker Images and Build Cache
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    steps:
+      - name: Prune build cache
+        run: docker builder prune -f --filter until=168h
+
+      - name: Prune images
+        run: docker image prune -af --filter until=168h
+
+      - name: Report disk usage
+        run: docker system df
