@@ -28,6 +28,7 @@ spec:
       containers:
         - name: beer-academy-backend-container
           image: ghcr.io/mathias-m-k/beer-academy-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080 # The port your Quarkus app listens on inside the container
               name: http # Name for the container port

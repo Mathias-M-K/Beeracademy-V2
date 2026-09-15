@@ -24,6 +24,7 @@ spec:
       containers:
         - name: beer-academy-frontend-container
           image: ghcr.io/mathias-m-k/beer-academy-frontend:latest # Your Angular image
+          imagePullPolicy: Always
           ports:
             - containerPort: 80 # Nginx default HTTP port inside container
               name: http
@@ -34,6 +35,13 @@ spec:
               value: "production"
             - name: TZ
               value: Europe/Copenhagen
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /
