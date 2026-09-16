@@ -49,6 +49,7 @@ Established conventions — the *how*, where the ADRs are the *why*.
 - [[websocket-session-managers]] — adding actions, lobby participant handling
 
 **Frontend**
+- [[frontend-unit-testing]] — Vitest/TestBed unit-test harness, zoneless idioms, `it.fails` bug pinning
 - [[reaction-routing]] — routing a transient per-target event to one dumb child
 - [[route-resolvers]] — resolvers as navigation gates, and the loading gap they cost
 - [[runtime-config]] — the API URL is runtime config, not build-time

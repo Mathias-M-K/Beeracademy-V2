@@ -1,6 +1,6 @@
 ---
 type: rules
-updated: 2026-09-07
+updated: 2026-09-16
 tags:
   - rules
   - conventions
@@ -128,6 +128,16 @@ blank line between sections. Use `// Act & Assert` where the two collapse (typic
 
 **Why:** consistency across the suite makes tests scannable. Mirror `GameServiceTest` /
 `GameClientSessionManagerTest`.
+
+**Applies to frontend specs too** (since 2026-09-16). Every `it` / `it.each` / `it.fails` in a
+`*.spec.ts` follows the same rule. Mirror `frontend/src/app/services/game/game.service.spec.ts`.
+See [[frontend-unit-testing]] for the rest of the frontend conventions, including pinning known
+bugs with `it.fails`.
+
+**Check** — prints spec files with fewer Assert markers than tests (should print nothing):
+```bash
+cd frontend/src && for f in $(grep -rl --include=*.spec.ts "it(" .); do its=$(grep -cE "^\s*(it|it\.fails|it\.each\(.*\))\b" $f); a=$(grep -cE "// (Assert|Act & Assert)" $f); [ "$a" -lt "$its" ] && echo "$f"; done
+```
 
 **Prefer deterministic fixtures.** Build domain objects with literal ids
 (`new Player("Player 1", "p1", 10, true, new Stats())`) rather than generating random ones —

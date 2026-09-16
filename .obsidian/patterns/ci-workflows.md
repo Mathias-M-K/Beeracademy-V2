@@ -13,7 +13,7 @@ Four workflows under `.github/workflows/`, all on the self-hosted runners, plus 
 | Workflow | Trigger | Does |
 |---|---|---|
 | `backend-ci.yml` | PR + push to `main`, paths `backend/**` | `./gradlew test jacocoTestReport` → test report on failure → `sonar` |
-| `frontend-ci.yml` | PR + push to `main`, paths `frontend/**`, `backend/src/main/**`, `backend/build.gradle` | generate spec → `npm ci` → `format:check` → models → `ng test` → `ng build` → Sonar |
+| `frontend-ci.yml` | PR + push to `main`, paths `frontend/**`, `backend/src/main/**`, `backend/build.gradle` | generate spec → `npm ci` → `format:check` → models → `npm run test:ci` (tests + lcov + Sonar test report) → `ng build` → Sonar (coverage + test executions, see [[frontend-unit-testing]]) |
 | `deploy.yml` | tag `v*.*.*` + manual | verify CI → backend image (uploads spec) → frontend image (downloads spec) → `set image` + rollout → GitHub Release |
 | `runner-maintenance.yml` | Mondays 04:00 + manual | prunes Docker images and build cache older than 7 days |
 
