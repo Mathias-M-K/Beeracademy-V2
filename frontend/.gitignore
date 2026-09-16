@@ -7,3 +7,4 @@ dist
 .angular/
 openapi-spec/
 src/api-models/
+/coverage

@@ -89,7 +89,17 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "setupFiles": ["src/testing/jsdom-polyfills.ts"],
+            "coverageInclude": ["src/app/**/*.ts"],
+            "coverageExclude": ["src/**/*.spec.ts"],
+            "coverageReporters": ["lcov", "text-summary"],
+            "reporters": [
+              "default",
+              ["vitest-sonar-reporter", { "outputFile": "coverage/sonar-report.xml" }]
+            ]
+          }
         }
       }
     }
