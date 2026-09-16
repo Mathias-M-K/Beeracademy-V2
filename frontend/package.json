@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:ci": "ng test --watch=false --coverage",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "openApi:fetch": "shx mkdir -p ./openapi-spec && shx cp ../backend/build/generated-openapi/openapi.json ./openapi-spec/openapi.json",
@@ -53,12 +54,14 @@
     "@angular/cli": "^22.1.6",
     "@angular/compiler-cli": "^22.1.4",
     "@openapitools/openapi-generator-cli": "^2.16.3",
+    "@vitest/coverage-v8": "^4.1.11",
     "jsdom": "^27.1.0",
     "msw": "^2.15.0",
     "prettier": "^3.9.6",
     "shx": "^0.4.0",
     "typescript": "~6.0.3",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.17",
+    "vitest-sonar-reporter": "^3.0.0"
   },
   "msw": {
     "workerDirectory": [

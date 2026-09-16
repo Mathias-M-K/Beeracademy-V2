@@ -72,7 +72,7 @@ jobs:
 
       - name: Run unit tests
         working-directory: ./frontend
-        run: npx ng test --watch=false
+        run: npm run test:ci
 
       - name: Build
         working-directory: ./frontend

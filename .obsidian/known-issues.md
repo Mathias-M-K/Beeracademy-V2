@@ -1,6 +1,6 @@
 ---
 type: registry
-updated: 2026-09-07
+updated: 2026-09-16
 tags:
   - issues
   - open
@@ -172,7 +172,118 @@ thing blocking horizontal scaling, and unlike lobbies it silently degrades rathe
 
 Introduced by the session-ownership-transfer branch, 2026-09-07.
 
+## Frontend bugs pinned by unit tests (16–25)
+
+Found while building the frontend unit-test suite ([[frontend-unit-testing]], branch
+`frontend-tests`, 2026-09-16). Each one has an `it.fails` test that asserts the **correct**
+behaviour, carrying a `// known-issues:` comment. When a fix lands, that test starts passing
+and Vitest reports it as a failure. Delete `.fails` in the same change, then mark the entry ✅.
+Line numbers are as of `c14283c`.
+
+## 16. `GameService.isPlayer` is always false
+`frontend/src/app/services/game/game.service.ts:115` —
+`computed(() => !this.isGameClient)` negates the signal function, which is always truthy,
+instead of its value. `*isPlayer` (used in `game-paused-drawer.component.html`) therefore
+never renders. Fix: `!this.isGameClient()`.
+Test: `game.service.spec.ts` › "recognises a player client as a player".
+
+## 17. A failed game reconnect never retries; the attempt limit is unreachable
+`game.service.ts:131-176`.
+- During a reconnect, `.catch` runs before `.finally`, so `isReconnecting` is still `true`.
+- A transient close code routes back into `reconnectToWebsocket()`, which returns
+  immediately, so there is no second attempt.
+- A timeout (cause 0) falls through to the default branch and sends the user to the start page
+  after one try.
+- The `reconnectCountLimit = 3` toast ("Kunne ikke forbinde") is therefore never shown.
+
+Tests: "retries a reconnect that fails with a transient close code", "gives up with a toast
+after three failed reconnects".
+
+## 18. Server-driven overlay closes are reported back as user actions
+`game.service.ts:395, 415, 610-638, 657-664`. The `closed.then` handlers can't tell a user
+closing an overlay apart from the service closing it programmatically. A game client
+therefore:
+- sends `REGISTER_CHUG` with 0 ms when a `CHUG` event arrives while its chug overlay is open;
+- sends `RESUME_GAME` back when `GAME_RESUMED` arrives while its pause panel is open;
+- sends `REGISTER_CHUG(0)` / `RESUME_GAME` when `GAME_END` dismisses open overlays.
+
+The comment in `dismissAllOverlays`, "A dismissal never resolves `closed`", is wrong:
+`OverlayHandle.dismiss()` resolves `closed` with `undefined`
+(`overlay/models/overlay-handle.ts:36-38`).
+Tests: "does not register a chug of its own when the server reports one", "does not echo a
+resume when the server reports the game resumed", "sends nothing when the game ends while a
+game client has the chug overlay open".
+
+## 19. `LobbyService.lobbyReset` never emits
+`frontend/src/app/services/lobby/lobby.service.ts:84`. The `_lobbyReset` Subject is never
+`next`ed, so `ChatService`'s reset subscription is dead. Chat history in the root-provided
+service survives leaving one lobby and joining another.
+Test: `lobby.service.spec.ts` › "signals a lobby reset when leaving and joining a lobby".
+
+## 20. `ChatService.sendMessage` shows trimmed text but sends untrimmed
+`frontend/src/app/services/chat/chat.service.ts:47`. The local echo uses `trimmed`, but the
+server receives the raw `text`, so sender and receivers see different messages.
+Test: `chat.service.spec.ts` › "sends the same trimmed text it shows locally".
+
+## 21. `lobbyStateResolver` has no LobbyNotFound case
+`frontend/src/app/resolvers/lobby-state.resolver.ts:13-22`. The backend closes with 4002
+(`LobbyWebsocket.java:69`), but the resolver only handles 4001 and 4000. A deleted lobby
+redirects to `/start` silently, whereas the game resolver shows a toast for GameNotFound.
+Test: `lobby-state.resolver.spec.ts` › "tells the user when the lobby no longer exists".
+
+## 22. Toast overlays can stack
+`frontend/src/app/services/toast/toast.service.ts:37-39, 53`. The race:
+- `removeToast` sets `overlayActive=false` immediately, but closing is async.
+- A `showToast` in that window opens a second container.
+- The first overlay's `closed.then` then flips `overlayActive` false while the second is open,
+  so the next toast opens a third.
+
+Test: `toast.service.spec.ts` › "never has more than one toast container open".
+
+## 23. `JoinPage` leaks its SSE connection
+`frontend/src/app/pages/join-page/join-page.ts:55-60`. The
+`getPlayerConnectionEventStream` subscription in the constructor has no
+`takeUntilDestroyed`, so the `EventSource` stays open after navigating away.
+Test: `join-page.spec.ts` › "stops listening for connection events when the page is destroyed".
+
+## 24. Pressing Enter on a chat emoji does nothing
+`frontend/src/app/pages/lobby-page/chat/chat.html:11-20`. `(keydown.enter)` calls the
+`sendEmojiAction(...)` action factory instead of `sendEmoji(...)`. Click works; keyboard users
+cannot send reactions, which falls short of the frontend's WCAG AA baseline.
+Test: `chat.spec.ts` › "sends the emoji when Enter is pressed on it".
+
+## 25. Space draws a card for player clients
+`frontend/src/app/pages/game-page/game-page.ts:20`. The `document:keyup.space` host listener
+is not role-gated, although the Draw button is (`*isGameOwner`). A player pressing Space sends
+`DRAW_CARD` as a `GAME_CLIENT_ACTION`, which `PlayerClientSessionManager.onMessage` rejects
+with `UnknownCategoryException`.
+Test: `game-page.spec.ts` › "does not draw when a player presses Space".
+
+## 26. Frontend observations — not pinned (correct behaviour undecided)
+Seen during the same work. None has an `it.fails`, because the right behaviour needs a
+decision first.
+- **AwaitingStart snapshot auto-sends `START_GAME` for every client** (`game.service.ts:335`).
+  The backend sends the snapshot *before* the identity, so the service can't know the role at
+  that point. From a player client the action is rejected server-side.
+- **Resolvers treat cause 0 (handshake timeout / socket error) as "no cause"** and redirect
+  without a toast. `websocket.service.ts:109` has a FIXME about hard-coding cause 0.
+- **`WebsocketService` keeps the handshake timeout running** after a pre-handshake
+  `EXCEPTION_RESPONSE`. It is harmless in practice (a retry's `disconnect()` closes the old
+  socket, whose close handler clears it), but clearing it in that branch would be cleaner.
+- **`ParticipantOverview.onDrop`** emits `participantsRearranged` even when an item is dropped
+  back in place, and emits inside a signal `update` callback.
+- **Leftovers:**
+  - The "Add testers" debug button renders for everyone (`lobby-page.html:43`).
+  - `ParticipantSettingsOverlay` is dead code.
+  - `header.html` never emits `startClick`, so `GamePage.startGame()` is unreachable from
+    the UI.
+- **Cosmetic:**
+  - The game resolver's 4000 toast says "Kunne ikke finde lobby".
+  - The chat Confetti button shows 🎊 while `EMOJI_DISPLAY` sends 🎉.
+  - `DrawerService.showConfirmationDrawer(participantId)` actually receives a name.
+
 ## Related
+- [[frontend-unit-testing]] — issues 16–25 are pinned by `it.fails` tests
 
 - [[rules]] — the conventions several of these violate
 - [[security-issues]] — security defects, tracked separately
