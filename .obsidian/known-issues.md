@@ -288,19 +288,6 @@ decision first.
   - The chat Confetti button shows 🎊 while `EMOJI_DISPLAY` sends 🎉.
   - `DrawerService.showConfirmationDrawer(participantId)` actually receives a name.
 
-## Related
-- [[frontend-unit-testing]] — issues 16–25 are pinned by `it.fails` tests
-
-- [[rules]] — the conventions several of these violate
-- [[security-issues]] — security defects, tracked separately
-- [[party-id-unification]] — the change during which issues 1–9 were found
-- [[party-state-endpoint-review]] — the archived review issues 10–13 were promoted from
-- [[architecture-tests]] — machine-enforced checks; issues 6, 12 and 14 are what it must encode
-- [[runtime-config]] — issue 9
-- [[redis-state-store]] — issues 5, 7, 8, 15
-- [[party-id-lifecycle]] — issue 6's boundary rule
-- [[websocket-session-managers]] — issue 14
-- [[README]] — vault index
 ## 27. First tap after a drag-dismiss is swallowed — ⬜ OPEN, unsolved 2026-09-18
 
 Dismissing a toast **by dragging** makes the next tap do nothing — anywhere on the page, not just
@@ -339,3 +326,18 @@ phone) and the touch-aware tap slop.
 **Not reproducible in a desktop browser or a headless pane** — the browser only synthesises clicks
 from real touch input, so this needs a device. See [[toast-stack-and-overview]] for the mechanics
 the investigation covered.
+
+## Related
+- [[frontend-unit-testing]] — issues 16–25 are pinned by `it.fails` tests
+
+- [[rules]] — the conventions several of these violate
+- [[security-issues]] — security defects, tracked separately
+- [[party-id-unification]] — the change during which issues 1–9 were found
+- [[party-state-endpoint-review]] — the archived review issues 10–13 were promoted from
+- [[architecture-tests]] — machine-enforced checks; issues 6, 12 and 14 are what it must encode
+- [[runtime-config]] — issue 9
+- [[redis-state-store]] — issues 5, 7, 8, 15
+- [[party-id-lifecycle]] — issue 6's boundary rule
+- [[websocket-session-managers]] — issue 14
+- [[README]] — vault index
+

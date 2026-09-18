@@ -2,12 +2,12 @@
   type="button"
   class="overview-scrim"
   aria-label="Luk oversigten"
-  [attr.tabindex]="isInOverviewMode() ? null : -1"
+  [attr.inert]="isInOverviewMode() ? null : ''"
   (click)="collapse()"
 ></button>
 
 <div class="surface">
-  <div class="overview-header" [attr.aria-hidden]="isInOverviewMode() ? null : 'true'">
+  <div class="overview-header" [attr.inert]="isInOverviewMode() ? null : ''">
     <p class="subtitle">{{ activeCount() }} {{ activeCount() === 1 ? 'hændelse' : 'hændelser' }}</p>
 
     <span class="header-actions">

@@ -104,12 +104,15 @@ phone, works fine on desktop" symptom. Restrictions accumulate up the ancestor c
 `app-toast` also governs a touch that lands on `.message` inside it; in the overview the walk stops
 at `.rows`, which is the scroll container, so `pan-y` there leaves vertical to the scroller.
 
-Two supports for the same failure: pointer capture is claimed **at axis lock** (not on down, so a
-tap and the badge's own click are untouched), and `pointercancel` is treated as *not a decision* —
-it reverts, never dismisses, however far the finger travelled.
+`lockAxis` records the axis and adds the gesture classes, and that is all it does: nothing claims
+pointer capture and nothing calls `preventDefault`, for the reasons below. The one support against
+the same failure is that `pointercancel` is treated as *not a decision* — it reverts, never
+dismisses, however far the finger travelled.
 
 `is-fanning` kills transitions so the deck tracks the finger; `unfan()` removes the class, forces a
-reflow, then clears `--fan` so the close animates instead of snapping. Signals written from these
+reflow, then clears `--fan` so the close animates instead of snapping. It runs on **every** vertical
+release, not only an upward one: a finger that pulled the deck open and then came back down past its
+own start would otherwise leave it fanned with every transition still switched off. Signals written from these
 native handlers are followed by `appRef.tick()` — see the zoneless idioms in [[frontend-unit-testing]].
 
 A drag that moved swallows the trailing `click` via a capture-phase listener, so a swipe never also

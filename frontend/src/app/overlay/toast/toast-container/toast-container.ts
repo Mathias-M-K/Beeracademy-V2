@@ -456,9 +456,11 @@ export class ToastContainer {
       return;
     }
 
-    if (gesture.dy < 0) {
-      this.unfan();
+    // Unconditionally: a finger that pulled up and then came back down past its own start still
+    // left the deck fanned, and is-fanning holds every transition off until it is cleared.
+    this.unfan();
 
+    if (gesture.dy < 0) {
       if (-gesture.dy >= EXPAND_PX) {
         this.expand();
       }

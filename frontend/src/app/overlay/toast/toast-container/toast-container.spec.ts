@@ -237,20 +237,35 @@ describe('ToastContainer', () => {
       expect(isInOverview(fixture)).toBe(false);
     });
 
-    it('takes the scrim out of the tab order once it is closed', async () => {
+    it('makes the scrim inert once it is closed', async () => {
       // Arrange
       const fixture = await render();
       await setToasts(fixture, 3);
       await openOverview(fixture);
       const scrim: HTMLElement = fixture.nativeElement.querySelector('.overview-scrim');
-      expect(scrim.getAttribute('tabindex')).toBeNull();
+      expect(scrim.getAttribute('inert')).toBeNull();
 
       // Act
       fixture.nativeElement.querySelector('.overview-scrim').click();
       await fixture.whenStable();
 
       // Assert
-      expect(scrim.getAttribute('tabindex')).toBe('-1');
+      expect(scrim.getAttribute('inert')).toBe('');
+    });
+
+    it('keeps the collapsed header out of reach', async () => {
+      // Arrange
+      const fixture = await render();
+      await setToasts(fixture, 3);
+      const header: HTMLElement = fixture.nativeElement.querySelector('.overview-header');
+
+      // Act
+      const whileClosed = header.getAttribute('inert');
+      await openOverview(fixture);
+
+      // Assert
+      expect(whileClosed).toBe('');
+      expect(header.getAttribute('inert')).toBeNull();
     });
 
     it('closes again on Escape', async () => {
@@ -530,6 +545,24 @@ describe('ToastContainer', () => {
 
         // Assert
         expect(isInOverview(fixture)).toBe(false);
+        expect(fixture.nativeElement.classList.contains('is-fanning')).toBe(false);
+        expect(fixture.nativeElement.style.getPropertyValue('--fan')).toBe('');
+      });
+
+      it('lets go of the fan when the finger comes back down past its start', async () => {
+        // Arrange
+        const fixture = await render();
+        await setToasts(fixture, 3);
+        const element = rendered(fixture)[2];
+
+        // Act
+        element.dispatchEvent(pointer('pointerdown', 0, 0));
+        window.dispatchEvent(pointer('pointermove', 0, -80));
+        window.dispatchEvent(pointer('pointermove', 0, 20));
+        window.dispatchEvent(pointer('pointerup', 0, 20));
+        await fixture.whenStable();
+
+        // Assert
         expect(fixture.nativeElement.classList.contains('is-fanning')).toBe(false);
         expect(fixture.nativeElement.style.getPropertyValue('--fan')).toBe('');
       });

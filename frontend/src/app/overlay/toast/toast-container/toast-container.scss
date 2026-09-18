@@ -89,7 +89,9 @@
  * the same way .link-button below does.
  *
  * visibility is deliberately held until the fade-out finishes, and pointer-events: none does not
- * stop focus, so the template takes it out of the tab order the moment the overview closes.
+ * stop focus, so the template marks it inert the moment the overview closes. The header pill is
+ * inert for the same reason: height: 0 and opacity: 0 hide it without taking Ryd alle out of the
+ * tab order, and reaching an invisible Ryd alle empties the list.
  */
 .overview-scrim {
   position: fixed;
