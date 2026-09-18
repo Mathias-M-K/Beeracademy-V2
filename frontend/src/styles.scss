@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 :root {
   --btn-background: var(--primary);
   --btn-foreground: var(--color-white);
@@ -63,7 +67,6 @@ button {
   border: none;
   user-select: none;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
 
   column-gap: 5px;
 }

@@ -39,9 +39,7 @@ describe('ToastService', () => {
       // Assert
       expect(service.toasts()).toEqual([
         expect.objectContaining({
-          title: 'Plads optaget',
           message: 'Nogen andre er allerede logget ind med dit ID',
-          icon: 'close',
           toastState: ToastState.message,
           id: expect.stringMatching(/^toast-\d+$/),
         }),
@@ -59,7 +57,7 @@ describe('ToastService', () => {
       expect(service.toasts()[0].toastState).toBe(ToastState.error);
     });
 
-    it('puts the newest toast first', () => {
+    it('puts the newest toast last', () => {
       // Arrange
       service.showToast('First', 'one', 'info');
 
@@ -67,7 +65,7 @@ describe('ToastService', () => {
       service.showToast('Second', 'two', 'info');
 
       // Assert
-      expect(service.toasts().map((toast) => toast.title)).toEqual(['Second', 'First']);
+      expect(service.toasts().map((toast) => toast.message)).toEqual(['one', 'two']);
     });
 
     it('gives every toast a unique id', () => {
@@ -78,7 +76,7 @@ describe('ToastService', () => {
       service.showToast('Second', 'two', 'info');
 
       // Assert
-      const [second, first] = service.toasts();
+      const [first, second] = service.toasts();
       expect(second.id).not.toBe(first.id);
     });
   });
@@ -99,7 +97,7 @@ describe('ToastService', () => {
       expect(panes()).toHaveLength(1);
       expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
       expect(renderedToasts()).toHaveLength(1);
-      expect(renderedToasts()[0].textContent).toContain('Hej');
+      expect(renderedToasts()[0].textContent).toContain('Velkommen');
     });
 
     it('reuses the open container for further toasts', () => {
@@ -122,20 +120,20 @@ describe('ToastService', () => {
       // Arrange
       service.showToast('First', 'one', 'info');
       service.showToast('Second', 'two', 'info');
-      const [second] = service.toasts();
+      const [, second] = service.toasts();
 
       // Act
       service.removeToast(second.id);
 
       // Assert
-      expect(service.toasts().map((toast) => toast.title)).toEqual(['First']);
+      expect(service.toasts().map((toast) => toast.message)).toEqual(['one']);
     });
 
     it('keeps the container open while toasts remain', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');
       service.showToast('Second', 'two', 'info');
-      const [second] = service.toasts();
+      const [, second] = service.toasts();
 
       // Act
       service.removeToast(second.id);
@@ -187,13 +185,16 @@ describe('ToastService', () => {
       expect(panes()).toHaveLength(1);
     });
 
-    it('removes a toast when it is clicked', async () => {
+    it('removes a toast when its countdown runs out', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');
       TestBed.tick();
 
       // Act
-      renderedToasts()[0].click();
+      renderedToasts()[0]
+        .querySelector('.countdown')!
+        .dispatchEvent(new Event('animationend', { bubbles: true }));
+      TestBed.tick();
       await flushMicrotasks();
 
       // Assert
@@ -201,8 +202,7 @@ describe('ToastService', () => {
       expect(panes()).toHaveLength(0);
     });
 
-    // known-issues: ToastService.removeToast clears overlayActive before the closing overlay resolves, so a toast shown meanwhile stacks a second container
-    it.fails('never has more than one toast container open', async () => {
+    it('never has more than one toast container open', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');
       service.removeToast(service.toasts()[0].id);

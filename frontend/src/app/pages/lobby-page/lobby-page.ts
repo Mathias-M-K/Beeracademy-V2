@@ -66,11 +66,23 @@ export class LobbyPage {
     });
   }
 
-  addUsualSuspects() {
+  async addUsualSuspects() {
+    const delay = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
+    const delayBetweenAdd = 100;
+
     this.lobbyService.requestParticipantCreation('Mathias');
+    await delay(delayBetweenAdd);
+
     this.lobbyService.requestParticipantCreation('Lasse');
+    await delay(delayBetweenAdd);
+
     this.lobbyService.requestParticipantCreation('Frederik');
+    await delay(delayBetweenAdd);
+
     this.lobbyService.requestParticipantCreation('Andreas');
+    await delay(delayBetweenAdd);
+
     this.lobbyService.requestParticipantCreation('Jakob');
+    await delay(delayBetweenAdd);
   }
 }

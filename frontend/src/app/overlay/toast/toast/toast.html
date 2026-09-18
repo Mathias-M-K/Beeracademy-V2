@@ -1,8 +1,32 @@
-<div class="icon-backdrop" [style.grid-area]="'icon'">
-  <material-icon [icon]="toastData().icon" id="icon" [size]="20"></material-icon>
-</div>
+<span class="glyph" aria-hidden="true">
+  <span class="countdown" (animationend)="onCountdownEnd()"></span>
+  <span class="ripple"></span>
+  <app-dot class="dot" [color]="toastColor()" [radiusPx]="8"></app-dot>
+  <material-icon class="icon" [icon]="toastData().icon" [size]="18"></material-icon>
+</span>
 
-<h4 [style.grid-area]="'title'">{{ toastData().title }}</h4>
-<p [style.grid-area]="'msg'">{{ toastData().message }}</p>
+<span class="copy">
+  <span class="title">{{ toastData().title }}</span>
+  <span class="message">{{ toastData().message }}</span>
+</span>
 
-<div class="timer-bar"></div>
+@if (showBadge()) {
+  <button
+    class="toast-count-badge"
+    type="button"
+    [class.rolls-down]="badgeRollsDown()"
+    [attr.aria-label]="badgeCount() + ' flere hændelser'"
+    (click)="onBadgeClick($event)"
+    animate.enter="badge-enter"
+    animate.leave="badge-leave"
+  >
+    <span class="badge-roll">
+      @for (count of [badgeCount()]; track count) {
+        <span class="badge-number" animate.enter="rolls-in" animate.leave="rolls-out">{{
+          count
+        }}</span>
+      }
+    </span>
+    mere
+  </button>
+}

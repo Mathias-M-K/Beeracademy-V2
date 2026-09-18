@@ -1,73 +1,387 @@
-$timer-bar-width: 3px;
-
-:host {
-  background-color: white;
-  box-shadow: 2px 2px 10px rgb(0 0 0);
-  position: relative;
-  display: grid;
-  grid-template-areas:
-    'icon title'
-    'icon msg';
-
-  grid-template-rows: 20px auto;
-  grid-template-columns: 40px 300px;
-
-  column-gap: 10px;
-  padding: 10px 10px 10px 10px;
-  border-radius: 5px;
-
-  align-items: center;
-
-  user-select: none;
+@property --toast-progress {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
 }
 
-:host:hover .timer-bar {
+:host {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+
+  width: min(360px, 92vw);
+  height: 56px;
+  padding: 0 16px;
+
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-grey-500);
+  border-radius: 1000px;
+  box-shadow: 0 6px 18px rgb(26 26 24 / 0.18);
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* We own both axes while stacked; without this the browser claims the pan and cancels us. */
+  touch-action: none;
+  -webkit-touch-callout: none;
+
+  transition:
+    width var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    height var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    padding var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    border-radius var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    border-color var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    background-color var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    box-shadow var(--animation-duration) var(--ease) var(--stagger, 0ms);
+}
+
+/* The pill unfolds into the same card a tap opens in the deck, just at a settled size. */
+:host(.is-row) {
+  /* A percentage would resolve against the scroller's padding box, so the inset is explicit. */
+  width: calc(100% - var(--overview-card-inset) * 2);
+  height: var(--overview-card-height);
+  padding: 0 16px;
+
+  border-radius: 22px;
+  box-shadow: 0 6px 16px rgb(26 26 24 / 0.16);
+
+  /* In the overview the vertical axis belongs to the scroller. */
+  touch-action: pan-y;
+}
+
+/* Tapped open in the deck: still a card, just a taller one showing everything. */
+:host(.is-expanded) {
+  height: var(--expanded-height);
+  border-radius: 22px;
+}
+
+:host(:active) {
+  background-color: var(--color-slate-100);
+}
+
+/* ---- the glyph: a dot under a countdown ring, blooming into a tinted icon ---- */
+
+.glyph {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+
+  background-color: rgb(from var(--toast-color) r g b / 0);
+
+  transition:
+    width var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    height var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    background-color var(--animation-duration) var(--ease) var(--stagger, 0ms);
+}
+
+:host(.is-row) .glyph,
+:host(.is-expanded) .glyph {
+  width: 32px;
+  height: 32px;
+  background-color: rgb(from var(--toast-color) r g b / 0.14);
+}
+
+.countdown {
+  position: absolute;
+  inset: -4px;
+
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    var(--toast-color) var(--toast-progress),
+    rgb(from var(--toast-color) r g b / 0.15) 0
+  );
+
+  -webkit-mask: radial-gradient(closest-side, #0000 calc(100% - 2.5px), #000 calc(100% - 2px));
+  mask: radial-gradient(closest-side, #0000 calc(100% - 2.5px), #000 calc(100% - 2px));
+
+  animation: toast-countdown var(--toast-duration, 4500ms) linear forwards;
+}
+
+/*
+ * Pausing rather than cancelling is the whole point: the arc visibly stops where it stands
+ * while the overview is open, and picks up from there when it closes.
+ */
+:host(.is-paused) .countdown,
+:host(.is-leaving) .countdown,
+:host(.is-dragging) .countdown {
   animation-play-state: paused;
 }
 
-h4,
-p {
-  margin: 0;
+@media (hover: hover) {
+  :host(:hover) .countdown {
+    animation-play-state: paused;
+  }
 }
-p {
+
+.ripple {
+  position: absolute;
+  inset: -4px;
+
+  border: 2px solid var(--toast-color);
+  border-radius: 50%;
+
+  opacity: 0;
+  animation: toast-ripple 760ms var(--ease) 100ms;
+}
+
+.dot,
+.icon {
+  grid-area: 1 / 1;
+
+  transition:
+    opacity var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    scale var(--animation-duration) var(--ease) var(--stagger, 0ms);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+
+  color: var(--toast-color);
+
+  opacity: 0;
+  scale: 0.4;
+}
+
+:host(.is-row) .dot,
+:host(.is-expanded) .dot {
+  opacity: 0;
+  scale: 0.3;
+}
+
+:host(.is-row) .icon,
+:host(.is-expanded) .icon {
+  opacity: 1;
+  scale: 1;
+}
+
+/* ---- the copy: one line stacked, two lines in the overview ---- */
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.title,
+.message {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-family: var(--font);
+}
+
+.title {
+  height: 0;
+  opacity: 0;
+  translate: 0 4px;
+
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--color-black);
+
+  transition:
+    height var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    opacity var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    translate var(--animation-duration) var(--ease) var(--stagger, 0ms);
+}
+
+:host(.is-row) .title,
+:host(.is-expanded) .title {
+  height: 18px;
+  opacity: 1;
+  translate: 0 0;
+}
+
+.message {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--color-black);
+
+  transition:
+    font-size var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    font-weight var(--animation-duration) var(--ease) var(--stagger, 0ms),
+    color var(--animation-duration) var(--ease) var(--stagger, 0ms);
+}
+
+:host(.is-row) .message,
+:host(.is-expanded) .message {
+  /* Full content, wrapped, capped at two lines — never an ellipsis. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  text-overflow: clip;
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 17px;
   color: var(--color-grey-600);
 }
 
-#icon {
-  color: rgba(0, 0, 0, 0.8);
+/* ---- the "N mere" affordance ---- */
+
+.toast-count-badge {
+  --btn-background: var(--white-complementary);
+  --btn-foreground: var(--white-complementary-text);
+  --roll-in: 100%;
+  --roll-out: -100%;
+
+  justify-self: end;
+
+  display: flex;
+  align-items: center;
+  gap: 3px;
+
+  height: auto;
+  min-width: 0;
+  padding: 5px 10px;
+
+  border-radius: 1000px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.timer-bar {
-  position: absolute;
-  bottom: 0;
-  height: $timer-bar-width;
-  background-color: var(--toast-color);
-  animation: timer 3s linear;
+@media (hover: hover) {
+  .toast-count-badge:hover {
+    --btn-background: var(--color-grey-500);
+    --btn-foreground: var(--color-black);
+  }
 }
 
-$area: 30px;
-.icon-backdrop {
-  display: inherit;
-  background-color: rgb(from var(--toast-color) r g b / 0.3);
-  border-radius: 50%;
-
-  height: $area;
-  width: $area;
-
-  justify-content: center;
+.toast-count-badge.rolls-down {
+  --roll-in: -100%;
+  --roll-out: 100%;
 }
 
-@keyframes timer {
+/* Both numbers share one cell, so the outgoing one slides past the incoming one. */
+.badge-roll {
+  display: inline-grid;
+  grid-template: 1fr / 1fr;
+  justify-items: center;
+
+  overflow: hidden;
+  min-width: 1ch;
+  height: 16px;
+}
+
+.badge-number {
+  grid-area: 1 / 1;
+  line-height: 16px;
+}
+
+.badge-number.rolls-in {
+  animation: badge-roll-in 260ms var(--ease);
+}
+
+.badge-number.rolls-out {
+  animation: badge-roll-out 260ms var(--ease);
+}
+
+.toast-count-badge.badge-enter {
+  animation: badge-pop-in 260ms cubic-bezier(0.2, 1.5, 0.45, 1);
+}
+
+.toast-count-badge.badge-leave {
+  /* On its way out it must not swallow a press meant for the toast underneath. */
+  pointer-events: none;
+  animation: badge-pop-out 160ms var(--ease) forwards;
+}
+
+@keyframes badge-roll-in {
   from {
-    width: 100%;
+    translate: 0 var(--roll-in);
+    opacity: 0;
   }
   to {
-    width: 0;
+    translate: 0 0;
+    opacity: 1;
   }
 }
 
-@media (max-width: 500px) {
-  :host {
-    width: 95dvw;
+@keyframes badge-roll-out {
+  from {
+    translate: 0 0;
+    opacity: 1;
   }
+  to {
+    translate: 0 var(--roll-out);
+    opacity: 0;
+  }
+}
+
+@keyframes badge-pop-in {
+  from {
+    opacity: 0;
+    scale: 0.55;
+    translate: 8px 0;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes badge-pop-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.7;
+  }
+}
+
+@keyframes toast-countdown {
+  from {
+    --toast-progress: 100%;
+  }
+  to {
+    --toast-progress: 0%;
+  }
+}
+
+@keyframes toast-ripple {
+  from {
+    opacity: 0.5;
+    scale: 0.75;
+  }
+  to {
+    opacity: 0;
+    scale: 2.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple,
+  .badge-number,
+  .toast-count-badge {
+    animation: none;
+  }
+}
+
+/* An opened card is sized to its own message, so it shows the whole thing rather than two lines. */
+:host(.is-expanded) .message {
+  font-size: var(--expanded-font-size);
+  line-height: var(--expanded-line-height);
+  -webkit-line-clamp: var(--expanded-lines, 2);
+  line-clamp: var(--expanded-lines, 2);
 }

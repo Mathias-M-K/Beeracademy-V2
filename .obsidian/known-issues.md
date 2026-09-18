@@ -231,14 +231,20 @@ Test: `chat.service.spec.ts` › "sends the same trimmed text it shows locally".
 redirects to `/start` silently, whereas the game resolver shows a toast for GameNotFound.
 Test: `lobby-state.resolver.spec.ts` › "tells the user when the lobby no longer exists".
 
-## 22. Toast overlays can stack
-`frontend/src/app/services/toast/toast.service.ts:37-39, 53`. The race:
-- `removeToast` sets `overlayActive=false` immediately, but closing is async.
-- A `showToast` in that window opens a second container.
-- The first overlay's `closed.then` then flips `overlayActive` false while the second is open,
-  so the next toast opens a third.
+## 22. Toast overlays can stack — ✅ RESOLVED 2026-09-18
+~~`frontend/src/app/services/toast/toast.service.ts:37-39, 53`. The race:~~
+- ~~`removeToast` sets `overlayActive=false` immediately, but closing is async.~~
+- ~~A `showToast` in that window opens a second container.~~
+- ~~The first overlay's `closed.then` then flips `overlayActive` false while the second is open,~~
+  ~~so the next toast opens a third.~~
 
-Test: `toast.service.spec.ts` › "never has more than one toast container open".
+Fixed. The `overlayActive` signal is gone. `ToastService` now keeps the handle itself plus an
+`isClosing` flag, and a single `syncOverlay()` reconciles "is there a container?" with "is the
+list empty?" after every mutation. While `isClosing` is set, `syncOverlay()` is a no-op; the
+handle's `closed` promise clears the flag and calls `syncOverlay()` once more, so a toast that
+arrived mid-exit opens exactly one fresh container. See [[toast-stack-and-overview]].
+
+Test: `toast.service.spec.ts` › "never has more than one toast container open" (no longer `it.fails`).
 
 ## 23. `JoinPage` leaks its SSE connection
 `frontend/src/app/pages/join-page/join-page.ts:55-60`. The
@@ -295,3 +301,41 @@ decision first.
 - [[party-id-lifecycle]] — issue 6's boundary rule
 - [[websocket-session-managers]] — issue 14
 - [[README]] — vault index
+## 27. First tap after a drag-dismiss is swallowed — ⬜ OPEN, unsolved 2026-09-18
+
+Dismissing a toast **by dragging** makes the next tap do nothing — anywhere on the page, not just
+on a toast. Roughly 600–1000ms, touch only, and a second tap works immediately. Dismissing the same
+toast **by tapping** never shows it.
+
+Reproduction: on `/start`, tap "Opret lobby" twice with an empty name to raise two toasts, drag one
+away, then tap "Opret lobby" again. The first tap is lost.
+
+**Established by on-device tracing** (`document.elementsFromPoint` plus raw event logging):
+
+- The full touch arrives — `pointerdown`, `touchstart`, `pointerup`, `touchend` — and **no `click`
+  is ever dispatched**. It is the browser withholding it, not a handler swallowing it.
+- Nothing covers the tap target. The stack under the finger is clean (`button.btn-secondary`
+  topmost, `pe:auto`), in both stacked and overview modes.
+- The button is never detached: a `MutationObserver` over the page recorded no removals and the
+  node stayed `isConnected` throughout.
+- Change detection keeps running, the console is clean, and there is no layout overflow.
+- No `scroll` events fire, and it reproduces in **stacked** mode where the pill is
+  `touch-action: none` — so no browser pan or fling is involved.
+- A drag that **springs back** is harmless. Only a drag that actually removes a toast does it.
+- The one correlation found: the toast's removal from the DOM lands between `touchstart` and
+  `pointerup` (`dom:2 leaving:1` → `dom:1 leaving:0`), and that tap produces no click.
+
+**Ruled out as causes** (each tried, each failed to fix it): `preventDefault` on `pointermove`;
+`setPointerCapture`; the container-scoped click-suppression guard; scroll chaining
+(`overscroll-behavior: contain`); locking body scroll under the modal overview; making the exiting
+toast's whole subtree `pointer-events: none`; resolving taps from `pointerup` instead of `click`;
+and deferring the removal until every pointer lifts.
+
+All of those were reverted on 2026-09-18 at the user's request rather than left in as speculative
+band-aids. What remains in the toast code is only what is independently justified: the
+`touch-action` declarations (which fixed a *different*, confirmed bug — drags janking back on a real
+phone) and the touch-aware tap slop.
+
+**Not reproducible in a desktop browser or a headless pane** — the browser only synthesises clicks
+from real touch input, so this needs a device. See [[toast-stack-and-overview]] for the mechanics
+the investigation covered.
