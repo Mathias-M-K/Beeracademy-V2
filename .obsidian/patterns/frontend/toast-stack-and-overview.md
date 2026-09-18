@@ -217,6 +217,15 @@ mutation. It fixed [[known-issues]] #22 — see that entry for the race it repla
   expand clips the pill against a panel that is still ~0 tall, so it is gated on
   `:host(.toast-overview:not(.is-resizing))`. `is-resizing` clears on the `.rows` height
   `transitionend`.
+- **The scrim is a `<button>`, and it has to stay one.** A div with a click handler and no keyboard
+  path is a genuine reliability finding, not a lint quibble, and `aria-hidden` does not answer it —
+  the element really was a control that only a pointer could reach. As a button it costs three
+  things, all of which look like noise until you know why: the global `button` rule has to be undone
+  (`width`/`height`/`min-width`/`padding`/`border-radius`), `button:active` outranks the class on
+  its own so the press tint needs turning off, and because `visibility` is deliberately held until
+  the fade-out finishes while `pointer-events: none` does not stop focus, the template binds
+  `tabindex="-1"` whenever the overview is closed. Without that last one it stays focusable for the
+  620ms the fade takes.
 - **Angular scopes `@keyframes` names** under emulated encapsulation (`_ngcontent-…_toast-in`), so
   never match on `animationName` in a handler.
 - **`--overview-panel-width` is `min(440px, 92vw)`.** The compact class from `BreakpointObserver` is
