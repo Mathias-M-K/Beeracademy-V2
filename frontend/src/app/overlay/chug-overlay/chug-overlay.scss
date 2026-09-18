@@ -14,7 +14,6 @@
   grid-template-areas: 'header' 'timer' 'player' 'buttons';
 
   padding: 15px 0;
-  -webkit-tap-highlight-color: transparent;
 }
 
 :host(.guest) {

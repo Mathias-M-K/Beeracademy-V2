@@ -1,53 +1,402 @@
 :host {
+  --animation-duration: 0.62s;
+  --exit-duration: 0.42s;
+  --ease: cubic-bezier(0.22, 0.75, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+
+  --overview-header-height: 46px;
+
+  /* Breathing room between the header pill and the first card. */
+  --overview-header-gap: 12px;
+
+  /* Shoulder room either side of a card so its shadow is not clipped by the scroller. */
+  --overview-card-inset: 14px;
+
+  --overview-card-height: 72px;
+  --overview-row-gap: 10px;
+  --overview-row-pitch: calc(var(--overview-card-height) + var(--overview-row-gap));
+
+  /* One trailing gap is left below the last card so its shadow is not clipped off. */
+  --overview-rows-height: calc(var(--overview-row-pitch) * var(--toast-count));
+
+  --overview-panel-width: min(440px, 92vw);
+  --overview-rows-max: 46vh;
+
+  --stack-height: 120px;
+  --stack-gap: 9px;
+
+  /* 0 while the deck is closed, 1 when a drag has pulled it the whole way open. */
+  --fan: 0;
+
+  /* How far the cards spring apart from one another at full stretch. */
+  --fan-spread: 32px;
+
+  /* A tapped-open card is the pill plus its title, plus a second message line if it needs one. */
+  --expanded-font-size: 13px;
+  --expanded-line-height: 17px;
+  --expanded-height: calc(
+    56px + 18px + (var(--expanded-lines, 1) - 1) * var(--expanded-line-height)
+  );
+  --expanded-extra: 0px;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100vw;
+  height: calc(var(--stack-height) + var(--fan) * 2 * var(--fan-spread) + var(--expanded-extra));
+  padding: 20px 0;
+
+  background-image: linear-gradient(transparent, var(--off-white) 99%);
+
+  transition: height var(--animation-duration) var(--ease);
+  animation: toast-container-enter 0.32s var(--ease);
+}
+
+:host(.toast-panel--compact) {
+  --overview-panel-width: 92vw;
+  --overview-rows-max: 52vh;
+}
+
+/* A finger is driving the deck — it must track the finger, not ease behind it. */
+:host(.is-fanning),
+:host(.is-fanning) .toast {
+  transition: none;
+}
+
+:host(.toast-overview) {
+  /*
+   * Falling into formation wants to be brisk — the deck already told you what is about to happen.
+   * Collapsing keeps the longer duration: there the cards are gathering, not arriving.
+   * A transition takes its timing from the after-change style, so this one value covers the whole
+   * opening — host height, the cards, the header pill and every reveal inside a card.
+   */
+  --animation-duration: 0.3s;
+
+  height: calc(
+    var(--overview-header-height) + var(--overview-header-gap) +
+      min(var(--overview-rows-height), var(--overview-rows-max)) + 40px
+  );
+}
+
+/* ---- the scrim behind the overview ---- */
+
+/*
+ * A control, not a decorated div: dismissing by tapping outside is a real action, so it gets a
+ * real button and a keyboard user gets it for nothing. That means undoing the global button rule,
+ * the same way .link-button below does.
+ *
+ * visibility is deliberately held until the fade-out finishes, and pointer-events: none does not
+ * stop focus, so the template marks it inert the moment the overview closes. The header pill is
+ * inert for the same reason: height: 0 and opacity: 0 hide it without taking Ryd alle out of the
+ * tab order, and reaching an invisible Ryd alle empties the list.
+ */
+.overview-scrim {
+  position: fixed;
+  inset: 0;
+
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
+
+  background-color: rgb(26 26 24 / 0.38);
+  backdrop-filter: blur(3px);
+
+  opacity: 0;
+  visibility: hidden;
+
+  /* It stays visible through the fade-out, so it has to stop catching clicks explicitly. */
+  pointer-events: none;
+  transition:
+    opacity var(--animation-duration) var(--ease),
+    visibility 0s linear var(--animation-duration);
+}
+
+/* button:active outranks the class on its own, so the press tint has to be turned off here. */
+.overview-scrim:active {
+  background-color: rgb(26 26 24 / 0.38);
+}
+
+:host(.toast-overview) .overview-scrim {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity var(--animation-duration) var(--ease),
+    visibility 0s linear 0s;
+}
+
+/*
+ * ---- the column the deck unfolds into ----
+ *
+ * A layout box, not a window. The overview is the cards themselves rearranging over the scrim,
+ * so nothing here paints — the only new surface is the header pill.
+ */
+
+.surface {
+  position: absolute;
+
   display: flex;
   flex-direction: column;
 
-  transform: translateY(-20px);
+  width: var(--overview-panel-width);
 }
 
-.toast {
-  margin-bottom: 10px;
+/* The overview's own chrome: one pill riding above the cards. */
+.overview-header {
+  align-self: center;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  height: 0;
+  padding: 0 18px;
+  overflow: hidden;
+
+  border: 1.5px solid transparent;
+  border-radius: 1000px;
+  background-color: rgb(255 255 255 / 0);
+  box-shadow: 0 0 0 0 rgb(26 26 24 / 0);
+
+  opacity: 0;
+  scale: 0.9;
+  translate: 0 6px;
+  pointer-events: none;
+
+  transition:
+    height var(--animation-duration) var(--ease),
+    margin-bottom var(--animation-duration) var(--ease),
+    background-color var(--animation-duration) var(--ease),
+    border-color var(--animation-duration) var(--ease),
+    box-shadow var(--animation-duration) var(--ease),
+    scale var(--animation-duration) var(--ease-spring),
+    translate var(--animation-duration) var(--ease-spring),
+    opacity calc(var(--animation-duration) * 0.6) var(--ease);
+
+  .subtitle {
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+:host(.toast-overview) .overview-header {
+  height: var(--overview-header-height);
+  margin-bottom: var(--overview-header-gap);
+
+  border-color: var(--color-grey-500);
+  background-color: var(--color-white);
+  box-shadow: 0 10px 26px rgb(26 26 24 / 0.24);
+
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.link-button {
+  height: auto;
+  min-width: 0;
+  padding: 0;
+
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .link-button:hover {
+    background-color: transparent;
+    color: var(--primary-hover);
+  }
+}
+
+.link-button:active {
+  background-color: transparent;
+}
+
+/* ---- the rows ---- */
+
+.rows {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 0;
+
+  transition: height var(--animation-duration) var(--ease);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-grey-500) transparent;
+}
+
+:host(.toast-overview) .rows {
+  height: var(--overview-rows-height);
+  max-height: var(--overview-rows-max);
+
+  overflow: hidden auto;
+  scrollbar-gutter: stable;
+}
+
+/* A row giving up its slot briefly outruns the shrinking list. */
+:host(.toast-overview.is-exiting) .rows {
   overflow: hidden;
 }
 
-.toast-enter {
-  animation: toast-in 0.3s ease-in-out;
+:host(.toast-overview.is-resizing) .rows {
+  overflow: visible;
 }
 
-.toast-leave {
-  animation: toast-out 0.35s ease-in-out forwards;
+/* ---- the deck ---- */
+
+.toast {
+  position: absolute;
+
+  --stacked-depth: min(var(--depth), 2);
+  --drag-tilt: 0.02deg;
+  --depth-opacity: 1;
+
+  /* Deeper cards wait their turn; the card nearest the top leads the fan-out. */
+  --stagger: max(0ms, (var(--toast-count) - 1 - var(--depth)) * 24ms);
+
+  scale: calc(1 - var(--stacked-depth) * 0.045 * (1 - var(--fan) * 0.5));
+  translate: 0
+    calc(
+      var(--stacked-depth) * (var(--stack-gap) + var(--fan) * var(--fan-spread)) +
+        min(var(--stacked-depth), 1) * var(--expanded-extra)
+    );
+  transform: translate(calc(var(--drag-x, 0) * 1px), calc(var(--drag-y, 0) * 1px))
+    rotate(calc(var(--drag-x, 0) * var(--drag-tilt, 0deg)));
+  opacity: calc(var(--depth-opacity) * var(--drag-fade, 1));
+
+  transition:
+    scale var(--animation-duration) var(--ease) var(--stagger),
+    translate var(--animation-duration) var(--ease) var(--stagger),
+    opacity var(--animation-duration) var(--ease) var(--stagger),
+    box-shadow var(--animation-duration) var(--ease) var(--stagger);
+}
+
+:host(.toast-overview) .toast {
+  --stagger: max(0ms, var(--depth) * 24ms);
+
+  /* A tilted row looks messy in a list — rows leave square. */
+  --drag-tilt: 0deg;
+
+  scale: 1;
+  translate: 0 calc(var(--depth) * var(--overview-row-pitch));
+}
+
+/* Anything past the third card is fully hidden behind the deck. */
+:host(:not(.toast-overview)) .toast.is-buried {
+  --depth-opacity: 0;
+
+  box-shadow: none;
+}
+
+.toast.is-dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+.toast.is-releasing {
+  transition:
+    transform 0.45s var(--ease-spring),
+    opacity 0.3s var(--ease);
+}
+
+.toast-enter {
+  animation: toast-in var(--animation-duration) var(--ease-spring);
+}
+
+.toast.is-leaving {
+  animation: toast-out var(--exit-duration) var(--ease) forwards;
+  pointer-events: none;
+}
+
+/* Emptying the whole list is the one time the exits should cascade. */
+:host(.is-clearing) .toast.is-leaving {
+  animation-delay: var(--stagger);
 }
 
 :host(.overlay-leaving) {
-  animation: toast-out 0.35s ease-in-out forwards;
+  animation: toast-container-leave 0.3s var(--ease) forwards;
 }
 
 @keyframes toast-in {
   from {
+    transform: translateY(150px) scale(0.9);
     opacity: 0;
-    transform: translateX(200px);
   }
-
   to {
+    transform: translateY(0) scale(1);
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
 @keyframes toast-out {
   from {
-    opacity: 1;
-    transform: translateX(0);
-    max-height: 120px;
-    margin-bottom: 10px;
+    transform: translate(calc(var(--drag-x, 0) * 1px), calc(var(--drag-y, 0) * 1px))
+      rotate(calc(var(--drag-x, 0) * var(--drag-tilt, 0deg))) scale(1);
+    opacity: var(--drag-fade, 1);
   }
+  to {
+    transform: translate(var(--exit-x, 0px), var(--exit-y, 0px)) rotate(var(--exit-rotate, 0deg))
+      scale(0.94);
+    opacity: 0;
+  }
+}
 
+@keyframes toast-container-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes toast-container-leave {
+  from {
+    opacity: 1;
+  }
   to {
     opacity: 0;
-    transform: translateX(200px);
-    max-height: 0;
-    margin-bottom: 0;
-    padding-top: 0;
-    padding-bottom: 0;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Both, because :host(.toast-overview) outranks a bare :host whatever the media query says. */
+  :host,
+  :host(.toast-overview) {
+    --animation-duration: 0.01s;
+    --exit-duration: 0.2s;
+  }
+
+  .toast-enter {
+    animation-duration: 0.2s;
+  }
+
+  .overview-scrim {
+    backdrop-filter: none;
+  }
+}
+
+/* The deck makes room for a tapped-open card, and the cards behind keep peeking below it. */
+:host(.has-expanded) {
+  --expanded-extra: calc(var(--expanded-height) - 56px);
 }

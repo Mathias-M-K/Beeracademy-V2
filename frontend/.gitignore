@@ -8,3 +8,4 @@ dist
 openapi-spec/
 src/api-models/
 /coverage
+/.claude/worktrees/

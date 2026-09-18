@@ -1,11 +1,56 @@
-@for (toast of toasts(); track toast.id) {
-  <app-toast
-    class="toast"
-    [toastData]="toast"
-    animate.enter="toast-enter"
-    animate.leave="toast-leave"
-    (timerEnd)="onToastFinished(toast.id)"
-    (click)="onToastFinished(toast.id)"
-    (keydown)="onToastFinished(toast.id)"
-  ></app-toast>
-}
+<button
+  type="button"
+  class="overview-scrim"
+  aria-label="Luk oversigten"
+  [attr.inert]="isInOverviewMode() ? null : ''"
+  (click)="collapse()"
+></button>
+
+<div class="surface">
+  <div class="overview-header" [attr.inert]="isInOverviewMode() ? null : ''">
+    <p class="subtitle">{{ activeCount() }} {{ activeCount() === 1 ? 'hændelse' : 'hændelser' }}</p>
+
+    <span class="header-actions">
+      <button type="button" class="link-button" (click)="clearAll()">Ryd alle</button>
+      <button type="button" class="link-button" (click)="collapse()">Luk</button>
+    </span>
+  </div>
+
+  <div
+    class="rows"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions"
+    (transitionend)="onRowsSettled($event)"
+  >
+    @for (entry of stack(); track entry.data.id) {
+      <app-toast
+        #toastElement
+        class="toast"
+        role="button"
+        [attr.tabindex]="!isInOverviewMode() && entry.depth >= 3 ? -1 : 0"
+        [attr.aria-hidden]="!isInOverviewMode() && entry.depth >= 3 ? 'true' : null"
+        [attr.data-toast-id]="entry.data.id"
+        [attr.aria-label]="entry.data.title + ': ' + entry.data.message"
+        [class.is-buried]="entry.depth >= 3"
+        [class.is-row]="isInOverviewMode()"
+        [class.is-leaving]="entry.isLeaving"
+        [class.is-expanded]="!isInOverviewMode() && expandedToastId() === entry.data.id"
+        [style.--depth]="entry.depth"
+        [style.--exit-x]="entry.exitX"
+        [style.--exit-y]="entry.exitY"
+        [style.--exit-rotate]="entry.exitRotate"
+        [toastData]="entry.data"
+        [toastCount]="entry.depth === 0 ? activeCount() : 0"
+        [inOverviewMode]="isInOverviewMode()"
+        [isPaused]="isInOverviewMode() || expandedToastId() === entry.data.id"
+        animate.enter="toast-enter"
+        (timerEnd)="dismiss(entry.data.id)"
+        (click)="onToastTap(entry.data.id)"
+        (keydown.enter)="onToastTap(entry.data.id)"
+        (keydown.space)="onToastTap(entry.data.id)"
+        (expand)="onExpand($event)"
+      ></app-toast>
+    }
+  </div>
+</div>
