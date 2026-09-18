@@ -1,4 +1,10 @@
-<div class="overview-scrim" aria-hidden="true" (click)="collapse()"></div>
+<button
+  type="button"
+  class="overview-scrim"
+  aria-label="Luk oversigten"
+  [attr.tabindex]="isInOverviewMode() ? null : -1"
+  (click)="collapse()"
+></button>
 
 <div class="surface">
   <div class="overview-header" [attr.aria-hidden]="isInOverviewMode() ? null : 'true'">

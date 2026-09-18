@@ -83,9 +83,23 @@
 
 /* ---- the scrim behind the overview ---- */
 
+/*
+ * A control, not a decorated div: dismissing by tapping outside is a real action, so it gets a
+ * real button and a keyboard user gets it for nothing. That means undoing the global button rule,
+ * the same way .link-button below does.
+ *
+ * visibility is deliberately held until the fade-out finishes, and pointer-events: none does not
+ * stop focus, so the template takes it out of the tab order the moment the overview closes.
+ */
 .overview-scrim {
   position: fixed;
   inset: 0;
+
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
 
   background-color: rgb(26 26 24 / 0.38);
   backdrop-filter: blur(3px);
@@ -98,6 +112,11 @@
   transition:
     opacity var(--animation-duration) var(--ease),
     visibility 0s linear var(--animation-duration);
+}
+
+/* button:active outranks the class on its own, so the press tint has to be turned off here. */
+.overview-scrim:active {
+  background-color: rgb(26 26 24 / 0.38);
 }
 
 :host(.toast-overview) .overview-scrim {
