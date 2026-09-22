@@ -82,41 +82,12 @@ describe('GamePage', () => {
     return fixture;
   }
 
-  function iconButton(fixture: ComponentFixture<GamePage>, icon: string): HTMLButtonElement {
-    const match = Array.from(
-      fixture.nativeElement.querySelectorAll('app-header button') as HTMLButtonElement[],
-    ).find((button) => button.textContent?.trim() === icon);
-    if (!match) throw new Error(`No "${icon}" button`);
-    return match;
-  }
-
-  function hasIconButton(fixture: ComponentFixture<GamePage>, icon: string): boolean {
-    return Array.from(
-      fixture.nativeElement.querySelectorAll('app-header button') as HTMLButtonElement[],
-    ).some((button) => button.textContent?.trim() === icon);
-  }
-
   async function pressSpace(fixture: ComponentFixture<GamePage>) {
     document.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }));
     await fixture.whenStable();
   }
 
   describe('game overview', () => {
-    it('shows the game name, round, player count and game time', async () => {
-      // Arrange
-      gameService.currentRound.set(4);
-
-      // Act
-      const fixture = await render();
-
-      // Assert
-      const header: HTMLElement = fixture.nativeElement.querySelector('app-header');
-      expect(header.querySelector('h1')?.textContent).toBe('Friday game');
-      expect(header.textContent).toContain('Runde 4/13');
-      expect(header.textContent).toContain('Spillere 3');
-      expect(header.querySelector('h3')?.textContent).toBe('01:02:03');
-    });
-
     it('shows who is drawing', async () => {
       // Arrange
       gameService.currentPlayer.set(gameService.players()[1]);
@@ -201,94 +172,6 @@ describe('GamePage', () => {
 
       // Assert
       expect(gameService.dispatchDrawCardAction).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('game timer controls', () => {
-    it('pauses a running game', async () => {
-      // Arrange
-      gameService.gameTimeReport.set(aTimeReport({ state: TimerState.Running }));
-      const fixture = await render();
-
-      // Act
-      iconButton(fixture, 'pause').click();
-
-      // Assert
-      expect(gameService.dispatchPauseGameAction).toHaveBeenCalledOnce();
-    });
-
-    it('resumes a paused game', async () => {
-      // Arrange
-      gameService.gameTimeReport.set(aTimeReport({ state: TimerState.Paused }));
-      const fixture = await render();
-
-      // Act
-      iconButton(fixture, 'play_arrow').click();
-
-      // Assert
-      expect(gameService.dispatchResumeGameAction).toHaveBeenCalledOnce();
-    });
-
-    it('cannot pause a game that has not started', async () => {
-      // Arrange
-      gameService.gameTimeReport.set(undefined);
-
-      // Act
-      const fixture = await render();
-
-      // Assert
-      expect(iconButton(fixture, 'pause').disabled).toBe(true);
-    });
-
-    it('are not shown to players', async () => {
-      // Arrange
-      gameService.isGameClient.set(false);
-
-      // Act
-      const fixture = await render();
-
-      // Assert
-      expect(hasIconButton(fixture, 'pause')).toBe(false);
-      expect(hasIconButton(fixture, 'play_arrow')).toBe(false);
-    });
-  });
-
-  describe('drawers', () => {
-    it('opens the player overview', async () => {
-      // Arrange
-      const fixture = await render();
-
-      // Act
-      iconButton(fixture, 'group').click();
-
-      // Assert
-      expect(drawers.showPlayerOverviewDrawer).toHaveBeenCalledOnce();
-    });
-
-    it('opens the share drawer for the game', async () => {
-      // Arrange
-      const fixture = await render();
-
-      // Act
-      iconButton(fixture, 'share').click();
-
-      // Assert
-      expect(drawers.showPartyShareDrawer).toHaveBeenCalledWith(PARTY_ID);
-    });
-
-    it.each([
-      ['no game info', undefined],
-      ['an empty party id', { id: '', name: 'Friday game' }],
-    ])('does not open the share drawer with %s', async (_, gameInfo) => {
-      // Arrange
-      gameService.gameInfo.set(gameInfo);
-      const fixture = await render();
-
-      // Act
-      iconButton(fixture, 'share').click();
-
-      // Assert
-      expect(drawers.showPartyShareDrawer).not.toHaveBeenCalled();
     });
   });
 

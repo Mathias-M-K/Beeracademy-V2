@@ -1,0 +1,78 @@
+<div class="header">
+  <div>
+    <h2>{{ partyName() }}</h2>
+    @if (isLobbyPhase()) {
+      <p class="subtitle">Party-ID • {{ partyId() }}</p>
+    }
+  </div>
+
+  @if (isGamePhase()) {
+    <div class="time">
+      <h1>{{ gameDuration() ?? 0 | gameTimeFormat: 'HH:mm:ss' }}</h1>
+      <p class="subtitle">Tid</p>
+    </div>
+  }
+
+  <div class="buttons">
+    @if (isGamePhase()) {
+      @if (isHost()) {
+        @if (timerState() === TimerState.Paused) {
+          <button
+            class="btn-secondary-outlined btn-icon do-animate"
+            style="--i: 1"
+            (click)="resumeGame()"
+          >
+            <material-icon icon="play_arrow"></material-icon>
+          </button>
+        } @else {
+          <button
+            class="btn-secondary-outlined btn-icon do-animate"
+            style="--i: 1"
+            [disabled]="timerState() === TimerState.NotStarted"
+            (click)="pauseGame()"
+          >
+            <material-icon icon="pause"></material-icon>
+          </button>
+        }
+      }
+      <button
+        class="btn-secondary-outlined btn-icon do-animate"
+        style="--i: 0"
+        (click)="showPlayers()"
+      >
+        <material-icon icon="group"></material-icon>
+      </button>
+    }
+    <button class="btn-secondary btn-icon" (click)="showSharePanel()">
+      <material-icon icon="share"></material-icon>
+    </button>
+  </div>
+
+  @if (isCompact() && isGamePhase()) {
+    <div [style.grid-row]="2" class="compact-round-counter">
+      <p class="subtitle">RUNDE</p>
+      <h2>{{ currentRound() }}/13</h2>
+    </div>
+  }
+
+  @if (isGamePhase()) {
+    <div class="round-indicator-container">
+      @if (!isCompact()) {
+        <p class="subtitle">Runde {{ currentRound() }} af 13</p>
+      }
+      <div class="round-indicator">
+        <div>
+          @for (_ of roundIndicator(); track $index) {
+            <div class="round-dot"></div>
+          }
+        </div>
+        <div>
+          @for (_ of roundIndicator(); track $index) {
+            <div class="round-dot completed"></div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+<router-outlet></router-outlet>

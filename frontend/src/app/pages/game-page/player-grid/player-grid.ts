@@ -82,11 +82,12 @@ export class PlayerGrid {
 
   private scrollToIndex(index: number): void {
     this.visiblePlayerIndex.set(index);
-    this.playerCardElements()[index]?.nativeElement.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
+    const container = this.scroller()?.nativeElement;
+    const card = this.playerCardElements()[index]?.nativeElement;
+    if (!container || !card) return;
+
+    const offset = card.getBoundingClientRect().left - container.getBoundingClientRect().left;
+    container.scrollTo({ left: container.scrollLeft + offset, behavior: 'smooth' });
   }
 
   /** Index of the card whose centre is closest to the carousel's scroll centre. */

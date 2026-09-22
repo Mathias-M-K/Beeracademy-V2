@@ -45,12 +45,6 @@ export class ToastService {
     this.syncOverlay();
   }
 
-  public clearToasts(): void {
-    this._toasts.set([]);
-
-    this.syncOverlay();
-  }
-
   /** Keeps the container's existence in step with the list, whichever way the list moved. */
   private syncOverlay(): void {
     if (this.isClosing) {

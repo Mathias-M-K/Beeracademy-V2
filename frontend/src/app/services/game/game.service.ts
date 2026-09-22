@@ -45,10 +45,11 @@ import { PlayerKickedEvent } from '../models/categories/events/game/game-event/p
 import { PlayerReleaseRequestedEvent } from '../models/categories/events/game/game-client-event/player-release-requested.event';
 import { DrawerService } from '../drawer/drawer.service';
 import { WebsocketCode } from '../../../api-models/model/websocketCode';
+import { PartyContext, PartyContextProvider } from '../../pages/party/party-context-provider';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
-export class GameService {
+export class GameService implements PartyContextProvider {
   private readonly websocketService = inject(WebsocketService);
   private readonly overlayService = inject(OverlayService);
   private readonly toastService = inject(ToastService);
@@ -126,6 +127,14 @@ export class GameService {
 
   constructor() {
     document.addEventListener('visibilitychange', () => this.onPageGainFocus());
+  }
+
+  getContext(): PartyContext {
+    return {
+      partyName: this.gameInfo()?.name ?? '',
+      partyId: this.gameInfo()?.id ?? '',
+      isHost: this.isGameClient(),
+    };
   }
 
   public connectToWebsocket(isReconnect: boolean = false, timeoutMs?: number) {

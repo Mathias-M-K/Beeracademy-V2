@@ -7,8 +7,13 @@ import { JoinPage } from './pages/join-page/join-page';
 import { partyStateResolver } from './resolvers/party-state.resolver';
 import { lobbyStateResolver } from './resolvers/lobby-state.resolver';
 import { gameStateResolver } from './resolvers/game-state.resolver';
+import { PartyShellComponent } from './pages/party/party-shell/party-shell.component';
 
 export const routes: Routes = [
+  {
+    path: '',
+    component: WelcomePage,
+  },
   {
     path: 'start',
     component: WelcomePage,
@@ -19,19 +24,29 @@ export const routes: Routes = [
     resolve: { partyInfo: partyStateResolver },
   },
   {
-    path: 'lobby',
-    component: LobbyPage,
-    resolve: { lobbyInfo: lobbyStateResolver },
-  },
-  {
-    path: 'game',
-    component: GamePage,
-    resolve: { gameInfo: gameStateResolver },
-  },
-  {
     path: 'serial',
     component: SerialPlayground,
+  },
+  {
+    path: '',
+    component: PartyShellComponent,
+    children: [
+      {
+        path: 'lobby',
+        component: LobbyPage,
+        data: { phase: 'lobby' },
+        resolve: { lobbyInfo: lobbyStateResolver },
+      },
+      {
+        path: 'game',
+        component: GamePage,
+        data: { phase: 'game' },
+        resolve: { gameInfo: gameStateResolver },
+      },
+    ],
   },
 
   { path: '**', redirectTo: 'start' },
 ];
+
+//{ path: 'lobby', component: LobbyPage, resolve: { lobbyInfo: lobbyStateResolver } },

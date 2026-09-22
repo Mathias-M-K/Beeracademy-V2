@@ -88,53 +88,15 @@ describe('LobbyPage', () => {
     return match;
   }
 
-  describe('lobby header', () => {
-    it('shows nothing until the lobby is known', async () => {
-      // Arrange
-      lobbyService.title.set(undefined);
+  it('shows nothing until the lobby is known', async () => {
+    // Arrange
+    lobbyService.title.set(undefined);
 
-      // Act
-      const fixture = await render(true);
+    // Act
+    const fixture = await render(true);
 
-      // Assert
-      expect(fixture.nativeElement.children).toHaveLength(0);
-    });
-
-    it('shows the lobby name and the role of the user', async () => {
-      // Arrange
-      const isHost = false;
-
-      // Act
-      const fixture = await render(isHost);
-
-      // Assert
-      const header: HTMLElement = fixture.nativeElement.querySelector('.header');
-      expect(header.querySelector('h1')?.textContent).toBe('Hygge aften');
-      expect(header.textContent).toContain('Du er Deltager');
-    });
-
-    it('opens the share drawer for the lobby', async () => {
-      // Arrange
-      const fixture = await render(false);
-
-      // Act
-      fixture.nativeElement.querySelector('app-lobby-info-quick button').click();
-
-      // Assert
-      expect(drawers.showPartyShareDrawer).toHaveBeenCalledWith('ABCDEFGHI');
-    });
-
-    it('does not open the share drawer without a party id', async () => {
-      // Arrange
-      lobbyService.partyId.set(undefined);
-      const fixture = await render(false);
-
-      // Act
-      fixture.nativeElement.querySelector('app-lobby-info-quick button').click();
-
-      // Assert
-      expect(drawers.showPartyShareDrawer).not.toHaveBeenCalled();
-    });
+    // Assert
+    expect(fixture.nativeElement.children).toHaveLength(0);
   });
 
   describe('starting the game', () => {

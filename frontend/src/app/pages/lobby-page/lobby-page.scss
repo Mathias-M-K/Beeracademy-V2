@@ -3,12 +3,10 @@
   gap: 20px;
   justify-self: center;
 
-  width: 90vw;
+  width: 100%;
   max-width: 1500px;
   grid-template-columns: 3fr 1fr;
-  grid-template-areas:
-    'header header'
-    'participant-list chat';
+  grid-template-areas: 'participant-list chat';
 }
 
 :host:focus,
@@ -52,12 +50,10 @@
   :host {
     gap: 10px;
 
-    width: 90%;
     grid-template-columns: auto;
-    grid-template-rows: minmax(15dvh, auto) 1fr 100dvh;
+    grid-template-rows: 1fr 100dvh;
     min-height: 200dvh;
     grid-template-areas:
-      'header'
       'participant-list'
       'chat';
   }

@@ -1,16 +1,4 @@
 @if (lobbyService.title()) {
-  <div class="header" style="grid-area: header">
-    <div>
-      <h1>{{ lobbyService.title() }}</h1>
-      <p class="header_subtitle">Du er {{ lobbyService.readableRole() }}</p>
-    </div>
-
-    <app-lobby-info-quick
-      [partyId]="lobbyService.partyId() ?? ''"
-      (shareBtnClick)="showSharePanel()"
-    ></app-lobby-info-quick>
-  </div>
-
   <div style="grid-area: participant-list" class="participant-list">
     <app-participant-overview
       [participants]="this.participants()"
