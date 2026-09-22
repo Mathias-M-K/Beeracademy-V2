@@ -20,14 +20,16 @@
           class="btn-secondary-outlined btn-icon do-animate"
           style="--i: 1"
           [disabled]="timerState() === TimerState.NotStarted || timerState() === TimerState.Paused"
-          (click)="pauseGame()">
+          (click)="pauseGame()"
+        >
           <material-icon icon="pause"></material-icon>
         </button>
       }
       <button
         class="btn-secondary-outlined btn-icon do-animate"
         style="--i: 0"
-        (click)="showPlayers()">
+        (click)="showPlayers()"
+      >
         <material-icon icon="group"></material-icon>
       </button>
     }
