@@ -1,6 +1,6 @@
 ---
 type: registry
-updated: 2026-09-16
+updated: 2026-09-22
 tags:
   - issues
   - open
@@ -326,6 +326,38 @@ phone) and the touch-aware tap slop.
 **Not reproducible in a desktop browser or a headless pane** — the browser only synthesises clicks
 from real touch input, so this needs a device. See [[toast-stack-and-overview]] for the mechanics
 the investigation covered.
+
+
+## 28. `sipsInABeer: 0` takes down the whole game page — ⬜ OPEN 2026-09-22
+
+`frontend/src/app/services/game/models/player.ts:18-19` — `Player.fromPlayerDto` throws
+`PlayerDto "<id>" must have a positive "sipsInABeer"` for any value `<= 0`. It is called for
+every player inside the `GameService.players` `linkedSignal` (`game.service.ts:64-66`), so
+**one** player with a non-positive beer size makes `players()` throw for everyone. Every
+consumer (player grid, podium, card count, player overview drawer) fails to render, and the
+game page is dead for every client in that party.
+
+**How a 0 gets in:** not through the UI — the lobby settings drawer clamps the stepper to
+1–99 (`lobby-participant-settings-drawer.ts:38-44`). But the backend does no validation:
+`UpdateSettingsAction` has no `@Min`/`@Positive`, and `LobbyParticipant.updateSettings`
+(`LobbyParticipant.java:39`) stores any `int`. A hand-crafted `UPDATE_SETTINGS` websocket
+message therefore carries a 0 (or a negative) into the game, and the game snapshot hands it
+to every client. The backend's own reports already treat `sipsInABeer <= 0` as "0 beers"
+(`PlayerReport.java:22-23`, `GameReport.java:25`), so it knows the value can occur.
+
+**History:** the throw was added on PR #58 (branch `improved-player-card-beer-indicator`),
+applied verbatim from a CodeRabbit review. It replaced a narrower crash: with 0 sips per beer
+and any sips drunk, `PlayerCard.beerCount` was `Infinity` (the `?? 1` never fires for a
+number), and `beerDots` threw a `RangeError` from `Array.from({ length: Infinity })` — only
+that card broke, not the page.
+
+**Fix direction:** validate at the source — reject `sipsInABeer` outside 1–99 in the backend's
+`UPDATE_SETTINGS` handling (the same range the drawer enforces), so the value can never reach
+a snapshot. Frontend-side, prefer degrading the one card (treat `<= 0` as zero beers, the
+backend reports' rule) over throwing inside a signal every page reads.
+
+Test: `player.spec.ts` › "throws when sipsInABeer is %i" asserts the current throw. It is not
+an `it.fails` pin, since the correct frontend behaviour is part of the decision above.
 
 ## Related
 - [[frontend-unit-testing]] — issues 16–25 are pinned by `it.fails` tests
