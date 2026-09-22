@@ -6,8 +6,7 @@
   width: 100%;
   max-width: 1500px;
   grid-template-columns: 3fr 1fr;
-  grid-template-areas:
-    'participant-list chat';
+  grid-template-areas: 'participant-list chat';
 }
 
 :host:focus,
@@ -52,7 +51,7 @@
     gap: 10px;
 
     grid-template-columns: auto;
-    grid-template-rows:  1fr 100dvh;
+    grid-template-rows: 1fr 100dvh;
     min-height: 200dvh;
     grid-template-areas:
       'participant-list'

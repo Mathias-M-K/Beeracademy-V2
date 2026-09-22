@@ -16,7 +16,6 @@ import { DrawerService } from '../../services/drawer/drawer.service';
   imports: [ParticipantOverview, Chat, DotLoader],
 })
 export class LobbyPage {
-
   protected readonly lobbyService = inject(LobbyService);
   private readonly drawerService = inject(DrawerService);
 

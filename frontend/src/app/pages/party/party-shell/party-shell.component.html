@@ -1,5 +1,4 @@
 <div class="header">
-
   <div>
     <h2>{{ partyName() }}</h2>
     @if (isLobbyPhase()) {
@@ -9,31 +8,37 @@
 
   @if (isGamePhase()) {
     <div class="time">
-      <h1>{{ gameDuration() ?? 0 | gameTimeFormat : 'HH:mm:ss' }}</h1>
+      <h1>{{ gameDuration() ?? 0 | gameTimeFormat: 'HH:mm:ss' }}</h1>
       <p class="subtitle">Tid</p>
     </div>
   }
 
   <div class="buttons">
-
     @if (isGamePhase()) {
-      <button class="btn-secondary-outlined btn-icon do-animate" style="--i: 1" (click)="pauseGame()">
+      <button
+        class="btn-secondary-outlined btn-icon do-animate"
+        style="--i: 1"
+        (click)="pauseGame()"
+      >
         <material-icon icon="pause"></material-icon>
       </button>
-      <button class="btn-secondary-outlined btn-icon do-animate" style="--i: 0" (click)="showPlayers()">
+      <button
+        class="btn-secondary-outlined btn-icon do-animate"
+        style="--i: 0"
+        (click)="showPlayers()"
+      >
         <material-icon icon="group"></material-icon>
       </button>
     }
     <button class="btn-secondary btn-icon" (click)="showSharePanel()">
       <material-icon icon="share"></material-icon>
     </button>
-
   </div>
 
   @if (isCompact() && isGamePhase()) {
     <div [style.grid-row]="2" class="compact-round-counter">
       <p class="subtitle">RUNDE</p>
-      <h2>{{currentRound()}}/13</h2>
+      <h2>{{ currentRound() }}/13</h2>
     </div>
   }
 
@@ -54,10 +59,7 @@
           }
         </div>
       </div>
-
     </div>
-
   }
-
 </div>
 <router-outlet></router-outlet>

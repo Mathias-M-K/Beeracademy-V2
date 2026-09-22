@@ -18,7 +18,6 @@ import { PlayerGrid } from './player-grid/player-grid';
   },
 })
 export class GamePage implements OnDestroy {
-
   private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
   private readonly gameService: GameService = inject(GameService);
 
@@ -41,7 +40,6 @@ export class GamePage implements OnDestroy {
   protected drawCard() {
     this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
   }
-
 
   protected readonly TimerState = TimerState;
 }
