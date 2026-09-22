@@ -12,7 +12,7 @@ import { DrawerService } from '../../../services/drawer/drawer.service';
 import { LobbyService } from '../../../services/lobby/lobby.service';
 import { PartyContextProvider } from '../party-context-provider';
 import { TimerState } from '../../../../api-models/model/timerState';
-import {NgxMaskPipe} from "ngx-mask";
+import { NgxMaskPipe } from 'ngx-mask';
 
 interface Round {
   completed: boolean;
@@ -20,7 +20,7 @@ interface Round {
 }
 
 @Component({
-    imports: [RouterOutlet, GameTimeFormatPipe, MaterialIcon, NgxMaskPipe],
+  imports: [RouterOutlet, GameTimeFormatPipe, MaterialIcon, NgxMaskPipe],
   selector: 'app-party-shell',
   styleUrl: './party-shell.component.scss',
   templateUrl: './party-shell.component.html',

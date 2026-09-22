@@ -1,8 +1,8 @@
-import {Component, computed, input, Signal} from '@angular/core';
-import {Player} from '../../../../services/game/models/player';
-import {SuitIcon} from '../../../../common/components/suit-icon/suit-icon';
-import {tweenedNumber} from '../../../../common/tweened-number';
-import {GameTimeFormatPipe} from '../../../../pipes/game-time-format-pipe';
+import { Component, computed, input, Signal } from '@angular/core';
+import { Player } from '../../../../services/game/models/player';
+import { SuitIcon } from '../../../../common/components/suit-icon/suit-icon';
+import { tweenedNumber } from '../../../../common/tweened-number';
+import { GameTimeFormatPipe } from '../../../../pipes/game-time-format-pipe';
 
 export interface BeerIndicatorDot {
   fillLevel: number;
@@ -32,10 +32,12 @@ export class PlayerCard {
     return sipsLeft === this.player().sipsInABeer ? 0 : sipsLeft;
   });
 
-  private readonly openBeersCount = computed(() => Math.ceil(this.totalSips() / this.player().sipsInABeer))
+  private readonly openBeersCount = computed(() =>
+    Math.ceil(this.totalSips() / this.player().sipsInABeer),
+  );
   protected readonly openBeerProgression = computed(() => {
-    const val = this.totalSips() / (this.openBeersCount() * this.player().sipsInABeer) * 100;
-    if (Number.isNaN(val)){
+    const val = (this.totalSips() / (this.openBeersCount() * this.player().sipsInABeer)) * 100;
+    if (Number.isNaN(val)) {
       return 0;
     }
     return val;
@@ -67,17 +69,17 @@ export class PlayerCard {
   });
 
   protected readonly displayedBeerCount = tweenedNumber(this.beerCount);
-  protected readonly displayedSipsLeft = tweenedNumber(this.sipsLeftOfBeer, {decimals: 0});
-  protected readonly displayedTotalSips = tweenedNumber(this.totalSips, {decimals: 0});
+  protected readonly displayedSipsLeft = tweenedNumber(this.sipsLeftOfBeer, { decimals: 0 });
+  protected readonly displayedTotalSips = tweenedNumber(this.totalSips, { decimals: 0 });
   protected readonly displayedSipsAvg = tweenedNumber(this.sipsAvg);
-  protected readonly displayedLastRoundTime = tweenedNumber(this.lastRoundTime, {decimals: 0});
-  protected readonly displayedRoundTimesAvg = tweenedNumber(this.roundTimesAvg, {decimals: 0});
+  protected readonly displayedLastRoundTime = tweenedNumber(this.lastRoundTime, { decimals: 0 });
+  protected readonly displayedRoundTimesAvg = tweenedNumber(this.roundTimesAvg, { decimals: 0 });
 
   protected readonly beerDots = computed<BeerIndicatorDot[]>(() => {
     const total = this.beerCount();
 
     // Always render at least one dot, so a fresh card shows an empty beer rather than an empty row.
-    return Array.from({length: Math.max(Math.ceil(total), 1)}, (_, i) => ({
+    return Array.from({ length: Math.max(Math.ceil(total), 1) }, (_, i) => ({
       fillLevel: Math.min(total - i, 1) * 100,
     }));
   });
