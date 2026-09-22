@@ -15,7 +15,7 @@
 
   <div class="buttons">
     @if (isGamePhase()) {
-      @if (isHost() && gameInProgress()) {
+      @if (isHost() && gameStarted()) {
         <button
           class="btn-secondary-outlined btn-icon do-animate"
           style="--i: 1"
