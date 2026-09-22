@@ -39,9 +39,11 @@ import { ToastService } from '../toast/toast.service';
 import { ToastState } from '../../overlay/toast/models/toast-data';
 import { WebsocketCode } from '../../../api-models/model/websocketCode';
 import { ExceptionEvent } from '../models/categories/events/common/exception-event';
+import {PartyContext, PartyContextProvider} from '../../pages/party/party-context-provider';
 
 @Service()
-export class LobbyService {
+export class LobbyService implements PartyContextProvider {
+
   private readonly appRef = inject(ApplicationRef);
   private readonly router: Router = inject(Router);
   private readonly websocketService = inject(WebsocketService);
@@ -83,6 +85,10 @@ export class LobbyService {
 
   private readonly _lobbyReset = new Subject<void>();
   public readonly lobbyReset = this._lobbyReset.asObservable();
+
+  getContext(): PartyContext {
+    return {partyName: this.title()??'', partyId: this.partyId()??'', isHost: this.isHost()}
+  }
 
   public connectToWebsocket(): Promise<Observable<WebsocketEnvelope>> {
     this._creatingGame.set(false);

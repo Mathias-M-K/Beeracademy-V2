@@ -1,54 +1,57 @@
-import { computed, inject, Service, linkedSignal, signal, WritableSignal } from '@angular/core';
-import { WebsocketEnvelope } from '../models/websocket-envelope';
-import { GameDto } from '../../../api-models/model/gameDto';
-import { Chug } from '../../../api-models/model/chug';
-import { Turn } from '../../../api-models/model/turn';
-import { GameInfo } from './models/game-info';
-import { drawCardAction } from '../models/categories/actions/game/game-client-action/draw-card-action';
-import { GameEventEnvelope } from '../models/categories/events/game/game-event-envelope';
-import { DrawCardEvent } from '../models/categories/events/game/game-event/draw-card-event';
-import { TimerState } from '../../../api-models/model/timerState';
-import { pauseGameAction } from '../models/categories/actions/game/game-client-action/pause-game-action';
-import { resumeGameAction } from '../models/categories/actions/game/game-client-action/resume-game-action';
-import { GamePausedEvent } from '../models/categories/events/game/game-event/game-paused-event';
-import { GameResumedEvent } from '../models/categories/events/game/game-event/game-resumed-event';
-import { chugAction } from '../models/categories/actions/game/game-client-action/chug-action';
-import { ChugEvent } from '../models/categories/events/game/game-event/chug-event';
-import { GameState } from '../../../api-models/model/gameState';
-import { TimeReport } from '../../../api-models/model/timeReport';
-import { GameEndEvent } from '../models/categories/events/game/game-event/game-end-event';
-import { WebsocketService } from '../websocket.service';
-import { GameAction } from '../models/categories/actions/game/game-action';
-import { startGameAction } from '../models/categories/actions/game/game-client-action/start-game-action';
-import { gameClientActionEnvelope } from '../models/categories/actions/game/game-action-envelope';
-import { OverlayService } from '../overlay/overlay.service';
-import { ChugOverlay } from '../../overlay/chug-overlay/chug-overlay';
-import { Player } from './models/player';
-import { playerColor } from '../../common/theme/player-colors';
-import { ToastService } from '../toast/toast.service';
-import { ToastState } from '../../overlay/toast/models/toast-data';
-import { GameStateEvent } from '../models/categories/events/game/common/game-state-event';
-import { identifyFromEvent, Identity } from '../models/identity';
-import { IdentityEvent } from '../models/categories/events/common/identity-event';
-import { Role } from '../../../api-models/model/role';
-import { Router } from '@angular/router';
-import { OverlayHandle } from '../overlay/models/overlay-handle';
-import { GamePausedData } from '../../drawer/game-paused-drawer/models/game-paused-data';
-import { ChugOverlayData } from '../../overlay/chug-overlay/models/chug-overlay-data';
-import { ReconnectingOverlay } from '../../overlay/reconnecting-overlay/reconnecting-overlay';
-import { releasePlayerAction } from '../models/categories/actions/game/game-client-action/release-player-action';
-import { PlayerConnectedEvent } from '../models/categories/events/game/player-client-event/player-connected-event';
-import { PlayerDisconnectedEvent } from '../models/categories/events/game/player-client-event/player-disconnected-event';
-import { PlayerReleasedEvent } from '../models/categories/events/game/game-event/player-released-event';
-import { kickPlayerAction } from '../models/categories/actions/game/game-client-action/kick-player-action';
-import { PlayerKickedEvent } from '../models/categories/events/game/game-event/player-kicked-event';
-import { PlayerReleaseRequestedEvent } from '../models/categories/events/game/game-client-event/player-release-requested.event';
-import { DrawerService } from '../drawer/drawer.service';
-import { WebsocketCode } from '../../../api-models/model/websocketCode';
+import {computed, inject, Service, linkedSignal, signal, WritableSignal} from '@angular/core';
+import {WebsocketEnvelope} from '../models/websocket-envelope';
+import {GameDto} from '../../../api-models/model/gameDto';
+import {Chug} from '../../../api-models/model/chug';
+import {Turn} from '../../../api-models/model/turn';
+import {GameInfo} from './models/game-info';
+import {drawCardAction} from '../models/categories/actions/game/game-client-action/draw-card-action';
+import {GameEventEnvelope} from '../models/categories/events/game/game-event-envelope';
+import {DrawCardEvent} from '../models/categories/events/game/game-event/draw-card-event';
+import {TimerState} from '../../../api-models/model/timerState';
+import {pauseGameAction} from '../models/categories/actions/game/game-client-action/pause-game-action';
+import {resumeGameAction} from '../models/categories/actions/game/game-client-action/resume-game-action';
+import {GamePausedEvent} from '../models/categories/events/game/game-event/game-paused-event';
+import {GameResumedEvent} from '../models/categories/events/game/game-event/game-resumed-event';
+import {chugAction} from '../models/categories/actions/game/game-client-action/chug-action';
+import {ChugEvent} from '../models/categories/events/game/game-event/chug-event';
+import {GameState} from '../../../api-models/model/gameState';
+import {TimeReport} from '../../../api-models/model/timeReport';
+import {GameEndEvent} from '../models/categories/events/game/game-event/game-end-event';
+import {WebsocketService} from '../websocket.service';
+import {GameAction} from '../models/categories/actions/game/game-action';
+import {startGameAction} from '../models/categories/actions/game/game-client-action/start-game-action';
+import {gameClientActionEnvelope} from '../models/categories/actions/game/game-action-envelope';
+import {OverlayService} from '../overlay/overlay.service';
+import {ChugOverlay} from '../../overlay/chug-overlay/chug-overlay';
+import {Player} from './models/player';
+import {playerColor} from '../../common/theme/player-colors';
+import {ToastService} from '../toast/toast.service';
+import {ToastState} from '../../overlay/toast/models/toast-data';
+import {GameStateEvent} from '../models/categories/events/game/common/game-state-event';
+import {identifyFromEvent, Identity} from '../models/identity';
+import {IdentityEvent} from '../models/categories/events/common/identity-event';
+import {Role} from '../../../api-models/model/role';
+import {Router} from '@angular/router';
+import {OverlayHandle} from '../overlay/models/overlay-handle';
+import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
+import {ChugOverlayData} from '../../overlay/chug-overlay/models/chug-overlay-data';
+import {ReconnectingOverlay} from '../../overlay/reconnecting-overlay/reconnecting-overlay';
+import {releasePlayerAction} from '../models/categories/actions/game/game-client-action/release-player-action';
+import {PlayerConnectedEvent} from '../models/categories/events/game/player-client-event/player-connected-event';
+import {PlayerDisconnectedEvent} from '../models/categories/events/game/player-client-event/player-disconnected-event';
+import {PlayerReleasedEvent} from '../models/categories/events/game/game-event/player-released-event';
+import {kickPlayerAction} from '../models/categories/actions/game/game-client-action/kick-player-action';
+import {PlayerKickedEvent} from '../models/categories/events/game/game-event/player-kicked-event';
+import {
+  PlayerReleaseRequestedEvent
+} from '../models/categories/events/game/game-client-event/player-release-requested.event';
+import {DrawerService} from '../drawer/drawer.service';
+import {WebsocketCode} from '../../../api-models/model/websocketCode';
+import {PartyContext, PartyContextProvider} from '../../pages/party/party-context-provider';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
-export class GameService {
+export class GameService implements PartyContextProvider {
   private readonly websocketService = inject(WebsocketService);
   private readonly overlayService = inject(OverlayService);
   private readonly toastService = inject(ToastService);
@@ -128,12 +131,16 @@ export class GameService {
     document.addEventListener('visibilitychange', () => this.onPageGainFocus());
   }
 
+  getContext(): PartyContext {
+    return {partyName: this.gameInfo()?.name ?? '', partyId: this.gameInfo()?.id ?? '', isHost: this.isGameClient()}
+  }
+
   public connectToWebsocket(isReconnect: boolean = false, timeoutMs?: number) {
     let overlayHandle: OverlayHandle<void> | undefined;
 
     if (isReconnect) {
       this.reconnectCount++;
-      overlayHandle = this.overlayService.openOverlay<void>({ component: ReconnectingOverlay });
+      overlayHandle = this.overlayService.openOverlay<void>({component: ReconnectingOverlay});
     }
 
     const connection = this.websocketService.connectToGameWebsocket(timeoutMs);
@@ -360,7 +367,7 @@ export class GameService {
 
     this._remainingCardsByRank.update((counts) =>
       counts.map((entry) =>
-        entry.rank === card.rank ? { ...entry, count: (entry.count ?? 1) - 1 } : entry,
+        entry.rank === card.rank ? {...entry, count: (entry.count ?? 1) - 1} : entry,
       ),
     );
 
@@ -482,7 +489,7 @@ export class GameService {
   }
 
   public dispatchChugAction(chugTimeInMillis: number) {
-    const chug: Chug = { suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis };
+    const chug: Chug = {suit: this.currentCard()?.suit, chugTimeMillis: chugTimeInMillis};
     this.dispatchGameAction(chugAction(chug));
   }
 
@@ -536,12 +543,12 @@ export class GameService {
       players.map((player) =>
         player.id === playerId
           ? {
-              ...player,
-              stats: {
-                ...player.stats,
-                chugs: [...(player.stats?.chugs ?? []), chug],
-              },
-            }
+            ...player,
+            stats: {
+              ...player.stats,
+              chugs: [...(player.stats?.chugs ?? []), chug],
+            },
+          }
           : player,
       ),
     );
@@ -552,12 +559,12 @@ export class GameService {
       players.map((player) =>
         player.id === playerId
           ? {
-              ...player,
-              stats: {
-                ...player.stats,
-                turns: [...(player.stats?.turns ?? []), turn],
-              },
-            }
+            ...player,
+            stats: {
+              ...player.stats,
+              turns: [...(player.stats?.turns ?? []), turn],
+            },
+          }
           : player,
       ),
     );
@@ -571,7 +578,7 @@ export class GameService {
     this.players.update((players) =>
       players.map((player) =>
         player.id === playerId
-          ? { ...player, sessionInfo: { isConnected: connected, isClaimed: claimed } }
+          ? {...player, sessionInfo: {isConnected: connected, isClaimed: claimed}}
           : player,
       ),
     );

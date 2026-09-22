@@ -1,14 +1,16 @@
-import {Component, computed, inject} from '@angular/core';
-import {RouterOutlet} from '@angular/router';
+import {Component, computed, effect, inject, Signal, signal} from '@angular/core';
+import {ActivatedRoute, NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {map} from 'rxjs';
+import {filter, map} from 'rxjs';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {GameService} from '../../../services/game/game.service';
 import {TimerService} from '../../../services/timer-service/timer.service';
 import {TimerType} from '../../../services/timer-service/models/TimerType';
 import {DrawerService} from '../../../services/drawer/drawer.service';
+import {LobbyService} from '../../../services/lobby/lobby.service';
+import {PartyContextProvider} from '../party-context-provider';
 
 interface Round {
   completed: boolean;
@@ -26,18 +28,48 @@ interface Round {
   templateUrl: './party-shell.component.html',
   host: {
     '[style.--progress.%]': 'roundProgress()',
+    '[class.is-lobby]': 'phase() === "lobby"'
   }
 })
 export class PartyShellComponent {
 
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly gameService = inject(GameService);
+  private readonly lobbyService = inject(LobbyService);
   private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
   private readonly drawerService = inject(DrawerService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  protected partyName = signal<string>('');
+  protected partyId = signal<string>('');
+  protected isHost = signal<boolean>(false);
 
   protected gameDuration = this.gameTimer.currentDuration;
   protected currentRound = this.gameService.currentRound;
   protected roundProgress = computed(() => 100 / 13 * this.currentRound());
+
+  protected readonly phase: Signal<"lobby" | "game" | undefined> = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.currentPhase()),
+    ),
+    { initialValue: this.currentPhase() },
+  );
+  protected readonly isGamePhase = computed(()=>this.phase() === 'game' );
+  protected readonly isLobbyPhase = computed(()=>this.phase() === 'lobby' );
+
+  constructor() {
+    effect(() => {
+      const contextProvider: PartyContextProvider = this.phase() === 'lobby' ? this.lobbyService : this.gameService;
+      const context = contextProvider.getContext();
+
+      this.partyName.set(context.partyName);
+      this.partyId.set(context.partyId);
+      this.isHost.set(context.isHost);
+    });
+  }
+
 
   protected roundIndicator = computed(() => {
     const rounds: Round[] = [];
@@ -69,6 +101,11 @@ export class PartyShellComponent {
   }
 
   protected showSharePanel() {
-    this.drawerService.showPartyShareDrawer(this.gameService.gameInfo()?.id ?? '');
+    this.drawerService.showPartyShareDrawer(this.partyId() ?? '');
   }
+
+  private currentPhase(): 'lobby' | 'game' | undefined {
+    return this.route.snapshot.firstChild?.data['phase'];
+  }
+
 }

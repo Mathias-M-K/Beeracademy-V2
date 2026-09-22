@@ -34,11 +34,13 @@ export const routes: Routes = [
       {
         path: 'lobby',
         component: LobbyPage,
+        data: {phase: 'lobby'},
         resolve: { lobbyInfo: lobbyStateResolver }
       },
       {
         path: 'game',
         component: GamePage,
+        data: {phase: 'game'},
         resolve: { gameInfo: gameStateResolver }
       },
     ]

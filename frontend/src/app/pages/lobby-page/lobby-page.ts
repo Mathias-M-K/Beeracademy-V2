@@ -1,6 +1,5 @@
 import { Component, inject, linkedSignal } from '@angular/core';
 import { ParticipantOverview } from './participant-overview/participant-overview';
-import { LobbyInfoQuick } from './lobby-info-quick/lobby-info-quick';
 import { Chat } from './chat/chat';
 import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
 import { LobbyService } from '../../services/lobby/lobby.service';
@@ -14,10 +13,11 @@ import { DrawerService } from '../../services/drawer/drawer.service';
   host: {
     tabindex: '-1',
   },
-  imports: [ParticipantOverview, LobbyInfoQuick, Chat, DotLoader],
+  imports: [ParticipantOverview, Chat, DotLoader],
 })
 export class LobbyPage {
-  public readonly lobbyService = inject(LobbyService);
+
+  protected readonly lobbyService = inject(LobbyService);
   private readonly drawerService = inject(DrawerService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
@@ -51,12 +51,6 @@ export class LobbyPage {
           actualParticipant.id,
         );
       });
-  }
-
-  showSharePanel() {
-    const partyId = this.lobbyService.partyId();
-    if (!partyId) return;
-    this.drawerService.showPartyShareDrawer(partyId);
   }
 
   openNewParticipantOverlay(): void {
