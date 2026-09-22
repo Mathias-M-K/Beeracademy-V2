@@ -3,16 +3,14 @@ import { GameService } from '../../services/game/game.service';
 import { TimerService } from '../../services/timer-service/timer.service';
 import { TimerState } from '../../../api-models/model/timerState';
 import { TimerType } from '../../services/timer-service/models/TimerType';
-import { Header } from './header/header';
 import { CardCount } from './card-count/card-count';
 import { DrawPanel } from './draw-panel/draw-panel';
 import { PodiumComponent } from './podium/podium.component';
 import { PlayerGrid } from './player-grid/player-grid';
-import { DrawerService } from '../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-game-page',
-  imports: [Header, CardCount, DrawPanel, PodiumComponent, PlayerGrid],
+  imports: [CardCount, DrawPanel, PodiumComponent, PlayerGrid],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
   host: {
@@ -20,10 +18,9 @@ import { DrawerService } from '../../services/drawer/drawer.service';
   },
 })
 export class GamePage implements OnDestroy {
-  private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
+
   private readonly playerTimer = inject(TimerService).getTimer(TimerType.PLAYER);
   private readonly gameService: GameService = inject(GameService);
-  private readonly drawerService = inject(DrawerService);
 
   protected players = this.gameService.players;
   protected gameInfo = this.gameService.gameInfo;
@@ -33,7 +30,6 @@ export class GamePage implements OnDestroy {
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
 
-  protected formattedGameTime = this.gameTimer.currentDuration;
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 
   protected remainingCardsByRank = this.gameService.remainingCardsByRank;
@@ -42,31 +38,10 @@ export class GamePage implements OnDestroy {
     this.gameService.onGamePageDestroyed();
   }
 
-  protected startGame() {
-    this.gameService.dispatchStartGameAction();
-  }
-
-  protected pauseGame() {
-    this.gameService.dispatchPauseGameAction();
-  }
-
-  protected resumeGame() {
-    this.gameService.dispatchResumeGameAction();
-  }
-
   protected drawCard() {
     this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
   }
 
-  protected showPlayerOverview(): void {
-    this.drawerService.showPlayerOverviewDrawer();
-  }
-
-  protected showSharePanel(): void {
-    const partyId = this.gameInfo()?.id;
-    if (!partyId || partyId === '') return;
-    this.drawerService.showPartyShareDrawer(partyId);
-  }
 
   protected readonly TimerState = TimerState;
 }

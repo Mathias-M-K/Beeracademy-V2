@@ -1,0 +1,50 @@
+<div class="header">
+
+  <div>
+    <h1>Drengene</h1>
+    @if (!isCompact()) {
+      <p class="subtitle">Runde {{ currentRound() }} af 13</p>
+    }
+  </div>
+
+  <div class="time">
+    <h1>{{ gameDuration() ?? 0 | gameTimeFormat : 'HH:mm:ss' }}</h1>
+    <p class="subtitle">Tid</p>
+  </div>
+
+  <div class="buttons">
+    <button class="btn-secondary-outlined btn-icon" (click)="pauseGame()">
+      <material-icon icon="pause"></material-icon>
+    </button>
+    <button class="btn-secondary-outlined btn-icon" (click)="showPlayers()">
+      <material-icon icon="group"></material-icon>
+    </button>
+    <button class="btn-secondary btn-icon" (click)="showSharePanel()">
+      <material-icon icon="share"></material-icon>
+    </button>
+  </div>
+
+  @if (isCompact()) {
+    <div [style.grid-row]="2" class="compact-round-counter">
+      <p class="subtitle">RUNDE</p>
+      <h2>4/13</h2>
+    </div>
+  }
+
+  <div class="round-indicator">
+    <div>
+      <!-- backdrop row -->
+      @for (_ of roundIndicator(); track $index) {
+        <div class="round-dot"></div>
+      }
+    </div>
+    <div>
+      <!-- front row -->
+      @for (_ of roundIndicator(); track $index) {
+        <div class="round-dot completed"></div>
+      }
+    </div>
+  </div>
+
+</div>
+<router-outlet></router-outlet>

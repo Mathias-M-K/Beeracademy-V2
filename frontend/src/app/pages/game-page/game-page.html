@@ -1,17 +1,3 @@
-<app-header
-  style="grid-area: header"
-  [gameInfo]="gameInfo()"
-  [gameTime]="formattedGameTime() ?? 0"
-  [timerState]="timerState() ?? TimerState.NotStarted"
-  [currentRound]="currentRound()"
-  [nrOfPlayers]="players().length"
-  (startClick)="startGame()"
-  (pauseClick)="pauseGame()"
-  (resumeClick)="resumeGame()"
-  (shareClick)="showSharePanel()"
-  (playerOverviewClick)="showPlayerOverview()"
-></app-header>
-
 <app-card-count
   style="grid-area: card-count"
   [cards]="remainingCardsByRank()"
