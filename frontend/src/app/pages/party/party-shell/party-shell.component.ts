@@ -42,7 +42,7 @@ export class PartyShellComponent {
   protected partyId = signal<string>('');
   protected isHost = signal<boolean>(false);
 
-  protected gameStarted = computed(()=>this.timerState() !== TimerState.NotStarted);
+  protected gameStarted = computed(() => this.timerState() !== TimerState.NotStarted);
   protected gameDuration = this.gameTimer.currentDuration;
   protected currentRound = this.gameService.currentRound;
   protected roundProgress = computed(() => (100 / 13) * this.currentRound());
@@ -85,7 +85,6 @@ export class PartyShellComponent {
     }
     return rounds;
   });
-
 
   protected readonly isCompact = toSignal(
     this.breakpointObserver.observe('(max-width: 650px)').pipe(map((result) => result.matches)),
