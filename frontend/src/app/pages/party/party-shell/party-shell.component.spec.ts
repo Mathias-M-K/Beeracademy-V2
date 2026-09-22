@@ -16,7 +16,6 @@ import { aTimeReport, PARTY_ID } from '../../../../testing/game-builders';
 import { GameInfo } from '../../../services/game/models/game-info';
 import { TimeReport } from '../../../../api-models/model/timeReport';
 import { TimerState } from '../../../../api-models/model/timerState';
-import { GameState } from '../../../../api-models/model/gameState';
 
 @Component({ template: '' })
 class PhaseStub {}
@@ -28,8 +27,6 @@ describe('PartyShell', () => {
     currentRound: ReturnType<typeof signal<number>>;
     gameTimeReport: ReturnType<typeof signal<TimeReport | undefined>>;
     isGameClient: ReturnType<typeof signal<boolean>>;
-    gameState: ReturnType<typeof signal<GameState | undefined>>;
-    firstCardDrawn: ReturnType<typeof signal<boolean>>;
     getContext: () => { partyName: string; partyId: string; isHost: boolean };
     dispatchPauseGameAction: ReturnType<typeof vi.fn>;
     dispatchResumeGameAction: ReturnType<typeof vi.fn>;
@@ -47,8 +44,6 @@ describe('PartyShell', () => {
       currentRound: signal(4),
       gameTimeReport: signal<TimeReport | undefined>(aTimeReport({ state: TimerState.Running })),
       isGameClient: signal(true),
-      gameState: signal<GameState | undefined>(GameState.InProgress),
-      firstCardDrawn: signal(true),
       getContext: () => ({
         partyName: gameService.gameInfo()?.name ?? '',
         partyId: gameService.gameInfo()?.id ?? '',
@@ -160,7 +155,7 @@ describe('PartyShell', () => {
       expect(iconButton(shell, 'pause').disabled).toBe(true);
     });
 
-    it('cannot pause a game that has not started', async () => {
+    it('does not offer the timer controls before the game has started', async () => {
       // Arrange
       gameService.gameTimeReport.set(undefined);
 
@@ -168,7 +163,7 @@ describe('PartyShell', () => {
       const shell = await render('/game');
 
       // Assert
-      expect(iconButton(shell, 'pause').disabled).toBe(true);
+      expect(hasIconButton(shell, 'pause')).toBe(false);
     });
 
     it('does not show the timer controls to players', async () => {
