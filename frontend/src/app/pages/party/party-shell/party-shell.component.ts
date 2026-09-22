@@ -11,6 +11,7 @@ import { TimerType } from '../../../services/timer-service/models/TimerType';
 import { DrawerService } from '../../../services/drawer/drawer.service';
 import { LobbyService } from '../../../services/lobby/lobby.service';
 import { PartyContextProvider } from '../party-context-provider';
+import { TimerState } from '../../../../api-models/model/timerState';
 
 interface Round {
   completed: boolean;
@@ -43,6 +44,9 @@ export class PartyShellComponent {
   protected gameDuration = this.gameTimer.currentDuration;
   protected currentRound = this.gameService.currentRound;
   protected roundProgress = computed(() => (100 / 13) * this.currentRound());
+  protected timerState = computed(
+    () => this.gameService.gameTimeReport()?.state ?? TimerState.NotStarted,
+  );
 
   protected readonly phase: Signal<'lobby' | 'game' | undefined> = toSignal(
     this.router.events.pipe(
@@ -89,13 +93,21 @@ export class PartyShellComponent {
     this.gameService.dispatchPauseGameAction();
   }
 
+  protected resumeGame() {
+    this.gameService.dispatchResumeGameAction();
+  }
+
   protected showPlayers() {
     this.drawerService.showPlayerOverviewDrawer();
   }
 
   protected showSharePanel() {
-    this.drawerService.showPartyShareDrawer(this.partyId() ?? '');
+    const partyId = this.partyId();
+    if (!partyId) return;
+    this.drawerService.showPartyShareDrawer(partyId);
   }
+
+  protected readonly TimerState = TimerState;
 
   private currentPhase(): 'lobby' | 'game' | undefined {
     return this.route.snapshot.firstChild?.data['phase'];

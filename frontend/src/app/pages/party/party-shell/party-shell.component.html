@@ -15,13 +15,26 @@
 
   <div class="buttons">
     @if (isGamePhase()) {
-      <button
-        class="btn-secondary-outlined btn-icon do-animate"
-        style="--i: 1"
-        (click)="pauseGame()"
-      >
-        <material-icon icon="pause"></material-icon>
-      </button>
+      @if (isHost()) {
+        @if (timerState() === TimerState.Paused) {
+          <button
+            class="btn-secondary-outlined btn-icon do-animate"
+            style="--i: 1"
+            (click)="resumeGame()"
+          >
+            <material-icon icon="play_arrow"></material-icon>
+          </button>
+        } @else {
+          <button
+            class="btn-secondary-outlined btn-icon do-animate"
+            style="--i: 1"
+            [disabled]="timerState() === TimerState.NotStarted"
+            (click)="pauseGame()"
+          >
+            <material-icon icon="pause"></material-icon>
+          </button>
+        }
+      }
       <button
         class="btn-secondary-outlined btn-icon do-animate"
         style="--i: 0"

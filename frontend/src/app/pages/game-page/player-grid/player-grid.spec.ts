@@ -8,18 +8,18 @@ import { PLAYER_1, PLAYER_2, PLAYER_3, threePlayers } from '../../../../testing/
 
 describe('PlayerGrid', () => {
   let compact: boolean;
-  let scrollIntoView: MockInstance<Element['scrollIntoView']>;
+  let scrollTo: MockInstance<Element['scrollTo']>;
 
   beforeEach(() => {
     compact = false;
-    scrollIntoView = vi
-      .spyOn(Element.prototype, 'scrollIntoView')
-      .mockImplementation(() => undefined);
+    Element.prototype.scrollTo = () => undefined;
+    scrollTo = vi.spyOn(Element.prototype, 'scrollTo');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    delete (Element.prototype as Partial<Element>).scrollTo;
   });
 
   function players(): Player[] {
@@ -67,7 +67,9 @@ describe('PlayerGrid', () => {
     cards(fixture).forEach((card, index) => {
       Object.defineProperty(card, 'offsetLeft', { configurable: true, value: index * 100 });
       Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 100 });
+      card.getBoundingClientRect = () => ({ left: (index - centredIndex) * 100 }) as DOMRect;
     });
+    scroller(fixture).getBoundingClientRect = () => ({ left: 0 }) as DOMRect;
     Object.defineProperty(scroller(fixture), 'clientWidth', { configurable: true, value: 100 });
     scroller(fixture).scrollLeft = centredIndex * 100;
   }
@@ -106,18 +108,15 @@ describe('PlayerGrid', () => {
     it("scrolls to a player's card when its dot is clicked", async () => {
       // Arrange
       const fixture = await render();
+      layOut(fixture, 0);
 
       // Act
       dots(fixture)[2].click();
       await fixture.whenStable();
 
       // Assert
-      expect(scrollIntoView.mock.contexts).toEqual([cards(fixture)[2]]);
-      expect(scrollIntoView).toHaveBeenCalledWith({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest',
-      });
+      expect(scrollTo.mock.contexts).toEqual([scroller(fixture)]);
+      expect(scrollTo).toHaveBeenCalledWith({ left: 200, behavior: 'smooth' });
       expect(activeDot(fixture)).toBe('2');
     });
   });
@@ -127,14 +126,16 @@ describe('PlayerGrid', () => {
       // Arrange
       compact = true;
       const fixture = await render(PLAYER_1);
-      scrollIntoView.mockClear();
+      layOut(fixture, 0);
+      scrollTo.mockClear();
 
       // Act
       fixture.componentRef.setInput('activePlayerId', PLAYER_3);
       await fixture.whenStable();
 
       // Assert
-      expect(scrollIntoView.mock.contexts).toEqual([cards(fixture)[2]]);
+      expect(scrollTo.mock.contexts).toEqual([scroller(fixture)]);
+      expect(scrollTo).toHaveBeenCalledWith({ left: 200, behavior: 'smooth' });
       expect(activeDot(fixture)).toBe('2');
     });
 
@@ -148,7 +149,7 @@ describe('PlayerGrid', () => {
       await fixture.whenStable();
 
       // Assert
-      expect(scrollIntoView).not.toHaveBeenCalled();
+      expect(scrollTo).not.toHaveBeenCalled();
       expect(activeDot(fixture)).toBe('0');
     });
   });
