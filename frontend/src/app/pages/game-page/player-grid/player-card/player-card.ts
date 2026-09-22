@@ -1,6 +1,5 @@
 import { Component, computed, input, Signal } from '@angular/core';
 import { Player } from '../../../../services/game/models/player';
-import { BeerDot } from './beer-dot/beer-dot';
 import { SuitIcon } from '../../../../common/components/suit-icon/suit-icon';
 import { tweenedNumber } from '../../../../common/tweened-number';
 import { GameTimeFormatPipe } from '../../../../pipes/game-time-format-pipe';
@@ -8,13 +7,15 @@ import { GameTimeFormatPipe } from '../../../../pipes/game-time-format-pipe';
 export interface BeerIndicatorDot {
   fillLevel: number;
 }
+
 @Component({
   selector: 'app-player-card',
   templateUrl: './player-card.html',
   styleUrl: './player-card.scss',
-  imports: [GameTimeFormatPipe, BeerDot, SuitIcon],
+  imports: [GameTimeFormatPipe, SuitIcon],
   host: {
     '[style.--player-color]': 'player().color',
+    '[style.--beer-progression.%]': 'openBeerProgression()',
     '[class.is-drawing]': 'isDrawing()',
   },
 })
@@ -29,6 +30,17 @@ export class PlayerCard {
   private readonly sipsLeftOfBeer = computed<number>(() => {
     const sipsLeft = this.player().sipsInABeer - (this.totalSips() % this.player().sipsInABeer);
     return sipsLeft === this.player().sipsInABeer ? 0 : sipsLeft;
+  });
+
+  private readonly openBeersCount = computed(() =>
+    Math.ceil(this.totalSips() / this.player().sipsInABeer),
+  );
+  protected readonly openBeerProgression = computed(() => {
+    const val = (this.totalSips() / (this.openBeersCount() * this.player().sipsInABeer)) * 100;
+    if (Number.isNaN(val)) {
+      return 0;
+    }
+    return val;
   });
 
   private readonly beerCount: Signal<number> = computed(() => {

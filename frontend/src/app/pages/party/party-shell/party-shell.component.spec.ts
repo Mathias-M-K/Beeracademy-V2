@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { of } from 'rxjs';
+import { provideEnvironmentNgxMask } from 'ngx-mask';
 import { PartyShellComponent } from './party-shell.component';
 import { GameService } from '../../../services/game/game.service';
 import { LobbyService } from '../../../services/lobby/lobby.service';
@@ -76,6 +77,7 @@ describe('PartyShell', () => {
             ],
           },
         ]),
+        provideEnvironmentNgxMask(),
         { provide: GameService, useValue: gameService },
         { provide: LobbyService, useValue: lobbyService },
         {
@@ -225,7 +227,7 @@ describe('PartyShell', () => {
 
       // Assert
       expect(shell.querySelector('.header h2')?.textContent).toBe('Hygge aften');
-      expect(shell.textContent).toContain('Party-ID • LOBBY1234');
+      expect(shell.textContent).toContain('Party-ID • LOB-BY1-234');
       expect(hasIconButton(shell, 'pause')).toBe(false);
       expect(hasIconButton(shell, 'group')).toBe(false);
     });

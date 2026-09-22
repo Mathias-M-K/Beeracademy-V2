@@ -13,14 +13,16 @@
   </div>
 
   <div class="beer-indicator">
-    @for (dot of beerDots(); track $index) {
-      <app-beer-dot
-        [foregroundColor]="player().color"
-        [fill]="dot.fillLevel"
-        animate.enter="dot-enter"
-      >
-      </app-beer-dot>
-    }
+    <div class="backdrop">
+      @for (_ of beerDots(); track $index) {
+        <div class="beer-dot"></div>
+      }
+    </div>
+    <div class="front">
+      @for (_ of beerDots(); track $index) {
+        <div class="beer-dot"></div>
+      }
+    </div>
   </div>
 
   <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
