@@ -13,6 +13,7 @@ import { LobbyService } from '../../../services/lobby/lobby.service';
 import { PartyContextProvider } from '../party-context-provider';
 import { TimerState } from '../../../../api-models/model/timerState';
 import { NgxMaskPipe } from 'ngx-mask';
+import {GameState} from '../../../../api-models/model/gameState';
 
 interface Round {
   completed: boolean;
@@ -45,9 +46,7 @@ export class PartyShellComponent {
   protected gameDuration = this.gameTimer.currentDuration;
   protected currentRound = this.gameService.currentRound;
   protected roundProgress = computed(() => (100 / 13) * this.currentRound());
-  protected timerState = computed(
-    () => this.gameService.gameTimeReport()?.state ?? TimerState.NotStarted,
-  );
+  protected timerState = computed(() => this.gameService.gameTimeReport()?.state ?? TimerState.NotStarted);
 
   protected readonly phase: Signal<'lobby' | 'game' | undefined> = toSignal(
     this.router.events.pipe(
@@ -83,6 +82,12 @@ export class PartyShellComponent {
       }
     }
     return rounds;
+  });
+  protected gameInProgress = computed(()=> {
+    console.log(this.gameService.firstCardDrawn(), this.gameService.gameState());
+    return this.gameService.gameState() !== GameState.AwaitingStart &&
+      this.gameService.gameState() !== GameState.Finished &&
+      this.gameService.firstCardDrawn();
   });
 
   protected readonly isCompact = toSignal(

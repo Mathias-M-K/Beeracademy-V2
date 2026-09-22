@@ -81,6 +81,7 @@ export class GameService implements PartyContextProvider {
 
     return gameInfo;
   });
+  public readonly firstCardDrawn = linkedSignal(() => this.gameStateObj()?.lastCard != null);
   public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
   private readonly _currentRound = linkedSignal(() => this.gameStateObj()?.currentRound ?? 0);
   public readonly currentRound = computed(() => {
@@ -355,7 +356,9 @@ export class GameService implements PartyContextProvider {
     const drawCardEvent: DrawCardEvent = event.payload as DrawCardEvent;
 
     if (!this.currentCard()) {
+      // Doing some stuff on first card drawn
       this.startTimer(this.gameTimeReport);
+      this.firstCardDrawn.set(true);
     }
 
     let lastPlayer = this.players().at(this.players().length - 1);
