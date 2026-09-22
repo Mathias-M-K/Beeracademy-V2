@@ -53,15 +53,25 @@ describe('Player', () => {
 
     it('accepts falsy but present values', () => {
       // Arrange
-      const dto = aPlayerDto({ name: '', sipsInABeer: 0, canDrawChugCard: false });
+      const dto = aPlayerDto({ name: '', sipsInABeer: 1, canDrawChugCard: false });
 
       // Act
       const player = Player.fromPlayerDto(dto);
 
       // Assert
       expect(player.name).toBe('');
-      expect(player.sipsInABeer).toBe(0);
+      expect(player.sipsInABeer).toBe(1);
       expect(player.canDrawChugCard).toBe(false);
+    });
+
+    it.each([0, -1])('throws when sipsInABeer is %i', (sipsInABeer) => {
+      // Arrange
+      const dto = aPlayerDto({ sipsInABeer });
+
+      // Act & Assert
+      expect(() => Player.fromPlayerDto(dto)).toThrow(
+        `PlayerDto "${PLAYER_1}" must have a positive "sipsInABeer"`,
+      );
     });
 
     it.each([

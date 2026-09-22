@@ -15,6 +15,8 @@ export class Player {
     if (dto.name == null) throw new Error('PlayerDto is missing "name"');
     if (dto.id == null) throw new Error('PlayerDto is missing "id"');
     if (dto.sipsInABeer == null) throw new Error(`PlayerDto "${dto.id}" is missing "sipsInABeer"`);
+    if (dto.sipsInABeer <= 0)
+      throw new Error(`PlayerDto "${dto.id}" must have a positive "sipsInABeer"`);
     if (dto.canDrawChugCard == null)
       throw new Error(`PlayerDto "${dto.id}" is missing "canDrawChugCard"`);
 
