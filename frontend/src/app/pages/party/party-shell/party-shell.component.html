@@ -2,7 +2,7 @@
   <div>
     <h2>{{ partyName() }}</h2>
     @if (isLobbyPhase()) {
-      <p class="subtitle">Party-ID • {{ partyId() }}</p>
+      <p class="subtitle">Party-ID • {{ partyId() | mask: 'AAA-AAA-AAA'}}</p>
     }
   </div>
 
