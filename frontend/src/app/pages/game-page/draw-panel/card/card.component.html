@@ -1,9 +1,10 @@
 @if (!isBackside()) {
-  <div>
+  <div class="top-right corner">
     <h1>{{ card()?.rank ?? '?' }}</h1>
+    <suit-icon suit="SPADE"></suit-icon>
   </div>
 
-  <div>
+  <div class="center">
     @let suit = card()?.suit;
     @if (suit) {
       <suit-icon [suit]="suit" [size]="50"></suit-icon>
@@ -12,8 +13,9 @@
     }
   </div>
 
-  <div>
+  <div class="bottom-left corner">
     <h1>{{ card()?.rank ?? '?' }}</h1>
+    <suit-icon suit="SPADE"></suit-icon>
   </div>
 } @else {
   <h3>Træk et kort</h3>

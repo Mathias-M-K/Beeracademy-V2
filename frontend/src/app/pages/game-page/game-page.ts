@@ -25,6 +25,8 @@ export class GamePage implements OnDestroy {
   protected gameInfo = this.gameService.gameInfo;
   protected currentCard = this.gameService.currentCard;
   protected currentPlayer = this.gameService.currentPlayer;
+  protected previousPlayer = this.gameService.previousPlayer;
+  protected nextPlayer = this.gameService.nextPlayer;
 
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
@@ -32,6 +34,8 @@ export class GamePage implements OnDestroy {
   protected formattedPlayerTime = this.playerTimer.currentDuration;
 
   protected remainingCardsByRank = this.gameService.remainingCardsByRank;
+  protected changeOfDrawingAce = this.gameService.changeOfDrawingAce;
+
 
   ngOnDestroy() {
     this.gameService.onGamePageDestroyed();

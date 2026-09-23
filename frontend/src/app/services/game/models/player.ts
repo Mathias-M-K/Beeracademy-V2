@@ -8,7 +8,7 @@ export class Player {
   id!: string;
   sipsInABeer!: number;
   canDrawChugCard!: boolean;
-  stats?: Stats;
+  stats!: Stats;
   sessionInfo?: SessionDto;
 
   public static fromPlayerDto(dto: PlayerDto): Player {

@@ -1,6 +1,7 @@
 :host {
   display: grid;
-  grid-template-rows: 20% auto 20%;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto 1fr auto;
   align-items: center;
   padding: 5px;
 
@@ -14,6 +15,7 @@
   user-select: none;
 
   transition: all ease-in-out 100ms;
+  background-color: var(--color-white);
 }
 :host(.backside) {
   justify-items: center;
@@ -30,6 +32,23 @@
 div {
   display: flex;
 }
+.center{
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.corner{
+  flex-direction: column;
+  align-items: center;
+}
+.corner.top-right{
+  //HHH
+}
+.corner.bottom-left{
+  rotate: 180deg;
+  grid-column: 3;
+  grid-row: 3;
+}
 
 div:nth-child(1) {
   justify-content: flex-start;
@@ -41,4 +60,9 @@ div:nth-child(2) {
 
 div:nth-child(3) {
   justify-content: flex-end;
+}
+
+h1{
+  font-size: 20px;
+  margin: 0;
 }
