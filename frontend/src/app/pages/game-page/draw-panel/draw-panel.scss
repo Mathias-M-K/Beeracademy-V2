@@ -1,14 +1,17 @@
 :host {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 1fr auto 1fr auto 1fr;
-  gap: 5px;
+  grid-template-rows: repeat(3, 1fr);
 
   background-color: var(--color-white);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px;
+  --panel-padding: 10px;
+  padding: var(--panel-padding);
   align-items: center;
+  overflow: hidden;
+
+  gap: 10px;
 
   //TODO remove following values
   min-height: 200px;
@@ -18,12 +21,9 @@
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: auto 1fr;
-  grid-row: 1 / span 5;
+  grid-row: 1 / span 3;
   height: 100%;
   align-items: center;
-
-  border-right: 1px solid var(--color-cloud);
-  margin-right: 20px;
 }
 
 .card-stack {
@@ -63,13 +63,10 @@
 }
 
 .now-drawing {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   grid-column: 2;
   grid-row: 1;
   gap: 5px;
-  //--temp-val: color-mix(in oklab, #3498db, white 70%);
-  //background-image: linear-gradient(90deg, var(--temp-val) 110%, transparent 1%);
 
   div {
     display: flex;
@@ -100,13 +97,24 @@
 
   }
 
+  .avg-limit{
+    grid-row: 1 / span 3;
+    grid-column: 2;
+    border-left: 1px dashed var(--color-cloud);
+  }
 
 }
+
 
 .stats {
   display: flex;
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 2;
+  height: 100%;
+  align-items: center;
+
+  border-top: 1px solid var(--color-cloud);
+  border-bottom: 1px solid var(--color-cloud);
 
   > div {
     flex: 1;
@@ -132,7 +140,7 @@
 .buttons {
   display: grid;
   grid-column: 2;
-  grid-row: 5;
+  grid-row: 3;
   grid-auto-flow: column;
 
   grid-template-columns: 4fr 1fr 1fr;
@@ -142,6 +150,7 @@
     width: 100%;
   }
 }
+
 
 
 p, h4, h2 {

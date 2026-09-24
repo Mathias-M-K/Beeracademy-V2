@@ -22,7 +22,11 @@ import {DecimalPipe} from '@angular/common';
     Dot,
     GameTimeFormatPipe,
     MaterialIcon
-  ]
+  ],
+  host: {
+    '[style.--player-color]': 'currentPlayer()?.color ?? "var(--primary)"',
+    '[style.--avg-progression.%]': 'currentPlayerTimeAvgPercentage()'
+  }
 })
 export class DrawPanel {
   private readonly breakpointObserver = inject(BreakpointObserver);
@@ -34,6 +38,7 @@ export class DrawPanel {
   protected readonly displayLastCardRank = tweenedNumber(this.lastCardRank);
   readonly currentPlayer = input<Player | undefined>(undefined);
   readonly currentPlayerTime = input<number>(0);
+
   private readonly currentPlayerAvg = computed(() => {
     const turns = this.currentPlayer()?.stats.turns;
     if (!turns?.length) return 0;
@@ -41,17 +46,21 @@ export class DrawPanel {
     const totalTime = turns.reduce((sum, turn) => sum + (turn.durationInMillis ?? 0), 0);
     return totalTime / Math.max((turns.length - 1), 1);
   });
-  protected readonly displayCurrentPlayerAvg = tweenedNumber(this.currentPlayerAvg);
-  readonly currentPlayerAvgDelta = computed(() => {
+  private readonly currenPlayerLiveAvg = computed(() => {
     const turns = this.currentPlayer()?.stats.turns;
     if (!turns?.length) return 0;
 
     let totalTime = this.currentPlayerAvg() * Math.max((turns.length - 1), 1);
     totalTime = totalTime + this.currentPlayerTime();
-    const liveAvg = totalTime / turns.length;
-
-    return liveAvg - this.currentPlayerAvg();
+    return totalTime / turns.length;
   })
+  readonly currentPlayerAvgDelta = computed(() => this.currenPlayerLiveAvg() - this.currentPlayerAvg());
+  readonly currentPlayerTimeAvgPercentage = computed(() => {
+    const percentage = (this.currentPlayerTime() / (this.currentPlayerAvg()*1.25)) * 100;
+    return Math.min(percentage, 100);
+  })
+
+  protected readonly displayCurrentPlayerAvg = tweenedNumber(this.currentPlayerAvg);
 
 
   readonly lastPlayer = input<Player | undefined>(undefined);

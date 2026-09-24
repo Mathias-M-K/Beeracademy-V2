@@ -23,19 +23,18 @@
 
 <div class="now-drawing">
   <p class="subtitle">Nu trækker</p>
-  <div>
+  <div [style.grid-column]="1">
     <app-dot [color]="currentPlayer()?.color ?? 'var(--primary)'"></app-dot>
     <h2 id="current-player">{{currentPlayer()?.name}}</h2>
   </div>
-  <div id="timers">
+  <div id="timers" [style.grid-column]="1">
     <p id="current-time">{{ currentPlayerTime() | gameTimeFormat : 'mm:ss:SSS' }}</p>
     <p class="current-time-average">Snit {{ displayCurrentPlayerAvg() | gameTimeFormat : 'mm:ss:SS' }}</p>
-    <p class="current-time-average" id="delta">Snit Δ {{ (currentPlayerAvgDelta() / 1000).toFixed(2) }}</p>
+    <p class="current-time-average" id="delta">Δ {{ (currentPlayerAvgDelta() / 1000).toFixed(2) }}</p>
   </div>
 
-</div>
 
-<div class="horizontal_line"></div>
+</div>
 
 <div class="stats">
   <div id="next-up">
@@ -50,8 +49,6 @@
     <h2>{{ displayChangeOfDrawingAce() | number: '1.2-2' }}%</h2>
   </div>
 </div>
-
-<div class="horizontal_line"></div>
 
 <div class="buttons">
  <button class="btn-secondary" (click)="drawCardClick.emit()">Træk kort</button>
