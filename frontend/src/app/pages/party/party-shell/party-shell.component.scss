@@ -1,7 +1,8 @@
 :host {
   display: grid;
   justify-self: center;
-  width: 85vw;
+  width: 95vw;
+  max-width: 1800px;
   margin-top: 10px;
   --animation-speed: 0.55s;
 }

@@ -9,9 +9,11 @@ import { SuitIcon } from '../../../../common/components/suit-icon/suit-icon';
   styleUrl: './card.component.scss',
   host: {
     '[class.backside]': 'isBackside()',
+    '[class.small]': 'size() === "small"',
   },
 })
 export class CardComponent {
   readonly card = input<Card | undefined>();
   readonly isBackside = input<boolean>(false);
+  readonly size = input<'small' | 'default'>();
 }

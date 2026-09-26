@@ -1,22 +1,26 @@
-@if (!isBackside()) {
-  <div class="top-right corner">
-    <h1>{{ card()?.rank ?? '?' }}</h1>
-    <suit-icon suit="SPADE"></suit-icon>
-  </div>
+@let suit = card()?.suit ?? 'SPADE';
+@let rank = card()?.rank ?? 0;
 
-  <div class="center">
-    @let suit = card()?.suit;
-    @if (suit) {
-      <suit-icon [suit]="suit" [size]="50"></suit-icon>
-    } @else {
-      <h3>?</h3>
+@if (!isBackside()){
+  @switch (size()) {
+
+    @case ('default') {
+      <div class="top-left corner">
+        <h1>{{ rank }}</h1>
+        <suit-icon [suit]="suit"></suit-icon>
+      </div>
+
+      <suit-icon [suit]="suit" class="mid-suit" [size]="50"></suit-icon>
+
+      <div class="bottom-right corner">
+        <h1>{{ rank }}</h1>
+        <suit-icon [suit]="suit"></suit-icon>
+      </div>
     }
-  </div>
-
-  <div class="bottom-left corner">
-    <h1>{{ card()?.rank ?? '?' }}</h1>
-    <suit-icon suit="SPADE"></suit-icon>
-  </div>
+    @case ('small') {
+      <h1>{{ rank }}</h1>
+      <suit-icon [suit]="suit" class="mid-suit" [size]="15"></suit-icon>
+    }
+  }
 } @else {
-  <h3>Træk et kort</h3>
 }

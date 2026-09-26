@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy } from '@angular/core';
+import {Component, computed, inject, OnDestroy} from '@angular/core';
 import { GameService } from '../../services/game/game.service';
 import { TimerService } from '../../services/timer-service/timer.service';
 import { TimerState } from '../../../api-models/model/timerState';
@@ -27,6 +27,7 @@ export class GamePage implements OnDestroy {
   protected currentPlayer = this.gameService.currentPlayer;
   protected previousPlayer = this.gameService.previousPlayer;
   protected nextPlayer = this.gameService.nextPlayer;
+  protected rounds = this.gameService.rounds;
 
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
@@ -35,6 +36,7 @@ export class GamePage implements OnDestroy {
 
   protected remainingCardsByRank = this.gameService.remainingCardsByRank;
   protected changeOfDrawingAce = this.gameService.changeOfDrawingAce;
+
 
 
   ngOnDestroy() {

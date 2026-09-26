@@ -115,7 +115,7 @@ export class GameService implements PartyContextProvider {
 
   public changeOfDrawingAce = computed(() => {
     const cardsLeftCount = this.remainingCardsCount();
-    if(cardsLeftCount === 0) return 0;
+    if (cardsLeftCount === 0) return 0;
 
     const aceCount = this._remainingCardsByRank().find(count => count.rank === 14)?.count ?? 0;
     return (aceCount / cardsLeftCount) * 100;
@@ -124,10 +124,25 @@ export class GameService implements PartyContextProvider {
   private readonly identity = signal<Identity | undefined>(undefined);
   private readonly role = computed(() => this.identity()?.role);
   public readonly isGameClient = computed(() => this.role() === Role.GameClient);
-  public readonly isPlayer = computed(() => !this.isGameClient);
+  public readonly isPlayer = computed(() => !this.isGameClient());
 
   private readonly _releaseRequests = signal<string[]>([]);
   public readonly releaseRequests = this._releaseRequests.asReadonly();
+
+  public readonly rounds = computed(() => {
+
+    const turns: (Turn | undefined)[] = [];
+    for (let turnIndex = 0; turnIndex < this.currentRound(); turnIndex++) {
+      for (const element of this.players()) {
+
+        const turn = element.stats.turns?.at(turnIndex);
+        turns.push(turn);
+
+      }
+    }
+
+    return turns;
+  })
 
   private gamePausedPanel?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;

@@ -6,15 +6,18 @@
   background-color: var(--color-white);
   border: 1px solid var(--border);
   border-radius: 10px;
-  --panel-padding: 10px;
-  padding: var(--panel-padding);
+
+  --padding: 10px;
+  padding: var(--padding);
+
   align-items: center;
-  overflow: hidden;
+  row-gap: 10px;
 
-  gap: 10px;
 
-  //TODO remove following values
-  min-height: 200px;
+}
+
+:host > div:nth-child(n+2) {
+  padding-left: 10px;
 }
 
 .previous-draw {
@@ -24,17 +27,68 @@
   grid-row: 1 / span 3;
   height: 100%;
   align-items: center;
+
+  border-right: 1px solid var(--border);
+}
+
+.card-landing {
+  z-index: 1;
+  translate: 20px 0;
+  position: absolute;
 }
 
 .card-stack {
-  display: flex;
-  position: relative;
-  width: 235px;
+  --start-pos: 175px;
+  --increment: 30px;
+
+  display: grid;
+  width: calc(var(--start-pos) + ((var(--children) - 1) * var(--increment)));
+  min-width: var(--start-pos);
+  max-width: calc(var(--start-pos) + (2 * var(--increment)));
   align-items: center;
+  transition: all 0.35s ease-in-out;
+
+  :first-child:last-child {
+    translate: 20px 0;
+  }
+
+  :first-child:nth-last-child(2) {
+    translate: 50px 5px;
+  }
+
+  :nth-child(2):last-child {
+    translate: 25px 10px;
+  }
+
+  :nth-child(1) {
+    translate: 80px 0;
+    z-index: 4;
+  }
+
+  :nth-child(2) {
+    translate: 50px 5px;
+    rotate: -10deg;
+    z-index: 3;
+  }
+
+  :nth-child(3) {
+    translate: 25px 10px;
+    rotate: -20deg;
+    z-index: 2;
+
+  }
+
+  :nth-child(n+4) {
+    translate: 25px 10px;
+    scale: 0.8;
+    rotate: -20deg;
+    z-index: 1;
+
+  }
 
   app-card {
     position: absolute;
-    translate: calc(var(--index) * 35px) 0;
+    transition: all 0.25s ease;
   }
 }
 
@@ -49,16 +103,14 @@
     gap: 5px;
   }
 
-  #sips{
-
+  #sips {
     display: flex;
-    align-items: end;
+    align-items: baseline;
 
     p:nth-child(1) {
       font-size: 45px;
       font-weight: bold;
     }
-
   }
 }
 
@@ -67,6 +119,8 @@
   grid-column: 2;
   grid-row: 1;
   gap: 5px;
+
+  transition: background-color 0.35s ease-in-out;
 
   div {
     display: flex;
@@ -97,14 +151,13 @@
 
   }
 
-  .avg-limit{
+  .avg-limit {
     grid-row: 1 / span 3;
     grid-column: 2;
     border-left: 1px dashed var(--color-cloud);
   }
 
 }
-
 
 .stats {
   display: flex;
@@ -128,7 +181,7 @@
     }
   }
 
-  #ace-change {
+  #ace-chance {
     h2 {
       color: var(--primary);
       letter-spacing: 1px;
@@ -151,8 +204,6 @@
   }
 }
 
-
-
 p, h4, h2 {
   margin: 0;
 }
@@ -161,6 +212,178 @@ p, h4, h2 {
   --horizontal-line-color: var(--color-cloud);
 }
 
-@media (max-width: 650px) {
+
+.card-enter {
+  animation: card-fly-in 0.45s ease-out;
+}
+
+.card-enter-semi-compact {
+  animation: card-fly-in-semi-compact 0.45s ease-out;
+}
+
+.card-leave {
+  animation: card-fly-out 1s ease-in-out;
+}
+
+@keyframes card-fly-out {
+  from {
+    background-color: white;
+  }
+  to {
+    background-color: white;
+  }
+}
+
+@keyframes card-fly-in-semi-compact {
+  from {
+    translate: 100px -50px;
+    rotate: 30deg;
+    opacity: 0;
+  }
+}
+
+@keyframes card-fly-in {
+  from {
+    translate: 200px -100px;
+    rotate: 30deg;
+    opacity: 0;
+  }
+}
+
+@media (max-width: 850px) {
+
+  .previous-draw {
+
+    gap: 15px;
+
+    .card-landing {
+      translate: 0;
+      position: absolute;
+    }
+
+    .card-stack {
+      width: 140px;
+      max-width: unset;
+      min-width: unset;
+
+
+      :nth-child(n+1) {
+        translate: 0;
+        rotate: 0deg;
+      }
+
+      app-card {
+        transition: all 0.25s ease;
+      }
+    }
+  }
+
+
+
 
 }
+
+@media (max-width: 500px) {
+
+  :host {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+
+    padding: 10px;
+    row-gap: 10px;
+  }
+  :host > div:nth-child(n+2) {
+    padding-left: unset;
+  }
+
+  .previous-draw {
+    grid-row: 1;
+    border: unset;
+
+    .card-landing {
+      width: 50px;
+    }
+
+    .card-stack {
+      width: 50px;
+      height: 80px;
+
+      :nth-child(n+1) {
+        width: 50px;
+        translate: 0;
+      }
+
+      :nth-child(n+3) {
+        translate: 0;
+        rotate: 0deg;
+      }
+
+      app-card {
+        position: absolute;
+        transition: all 0.25s ease;
+      }
+    }
+
+    .drawn-by {
+      display: grid;
+
+      > :nth-child(2) {
+        h2 {
+          font-size: 18px;
+        }
+
+        app-dot {
+          display: none;
+        }
+      }
+
+      .subtitle {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      > :nth-child(n+3) {
+        justify-self: end;
+      }
+
+      #sips {
+        display: none;
+      }
+
+      > :nth-child(4) {
+        grid-column: 1;
+        grid-row: 3;
+        justify-self: start;
+      }
+    }
+  }
+
+  .now-drawing {
+    background-color: color-mix(in oklab, var(--player-color), white 85%);
+    grid-column: 1;
+    grid-row: 2;
+
+    margin: 0 calc(-1 * var(--padding));
+    padding: 10px var(--padding) !important;
+  }
+  .stats {
+    grid-column: 1;
+    grid-row: 3;
+    border: unset;
+
+    h2 {
+      font-size: 21px;
+    }
+
+    #next-up > div app-dot {
+      display: none;
+    }
+  }
+  .buttons {
+    grid-column: 1;
+    grid-row: 4;
+  }
+}
+
+

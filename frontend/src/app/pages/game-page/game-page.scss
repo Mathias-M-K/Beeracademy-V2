@@ -28,3 +28,16 @@
       'podium';
   }
 }
+
+@media (max-width: 500px) {
+  :host {
+    grid-template-areas:
+      'draw-panel'
+      'players'
+      'podium';
+  }
+
+  app-card-count{
+    display: none;
+  }
+}

@@ -1,21 +1,37 @@
 <div class="previous-draw">
-  <div class="card-stack">
-    <app-card [card]="lastCard()" style="--index: 0"></app-card>
-    <app-card [card]="lastCard()" style="--index: 1"></app-card>
-    <app-card [card]="lastCard()" style="--index: 2"></app-card>
+  @if (lastThreeCards().length === 0) {
+    <app-card
+      [size]="isCompact() ? 'small' : 'default'"
+      [isBackside]="true" class="card-landing"
+      (animate.leave)="delayLeave($event)">
+    </app-card>
+  }
+
+  <div class="card-stack" #cardStack [style.--children]="cardStack.childElementCount">
+    @for (card of lastThreeCards(); track (card.rank ?? 0) + (card.suit ?? '')) {
+      <app-card
+        [size]="isCompact() ? 'small' : 'default'"
+        [card]="card" animate.leave="card-leave"
+        [animate.enter]="isSemiCompact() ? 'card-enter-semi-compact' :'card-enter'">
+      </app-card>
+    }
   </div>
+
   <div class="drawn-by">
+    @let lastPlayer = displayLastPlayer();
     <p class="subtitle">Forrige</p>
     <div>
-      <app-dot [color]="this.lastPlayer()?.color ?? 'var(--primary)'" [radiusPx]="10"></app-dot>
-      <h2>{{ lastPlayer()?.name ?? '' }}</h2>
+      <app-dot [color]="lastPlayer?.color ?? 'transparent'"
+               [radiusPx]="10"
+               [style.display]="lastPlayer===undefined ? 'none' : 'unset'"></app-dot>
+      <h2>{{ lastPlayer?.name ?? '--' }}</h2>
     </div>
     <div id="sips">
-      <p>{{displayLastCardRank().toFixed(0)}}</p>
-      <p class="subtitle">Slurke</p>
+      <p>{{ displayLastCardRank().toFixed(0) }}</p>
+      <p class="subtitle">{{ isCompact() ? 'Sl.' : 'Slurke' }}</p>
     </div>
     <div>
-      <p class="subtitle">På {{ lastPlayerTime() ?? 0 | gameTimeFormat : 'mm:ss:SS' }}</p>
+      <p class="subtitle">{{ displayLastPlayerTime() ?? 0 | gameTimeFormat : 'mm:ss:SS' }}</p>
     </div>
 
   </div>
@@ -25,15 +41,13 @@
   <p class="subtitle">Nu trækker</p>
   <div [style.grid-column]="1">
     <app-dot [color]="currentPlayer()?.color ?? 'var(--primary)'"></app-dot>
-    <h2 id="current-player">{{currentPlayer()?.name}}</h2>
+    <h2 id="current-player">{{ currentPlayer()?.name }}</h2>
   </div>
   <div id="timers" [style.grid-column]="1">
     <p id="current-time">{{ currentPlayerTime() | gameTimeFormat : 'mm:ss:SSS' }}</p>
     <p class="current-time-average">Snit {{ displayCurrentPlayerAvg() | gameTimeFormat : 'mm:ss:SS' }}</p>
     <p class="current-time-average" id="delta">Δ {{ (currentPlayerAvgDelta() / 1000).toFixed(2) }}</p>
   </div>
-
-
 </div>
 
 <div class="stats">
@@ -44,18 +58,18 @@
       <h2>{{ nextPlayer()?.name }}</h2>
     </div>
   </div>
-  <div id="ace-change">
+  <div id="ace-chance">
     <p class="subtitle">Es-chance</p>
     <h2>{{ displayChangeOfDrawingAce() | number: '1.2-2' }}%</h2>
   </div>
 </div>
 
 <div class="buttons">
- <button class="btn-secondary" (click)="drawCardClick.emit()">Træk kort</button>
- <button class="btn-secondary-outlined btn-icon">
-   <material-icon icon="source_notes"></material-icon>
- </button>
- <button class="btn-secondary-outlined btn-icon">
-   <material-icon icon="casino"></material-icon>
- </button>
+  <button [disabled]="isPlayer()" class="btn-secondary" (click)="drawCardClick.emit()">Træk kort</button>
+  <button class="btn-secondary-outlined btn-icon">
+    <material-icon icon="source_notes"></material-icon>
+  </button>
+  <button class="btn-secondary-outlined btn-icon">
+    <material-icon icon="casino"></material-icon>
+  </button>
 </div>
