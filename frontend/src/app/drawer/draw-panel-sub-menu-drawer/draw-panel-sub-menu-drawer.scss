@@ -1,0 +1,29 @@
+:host{
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#view{
+  display: grid;
+  grid-template-columns: repeat(2, 100%);
+  grid-auto-flow: column;
+  column-gap: 30px;
+
+  overflow: auto;
+  scrollbar-width: none;
+
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 15px;
+
+  margin: 0 -15px;
+  padding: 0 15px;
+
+
+}
+#view > div{
+  background-color: lightblue;
+  scroll-snap-align: start;
+
+}

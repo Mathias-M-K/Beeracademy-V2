@@ -13,6 +13,7 @@ import {tweenedNumber} from '../../../common/tweened-number';
 import {DecimalPipe} from '@angular/common';
 import {Turn} from '../../../../api-models/model/turn';
 import {GameService} from '../../../services/game/game.service';
+import {DrawerService} from '../../../services/drawer/drawer.service';
 
 @Component({
   selector: 'app-draw-panel',
@@ -32,6 +33,7 @@ import {GameService} from '../../../services/game/game.service';
 export class DrawPanel {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly gameService = inject(GameService);
+  protected readonly drawerService = inject(DrawerService);
 
   readonly drawCardClick = output<void>();
 
