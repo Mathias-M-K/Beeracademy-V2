@@ -4,11 +4,11 @@
     <p class="subtitle">Runde {{round.roundNr}}</p>
     @for (turn of round.turns; track `${turn.player.id}-${turn.info.round}`){
       <div class="turn" [style.--player-color]="turn.player.color">
-        <p>{{turn.info.round}}</p>
+        <p class="subtitle">{{turn.info.round}}</p>
 
         <div class="multi-vertical">
           <app-dot [color]="turn.player.color" [radiusPx]="8"></app-dot>
-          <p>{{turn.player.name}}</p>
+          <p class="player-name">{{turn.player.name}}</p>
         </div>
 
         <div class="multi-vertical card">
@@ -18,7 +18,7 @@
 
 
 
-        <p>{{turn.info.durationInMillis??0 | gameTimeFormat: 'mm:ss:SS'}}</p>
+        <p class="subtitle">{{turn.info.durationInMillis??0 | gameTimeFormat: 'mm:ss:SS'}}</p>
       </div>
     }
   </div>
