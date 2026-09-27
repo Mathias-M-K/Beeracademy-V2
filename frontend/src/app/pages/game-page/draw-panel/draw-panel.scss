@@ -12,11 +12,9 @@
 
   align-items: center;
   row-gap: 10px;
-
-
 }
 
-:host > div:nth-child(n+2) {
+:host > div:nth-child(n + 2) {
   padding-left: 10px;
 }
 
@@ -75,15 +73,13 @@
     translate: 25px 10px;
     rotate: -20deg;
     z-index: 2;
-
   }
 
-  :nth-child(n+4) {
+  :nth-child(n + 4) {
     translate: 25px 10px;
     scale: 0.8;
     rotate: -20deg;
     z-index: 1;
-
   }
 
   app-card {
@@ -148,7 +144,6 @@
       letter-spacing: 0.5px;
       font-weight: 550;
     }
-
   }
 
   .avg-limit {
@@ -156,7 +151,6 @@
     grid-column: 2;
     border-left: 1px dashed var(--color-cloud);
   }
-
 }
 
 .stats {
@@ -204,14 +198,15 @@
   }
 }
 
-p, h4, h2 {
+p,
+h4,
+h2 {
   margin: 0;
 }
 
 .horizontal_line {
   --horizontal-line-color: var(--color-cloud);
 }
-
 
 .card-enter {
   animation: card-fly-in 0.45s ease-out;
@@ -251,9 +246,7 @@ p, h4, h2 {
 }
 
 @media (max-width: 850px) {
-
   .previous-draw {
-
     gap: 15px;
 
     .card-landing {
@@ -266,8 +259,7 @@ p, h4, h2 {
       max-width: unset;
       min-width: unset;
 
-
-      :nth-child(n+1) {
+      :nth-child(n + 1) {
         translate: 0;
         rotate: 0deg;
       }
@@ -277,17 +269,14 @@ p, h4, h2 {
       }
     }
   }
-
-
 }
 
 @media (max-width: 650px) {
-
   .previous-draw {
     .card-stack {
       width: 110px;
 
-      :nth-child(n+1) {
+      :nth-child(n + 1) {
         width: 110px;
       }
     }
@@ -300,11 +289,9 @@ p, h4, h2 {
   .stats {
     row-gap: 5px;
   }
-
 }
 
 @media (max-width: 500px) {
-
   :host {
     display: grid;
     grid-template-columns: 1fr;
@@ -313,7 +300,7 @@ p, h4, h2 {
     padding: 10px;
     row-gap: 10px;
   }
-  :host > div:nth-child(n+2) {
+  :host > div:nth-child(n + 2) {
     padding-left: unset;
   }
 
@@ -329,12 +316,12 @@ p, h4, h2 {
       width: 50px;
       height: 80px;
 
-      :nth-child(n+1) {
+      :nth-child(n + 1) {
         width: 50px;
         translate: 0;
       }
 
-      :nth-child(n+3) {
+      :nth-child(n + 3) {
         translate: 0;
         rotate: 0deg;
       }
@@ -363,7 +350,7 @@ p, h4, h2 {
         grid-row: 1;
       }
 
-      > :nth-child(n+3) {
+      > :nth-child(n + 3) {
         justify-self: end;
       }
 
@@ -405,5 +392,3 @@ p, h4, h2 {
     grid-row: 4;
   }
 }
-
-

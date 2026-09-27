@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class GameTimeFormatPipe implements PipeTransform {
   transform(timer: number, format: string = 'HH:mm:ss.SSS'): string {
-    const millis =  Math.floor(timer % 1000);
+    const millis = Math.floor(timer % 1000);
     const seconds = Math.floor((timer / 1000) % 60);
     const minutes = Math.floor((timer / 1000 / 60) % 60);
     const hours = Math.floor(timer / 1000 / 60 / 60);

@@ -1,9 +1,8 @@
 @let suit = card()?.suit ?? 'SPADE';
 @let rank = card()?.rank ?? 0;
 
-@if (!isBackside()){
+@if (!isBackside()) {
   @switch (size()) {
-
     @case ('default') {
       <div class="top-left corner">
         <h1>{{ rank }}</h1>
@@ -22,5 +21,4 @@
       <suit-icon [suit]="suit" class="mid-suit" [size]="15"></suit-icon>
     }
   }
-} @else {
-}
+} @else {}

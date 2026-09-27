@@ -30,7 +30,7 @@ export class PlayerGrid {
 
   private readonly scroller = viewChild('scroller', { read: ElementRef<HTMLElement> });
   private readonly playerCardElements = viewChildren('playerElement', {
-    read: ElementRef<HTMLElement>
+    read: ElementRef<HTMLElement>,
   });
 
   /** Live index of the card nearest the carousel centre — drives the dots. */

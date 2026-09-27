@@ -5,19 +5,25 @@
   <p class="subtitle">Chance</p>
 </div>
 
-@for (card of remainingCards(); track $index){
-
-
-  @let rankCountPercentage = ((card.count??1) / cardMaxCount) * 100;
+@for (card of remainingCards(); track $index) {
+  @let rankCountPercentage = ((card.count ?? 1) / cardMaxCount) * 100;
   <div class="card">
     <p class="rank">
-      @switch (card.rank){
-        @case (14){A}
-        @case (13){K}
-        @case (12){D}
-        @case (11){J}
+      @switch (card.rank) {
+        @case (14) {
+          A
+        }
+        @case (13) {
+          K
+        }
+        @case (12) {
+          D
+        }
+        @case (11) {
+          J
+        }
         @default {
-          {{card.rank}}
+          {{ card.rank }}
         }
       }
     </p>
@@ -25,10 +31,9 @@
       <div></div>
       <div></div>
     </div>
-    <p class="subtitle">{{card.count}}/{{cardMaxCount}}</p>
+    <p class="subtitle">{{ card.count }}/{{ cardMaxCount }}</p>
 
-    @let chance = (card.count??0) / remainingCardsCount() * 100;
+    @let chance = ((card.count ?? 0) / remainingCardsCount()) * 100;
     <p class="subtitle">{{ chance | number: '1.2-2' }}%</p>
   </div>
-
 }

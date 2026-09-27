@@ -1,24 +1,21 @@
-import {inject, Service} from '@angular/core';
-import {OverlayConf, OverlayService} from '../overlay/overlay.service';
-import {PlayerOverviewDrawerComponent} from '../../drawer/player-overview-drawer/player-overview-drawer.component';
-import {OverlayPositionBuilder} from '@angular/cdk/overlay';
-import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {map} from 'rxjs';
-import {ConfirmationDrawer} from '../../drawer/confirmation-drawer/confirmation-drawer';
-import {PartyShareDrawerComponent} from '../../drawer/party-share-drawer/party-share-drawer.component';
-import {GamePausedData} from '../../drawer/game-paused-drawer/models/game-paused-data';
-import {GamePausedDrawerComponent} from '../../drawer/game-paused-drawer/game-paused-drawer.component';
-import {OverlayHandle} from '../overlay/models/overlay-handle';
-import {QrScannerDrawer} from '../../drawer/qr-scanner-drawer/qr-scanner-drawer';
-import {NewParticipantDrawerComponent} from '../../drawer/new-participant-drawer/new-participant-drawer.component';
-import {
-  LobbyParticipantSettingsDrawer
-} from '../../drawer/lobby-participant-settings-drawer/lobby-participant-settings-drawer';
-import {LobbyParticipantDTO} from '../../../api-models/model/lobbyParticipantDTO';
-import {ParticipantSettingsResult} from '../../overlay/participant-settings-overlay/models/participant-settings-result';
-import {DrawPanelSubMenuDrawer} from '../../drawer/draw-panel-sub-menu-drawer/draw-panel-sub-menu-drawer';
-
+import { inject, Service } from '@angular/core';
+import { OverlayConf, OverlayService } from '../overlay/overlay.service';
+import { PlayerOverviewDrawerComponent } from '../../drawer/player-overview-drawer/player-overview-drawer.component';
+import { OverlayPositionBuilder } from '@angular/cdk/overlay';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { ConfirmationDrawer } from '../../drawer/confirmation-drawer/confirmation-drawer';
+import { PartyShareDrawerComponent } from '../../drawer/party-share-drawer/party-share-drawer.component';
+import { GamePausedData } from '../../drawer/game-paused-drawer/models/game-paused-data';
+import { GamePausedDrawerComponent } from '../../drawer/game-paused-drawer/game-paused-drawer.component';
+import { OverlayHandle } from '../overlay/models/overlay-handle';
+import { QrScannerDrawer } from '../../drawer/qr-scanner-drawer/qr-scanner-drawer';
+import { NewParticipantDrawerComponent } from '../../drawer/new-participant-drawer/new-participant-drawer.component';
+import { LobbyParticipantSettingsDrawer } from '../../drawer/lobby-participant-settings-drawer/lobby-participant-settings-drawer';
+import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
+import { ParticipantSettingsResult } from '../../overlay/participant-settings-overlay/models/participant-settings-result';
+import { DrawPanelSubMenuDrawer } from '../../drawer/draw-panel-sub-menu-drawer/draw-panel-sub-menu-drawer';
 
 @Service()
 export class DrawerService {
@@ -28,7 +25,7 @@ export class DrawerService {
   private readonly breakpointObserver = inject(BreakpointObserver);
   protected isCompact = toSignal(
     this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map((data) => data.matches)),
-    {initialValue: false},
+    { initialValue: false },
   );
 
   public showPlayerOverviewDrawer(): void {
@@ -92,8 +89,8 @@ export class DrawerService {
   public showCardChangeDrawer(startOption: number) {
     const overlayConf: Partial<OverlayConf<number>> = {
       component: DrawPanelSubMenuDrawer,
-      data: startOption
-    }
+      data: startOption,
+    };
 
     return this.showDrawer(overlayConf);
   }
@@ -116,7 +113,7 @@ export class DrawerService {
       dismissOnBackdropClick: true,
     };
 
-    const finalConf = {...defaultConf, ...overlayConf};
+    const finalConf = { ...defaultConf, ...overlayConf };
 
     return this.overlayService.openOverlay<expectedReturnObj>(finalConf);
   }

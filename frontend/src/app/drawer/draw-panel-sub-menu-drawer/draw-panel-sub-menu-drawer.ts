@@ -1,23 +1,25 @@
-import {Component, effect, ElementRef, inject, signal, viewChild, viewChildren} from '@angular/core';
-import {DrawerDefaultHeaderComponent} from '../common/drawer-default-header/drawer-default-header.component';
-import {SegmentedControl} from '../../common/segmented-control/segmented-control';
-import {RoundHistory} from './round-history/round-history';
-import {OVERLAY_DATA} from '../../services/overlay/models/overlay-handle';
-import {CardChanceOverview} from './card-chance-overview/card-chance-overview';
+import {
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
+import { DrawerDefaultHeaderComponent } from '../common/drawer-default-header/drawer-default-header.component';
+import { SegmentedControl } from '../../common/segmented-control/segmented-control';
+import { RoundHistory } from './round-history/round-history';
+import { OVERLAY_DATA } from '../../services/overlay/models/overlay-handle';
+import { CardChanceOverview } from './card-chance-overview/card-chance-overview';
 
 @Component({
-  imports: [
-    DrawerDefaultHeaderComponent,
-    SegmentedControl,
-    RoundHistory,
-    CardChanceOverview
-  ],
+  imports: [DrawerDefaultHeaderComponent, SegmentedControl, RoundHistory, CardChanceOverview],
   selector: 'app-draw-panel-sub-menu-drawer',
   styleUrl: './draw-panel-sub-menu-drawer.scss',
   templateUrl: './draw-panel-sub-menu-drawer.html',
 })
 export class DrawPanelSubMenuDrawer {
-
   private readonly startOption = inject(OVERLAY_DATA) as number;
 
   private readonly scroller = viewChild('scroller', { read: ElementRef<HTMLElement> });
@@ -31,7 +33,7 @@ export class DrawPanelSubMenuDrawer {
 
   constructor() {
     effect(() => {
-      this.scrollToIndex(this.selectedOption())
+      this.scrollToIndex(this.selectedOption());
     });
   }
 
@@ -61,13 +63,14 @@ export class DrawPanelSubMenuDrawer {
     const viewElement = this.viewElements()[index]?.nativeElement;
     if (!container || !viewElement) return;
 
-    const offset = viewElement.getBoundingClientRect().left - container.getBoundingClientRect().left;
+    const offset =
+      viewElement.getBoundingClientRect().left - container.getBoundingClientRect().left;
     container.scrollTo({ left: container.scrollLeft + offset, behavior: 'smooth' });
   }
 
   private nearestPageIndex(): number {
     const scroller = this.scroller()?.nativeElement;
-    const [first, second] = this.viewElements().map(page => page.nativeElement);
+    const [first, second] = this.viewElements().map((page) => page.nativeElement);
     if (!scroller || !first || !second) return 0;
 
     const pageDistance = second.offsetLeft - first.offsetLeft;

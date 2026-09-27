@@ -1,10 +1,10 @@
-import {Component, computed, inject} from '@angular/core';
-import {GameService} from '../../../services/game/game.service';
-import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
-import {Dot} from '../../../common/dot/dot';
-import {playerColor} from '../../../common/theme/player-colors';
-import {PlayerTurn} from '../../../services/game/models/playerTurn';
-import {SuitIcon} from '../../../common/components/suit-icon/suit-icon';
+import { Component, computed, inject } from '@angular/core';
+import { GameService } from '../../../services/game/game.service';
+import { GameTimeFormatPipe } from '../../../pipes/game-time-format-pipe';
+import { Dot } from '../../../common/dot/dot';
+import { playerColor } from '../../../common/theme/player-colors';
+import { PlayerTurn } from '../../../services/game/models/playerTurn';
+import { SuitIcon } from '../../../common/components/suit-icon/suit-icon';
 
 interface Round {
   roundNr: number;
@@ -22,20 +22,18 @@ export class RoundHistory {
 
   protected readonly turns = this.gameService.turns;
   protected readonly rounds = computed(() => {
-
-    const roundsRaw = this.turns().map(turn => turn.info.round ?? 0);
+    const roundsRaw = this.turns().map((turn) => turn.info.round ?? 0);
     const rounds = [...new Set(roundsRaw)];
 
-    return rounds.map(round => {
-      const turns = this.turns().filter(turn => turn.info.round === round);
+    return rounds.map((round) => {
+      const turns = this.turns().filter((turn) => turn.info.round === round);
       const newRound: Round = {
         roundNr: round,
-        turns: turns
-      }
+        turns: turns,
+      };
       return newRound;
-    })
-  })
-
+    });
+  });
 
   protected readonly playerColor = playerColor;
 }

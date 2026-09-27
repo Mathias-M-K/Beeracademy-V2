@@ -1,43 +1,43 @@
-:host{
+:host {
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   gap: 10px;
 
-  div:nth-child(n+2){
-    p:nth-child(n+2){
+  div:nth-child(n + 2) {
+    p:nth-child(n + 2) {
       text-align: center;
     }
   }
 }
 
-.card{
+.card {
   display: grid;
   grid-column: 1 / span 4;
   grid-template-columns: subgrid;
   align-items: center;
   gap: 10px;
 
-  p{
+  p {
     margin: 0;
   }
 
-  .rank{
+  .rank {
     font-weight: bold;
     font-size: 18px;
   }
 }
 
-.labels{
+.labels {
   display: grid;
   grid-column: 1 / span 4;
   grid-template-columns: subgrid;
 
-  p{
+  p {
     margin: 0;
   }
 }
 
-.diagram-row{
+.diagram-row {
   position: relative;
 
   border-radius: 100px;
@@ -46,16 +46,16 @@
   height: 10px;
   width: 100%;
 
-  div{
+  div {
     position: absolute;
     width: 100%;
     height: 100%;
   }
 
-  div:first-child{
+  div:first-child {
     background-color: var(--primary-disabled);
   }
-  div:last-child{
+  div:last-child {
     background-color: var(--primary);
     width: var(--card-progress);
     transition: width 0.25s ease-in-out;

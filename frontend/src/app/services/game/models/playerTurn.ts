@@ -1,7 +1,7 @@
-import {Turn} from '../../../../api-models/model/turn';
-import {Player} from './player';
+import { Turn } from '../../../../api-models/model/turn';
+import { Player } from './player';
 
-export interface PlayerTurn{
+export interface PlayerTurn {
   info: Turn;
   player: Player;
 }

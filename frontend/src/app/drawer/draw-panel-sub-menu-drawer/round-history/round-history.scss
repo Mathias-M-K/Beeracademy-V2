@@ -14,7 +14,7 @@
   grid-template-columns: subgrid;
   row-gap: 5px;
 
-  >:first-child {
+  > :first-child {
     grid-column: 1 / span 4;
     margin: 0;
   }
@@ -22,7 +22,7 @@
 
 .turn {
   display: grid;
-  grid-column: 1/span 5;
+  grid-column: 1 / span 5;
   grid-template-columns: subgrid;
   background-color: color-mix(in oklab, var(--player-color), white 60%);
   padding: 10px 15px;
@@ -35,11 +35,11 @@
     align-items: center;
     gap: 5px;
   }
-  .card{
+  .card {
     justify-self: end;
   }
 
-  div p{
+  div p {
     font-weight: bold;
   }
 
@@ -48,15 +48,15 @@
     flex: 1;
   }
 
-  animation: row-in 0.30s ease-in-out forwards;
+  animation: row-in 0.3s ease-in-out forwards;
 }
 
 @keyframes row-in {
-  from{
+  from {
     translate: -70px 0;
     opacity: 0;
   }
-  to{
+  to {
     opacity: 1;
   }
 }

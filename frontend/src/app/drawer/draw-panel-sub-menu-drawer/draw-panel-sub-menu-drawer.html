@@ -1,11 +1,19 @@
-<drawer-default-header [title]="segmentOptions[selectedOption()]" subtitle="Statistik"></drawer-default-header>
-<segmented-control [segments]="segmentOptions"
-                   [(currentSelectedOption)]="selectedOption"
-                   (currentSelectedOptionChange)="onSegmentSelected()"></segmented-control>
-<div id="view" #scroller
-     (pointerdown)="onPointerDown()"
-     (scroll)="onScroll()"
-     (scrollend)="onScrollEnd()">
+<drawer-default-header
+  [title]="segmentOptions[selectedOption()]"
+  subtitle="Statistik"
+></drawer-default-header>
+<segmented-control
+  [segments]="segmentOptions"
+  [(currentSelectedOption)]="selectedOption"
+  (currentSelectedOptionChange)="onSegmentSelected()"
+></segmented-control>
+<div
+  id="view"
+  #scroller
+  (pointerdown)="onPointerDown()"
+  (scroll)="onScroll()"
+  (scrollend)="onScrollEnd()"
+>
   <div #viewElement>
     <app-round-history></app-round-history>
   </div>

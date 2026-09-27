@@ -2,8 +2,10 @@
   @if (lastThreeCards().length === 0) {
     <app-card
       [size]="isCompact() ? 'small' : 'default'"
-      [isBackside]="true" class="card-landing"
-      (animate.leave)="delayLeave($event)">
+      [isBackside]="true"
+      class="card-landing"
+      (animate.leave)="delayLeave($event)"
+    >
     </app-card>
   }
 
@@ -11,8 +13,10 @@
     @for (card of lastThreeCards(); track (card.rank ?? 0) + (card.suit ?? '')) {
       <app-card
         [size]="isCompact() ? 'small' : 'default'"
-        [card]="card" animate.leave="card-leave"
-        [animate.enter]="isSemiCompact() ? 'card-enter-semi-compact' :'card-enter'">
+        [card]="card"
+        animate.leave="card-leave"
+        [animate.enter]="isSemiCompact() ? 'card-enter-semi-compact' : 'card-enter'"
+      >
       </app-card>
     }
   </div>
@@ -21,9 +25,11 @@
     @let lastPlayer = displayLastPlayer();
     <p class="subtitle">Forrige</p>
     <div>
-      <app-dot [color]="lastPlayer?.color ?? 'transparent'"
-               [radiusPx]="10"
-               [style.display]="lastPlayer===undefined ? 'none' : 'unset'"></app-dot>
+      <app-dot
+        [color]="lastPlayer?.color ?? 'transparent'"
+        [radiusPx]="10"
+        [style.display]="lastPlayer === undefined ? 'none' : 'unset'"
+      ></app-dot>
       <h2>{{ lastPlayer?.name ?? '--' }}</h2>
     </div>
     <div id="sips">
@@ -31,9 +37,8 @@
       <p class="subtitle">{{ isCompact() ? 'Sl.' : 'Slurke' }}</p>
     </div>
     <div>
-      <p class="subtitle">{{ displayLastPlayerTime() ?? 0 | gameTimeFormat : 'mm:ss:SS' }}</p>
+      <p class="subtitle">{{ displayLastPlayerTime() ?? 0 | gameTimeFormat: 'mm:ss:SS' }}</p>
     </div>
-
   </div>
 </div>
 
@@ -44,9 +49,13 @@
     <h2 id="current-player">{{ currentPlayer()?.name }}</h2>
   </div>
   <div id="timers" [style.grid-column]="1">
-    <p id="current-time">{{ currentPlayerTime() | gameTimeFormat : 'mm:ss:SSS' }}</p>
-    <p class="current-time-average">Snit {{ displayCurrentPlayerAvg() | gameTimeFormat : 'mm:ss:SS' }}</p>
-    <p class="current-time-average" id="delta">Δ {{ (currentPlayerAvgDelta() / 1000).toFixed(2) }}</p>
+    <p id="current-time">{{ currentPlayerTime() | gameTimeFormat: 'mm:ss:SSS' }}</p>
+    <p class="current-time-average">
+      Snit {{ displayCurrentPlayerAvg() | gameTimeFormat: 'mm:ss:SS' }}
+    </p>
+    <p class="current-time-average" id="delta">
+      Δ {{ (currentPlayerAvgDelta() / 1000).toFixed(2) }}
+    </p>
   </div>
 </div>
 
@@ -65,7 +74,9 @@
 </div>
 
 <div class="buttons">
-  <button [disabled]="isPlayer()" class="btn-secondary" (click)="drawCardClick.emit()">Træk kort</button>
+  <button [disabled]="isPlayer()" class="btn-secondary" (click)="drawCardClick.emit()">
+    Træk kort
+  </button>
   <button class="btn-secondary-outlined btn-icon" (click)="drawerService.showCardChangeDrawer(0)">
     <material-icon icon="source_notes"></material-icon>
   </button>

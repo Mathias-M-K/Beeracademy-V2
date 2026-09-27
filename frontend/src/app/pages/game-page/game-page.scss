@@ -13,8 +13,6 @@
   margin-bottom: 20px;
 }
 
-
-
 @media (max-width: 950px) {
   :host {
     overflow: auto;
@@ -37,7 +35,7 @@
       'podium';
   }
 
-  app-card-count{
+  app-card-count {
     display: none;
   }
 }
