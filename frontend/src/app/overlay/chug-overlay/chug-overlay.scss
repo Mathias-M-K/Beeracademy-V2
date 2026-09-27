@@ -26,7 +26,7 @@
   grid-area: revert-layer !important;
 }
 
-:host(.guest) .player {
+:host(.guest) .multi-vertical {
   flex-direction: column;
 }
 
@@ -96,7 +96,7 @@
   margin-top: 2px;
 }
 
-.player {
+.multi-vertical {
   display: flex;
 
   align-self: start;

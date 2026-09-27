@@ -89,9 +89,10 @@ export class DrawerService {
     return this.showDrawer(overlayConf);
   }
 
-  public showCardChangeDrawer() {
-    const overlayConf: Partial<OverlayConf<void>> = {
-      component: DrawPanelSubMenuDrawer
+  public showCardChangeDrawer(startOption: number) {
+    const overlayConf: Partial<OverlayConf<number>> = {
+      component: DrawPanelSubMenuDrawer,
+      data: startOption
     }
 
     return this.showDrawer(overlayConf);

@@ -66,10 +66,10 @@
 
 <div class="buttons">
   <button [disabled]="isPlayer()" class="btn-secondary" (click)="drawCardClick.emit()">Træk kort</button>
-  <button class="btn-secondary-outlined btn-icon">
+  <button class="btn-secondary-outlined btn-icon" (click)="drawerService.showCardChangeDrawer(0)">
     <material-icon icon="source_notes"></material-icon>
   </button>
-  <button class="btn-secondary-outlined btn-icon" (click)="drawerService.showCardChangeDrawer()">
+  <button class="btn-secondary-outlined btn-icon" (click)="drawerService.showCardChangeDrawer(1)">
     <material-icon icon="casino"></material-icon>
   </button>
 </div>

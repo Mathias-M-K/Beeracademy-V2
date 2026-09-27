@@ -1,11 +1,14 @@
-import {Component, effect, ElementRef, signal, viewChild, viewChildren} from '@angular/core';
+import {Component, effect, ElementRef, inject, signal, viewChild, viewChildren} from '@angular/core';
 import {DrawerDefaultHeaderComponent} from '../common/drawer-default-header/drawer-default-header.component';
 import {SegmentedControl} from '../../common/segmented-control/segmented-control';
+import {RoundHistory} from './round-history/round-history';
+import {OVERLAY_DATA} from '../../services/overlay/models/overlay-handle';
 
 @Component({
   imports: [
     DrawerDefaultHeaderComponent,
-    SegmentedControl
+    SegmentedControl,
+    RoundHistory
   ],
   selector: 'app-draw-panel-sub-menu-drawer',
   styleUrl: './draw-panel-sub-menu-drawer.scss',
@@ -13,11 +16,13 @@ import {SegmentedControl} from '../../common/segmented-control/segmented-control
 })
 export class DrawPanelSubMenuDrawer {
 
+  private readonly startOption = inject(OVERLAY_DATA) as number;
+
   private readonly scroller = viewChild('scroller', { read: ElementRef<HTMLElement> });
   private readonly viewElements = viewChildren('viewElement', { read: ElementRef<HTMLElement> });
 
   protected segmentOptions: string[] = ['Historik', 'Chance pr. kort'];
-  protected selectedOption = signal<number>(0);
+  protected selectedOption = signal<number>(this.startOption);
 
   private dragActive = false;
   private rafId = 0;

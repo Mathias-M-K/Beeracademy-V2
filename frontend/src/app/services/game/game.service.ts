@@ -48,6 +48,7 @@ import {
 import {DrawerService} from '../drawer/drawer.service';
 import {WebsocketCode} from '../../../api-models/model/websocketCode';
 import {PartyContext, PartyContextProvider} from '../../pages/party/party-context-provider';
+import {PlayerTurn} from './models/playerTurn';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -129,14 +130,16 @@ export class GameService implements PartyContextProvider {
   private readonly _releaseRequests = signal<string[]>([]);
   public readonly releaseRequests = this._releaseRequests.asReadonly();
 
-  public readonly rounds = computed(() => {
+  public readonly turns = computed(() => {
 
-    const turns: (Turn | undefined)[] = [];
+    const turns: PlayerTurn[] = [];
     for (let turnIndex = 0; turnIndex < this.currentRound(); turnIndex++) {
-      for (const element of this.players()) {
+      for (const player of this.players()) {
 
-        const turn = element.stats.turns?.at(turnIndex);
-        turns.push(turn);
+        const turn = player.stats.turns?.at(turnIndex);
+        if(!turn) continue;
+
+        turns.push({info: turn, player});
 
       }
     }

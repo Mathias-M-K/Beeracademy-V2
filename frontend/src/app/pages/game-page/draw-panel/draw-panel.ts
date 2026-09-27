@@ -11,9 +11,9 @@ import {GameTimeFormatPipe} from '../../../pipes/game-time-format-pipe';
 import {MaterialIcon} from '../../../common/components/material-icon/material-icon';
 import {tweenedNumber} from '../../../common/tweened-number';
 import {DecimalPipe} from '@angular/common';
-import {Turn} from '../../../../api-models/model/turn';
 import {GameService} from '../../../services/game/game.service';
 import {DrawerService} from '../../../services/drawer/drawer.service';
+import {PlayerTurn} from '../../../services/game/models/playerTurn';
 
 @Component({
   selector: 'app-draw-panel',
@@ -40,7 +40,7 @@ export class DrawPanel {
   readonly lastCard = input<Card | undefined>();
   readonly currentPlayer = input<Player | undefined>(undefined);
   readonly currentPlayerTime = input<number>(0);
-  readonly rounds = input<(Turn | undefined)[]>();
+  readonly turns = input<PlayerTurn[]>();
   readonly lastPlayer = input<Player | undefined>(undefined);
   readonly nextPlayer = input<Player | undefined>(undefined);
   readonly changeOfDrawingAce = input.required<number>();
@@ -65,7 +65,7 @@ export class DrawPanel {
 
   private readonly lastCardRank = computed(() => this.lastCard()?.rank ?? 0);
   protected readonly lastThreeCards: Signal<Card[]> = computed(()=>{
-    const cards = this.rounds()?.map(turn => turn?.card ?? undefined)
+    const cards = this.turns()?.map(turn => turn.info.card ?? undefined)
       .filter(card => card !== undefined);
 
     return cards?.splice(-3).reverse() ?? [];
@@ -74,7 +74,7 @@ export class DrawPanel {
 
 
   protected displayLastPlayer = computed(()=> {
-    const rounds = this.rounds()?.filter(round => round !== undefined);
+    const rounds = this.turns()?.filter(turn => turn !== undefined);
     if(!rounds?.length) return undefined;
     return this.lastPlayer()
   });

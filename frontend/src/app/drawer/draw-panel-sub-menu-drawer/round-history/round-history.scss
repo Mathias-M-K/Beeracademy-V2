@@ -1,0 +1,43 @@
+:host {
+  display: grid;
+  grid-template-columns: auto 1fr repeat(2, auto);
+  row-gap: 15px;
+  column-gap: 15px;
+
+  user-select: none;
+}
+
+.round {
+  display: grid;
+  grid-column: 1 / span 4;
+  grid-template-columns: subgrid;
+  row-gap: 5px;
+
+  >:first-child {
+    grid-column: 1 / span 4;
+    margin: 0;
+  }
+}
+
+.turn {
+  display: grid;
+  grid-column: 1/span 5;
+  grid-template-columns: subgrid;
+  background-color: color-mix(in oklab, var(--player-color), white 60%);
+  padding: 5px 15px;
+  border-radius: 100px;
+
+  .multi-vertical {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card{
+    justify-self: end;
+  }
+
+  p {
+    margin: 0;
+    flex: 1;
+  }
+}

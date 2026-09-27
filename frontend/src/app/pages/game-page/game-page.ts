@@ -27,7 +27,7 @@ export class GamePage implements OnDestroy {
   protected currentPlayer = this.gameService.currentPlayer;
   protected previousPlayer = this.gameService.previousPlayer;
   protected nextPlayer = this.gameService.nextPlayer;
-  protected rounds = this.gameService.rounds;
+  protected turns = this.gameService.turns;
 
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
