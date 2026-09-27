@@ -18,6 +18,7 @@ import { GamePausedDrawerComponent } from '../../drawer/game-paused-drawer/game-
 import { QrScannerDrawer } from '../../drawer/qr-scanner-drawer/qr-scanner-drawer';
 import { NewParticipantDrawerComponent } from '../../drawer/new-participant-drawer/new-participant-drawer.component';
 import { LobbyParticipantSettingsDrawer } from '../../drawer/lobby-participant-settings-drawer/lobby-participant-settings-drawer';
+import { DrawPanelSubMenuDrawer } from '../../drawer/draw-panel-sub-menu-drawer/draw-panel-sub-menu-drawer';
 import { GamePausedData } from '../../drawer/game-paused-drawer/models/game-paused-data';
 import { Player } from '../game/models/player';
 import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
@@ -30,6 +31,7 @@ const DRAWER_COMPONENTS: Type<unknown>[] = [
   QrScannerDrawer,
   NewParticipantDrawerComponent,
   LobbyParticipantSettingsDrawer,
+  DrawPanelSubMenuDrawer,
 ];
 
 describe('DrawerService', () => {
@@ -147,6 +149,7 @@ describe('DrawerService', () => {
         () => service.showLobbyParticipantSettingsDrawer(participant),
         participant,
       ],
+      ['showCardChangeDrawer', DrawPanelSubMenuDrawer, () => service.showCardChangeDrawer(1), 1],
     ] as [string, Type<unknown>, () => unknown, unknown][])(
       '%s',
       (_name, component, open, data) => {

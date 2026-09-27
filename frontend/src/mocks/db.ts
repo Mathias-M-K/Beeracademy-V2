@@ -172,10 +172,10 @@ export const db = {
     }
 
     const players: PlayerDto[] = (lobby.participants ?? []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      sipsInABeer: p.sipsInABeer,
-      canDrawChugCard: p.canDrawAce,
+      id: p.id!,
+      name: p.name!,
+      sipsInABeer: p.sipsInABeer!,
+      canDrawChugCard: p.canDrawAce!,
       stats: { turns: [], chugs: [] },
       session: { isClaimed: true, isConnected: true },
     }));

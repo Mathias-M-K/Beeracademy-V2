@@ -49,10 +49,10 @@
   </div>
   <div class="stat">
     <p class="subtitle">Sidste tid</p>
-    <p class="stat-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss' }}</p>
+    <p class="stat-value time-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss:SS' }}</p>
   </div>
   <div class="stat">
     <p class="subtitle">Tid/gns</p>
-    <p class="stat-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss' }}</p>
+    <p class="stat-value time-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss:SS' }}</p>
   </div>
 </div>

@@ -15,6 +15,7 @@ import { NewParticipantDrawerComponent } from '../../drawer/new-participant-draw
 import { LobbyParticipantSettingsDrawer } from '../../drawer/lobby-participant-settings-drawer/lobby-participant-settings-drawer';
 import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
 import { ParticipantSettingsResult } from '../../overlay/participant-settings-overlay/models/participant-settings-result';
+import { DrawPanelSubMenuDrawer } from '../../drawer/draw-panel-sub-menu-drawer/draw-panel-sub-menu-drawer';
 
 @Service()
 export class DrawerService {
@@ -80,6 +81,15 @@ export class DrawerService {
     const overlayConf: Partial<OverlayConf<LobbyParticipantDTO>> = {
       component: LobbyParticipantSettingsDrawer,
       data: participant,
+    };
+
+    return this.showDrawer(overlayConf);
+  }
+
+  public showCardChangeDrawer(startOption: number) {
+    const overlayConf: Partial<OverlayConf<number>> = {
+      component: DrawPanelSubMenuDrawer,
+      data: startOption,
     };
 
     return this.showDrawer(overlayConf);

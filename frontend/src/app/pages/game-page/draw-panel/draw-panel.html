@@ -1,32 +1,86 @@
-@if (isCompact()) {
-  <div class="compact-card">
-    <app-card [card]="currentCard()"></app-card>
-    <button *isGameOwner (click)="drawCardClick.emit()">Draw!</button>
+<div class="previous-draw">
+  @if (lastThreeCards().length === 0) {
+    <app-card
+      [size]="isCompact() ? 'small' : 'default'"
+      [isBackside]="true"
+      class="card-landing"
+      (animate.leave)="delayLeave($event)"
+    >
+    </app-card>
+  }
+
+  <div class="card-stack" [style.--children]="lastThreeCards().length">
+    @for (card of lastThreeCards(); track (card.rank ?? 0) + (card.suit ?? '')) {
+      <app-card
+        [size]="isCompact() ? 'small' : 'default'"
+        [card]="card"
+        animate.leave="card-leave"
+        [animate.enter]="isSemiCompact() ? 'card-enter-semi-compact' : 'card-enter'"
+      >
+      </app-card>
+    }
   </div>
-} @else {
-  <app-card
-    *isGameOwner
-    (keydown)="drawCardClick.emit()"
-    (click)="drawCardClick.emit()"
-    [isBackside]="true"
-  ></app-card>
-  <app-card [card]="currentCard()"></app-card>
-}
 
-<div class="player-info">
-  <p class="upper_subtitle">Nu trækker</p>
-  <h3>{{ currentPlayer()?.name ?? '' }}</h3>
-
-  <div class="horizontal_line"></div>
-  <div class="player-stats">
-    @let lastCard = currentPlayer()?.stats?.turns?.at(-1)?.card;
+  <div class="drawn-by">
+    @let lastPlayer = displayLastPlayer();
+    <p class="subtitle">Forrige</p>
     <div>
-      <p class="upper_subtitle">Sidste kort</p>
-      <h4>{{ lastCard?.rank }} - {{ lastCard?.suit }}</h4>
+      <app-dot
+        [color]="lastPlayer?.color ?? 'transparent'"
+        [radiusPx]="10"
+        [style.display]="lastPlayer === undefined ? 'none' : 'unset'"
+      ></app-dot>
+      <h2>{{ lastPlayer?.name ?? '--' }}</h2>
+    </div>
+    <div id="sips">
+      <p>{{ displayLastCardRank().toFixed(0) }}</p>
+      <p class="subtitle">{{ isCompact() ? 'Sl.' : 'Slurke' }}</p>
     </div>
     <div>
-      <p class="upper_subtitle">Tid</p>
-      <h4>{{ currentPlayerTime() | gameTimeFormat: 'mm:ss.SSS' }}</h4>
+      <p class="subtitle">{{ displayLastPlayerTime() ?? 0 | gameTimeFormat: 'mm:ss:SS' }}</p>
     </div>
   </div>
+</div>
+
+<div class="now-drawing">
+  <p class="subtitle">Nu trækker</p>
+  <div [style.grid-column]="1">
+    <app-dot [color]="currentPlayer()?.color ?? 'var(--primary)'"></app-dot>
+    <h2 id="current-player">{{ currentPlayer()?.name }}</h2>
+  </div>
+  <div id="timers" [style.grid-column]="1">
+    <p id="current-time">{{ currentPlayerTime() | gameTimeFormat: 'mm:ss:SSS' }}</p>
+    <p class="current-time-average">
+      Snit {{ displayCurrentPlayerAvg() | gameTimeFormat: 'mm:ss:SS' }}
+    </p>
+    <p class="current-time-average" id="delta">
+      Δ {{ (currentPlayerAvgDelta() / 1000).toFixed(2) }}
+    </p>
+  </div>
+</div>
+
+<div class="stats">
+  <div id="next-up">
+    <p class="subtitle">Næste</p>
+    <div>
+      <app-dot [radiusPx]="10" [color]="nextPlayer()?.color ?? 'var(--primary)'"></app-dot>
+      <h2>{{ nextPlayer()?.name }}</h2>
+    </div>
+  </div>
+  <div id="ace-chance">
+    <p class="subtitle">Es-chance</p>
+    <h2>{{ displayChangeOfDrawingAce() | number: '1.2-2' }}%</h2>
+  </div>
+</div>
+
+<div class="buttons">
+  <button [disabled]="isPlayer()" class="btn-secondary" (click)="drawCardClick.emit()">
+    Træk kort
+  </button>
+  <button class="btn-secondary-outlined btn-icon" (click)="drawerService.showCardChangeDrawer(0)">
+    <material-icon icon="source_notes"></material-icon>
+  </button>
+  <button class="btn-secondary-outlined btn-icon" (click)="drawerService.showCardChangeDrawer(1)">
+    <material-icon icon="casino"></material-icon>
+  </button>
 </div>

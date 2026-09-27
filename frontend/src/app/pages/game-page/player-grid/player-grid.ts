@@ -81,6 +81,7 @@ export class PlayerGrid {
   }
 
   private scrollToIndex(index: number): void {
+    if (!this.isCompact()) return;
     this.visiblePlayerIndex.set(index);
     const container = this.scroller()?.nativeElement;
     const card = this.playerCardElements()[index]?.nativeElement;

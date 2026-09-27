@@ -1,0 +1,62 @@
+:host {
+  display: grid;
+  grid-template-columns: auto 1fr repeat(2, auto);
+  row-gap: 15px;
+  column-gap: 15px;
+
+  user-select: none;
+  padding-bottom: 15px;
+}
+
+.round {
+  display: grid;
+  grid-column: 1 / span 4;
+  grid-template-columns: subgrid;
+  row-gap: 5px;
+
+  > :first-child {
+    grid-column: 1 / span 4;
+    margin: 0;
+  }
+}
+
+.turn {
+  display: grid;
+  grid-column: 1 / span 5;
+  grid-template-columns: subgrid;
+  background-color: color-mix(in oklab, var(--player-color), white 60%);
+  padding: 10px 15px;
+  border-radius: 100px;
+
+  align-content: center;
+
+  .multi-vertical {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card {
+    justify-self: end;
+  }
+
+  div p {
+    font-weight: bold;
+  }
+
+  p {
+    margin: 0;
+    flex: 1;
+  }
+
+  animation: row-in 0.3s ease-in-out forwards;
+}
+
+@keyframes row-in {
+  from {
+    translate: -70px 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

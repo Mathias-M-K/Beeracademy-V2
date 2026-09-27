@@ -1,0 +1,16 @@
+<div
+  class="segment focus"
+  [style.--children]="segments().length"
+  [style.--current-option]="currentSelectedOption()"
+></div>
+
+@for (segment of displaySegments(); track segment.optionNr) {
+  <div
+    class="segment"
+    [class.selected]="currentSelectedOption() === segment.optionNr"
+    (click)="currentSelectedOption.set(segment.optionNr)"
+    (keyup)="currentSelectedOption.set(segment.optionNr)"
+  >
+    <p>{{ segment.text }}</p>
+  </div>
+}

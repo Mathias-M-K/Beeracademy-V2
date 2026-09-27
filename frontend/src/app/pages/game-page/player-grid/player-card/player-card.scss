@@ -3,7 +3,7 @@
   gap: 10px;
 
   border-radius: 10px;
-  padding: 20px;
+  padding: 10px;
 
   background-color: white;
   border: 1px solid var(--color-grey-500);
@@ -138,6 +138,9 @@
   font-weight: 800;
   font-size: 32px;
   font-variant-numeric: tabular-nums;
+}
+.time-value {
+  font-size: 24px;
 }
 
 @keyframes dot-enter {

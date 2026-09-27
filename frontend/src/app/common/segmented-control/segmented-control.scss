@@ -1,0 +1,55 @@
+:host {
+  display: flex;
+  position: relative;
+  background-color: var(--color-white);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+
+  align-content: center;
+
+  --padding: 10px;
+  padding: var(--padding);
+
+  --animation-speed: 0.25s;
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.segment.focus {
+  position: absolute;
+  background-color: var(--color-black);
+  border-radius: 100px;
+
+  --option-size: calc((100% - 2 * var(--padding)) / var(--children));
+
+  width: var(--option-size);
+  height: calc(100% - (var(--padding)));
+
+  --x-pos: calc(var(--padding) + (var(--current-option) * var(--option-size)));
+  top: calc(var(--padding) / 2);
+  left: var(--x-pos);
+  z-index: 1;
+
+  transition: left var(--animation-speed) ease-in-out;
+}
+
+.segment {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+
+  p {
+    margin: 0;
+    z-index: 2;
+    font-weight: bold;
+
+    transition: color var(--animation-speed) ease-in-out;
+  }
+}
+
+.segment.selected {
+  p {
+    color: var(--color-white);
+  }
+}

@@ -46,6 +46,7 @@ import { PlayerReleaseRequestedEvent } from '../models/categories/events/game/ga
 import { DrawerService } from '../drawer/drawer.service';
 import { WebsocketCode } from '../../../api-models/model/websocketCode';
 import { PartyContext, PartyContextProvider } from '../../pages/party/party-context-provider';
+import { PlayerTurn } from './models/playerTurn';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -95,28 +96,51 @@ export class GameService implements PartyContextProvider {
     // return this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw
     return this.gameStateObj()?.nextPlayerToDraw;
   });
-  public readonly currentPlayer = computed(() => {
-    const id = this.currentPlayerId();
-    if (!id) return undefined;
-    return this.players().find((player) => player.id === id);
-  });
+  public readonly currentPlayer = computed(() => this.getPlayer(this.currentPlayerId()));
+
+  private readonly previousPlayerId = linkedSignal(() => this.gameStateObj()?.lastPlayerToDraw);
+  public readonly previousPlayer = computed(() => this.getPlayer(this.previousPlayerId()));
+
+  private readonly nextPlayerId = linkedSignal(() => this.gameStateObj()?.playerToDrawNextAfter);
+  public readonly nextPlayer = computed(() => this.getPlayer(this.nextPlayerId()));
 
   private readonly _remainingCardsByRank = linkedSignal(
     () => this.gameStateObj()?.remainingCardsCount ?? [],
   );
   public readonly remainingCardsByRank = this._remainingCardsByRank.asReadonly();
-
   private readonly remainingCardsCount = computed(() => {
     return this._remainingCardsByRank().reduce((total, rank) => total + (rank.count ?? 0), 0);
+  });
+
+  public changeOfDrawingAce = computed(() => {
+    const cardsLeftCount = this.remainingCardsCount();
+    if (cardsLeftCount === 0) return 0;
+
+    const aceCount = this._remainingCardsByRank().find((count) => count.rank === 14)?.count ?? 0;
+    return (aceCount / cardsLeftCount) * 100;
   });
 
   private readonly identity = signal<Identity | undefined>(undefined);
   private readonly role = computed(() => this.identity()?.role);
   public readonly isGameClient = computed(() => this.role() === Role.GameClient);
-  public readonly isPlayer = computed(() => !this.isGameClient);
+  public readonly isPlayer = computed(() => !this.isGameClient());
 
   private readonly _releaseRequests = signal<string[]>([]);
   public readonly releaseRequests = this._releaseRequests.asReadonly();
+
+  public readonly turns = computed(() => {
+    const turns: PlayerTurn[] = [];
+    for (let turnIndex = 0; turnIndex < this.currentRound(); turnIndex++) {
+      for (const player of this.players()) {
+        const turn = player.stats.turns?.at(turnIndex);
+        if (!turn) continue;
+
+        turns.push({ info: turn, player });
+      }
+    }
+
+    return turns;
+  });
 
   private gamePausedPanel?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;
@@ -377,7 +401,9 @@ export class GameService implements PartyContextProvider {
       this._currentRound.update((currentRound) => currentRound + 1);
     }
 
-    this.currentPlayerId.set(isChugCard ? drawCardEvent.drawnBy : drawCardEvent.nextToDraw);
+    this.currentPlayerId.update((prevId) => (isChugCard ? prevId : drawCardEvent.nextToDraw));
+    this.previousPlayerId.update((prevId) => (isChugCard ? prevId : drawCardEvent.drawnBy));
+    this.nextPlayerId.set(drawCardEvent.nextAfter);
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
 
@@ -393,6 +419,7 @@ export class GameService implements PartyContextProvider {
   private handleChugEvent(event: GameEventEnvelope) {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
+
     this.currentPlayerId.set(chugEvent.nextToDraw);
 
     if (this.currentRound() > 1) {
@@ -584,6 +611,11 @@ export class GameService implements PartyContextProvider {
           : player,
       ),
     );
+  }
+
+  private getPlayer(playerId: string | undefined): Player | undefined {
+    if (!playerId) return undefined;
+    return this.players().find((player) => player.id === playerId);
   }
 
   private registerNewReleaseRequestOnPlayer(playerId: string): void {

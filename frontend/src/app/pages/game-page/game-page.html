@@ -8,9 +8,13 @@
   id="draw-panel"
   style="grid-area: draw-panel"
   (drawCardClick)="drawCard()"
-  [currentCard]="currentCard()"
+  [lastCard]="currentCard()"
   [currentPlayerTime]="formattedPlayerTime() ?? 0"
   [currentPlayer]="currentPlayer()"
+  [lastPlayer]="previousPlayer()"
+  [nextPlayer]="nextPlayer()"
+  [changeOfDrawingAce]="changeOfDrawingAce()"
+  [turns]="turns()"
 ></app-draw-panel>
 
 <app-podium style="grid-area: podium" [players]="players()"></app-podium>

@@ -24,6 +24,7 @@ import {
   PLAYER_1,
   PLAYER_2,
   PLAYER_3,
+  threePlayers,
 } from '../../../testing/game-builders';
 import { silenceConsole } from '../../../testing/console';
 import { flushMicrotasks } from '../../../testing/async';
@@ -248,8 +249,7 @@ describe('GameService', () => {
       expect(service.isGameClient()).toBe(false);
     });
 
-    // known-issues: GameService.isPlayer negates the signal instead of its value
-    it.fails('recognises a player client as a player', async () => {
+    it('recognises a player client as a player', async () => {
       // Arrange
       const game = aGameDto();
 
@@ -258,6 +258,73 @@ describe('GameService', () => {
 
       // Assert
       expect(service.isPlayer()).toBe(true);
+    });
+  });
+
+  describe('draw statistics', () => {
+    it('gives the chance of drawing an ace from the remaining cards', async () => {
+      // Arrange
+      const game = aGameDto({
+        remainingCardsCount: [
+          { rank: 14, count: 1 },
+          { rank: 5, count: 3 },
+        ],
+      });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.changeOfDrawingAce()).toBe(25);
+    });
+
+    it('gives no chance of drawing an ace once the deck is empty', async () => {
+      // Arrange
+      const game = aGameDto({ remainingCardsCount: [] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.changeOfDrawingAce()).toBe(0);
+    });
+
+    it('lists every turn drawn so far, round by round in seat order', async () => {
+      // Arrange
+      const [first, second, third] = threePlayers();
+      first.stats = {
+        turns: [
+          { round: 1, card: aCard(2) },
+          { round: 2, card: aCard(5) },
+        ],
+        chugs: [],
+      };
+      second.stats = { turns: [{ round: 1, card: aCard(3) }], chugs: [] };
+      third.stats = { turns: [{ round: 1, card: aCard(4) }], chugs: [] };
+      const game = aGameDto({ currentRound: 2, players: [first, second, third] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.turns().map((turn) => [turn.player.id, turn.info.card?.rank])).toEqual([
+        [PLAYER_1, 2],
+        [PLAYER_2, 3],
+        [PLAYER_3, 4],
+        [PLAYER_1, 5],
+      ]);
+    });
+
+    it('names the players who drew last and draw after the current one', async () => {
+      // Arrange
+      const game = aGameDto({ lastPlayerToDraw: PLAYER_3, playerToDrawNextAfter: PLAYER_2 });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.previousPlayer()?.id).toBe(PLAYER_3);
+      expect(service.nextPlayer()?.id).toBe(PLAYER_2);
     });
   });
 
