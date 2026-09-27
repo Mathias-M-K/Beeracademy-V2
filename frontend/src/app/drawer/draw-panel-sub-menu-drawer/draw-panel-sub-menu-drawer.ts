@@ -3,12 +3,14 @@ import {DrawerDefaultHeaderComponent} from '../common/drawer-default-header/draw
 import {SegmentedControl} from '../../common/segmented-control/segmented-control';
 import {RoundHistory} from './round-history/round-history';
 import {OVERLAY_DATA} from '../../services/overlay/models/overlay-handle';
+import {CardChanceOverview} from './card-chance-overview/card-chance-overview';
 
 @Component({
   imports: [
     DrawerDefaultHeaderComponent,
     SegmentedControl,
-    RoundHistory
+    RoundHistory,
+    CardChanceOverview
   ],
   selector: 'app-draw-panel-sub-menu-drawer',
   styleUrl: './draw-panel-sub-menu-drawer.scss',

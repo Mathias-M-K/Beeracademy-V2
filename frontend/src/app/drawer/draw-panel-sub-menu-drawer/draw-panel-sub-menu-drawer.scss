@@ -11,7 +11,8 @@
   grid-auto-flow: column;
   column-gap: 30px;
 
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
 
   scroll-snap-type: x mandatory;
@@ -24,4 +25,6 @@
 }
 #view > div{
   scroll-snap-align: start;
+  overflow-y: auto;
+  scrollbar-width: none;
 }

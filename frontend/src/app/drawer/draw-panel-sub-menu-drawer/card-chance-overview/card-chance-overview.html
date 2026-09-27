@@ -1,0 +1,34 @@
+<div class="labels">
+  <p class="subtitle">Kort</p>
+  <p class="subtitle"></p>
+  <p class="subtitle">Tilb.</p>
+  <p class="subtitle">Chance</p>
+</div>
+
+@for (card of remainingCards(); track $index){
+
+
+  @let rankCountPercentage = ((card.count??1) / cardMaxCount) * 100;
+  <div class="card">
+    <p class="rank">
+      @switch (card.rank){
+        @case (14){A}
+        @case (13){K}
+        @case (12){D}
+        @case (11){J}
+        @default {
+          {{card.rank}}
+        }
+      }
+    </p>
+    <div class="diagram-row" [style.--card-progress.%]="rankCountPercentage">
+      <div></div>
+      <div></div>
+    </div>
+    <p class="subtitle">{{card.count}}/{{cardMaxCount}}</p>
+
+    @let chance = (card.count??0) / remainingCardsCount() * 100;
+    <p class="subtitle">{{ chance | number: '1.2-2' }}%</p>
+  </div>
+
+}
