@@ -255,7 +255,6 @@ h2 {
     }
 
     .card-stack {
-      width: 140px;
       max-width: unset;
       min-width: unset;
 
@@ -272,6 +271,10 @@ h2 {
 }
 
 @media (max-width: 650px) {
+
+  .card-landing{
+    width: 110px;
+  }
   .previous-draw {
     .card-stack {
       width: 110px;

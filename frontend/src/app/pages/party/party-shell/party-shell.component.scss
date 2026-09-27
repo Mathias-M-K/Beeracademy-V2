@@ -4,7 +4,7 @@
   width: 95vw;
   max-width: 1800px;
   margin-top: 10px;
-  --animation-speed: 0.55s;
+  --animation-speed: 0.35s;
 }
 
 :host(.is-lobby) .header {
@@ -154,12 +154,21 @@ button.do-animate {
 @media (max-width: 650px) {
   :host {
     width: 100vw;
-    padding: 3dvw;
+    padding: 0 3dvw;
     margin: 0;
   }
   .header {
+    position: sticky;
+    margin-inline: -3dvw;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    width: 100dvw;
+    border-radius: unset;
+
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto auto;
+
     gap: 5px;
   }
   .time {
