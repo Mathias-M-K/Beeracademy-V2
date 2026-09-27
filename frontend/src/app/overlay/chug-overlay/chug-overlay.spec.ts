@@ -81,7 +81,7 @@ describe('ChugOverlay', () => {
     const fixture = await render({ playerToChug });
 
     // Assert
-    const player: HTMLElement = fixture.nativeElement.querySelector('.multi-vertical');
+    const player: HTMLElement = fixture.nativeElement.querySelector('.player');
     expect(player.textContent).toContain('lasse bunder');
     expect(player.querySelector('app-participant-badge h3')?.textContent).toBe('L');
   });

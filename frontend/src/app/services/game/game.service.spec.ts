@@ -248,8 +248,7 @@ describe('GameService', () => {
       expect(service.isGameClient()).toBe(false);
     });
 
-    // known-issues: GameService.isPlayer negates the signal instead of its value
-    it.fails('recognises a player client as a player', async () => {
+    it('recognises a player client as a player', async () => {
       // Arrange
       const game = aGameDto();
 

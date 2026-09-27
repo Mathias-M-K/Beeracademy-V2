@@ -107,8 +107,10 @@ describe('PlayerGrid', () => {
   describe('dot navigation', () => {
     it("scrolls to a player's card when its dot is clicked", async () => {
       // Arrange
+      compact = true;
       const fixture = await render();
       layOut(fixture, 0);
+      scrollTo.mockClear();
 
       // Act
       dots(fixture)[2].click();

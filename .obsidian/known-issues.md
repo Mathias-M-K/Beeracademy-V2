@@ -180,7 +180,7 @@ behaviour, carrying a `// known-issues:` comment. When a fix lands, that test st
 and Vitest reports it as a failure. Delete `.fails` in the same change, then mark the entry ✅.
 Line numbers are as of `c14283c`.
 
-## 16. `GameService.isPlayer` is always false
+## ✅ 16. `GameService.isPlayer` is always false · **FIXED** (branch `improvement/improved-draw-panel`)
 `frontend/src/app/services/game/game.service.ts:115` —
 `computed(() => !this.isGameClient)` negates the signal function, which is always truthy,
 instead of its value. `*isPlayer` (used in `game-paused-drawer.component.html`) therefore

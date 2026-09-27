@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GamePage } from './game-page';
 import { GameService } from '../../services/game/game.service';
@@ -19,6 +19,7 @@ import { GameInfo } from '../../services/game/models/game-info';
 import { Card } from '../../../api-models/model/card';
 import { TimeReport } from '../../../api-models/model/timeReport';
 import { TimerState } from '../../../api-models/model/timerState';
+import { PlayerTurn } from '../../services/game/models/playerTurn';
 
 describe('GamePage', () => {
   let drawers: DrawerServiceStub;
@@ -28,10 +29,15 @@ describe('GamePage', () => {
     gameInfo: ReturnType<typeof signal<GameInfo | undefined>>;
     currentCard: ReturnType<typeof signal<Card | undefined>>;
     currentPlayer: ReturnType<typeof signal<Player | undefined>>;
+    previousPlayer: ReturnType<typeof signal<Player | undefined>>;
+    nextPlayer: ReturnType<typeof signal<Player | undefined>>;
+    turns: ReturnType<typeof signal<PlayerTurn[]>>;
     currentRound: ReturnType<typeof signal<number>>;
     gameTimeReport: ReturnType<typeof signal<TimeReport | undefined>>;
     remainingCardsByRank: ReturnType<typeof signal<ReturnType<typeof fullRankCounts>>>;
+    changeOfDrawingAce: ReturnType<typeof signal<number>>;
     isGameClient: ReturnType<typeof signal<boolean>>;
+    isPlayer: Signal<boolean>;
     onGamePageDestroyed: ReturnType<typeof vi.fn>;
     dispatchStartGameAction: ReturnType<typeof vi.fn>;
     dispatchPauseGameAction: ReturnType<typeof vi.fn>;
@@ -41,15 +47,21 @@ describe('GamePage', () => {
 
   beforeEach(() => {
     const players = threePlayers().map((dto) => Player.fromPlayerDto(dto));
+    const isGameClient = signal(true);
     gameService = {
       players: signal(players),
       gameInfo: signal<GameInfo | undefined>({ id: PARTY_ID, name: 'Friday game' }),
       currentCard: signal<Card | undefined>(aCard(7)),
       currentPlayer: signal<Player | undefined>(players[1]),
+      previousPlayer: signal<Player | undefined>(players[0]),
+      nextPlayer: signal<Player | undefined>(players[2]),
+      turns: signal<PlayerTurn[]>([]),
       currentRound: signal(4),
       gameTimeReport: signal<TimeReport | undefined>(aTimeReport({ state: TimerState.Running })),
       remainingCardsByRank: signal(fullRankCounts()),
-      isGameClient: signal(true),
+      changeOfDrawingAce: signal(7.69),
+      isGameClient,
+      isPlayer: computed(() => !isGameClient()),
       onGamePageDestroyed: vi.fn(),
       dispatchStartGameAction: vi.fn(),
       dispatchPauseGameAction: vi.fn(),
@@ -82,6 +94,10 @@ describe('GamePage', () => {
     return fixture;
   }
 
+  function drawButton(fixture: ComponentFixture<GamePage>): HTMLButtonElement {
+    return fixture.nativeElement.querySelector('app-draw-panel .buttons button');
+  }
+
   async function pressSpace(fixture: ComponentFixture<GamePage>) {
     document.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }));
     await fixture.whenStable();
@@ -96,7 +112,7 @@ describe('GamePage', () => {
       const fixture = await render();
 
       // Assert
-      expect(fixture.nativeElement.querySelector('.player-info h3').textContent).toBe('Player 2');
+      expect(fixture.nativeElement.querySelector('#current-player').textContent).toBe('Player 2');
       expect(fixture.nativeElement.querySelector('app-player-card.is-drawing h2').textContent).toBe(
         'Player 2',
       );
@@ -115,13 +131,12 @@ describe('GamePage', () => {
   });
 
   describe('drawing a card', () => {
-    it("draws with the current player's time when the game client clicks the deck", async () => {
+    it("draws with the current player's time when the game client clicks draw", async () => {
       // Arrange
       const fixture = await render();
-      const deck: HTMLElement = fixture.nativeElement.querySelector('app-card.backside');
 
       // Act
-      deck.click();
+      drawButton(fixture).click();
 
       // Assert
       expect(gameService.dispatchDrawCardAction).toHaveBeenCalledWith(4321);
@@ -150,7 +165,7 @@ describe('GamePage', () => {
       expect(gameService.dispatchDrawCardAction).toHaveBeenCalledWith(0);
     });
 
-    it('does not show the deck to players', async () => {
+    it('disables drawing for players', async () => {
       // Arrange
       gameService.isGameClient.set(false);
 
@@ -158,7 +173,7 @@ describe('GamePage', () => {
       const fixture = await render();
 
       // Assert
-      expect(fixture.nativeElement.querySelector('app-card.backside')).toBeNull();
+      expect(drawButton(fixture).disabled).toBe(true);
     });
 
     // known-issues: GamePage's document:keyup.space host listener is not gated to the game client, so players send DRAW_CARD game-client actions the backend rejects
