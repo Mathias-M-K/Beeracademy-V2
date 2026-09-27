@@ -279,7 +279,27 @@ p, h4, h2 {
   }
 
 
+}
 
+@media (max-width: 650px) {
+
+  .previous-draw {
+    .card-stack {
+      width: 110px;
+
+      :nth-child(n+1) {
+        width: 110px;
+      }
+    }
+  }
+
+  #timers > p:nth-child(3) {
+    display: none;
+  }
+
+  .stats {
+    row-gap: 5px;
+  }
 
 }
 

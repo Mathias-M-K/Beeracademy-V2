@@ -7,7 +7,7 @@
     </app-card>
   }
 
-  <div class="card-stack" #cardStack [style.--children]="cardStack.childElementCount">
+  <div class="card-stack" [style.--children]="lastThreeCards().length">
     @for (card of lastThreeCards(); track (card.rank ?? 0) + (card.suit ?? '')) {
       <app-card
         [size]="isCompact() ? 'small' : 'default'"
