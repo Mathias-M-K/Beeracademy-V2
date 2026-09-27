@@ -403,7 +403,7 @@ export class GameService implements PartyContextProvider {
 
     this.currentPlayerId.update((prevId) => (isChugCard ? prevId : drawCardEvent.nextToDraw));
     this.previousPlayerId.update((prevId) => (isChugCard ? prevId : drawCardEvent.drawnBy));
-    this.nextPlayerId.update((prevId) => (isChugCard ? prevId : drawCardEvent.nextAfter));
+    this.nextPlayerId.set(drawCardEvent.nextAfter);
 
     this.addTurnToPlayer(drawCardEvent.turn, drawCardEvent.drawnBy);
 
@@ -420,7 +420,6 @@ export class GameService implements PartyContextProvider {
     const chugEvent: ChugEvent = event.payload as ChugEvent;
     this.addChugToPlayer(chugEvent.chug, chugEvent.chuggedBy);
 
-    this.previousPlayerId.set(this.currentPlayerId());
     this.currentPlayerId.set(chugEvent.nextToDraw);
 
     if (this.currentRound() > 1) {
