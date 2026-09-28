@@ -11,11 +11,16 @@
   border-radius: 10px;
 
   min-width: 300px;
+  overflow: hidden;
 }
 
 :host:not(:has(.chug-history)){
   grid-template-rows: auto 200px;
   padding-bottom: 0;
+
+  .columns{
+    border-bottom: unset;
+  }
 }
 
 .columns {
@@ -49,8 +54,6 @@
 
 .player-name.empty {
   color: var(--color-grey-500);
-
-
 }
 
 .podium-shape {
@@ -65,7 +68,6 @@
 
   width: 100%;
   border-radius: 10px 10px 0 0;
-  color: var(--color-white);
   padding: 10px 0;
 
   h2, p {
@@ -87,8 +89,7 @@
   border-bottom: none;
 
   h2, p {
-    margin: 0;
-    color: var(--color-grey-500) !important;
+    color: var(--color-grey-500);
   }
 }
 
@@ -115,8 +116,6 @@
 
     align-content: center;
     align-items: center;
-    flex-direction: row;
-    animation: fly-in-from-left 0.25s ease-in-out forwards;
 
     .placement-indicator{
       padding: 5px 10px;
@@ -129,8 +128,7 @@
     }
 
     app-card{
-      width: var(--width);
-      transition: width 2s ease-in-out;
+      width: auto;
     }
     p{
       margin: 0;
@@ -165,11 +163,3 @@ h3 {
     translate: 0 -50px;
   }
 }
-
-@keyframes fly-in-from-left {
-  from{
-    opacity: 0;
-    translate: -50px 0;
-  }
-}
-

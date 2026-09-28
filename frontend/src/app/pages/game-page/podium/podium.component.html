@@ -5,32 +5,28 @@
   @for (step of podiumSteps(); track step.placement) {
     <div class="column">
       @let playerName = step.player?.name;
-      @let playerColor = step.player?.color;
+      @let empty = !step.player;
 
       <app-participant-badge
-        class=""
-        [initials]="playerName?.substring(0,1) ?? ''"
+        [initials]="playerName?.[0] ?? ''"
         size="s"
-        [style]="playerName ? 'default' :'local'"
-        [backgroundColor]="playerColor??'transparent'"
+        [style]="empty ? 'local' : 'default'"
+        [backgroundColor]="step.player?.color ?? 'transparent'"
       ></app-participant-badge>
-      <p class="player-name" [class.empty]="playerName === undefined">{{ playerName ?? 'Ledig' }}</p>
+      <p class="player-name" [class.empty]="empty">{{ playerName ?? 'Ledig' }}</p>
       <div class="podium-shape"
            [class.slup-animation]="step.animating"
-           (animationiteration)="swapPlayer(step)"
-           (animationend)="setAnimating(step, false)" [class.empty]="playerName === undefined"
+           (animationiteration)="swapPlayer(step.placement)"
+           (animationend)="setAnimating(step.placement, false)"
+           [class.empty]="empty"
            [style.--color]="step.color"
            [style.--placement]="step.placement">
         <h2>{{ step.placement }}</h2>
-        @switch (step.time === undefined) {
-          @case (false) {
-            <p>{{ ((step.time ?? 0) / 1000) | number: '1.2-2' }} s</p>
-          }
-          @case (true) {
-            <p>--</p>
-          }
+        @if (step.time !== undefined) {
+          <p>{{ step.time / 1000 | number: '1.2-2' }} s</p>
+        } @else {
+          <p>--</p>
         }
-
       </div>
     </div>
   }
@@ -40,12 +36,12 @@
 @if (topThreePlayers().length > 0) {
   <div class="chug-history">
     <p class="subtitle">Seneste ↑</p>
-    @for (chug of chugTimes(); track $index) {
+    @for (chug of chugTimes(); track chug.suit) {
       <div class="chug-time">
         <app-card size="small" [card]="{rank: 14, suit: chug.suit??'SPADE'}"></app-card>
         <p>{{ chug.name }}</p>
-        @if ((chug.placement ?? 0) < 4) {
-          <div class="placement-indicator" [style.--indicator-color]="podiumSteps().find(step => step.placement === chug.placement)?.color??'transparent'">
+        @if (chug.placement && chug.placement <= 3) {
+          <div class="placement-indicator" [style.--indicator-color]="placementColors[chug.placement]">
             <p>{{ chug.placement }}</p>
           </div>
         }
@@ -54,5 +50,3 @@
     }
   </div>
 }
-
-

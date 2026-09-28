@@ -1,9 +1,9 @@
-import {Component, computed, effect, input, Signal, signal, untracked} from '@angular/core';
-import {ParticipantBadge} from '../../lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {Player} from '../../../services/game/models/player';
-import {CardComponent} from '../draw-panel/card/card.component';
-import {DecimalPipe} from '@angular/common';
-import {Suit} from '../../../../api-models/model/suit';
+import { Component, computed, effect, input, signal, untracked } from '@angular/core';
+import { ParticipantBadge } from '../../lobby-page/participant-overview/participant/participant-badge/participant-badge';
+import { Player } from '../../../services/game/models/player';
+import { CardComponent } from '../draw-panel/card/card.component';
+import { DecimalPipe } from '@angular/common';
+import { Chug } from '../../../../api-models/model/chug';
 
 interface PodiumStep {
   placement: number;
@@ -13,12 +13,7 @@ interface PodiumStep {
   animating: boolean;
 }
 
-interface ChugTime{
-  name: string;
-  chugTimeMillis: number | undefined;
-  suit: Suit | undefined;
-  placement: number | undefined;
-}
+const PLACEMENT_COLORS: Record<number, string> = { 1: 'goldenrod', 2: 'silver', 3: 'sandybrown' };
 
 @Component({
   selector: 'app-podium',
@@ -29,24 +24,31 @@ interface ChugTime{
 export class PodiumComponent {
   readonly players = input<Player[]>();
 
-  readonly topThreePlayers = computed(() =>
-      [...(this.players() ?? [])]
-        .sort((a, b) => this.bestChugTime(a) - this.bestChugTime(b))
+  protected readonly placementColors = PLACEMENT_COLORS;
+
+  protected readonly topThreePlayers = computed(
+    () =>
+      (this.players() ?? [])
         .filter((player) => this.bestChugTime(player) !== Infinity)
+        .sort((a, b) => this.bestChugTime(a) - this.bestChugTime(b))
         .slice(0, 3),
     {
-      equal: (a, b) => a.length === b.length && a.every((player, i) => player.id === b[i].id)
-    }
+      equal: (a, b) => a.length === b.length && a.every((player, i) => player.id === b[i].id),
+    },
   );
 
-  readonly chugTimes: Signal<ChugTime[]> = computed(() => {
-    const chugs = (this.players() ?? []).flatMap((player) =>
-      (player.stats?.chugs ?? []).map((chug) => ({
-        name: player.name,
-        chugTimeMillis: chug.chugTimeMillis,
-        suit: chug.suit,
-      })),
-    );
+  protected readonly chugTimes = computed(() => {
+    const chugs = (this.players() ?? [])
+      .flatMap((player, seat) =>
+        (player.stats?.chugs ?? []).map((chug) => ({
+          name: player.name,
+          chugTimeMillis: chug.chugTimeMillis,
+          suit: chug.suit,
+          round: this.roundOfChug(player, chug),
+          seat,
+        })),
+      )
+      .sort((a, b) => b.round - a.round || b.seat - a.seat);
 
     const ranked = chugs
       .map((chug) => chug.chugTimeMillis)
@@ -61,47 +63,46 @@ export class PodiumComponent {
   });
 
   protected readonly podiumSteps = signal<PodiumStep[]>(
-    [
-      {placement: 2, color: 'silver', player: undefined, time: undefined, animating: false},
-      {placement: 1, color: 'goldenrod', player: undefined, time: undefined, animating: false},
-      {placement: 3, color: 'sandybrown', player: undefined, time: undefined, animating: false},
-    ]
-  )
+    [2, 1, 3].map((placement) => ({
+      placement,
+      color: PLACEMENT_COLORS[placement],
+      player: undefined,
+      time: undefined,
+      animating: false,
+    })),
+  );
 
   constructor() {
     effect(() => {
       const topThree = this.topThreePlayers();
-      untracked(() =>
-        topThree.forEach((_, index) => {
-          const step = this.getStepFromPlacement(index + 1);
-          if (step) this.setAnimating(step, true);
-        }),
-      );
+      untracked(() => topThree.forEach((_, i) => this.setAnimating(i + 1, true)));
     });
   }
-
 
   private bestChugTime(player: Player): number {
     const times = player.stats?.chugs?.map((chug) => chug.chugTimeMillis ?? Infinity) ?? [];
     return times.length ? Math.min(...times) : Infinity;
   }
 
-  protected swapPlayer(step: PodiumStep) {
-    const player = this.topThreePlayers()[step.placement - 1];
-    this.updateStep(step, {player: player, time: this.bestChugTime(player)});
+  private roundOfChug(player: Player, chug: Chug): number {
+    const aceTurn = player.stats?.turns?.find(
+      (turn) => turn.card?.rank === 14 && turn.card.suit === chug.suit,
+    );
+    return aceTurn?.round ?? Infinity;
   }
 
-  protected setAnimating(step: PodiumStep, animating: boolean) {
-    this.updateStep(step, {animating});
+  protected swapPlayer(placement: number) {
+    const player = this.topThreePlayers()[placement - 1];
+    this.updateStep(placement, { player, time: this.bestChugTime(player) });
   }
 
-  private getStepFromPlacement(placement: number) {
-    return this.podiumSteps().find((step) => step.placement === placement);
+  protected setAnimating(placement: number, animating: boolean) {
+    this.updateStep(placement, { animating });
   }
 
-  private updateStep(step: PodiumStep, changes: Partial<PodiumStep>) {
+  private updateStep(placement: number, changes: Partial<PodiumStep>) {
     this.podiumSteps.update((steps) =>
-      steps.map((s) => (s.placement === step.placement ? {...s, ...changes} : s)),
+      steps.map((step) => (step.placement === placement ? { ...step, ...changes } : step)),
     );
   }
 }
