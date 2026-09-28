@@ -21,11 +21,11 @@
            [class.empty]="empty"
            [style.--color]="step.color"
            [style.--placement]="step.placement">
-        <h2>{{ step.placement }}</h2>
+        <p class="placement">{{ step.placement }}</p>
         @if (step.time !== undefined) {
-          <p>{{ step.time / 1000 | number: '1.2-2' }} s</p>
+          <p class="time">{{ step.time / 1000 | number: '1.2-2' }} s</p>
         } @else {
-          <p>--</p>
+          <p class="time">--</p>
         }
       </div>
     </div>
@@ -33,19 +33,23 @@
 
 </div>
 
-@if (topThreePlayers().length > 0) {
+@if (chugHistory().length) {
   <div class="chug-history">
     <p class="subtitle">Seneste ↑</p>
-    @for (chug of chugTimes(); track chug.suit) {
+    @for (chug of chugHistory(); track chug.suit) {
       <div class="chug-time">
-        <app-card size="small" [card]="{rank: 14, suit: chug.suit??'SPADE'}"></app-card>
+        <app-card size="small" [card]="{rank: aceRank, suit: chug.suit??'SPADE'}"></app-card>
         <p>{{ chug.name }}</p>
         @if (chug.placement && chug.placement <= 3) {
           <div class="placement-indicator" [style.--indicator-color]="placementColors[chug.placement]">
             <p>{{ chug.placement }}</p>
           </div>
         }
-        <p>{{ (chug.chugTimeMillis ?? 0) / 1000 | number : '1.2-2' }}s</p>
+        @if (chug.chugTimeMillis !== undefined) {
+          <p>{{ chug.chugTimeMillis / 1000 | number : '1.2-2' }}s</p>
+        } @else {
+          <p>--</p>
+        }
       </div>
     }
   </div>

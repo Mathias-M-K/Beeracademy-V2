@@ -25,7 +25,6 @@
 
 .columns {
   display: flex;
-  flex-direction: row;
   gap: 10px;
   justify-content: space-around;
   background-color: var(--color-white);
@@ -70,16 +69,16 @@
   border-radius: 10px 10px 0 0;
   padding: 10px 0;
 
-  h2, p {
+  p {
     margin: 0;
+    font-weight: bold;
     color: color-mix(in oklab, var(--color), black 30%);
   }
-  h2{
+  .placement {
     font-size: 30px;
   }
-  p{
+  .time {
     font-size: 14px;
-    font-weight: bold;
   }
 }
 
@@ -88,7 +87,7 @@
   border: 2px dashed var(--color-grey-500);
   border-bottom: none;
 
-  h2, p {
+  p {
     color: var(--color-grey-500);
   }
 }
@@ -96,25 +95,23 @@
 .chug-history{
   display: grid;
   grid-template-columns: 35px auto 1fr auto;
-  z-index: 1;
   animation: fly-in-from-above 0.25s ease-in-out forwards;
 
   >p{
-    grid-column: 1 / span 4;
+    grid-column: 1 / -1;
   }
 
-  > div:nth-child(n+3){
+  .chug-time + .chug-time {
     border-top: 1px solid var(--color-cloud);
   }
 
   .chug-time {
     display: grid;
-    grid-column: 1 / span 4;
+    grid-column: 1 / -1;
     grid-template-columns: subgrid;
     padding: 5px;
     gap: 10px;
 
-    align-content: center;
     align-items: center;
 
     .placement-indicator{
@@ -133,7 +130,6 @@
     p{
       margin: 0;
       font-weight: bold;
-
     }
     p:last-child{
       grid-column: 4;

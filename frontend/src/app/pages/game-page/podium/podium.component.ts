@@ -14,6 +14,7 @@ interface PodiumStep {
 }
 
 const PLACEMENT_COLORS: Record<number, string> = { 1: 'goldenrod', 2: 'silver', 3: 'sandybrown' };
+const ACE_RANK = 14;
 
 @Component({
   selector: 'app-podium',
@@ -25,19 +26,23 @@ export class PodiumComponent {
   readonly players = input<Player[]>();
 
   protected readonly placementColors = PLACEMENT_COLORS;
+  protected readonly aceRank = ACE_RANK;
 
-  protected readonly topThreePlayers = computed(
+  protected readonly topThree = computed(
     () =>
       (this.players() ?? [])
-        .filter((player) => this.bestChugTime(player) !== Infinity)
-        .sort((a, b) => this.bestChugTime(a) - this.bestChugTime(b))
+        .map((player) => ({ player, time: this.bestChugTime(player) }))
+        .filter((entry) => entry.time !== Infinity)
+        .sort((a, b) => a.time - b.time)
         .slice(0, 3),
     {
-      equal: (a, b) => a.length === b.length && a.every((player, i) => player.id === b[i].id),
+      equal: (a, b) =>
+        a.length === b.length &&
+        a.every((entry, i) => entry.player.id === b[i].player.id && entry.time === b[i].time),
     },
   );
 
-  protected readonly chugTimes = computed(() => {
+  protected readonly chugHistory = computed(() => {
     const chugs = (this.players() ?? [])
       .flatMap((player, seat) =>
         (player.stats?.chugs ?? []).map((chug) => ({
@@ -74,8 +79,15 @@ export class PodiumComponent {
 
   constructor() {
     effect(() => {
-      const topThree = this.topThreePlayers();
-      untracked(() => topThree.forEach((_, i) => this.setAnimating(i + 1, true)));
+      const topThree = this.topThree();
+      untracked(() =>
+        topThree.forEach((entry, i) => {
+          const step = this.podiumSteps().find((s) => s.placement === i + 1);
+          if (step?.player?.id !== entry.player.id || step.time !== entry.time) {
+            this.setAnimating(i + 1, true);
+          }
+        }),
+      );
     });
   }
 
@@ -86,14 +98,13 @@ export class PodiumComponent {
 
   private roundOfChug(player: Player, chug: Chug): number {
     const aceTurn = player.stats?.turns?.find(
-      (turn) => turn.card?.rank === 14 && turn.card.suit === chug.suit,
+      (turn) => turn.card?.rank === ACE_RANK && turn.card.suit === chug.suit,
     );
     return aceTurn?.round ?? Infinity;
   }
 
   protected swapPlayer(placement: number) {
-    const player = this.topThreePlayers()[placement - 1];
-    this.updateStep(placement, { player, time: this.bestChugTime(player) });
+    this.updateStep(placement, this.topThree()[placement - 1]);
   }
 
   protected setAnimating(placement: number, animating: boolean) {
