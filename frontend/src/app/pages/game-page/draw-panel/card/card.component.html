@@ -1,5 +1,5 @@
 @let suit = card()?.suit ?? 'SPADE';
-@let rank = (card()?.rank ?? 0) | cardRank;
+@let rank = card()?.rank ?? 0 | cardRank;
 
 @if (!isBackside()) {
   @switch (size()) {

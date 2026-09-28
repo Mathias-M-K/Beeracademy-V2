@@ -1,7 +1,6 @@
 <h3>Podiet</h3>
 
 <div class="columns">
-
   @for (step of podiumSteps(); track step.placement) {
     <div class="column">
       @let playerName = step.player?.name;
@@ -14,13 +13,15 @@
         [backgroundColor]="step.player?.color ?? 'transparent'"
       ></app-participant-badge>
       <p class="player-name" [class.empty]="empty">{{ playerName ?? 'Ledig' }}</p>
-      <div class="podium-shape"
-           [class.slup-animation]="step.animating"
-           (animationiteration)="swapPlayer(step.placement)"
-           (animationend)="setAnimating(step.placement, false)"
-           [class.empty]="empty"
-           [style.--color]="step.color"
-           [style.--placement]="step.placement">
+      <div
+        class="podium-shape"
+        [class.slup-animation]="step.animating"
+        (animationiteration)="swapPlayer(step.placement)"
+        (animationend)="setAnimating(step.placement, false)"
+        [class.empty]="empty"
+        [style.--color]="step.color"
+        [style.--placement]="step.placement"
+      >
         <p class="placement">{{ step.placement }}</p>
         @if (step.time !== undefined) {
           <p class="time">{{ step.time / 1000 | number: '1.2-2' }} s</p>
@@ -30,7 +31,6 @@
       </div>
     </div>
   }
-
 </div>
 
 @if (chugHistory().length) {
@@ -38,15 +38,18 @@
     <p class="subtitle">Seneste ↑</p>
     @for (chug of chugHistory(); track chug.suit) {
       <div class="chug-time">
-        <app-card size="small" [card]="{rank: aceRank, suit: chug.suit??'SPADE'}"></app-card>
+        <app-card size="small" [card]="{ rank: aceRank, suit: chug.suit ?? 'SPADE' }"></app-card>
         <p>{{ chug.name }}</p>
         @if (chug.placement && chug.placement <= 3) {
-          <div class="placement-indicator" [style.--indicator-color]="placementColors[chug.placement]">
+          <div
+            class="placement-indicator"
+            [style.--indicator-color]="placementColors[chug.placement]"
+          >
             <p>{{ chug.placement }}</p>
           </div>
         }
         @if (chug.chugTimeMillis !== undefined) {
-          <p>{{ chug.chugTimeMillis / 1000 | number : '1.2-2' }}s</p>
+          <p>{{ chug.chugTimeMillis / 1000 | number: '1.2-2' }}s</p>
         } @else {
           <p>--</p>
         }
