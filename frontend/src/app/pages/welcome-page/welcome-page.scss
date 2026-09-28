@@ -124,6 +124,10 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  suit-icon {
+    width: 30px;
+  }
 }
 
 .option > p {

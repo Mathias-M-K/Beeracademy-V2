@@ -1,30 +1,58 @@
-<h3>Podiet - hurtigste bunde-tider</h3>
+<h3>Podiet</h3>
 
 <div class="columns">
-  @for (player of topThreePlayers(); track player.id) {
-    <div>
+
+  @for (step of podiumSteps(); track step.placement) {
+    <div class="column">
+      @let playerName = step.player?.name;
+      @let playerColor = step.player?.color;
+
       <app-participant-badge
-        [initials]="player.name.substring(0, 1)"
+        class=""
+        [initials]="playerName?.substring(0,1) ?? ''"
         size="s"
-        [backgroundColor]="player.color"
+        [style]="playerName ? 'default' :'local'"
+        [backgroundColor]="playerColor??'transparent'"
       ></app-participant-badge>
-      <p>{{ player.name }}</p>
-      <div class="podium-shape">
-        <h2>{{ $index + 1 }}</h2>
+      <p class="player-name" [class.empty]="playerName === undefined">{{ playerName ?? 'Ledig' }}</p>
+      <div class="podium-shape"
+           [class.slup-animation]="step.animating"
+           (animationiteration)="swapPlayer(step)"
+           (animationend)="setAnimating(step, false)" [class.empty]="playerName === undefined"
+           [style.--color]="step.color"
+           [style.--placement]="step.placement">
+        <h2>{{ step.placement }}</h2>
+        @switch (step.time === undefined) {
+          @case (false) {
+            <p>{{ ((step.time ?? 0) / 1000) | number: '1.2-2' }} s</p>
+          }
+          @case (true) {
+            <p>--</p>
+          }
+        }
+
       </div>
     </div>
   }
+
 </div>
 
-<div>
-  <div class="horizontal_line"></div>
-  <p class="upper_subtitle">Seneste</p>
-  @for (chug of chugTimes(); track $index) {
-    <div class="chug-time">
-      <div style="grid-area: color-dot" class="dot"></div>
-      <p style="grid-area: text">{{ chug.name }} - {{ chug.chugTimeMillis }}ms</p>
-      <suit-icon style="grid-area: suit" [suit]="chug.suit!"></suit-icon>
-      <div class="horizontal_line" style="grid-area: divider"></div>
-    </div>
-  }
-</div>
+@if (topThreePlayers().length > 0) {
+  <div class="chug-history">
+    <p class="subtitle">Seneste ↑</p>
+    @for (chug of chugTimes(); track $index) {
+      <div class="chug-time">
+        <app-card size="small" [card]="{rank: 14, suit: chug.suit??'SPADE'}"></app-card>
+        <p>{{ chug.name }}</p>
+        @if ((chug.placement ?? 0) < 4) {
+          <div class="placement-indicator" [style.--indicator-color]="podiumSteps().find(step => step.placement === chug.placement)?.color??'transparent'">
+            <p>{{ chug.placement }}</p>
+          </div>
+        }
+        <p>{{ (chug.chugTimeMillis ?? 0) / 1000 | number : '1.2-2' }}s</p>
+      </div>
+    }
+  </div>
+}
+
+

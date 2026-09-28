@@ -28,13 +28,13 @@
     @let optionOneCardTitle = 'Opret en lobby';
     @if (isCompact()) {
       <div class="header">
-        <suit-icon suit="SPADE" [size]="30"></suit-icon>
+        <suit-icon suit="SPADE"></suit-icon>
         <h2>{{ optionOneCardTitle }}</h2>
       </div>
     } @else {
       <div class="header">
         <p class="subtitle">Vært</p>
-        <suit-icon suit="SPADE" [size]="30"></suit-icon>
+        <suit-icon suit="SPADE"></suit-icon>
       </div>
     }
 
@@ -77,12 +77,12 @@
   >
     @let optionTwoCardTitle = 'Scan en QR-kode';
     @if (isCompact()) {
-      <material-icon icon="qr_code" [size]="30"></material-icon>
+      <material-icon icon="qr_code"></material-icon>
       <h2>{{ optionTwoCardTitle }}</h2>
     } @else {
       <div class="header">
         <p class="subtitle">Spiller</p>
-        <material-icon icon="qr_code" [size]="30"></material-icon>
+        <material-icon icon="qr_code"></material-icon>
       </div>
     }
     @if (!isCompact()) {

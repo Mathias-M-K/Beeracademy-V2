@@ -352,6 +352,15 @@ export class GameService implements PartyContextProvider {
   private handleIdentity(event: GameEventEnvelope) {
     const identityEvent: IdentityEvent = event.payload as IdentityEvent;
     this.identity.set(identifyFromEvent(identityEvent));
+
+    //this have been placed here, because it depends on knowing who the client is
+    switch (this.gameState()) {
+      case GameState.AwaitingChug:
+        return this.openChugOverlay();
+      case GameState.AwaitingStart: {
+        this.dispatchStartGameAction();
+      }
+    }
   }
 
   private handleGameClientConnected() {
@@ -361,14 +370,6 @@ export class GameService implements PartyContextProvider {
   private handleGameSnapshot(event: GameEventEnvelope) {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
     this.gameStateObj.set(stateEvent.gameState);
-
-    switch (this.gameState()) {
-      case GameState.AwaitingChug:
-        return this.openChugOverlay();
-      case GameState.AwaitingStart: {
-        this.dispatchStartGameAction();
-      }
-    }
 
     if (this.gameTimeReport()?.state === TimerState.Paused) {
       this.openPausePanel();
