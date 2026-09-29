@@ -192,7 +192,7 @@ export class GameService implements PartyContextProvider {
           firstPayloadOfType('HELLO_GAME_SNAPSHOT'),
         ]).subscribe({
           next: ([, snapshot]) =>
-            this.handleInitialState((snapshot as GameStateEvent).gameState.gameState)
+            this.handleInitialState((snapshot as GameStateEvent).gameState.gameState),
         });
       })
       .catch((error) => {
