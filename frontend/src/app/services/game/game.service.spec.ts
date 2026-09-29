@@ -212,6 +212,21 @@ describe('GameService', () => {
       ]);
     });
 
+    it('starts a game that is awaiting start when identity arrives before the snapshot', async () => {
+      // Arrange
+      const game = aGameDto({ gameState: GameState.AwaitingStart });
+      await connect();
+
+      // Act
+      await websocket.emit(gameEvents.identity('client-1', Role.GameClient));
+      await websocket.emit(gameEvents.snapshot(game));
+
+      // Assert
+      expect(websocket.sent).toEqual([
+        { category: 'GAME_CLIENT_ACTION', payload: { type: 'START_GAME' } },
+      ]);
+    });
+
     it('opens the pause panel when the game timer is paused', async () => {
       // Arrange
       const game = aGameDto({

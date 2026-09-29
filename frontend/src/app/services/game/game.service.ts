@@ -1,4 +1,5 @@
 import { computed, inject, Service, linkedSignal, signal, WritableSignal } from '@angular/core';
+import { filter, forkJoin, map, take } from 'rxjs';
 import { WebsocketEnvelope } from '../models/websocket-envelope';
 import { GameDto } from '../../../api-models/model/gameDto';
 import { Chug } from '../../../api-models/model/chug';
@@ -178,6 +179,21 @@ export class GameService implements PartyContextProvider {
           error: (err) => this.handleWebsocketConnectionDroppedWithError(err),
           complete: () => this.handleWebsocketConnectionDroppedClean(),
         });
+
+        const firstPayloadOfType = (type: string) =>
+          msgObs.pipe(
+            map((msg) => (msg as GameEventEnvelope).payload),
+            filter((payload) => payload.type === type),
+            take(1),
+          );
+
+        forkJoin([
+          firstPayloadOfType('HELLO_IDENTITY'),
+          firstPayloadOfType('HELLO_GAME_SNAPSHOT'),
+        ]).subscribe({
+          next: ([, snapshot]) =>
+            this.handleInitialState((snapshot as GameStateEvent).gameState.gameState)
+        });
       })
       .catch((error) => {
         if (isReconnect) this.handleWebsocketConnectionDroppedWithError(error);
@@ -352,14 +368,14 @@ export class GameService implements PartyContextProvider {
   private handleIdentity(event: GameEventEnvelope) {
     const identityEvent: IdentityEvent = event.payload as IdentityEvent;
     this.identity.set(identifyFromEvent(identityEvent));
+  }
 
-    //this have been placed here, because it depends on knowing who the client is
-    switch (this.gameState()) {
+  private handleInitialState(gameState?: GameState) {
+    switch (gameState) {
       case GameState.AwaitingChug:
         return this.openChugOverlay();
-      case GameState.AwaitingStart: {
-        this.dispatchStartGameAction();
-      }
+      case GameState.AwaitingStart:
+        return this.dispatchStartGameAction();
     }
   }
 
