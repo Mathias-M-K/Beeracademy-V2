@@ -1,7 +1,7 @@
 <div class="header">
-  <h2 [style.grid-area]="'name'">{{ player().name }}</h2>
-  <p [style.grid-area]="'title'" class="subtitle">{{ player().color }}</p>
-  <p [style.grid-area]="'status'" class="status">TUR</p>
+  <h2>{{ player().name }}</h2>
+  <p class="subtitle">{{ player().color }}</p>
+  <p class="status">TUR</p>
 </div>
 
 <div class="main-stat">
@@ -11,7 +11,6 @@
       <span class="subtitle"> øl</span>
     </p>
   </div>
-
   <div class="beer-indicator">
     <div class="backdrop">
       @for (_ of beerDots(); track $index) {
@@ -24,7 +23,6 @@
       }
     </div>
   </div>
-
   <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
 </div>
 

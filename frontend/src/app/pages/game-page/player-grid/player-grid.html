@@ -1,24 +1,8 @@
-<div
-  class="players"
-  #scroller
-  (scrollend)="onScrollEnd()"
-  (scroll)="onScroll()"
-  (pointerdown)="playerDragActive.set(true)"
->
-  @for (player of players(); track player.id) {
-    <app-player-card
-      #playerElement
-      [player]="player"
-      [isDrawing]="player.id === activePlayerId()"
-    ></app-player-card>
-  }
-</div>
+@for (player of players(); track player.id) {
+  <app-player-card
+    [player]="player"
+    [isDrawing]="player.id === activePlayerId()"
+    [mode]="isCompact() ? 'compact' : 'default'"
+  ></app-player-card>
+}
 
-<div class="dot-indicator">
-  <app-dot-indicator
-    [dotCount]="players()?.length ?? 0"
-    [activeIndex]="visiblePlayerIndex()"
-    (dotClick)="scrollToPlayerCard($event)"
-  >
-  </app-dot-indicator>
-</div>

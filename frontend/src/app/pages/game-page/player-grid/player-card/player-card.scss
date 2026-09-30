@@ -12,6 +12,91 @@
   --dot-height: 15px;
 }
 
+:host(.is-compact) {
+
+  --font-title-size: 20px;
+
+
+  grid-template-columns: auto auto 1fr auto;
+  gap: 5px;
+
+  .header {
+    display: contents;
+
+    :first-child {
+      grid-column: 1;
+      grid-row: 1;
+      margin-right: 20px;
+      font-size: var(--font-title-size);
+    }
+
+    .status {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      height: fit-content;
+      width: fit-content;
+      align-self: center;
+    }
+
+    .subtitle {
+      grid-column: 1;
+      grid-row: 2;
+    }
+  }
+
+  .main-stat {
+    display: contents;
+
+    .beer-count {
+      grid-column: 4;
+      grid-row: 1 / span 2;
+      align-self: center;
+
+      p:nth-child(1) {
+        font-size: var(--font-title-size);
+      }
+    }
+
+    .beer-indicator {
+      grid-column: 1 / -1;
+      grid-row: 3;
+
+      --dot-height: 5px;
+    }
+
+    p {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+  }
+
+  .last-card {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    margin: 10px 0;
+  }
+
+  .minor-stats {
+    grid-column: 1 / -1;
+    grid-row: 6;
+
+    .stat .stat-value{
+      font-size: var(--font-title-size);
+    }
+  }
+
+  .horizontal_line {
+    display: none;
+  }
+}
+
+:host(.is-drawing) {
+  .header > .status {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .subtitle {
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -20,83 +105,83 @@
   color: var(--primary-disabled-text);
 }
 
-.header > .subtitle {
-  color: var(--player-color);
-}
-
 .header {
   display: grid;
-  grid-template-areas: 'name status' 'title status';
   grid-template-columns: 1fr auto;
-
   align-items: center;
-}
 
-.header > .status {
-  padding: 5px;
-  border-radius: 15px;
-  background-color: color-mix(in oklab, var(--primary), white 80%);
+  :first-child {
+    grid-column: 1;
+  }
 
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--primary);
+  .subtitle {
+    grid-column: 1;
+    color: var(--player-color);
+  }
 
-  transform: translateX(-50%);
-  opacity: 0;
+  .status {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    padding: 5px;
+    border-radius: 15px;
+    background-color: color-mix(in oklab, var(--primary), white 80%);
 
-  transition: all 0.15s ease-in-out;
-}
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary);
 
-:host(.is-drawing) .header > .status {
-  transform: translateX(0);
-  opacity: 1;
+    transform: translateX(-50%);
+    opacity: 0;
+
+    transition: all 0.15s ease-in-out;
+  }
 }
 
 .main-stat {
   display: grid;
   gap: 5px;
-}
 
-.main-stat > p {
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
+  p {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
 
-.beer-count p:nth-child(1) {
-  font-size: 42px;
-  font-weight: 1000;
-  font-variant-numeric: tabular-nums;
-}
+  .beer-count p:nth-child(1) {
+    font-size: 42px;
+    font-weight: 1000;
+    font-variant-numeric: tabular-nums;
+  }
 
-.beer-indicator {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  min-height: var(--dot-height);
-}
+  .beer-indicator {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    min-height: var(--dot-height);
 
-.beer-indicator > div {
-  position: absolute;
-  display: flex;
-  gap: 2px;
-  flex: 1 1 0;
-  min-height: var(--dot-height);
-  width: 100%;
-}
+    > div {
+      position: absolute;
+      display: flex;
+      gap: 2px;
+      flex: 1 1 0;
+      min-height: var(--dot-height);
+      width: 100%;
+    }
 
-.beer-indicator > .front {
-  transition: mask-size 0.35s ease-in-out;
-  mask-size: var(--beer-progression) 100%;
-  mask-image: linear-gradient(#000 0 0);
-  mask-repeat: no-repeat;
-}
+    > .front {
+      transition: mask-size 0.35s ease-in-out;
+      mask-size: var(--beer-progression) 100%;
+      mask-image: linear-gradient(#000 0 0);
+      mask-repeat: no-repeat;
+    }
 
-.backdrop > .beer-dot {
-  background-color: color-mix(in oklab, var(--player-color), white 70%);
-}
+    .backdrop > .beer-dot {
+      background-color: color-mix(in oklab, var(--player-color), white 70%);
+    }
 
-.front > .beer-dot {
-  background-color: var(--player-color);
+    .front > .beer-dot {
+      background-color: var(--player-color);
+    }
+  }
 }
 
 .beer-dot {
@@ -112,15 +197,15 @@
   justify-content: space-between;
   padding: 10px;
   background-color: color-mix(in oklab, var(--player-color), white 90%);
-}
 
-.last-card div {
-  display: flex;
-  flex-direction: row;
-}
+  div {
+    display: flex;
+    flex-direction: row;
+  }
 
-.last-card p:nth-child(2) {
-  font-weight: bold;
+  p:nth-child(2) {
+    font-weight: bold;
+  }
 }
 
 .horizontal_line {
@@ -139,6 +224,7 @@
   font-size: 32px;
   font-variant-numeric: tabular-nums;
 }
+
 .time-value {
   font-size: 24px;
 }
@@ -155,10 +241,4 @@
 p,
 h2 {
   margin: 0;
-}
-
-@media (max-width: 500px) {
-  :host {
-    border: unset;
-  }
 }

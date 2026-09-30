@@ -17,11 +17,13 @@ export interface BeerIndicatorDot {
     '[style.--player-color]': 'player().color',
     '[style.--beer-progression.%]': 'openBeerProgression()',
     '[class.is-drawing]': 'isDrawing()',
+    '[class.is-compact]': 'mode() === "compact"'
   },
 })
 export class PlayerCard {
   readonly player = input.required<Player>();
   readonly isDrawing = input<boolean>(false);
+  readonly mode = input<'compact' | 'default'>('default');
 
   private readonly totalSips = computed(() => {
     return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0;
