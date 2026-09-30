@@ -272,7 +272,7 @@ h2 {
 
 @media (max-width: 650px) {
 
-  .card-landing{
+  .card-landing {
     width: 110px;
   }
   .previous-draw {
@@ -377,6 +377,7 @@ h2 {
     margin: 0 calc(-1 * var(--padding));
     padding: 10px var(--padding) !important;
   }
+
   .stats {
     grid-column: 1;
     grid-row: 3;
@@ -390,8 +391,28 @@ h2 {
       display: none;
     }
   }
+
   .buttons {
-    grid-column: 1;
-    grid-row: 4;
+    --button-width: 60px;
+
+    position: fixed;
+    grid-template-columns: 1fr repeat(2, var(--button-width));
+    width: 100%;
+    padding: 3dvw !important;
+    background-color: var(--off-white);
+    gap: 10px;
+
+    bottom: 0;
+    left: 0;
+
+    z-index: 5;
+
+    border-top: 1px solid var(--border);
+
+    button{
+      height: var(--button-width);
+      font-weight: 900;
+      border-radius: 10px;
+    }
   }
 }
