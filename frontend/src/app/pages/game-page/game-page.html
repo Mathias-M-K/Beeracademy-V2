@@ -12,8 +12,8 @@
   #scroller
   (pointerdown)="onPointerDown()"
   (scroll)="onScroll()"
-  (scrollend)="onScrollEnd()">
-
+  (scrollend)="onScrollEnd()"
+>
   <app-card-count
     style="grid-area: card-count"
     [cards]="remainingCardsByRank()"

@@ -1,9 +1,9 @@
-import {Component, computed, input, model, Signal} from '@angular/core';
+import { Component, computed, input, model, Signal } from '@angular/core';
 import { Player } from '../../../../services/game/models/player';
 import { SuitIcon } from '../../../../common/components/suit-icon/suit-icon';
 import { tweenedNumber } from '../../../../common/tweened-number';
 import { GameTimeFormatPipe } from '../../../../pipes/game-time-format-pipe';
-import {MaterialIcon} from '../../../../common/components/material-icon/material-icon';
+import { MaterialIcon } from '../../../../common/components/material-icon/material-icon';
 
 export interface BeerIndicatorDot {
   fillLevel: number;
@@ -20,7 +20,7 @@ export interface BeerIndicatorDot {
     '[class.is-drawing]': 'isDrawing()',
     '[class.is-compact]': 'mode() === "compact"',
     '[class.is-folded]': 'isFolded()',
-    '(click)' : 'onHostClick()'
+    '(click)': 'onHostClick()',
   },
 })
 export class PlayerCard {

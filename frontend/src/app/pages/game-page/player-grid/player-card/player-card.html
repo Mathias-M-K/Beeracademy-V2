@@ -31,19 +31,19 @@
 </div>
 
 @if (mode() === 'compact') {
-
-  <div class="fold-toggle"
-       [attr.aria-expanded]="!isFolded()"
-       [attr.aria-controls]="progressId() + ' ' + detailsId()"
-       [attr.aria-label]="isFolded() ? 'Vis detaljer' : 'Skjul detaljer'" [style.rotate.deg]="isFolded() ? 180 : 0">
+  <div
+    class="fold-toggle"
+    [attr.aria-expanded]="!isFolded()"
+    [attr.aria-controls]="progressId() + ' ' + detailsId()"
+    [attr.aria-label]="isFolded() ? 'Vis detaljer' : 'Skjul detaljer'"
+    [style.rotate.deg]="isFolded() ? 180 : 0"
+  >
     @if (isFolded()) {
       <material-icon [size]="20" icon="add"></material-icon>
     } @else {
       <material-icon [size]="20" icon="remove"></material-icon>
     }
   </div>
-
-
 }
 
 <div class="foldable details" [id]="detailsId()" [attr.inert]="isFolded() ? '' : null">
@@ -69,11 +69,15 @@
       </div>
       <div class="stat">
         <p class="subtitle">Sidste tid</p>
-        <p class="stat-value time-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss:SS' }}</p>
+        <p class="stat-value time-value">
+          {{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss:SS' }}
+        </p>
       </div>
       <div class="stat">
         <p class="subtitle">Tid/gns</p>
-        <p class="stat-value time-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss:SS' }}</p>
+        <p class="stat-value time-value">
+          {{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss:SS' }}
+        </p>
       </div>
     </div>
   </div>

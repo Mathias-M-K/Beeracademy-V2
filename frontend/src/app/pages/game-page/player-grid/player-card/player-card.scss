@@ -15,7 +15,6 @@
 }
 
 :host(.is-compact) {
-
   --font-title-size: 20px;
   grid-template-columns: auto auto 1fr auto auto;
   column-gap: 5px;
@@ -95,7 +94,7 @@
   }
 
   .minor-stats {
-    .stat .stat-value{
+    .stat .stat-value {
       font-size: var(--font-title-size);
       font-weight: 600;
     }

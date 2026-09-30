@@ -1,8 +1,4 @@
-import {
-  Component,
-  input,
-  inject,
-} from '@angular/core';
+import { Component, input, inject } from '@angular/core';
 import { PlayerCard } from './player-card/player-card';
 import { Player } from '../../../services/game/models/player';
 import { toSignal } from '@angular/core/rxjs-interop';

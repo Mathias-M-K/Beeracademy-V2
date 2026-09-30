@@ -273,7 +273,6 @@ h2 {
 }
 
 @media (max-width: 650px) {
-
   .card-landing {
     width: 110px;
   }
@@ -312,7 +311,6 @@ h2 {
   }
 
   .previous-draw {
-
     border-right: unset;
     padding-top: var(--row-gap);
     border-top: 1px solid var(--border);
@@ -376,7 +374,7 @@ h2 {
     grid-column: 1;
     grid-row: 1;
 
-    #timers .current-time-average{
+    #timers .current-time-average {
       color: var(--primary-disabled-text);
     }
   }
@@ -406,7 +404,7 @@ h2 {
 
     border-top: 1px solid var(--border);
 
-    button{
+    button {
       height: var(--button-width);
       font-weight: 900;
       border-radius: 10px;

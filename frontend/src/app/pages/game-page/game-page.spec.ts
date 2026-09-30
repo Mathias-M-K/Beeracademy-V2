@@ -116,7 +116,9 @@ describe('GamePage', () => {
   }
 
   function selectedPage(fixture: ComponentFixture<GamePage>): string {
-    return fixture.nativeElement.querySelector('segmented-control .segment.selected p').textContent.trim();
+    return fixture.nativeElement
+      .querySelector('segmented-control .segment.selected p')
+      .textContent.trim();
   }
 
   /** Lays the two pages out 300px apart and scrolls the 300px wide scroller to `scrollLeft`. */

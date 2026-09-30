@@ -161,18 +161,17 @@ button.do-animate {
     column-gap: 5px;
     row-gap: 15px;
 
-    > :first-child{
+    > :first-child {
       grid-column: 1 / span 2;
     }
   }
-
 
   .time {
     gap: unset;
 
     grid-row: 2;
 
-    .subtitle{
+    .subtitle {
       display: none;
     }
 
@@ -182,7 +181,7 @@ button.do-animate {
       grid-row: 2;
     }
 
-    :before{
+    :before {
       content: '| ';
     }
   }
@@ -198,7 +197,7 @@ button.do-animate {
       font-size: var(--compact-font-size);
       margin: 0;
     }
-    .subtitle{
+    .subtitle {
       text-transform: unset;
     }
   }
