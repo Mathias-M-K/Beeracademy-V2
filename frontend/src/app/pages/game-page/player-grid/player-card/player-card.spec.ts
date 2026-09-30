@@ -20,8 +20,12 @@ describe('PlayerCard', () => {
     return card.querySelector('.fold-toggle');
   }
 
-  function details(card: HTMLElement): HTMLElement {
-    return card.querySelector('.details')!;
+  function foldables(card: HTMLElement): HTMLElement[] {
+    return Array.from(card.querySelectorAll('.foldable'));
+  }
+
+  function inert(card: HTMLElement): boolean[] {
+    return foldables(card).map((foldable) => foldable.hasAttribute('inert'));
   }
 
   async function toggleFold(card: HTMLElement): Promise<void> {
@@ -85,10 +89,10 @@ describe('PlayerCard', () => {
       // Assert
       expect(card.classList.contains('is-folded')).toBe(false);
       expect(foldToggle(card)!.getAttribute('aria-expanded')).toBe('true');
-      expect(details(card).hasAttribute('inert')).toBe(false);
+      expect(inert(card)).toEqual([false, false]);
     });
 
-    it('folds the details away and makes them inert', async () => {
+    it('folds everything below the header away and makes it inert', async () => {
       // Arrange
       const card = await render(Player.fromPlayerDto(aPlayerDto()), 'compact');
 
@@ -98,8 +102,12 @@ describe('PlayerCard', () => {
       // Assert
       expect(card.classList.contains('is-folded')).toBe(true);
       expect(foldToggle(card)!.getAttribute('aria-expanded')).toBe('false');
-      expect(foldToggle(card)!.getAttribute('aria-controls')).toBe(details(card).id);
-      expect(details(card).hasAttribute('inert')).toBe(true);
+      expect(foldToggle(card)!.getAttribute('aria-controls')).toBe(
+        foldables(card)
+          .map((foldable) => foldable.id)
+          .join(' '),
+      );
+      expect(inert(card)).toEqual([true, true]);
     });
 
     it('unfolds again on a second toggle', async () => {
@@ -112,7 +120,7 @@ describe('PlayerCard', () => {
 
       // Assert
       expect(card.classList.contains('is-folded')).toBe(false);
-      expect(details(card).hasAttribute('inert')).toBe(false);
+      expect(inert(card)).toEqual([false, false]);
     });
   });
 });

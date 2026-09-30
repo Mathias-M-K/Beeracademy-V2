@@ -11,26 +11,30 @@
       <span class="subtitle"> øl</span>
     </p>
   </div>
-  <div class="beer-indicator">
-    <div class="backdrop">
-      @for (_ of beerDots(); track $index) {
-        <div class="beer-dot"></div>
-      }
-    </div>
-    <div class="front">
-      @for (_ of beerDots(); track $index) {
-        <div class="beer-dot"></div>
-      }
+  <div class="foldable progress" [id]="progressId()" [attr.inert]="isFolded() ? '' : null">
+    <div class="foldable-inner">
+      <div class="beer-indicator">
+        <div class="backdrop">
+          @for (_ of beerDots(); track $index) {
+            <div class="beer-dot"></div>
+          }
+        </div>
+        <div class="front">
+          @for (_ of beerDots(); track $index) {
+            <div class="beer-dot"></div>
+          }
+        </div>
+      </div>
+      <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
     </div>
   </div>
-  <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
 </div>
 
 @if (mode() === 'compact') {
 
   <div class="fold-toggle"
        [attr.aria-expanded]="!isFolded()"
-       [attr.aria-controls]="detailsId()"
+       [attr.aria-controls]="progressId() + ' ' + detailsId()"
        [attr.aria-label]="isFolded() ? 'Vis detaljer' : 'Skjul detaljer'" [style.rotate.deg]="isFolded() ? 180 : 0">
     @if (isFolded()) {
       <material-icon [size]="20" icon="add"></material-icon>
@@ -42,8 +46,8 @@
 
 }
 
-<div class="details" [id]="detailsId()" [attr.inert]="isFolded() ? '' : null">
-  <div class="details-inner">
+<div class="foldable details" [id]="detailsId()" [attr.inert]="isFolded() ? '' : null">
+  <div class="foldable-inner">
     <div class="last-card">
       <p class="subtitle">Sidste kort trykket</p>
       <div>

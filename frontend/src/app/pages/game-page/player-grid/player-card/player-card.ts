@@ -31,6 +31,7 @@ export class PlayerCard {
   readonly folded = model(false);
 
   protected readonly isFolded = computed(() => this.mode() === 'compact' && this.folded());
+  protected readonly progressId = computed(() => `player-progress-${this.player().id}`);
   protected readonly detailsId = computed(() => `player-details-${this.player().id}`);
 
   protected toggleFolded(): void {

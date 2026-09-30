@@ -10,6 +10,8 @@
   user-select: none;
 
   --dot-height: 15px;
+
+  transition: background-color 0.15s ease-in-out;
 }
 
 :host(.is-compact) {
@@ -18,7 +20,8 @@
 
 
   grid-template-columns: auto auto 1fr auto auto;
-  gap: 5px;
+  column-gap: 5px;
+  row-gap: 0;
 
   .header {
     display: contents;
@@ -41,6 +44,7 @@
     .subtitle {
       grid-column: 1;
       grid-row: 2;
+      margin-block-start: 5px;
     }
   }
 
@@ -58,15 +62,7 @@
     }
 
     .beer-indicator {
-      grid-column: 1 / -1;
-      grid-row: 3;
-
       --dot-height: 5px;
-    }
-
-    p {
-      grid-column: 1 / -1;
-      grid-row: 4;
     }
   }
 
@@ -76,15 +72,24 @@
     align-self: center;
   }
 
-  .details {
+  .foldable {
     grid-column: 1 / -1;
-    grid-row: 5;
-    margin-block-start: -5px;
   }
 
-  .details-inner {
-    padding-block-start: 5px;
+  .foldable > .foldable-inner {
     gap: 5px;
+
+    &::before {
+      content: '';
+    }
+  }
+
+  .progress {
+    grid-row: 3;
+  }
+
+  .details {
+    grid-row: 4;
   }
 
   .last-card {
@@ -138,7 +143,7 @@
     padding: 5px;
     border-radius: 15px;
     background-color: color-mix(in oklab, var(--primary), white 80%);
-
+    border: 1px solid color-mix(in oklab, var(--primary), black 10%);
     font-size: 12px;
     font-weight: bold;
     color: var(--primary);
@@ -221,25 +226,36 @@
   transition: rotate 0.1s ease-in-out;
 }
 
-.details {
+.foldable {
   display: grid;
   grid-template-rows: 1fr;
   transition: grid-template-rows 0.25s ease-in-out;
 }
 
-.details-inner {
+.foldable-inner {
   display: grid;
-  gap: 10px;
   min-height: 0;
   overflow: hidden;
 }
 
-:host(.is-folded) .details {
+.progress > .foldable-inner {
+  gap: 5px;
+}
+
+.details > .foldable-inner {
+  gap: 10px;
+}
+
+:host(.is-folded) .foldable {
   grid-template-rows: 0fr;
 }
 
+:host(.is-folded.is-drawing) {
+  background-color: color-mix(in oklab, var(--player-color), white 80%);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .details {
+  .foldable {
     transition: none;
   }
 }
