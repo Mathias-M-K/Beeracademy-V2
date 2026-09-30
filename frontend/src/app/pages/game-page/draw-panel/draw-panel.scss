@@ -385,7 +385,7 @@ h2 {
   }
 
   .buttons {
-    --button-width: 60px;
+    --button-width: 55px;
 
     position: fixed;
     grid-template-columns: 1fr repeat(2, var(--button-width));
@@ -394,7 +394,7 @@ h2 {
     height: var(--mobile-bottom-bar-height);
 
     padding: 5px !important;
-    background-color: var(--color-white);
+    background-color: var(--off-white);
     gap: 10px;
 
     bottom: 0;

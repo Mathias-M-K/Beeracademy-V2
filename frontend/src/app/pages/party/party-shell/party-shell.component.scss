@@ -84,7 +84,7 @@
   position: absolute;
   width: 100%;
   grid-auto-flow: column;
-  grid-template-rows: 5px;
+  grid-template-rows: 3px;
   gap: 2px;
 
   mask-image: linear-gradient(#000 0 0);
@@ -113,17 +113,6 @@
 
 .round-dot.completed {
   background-color: var(--primary);
-}
-
-.compact-round-counter {
-  display: grid;
-  gap: 5px;
-  justify-items: end;
-
-  p,
-  h2 {
-    margin: 0;
-  }
 }
 
 button.do-animate {
@@ -156,6 +145,7 @@ button.do-animate {
     width: 100vw;
     padding: 0 3dvw;
     margin: 0;
+    --compact-font-size: 14px;
   }
   .header {
     position: sticky;
@@ -166,24 +156,58 @@ button.do-animate {
     width: 100dvw;
     border-radius: unset;
 
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: auto auto 1fr;
 
-    gap: 5px;
-  }
-  .time {
-    justify-items: start;
-    grid-column: 1 !important;
-    grid-row: 2;
+    column-gap: 5px;
+    row-gap: 15px;
 
-    h1 {
-      grid-row: 2;
+    > :first-child{
+      grid-column: 1 / span 2;
     }
   }
+
+
+  .time {
+    gap: unset;
+
+    grid-row: 2;
+
+    .subtitle{
+      display: none;
+    }
+
+    h1 {
+      color: var(--primary-disabled-text);
+      font-size: var(--compact-font-size);
+      grid-row: 2;
+    }
+
+    :before{
+      content: '| ';
+    }
+  }
+
+  .compact-round-counter {
+    grid-column: 1;
+    display: flex;
+    gap: 5px;
+    justify-items: end;
+
+    p,
+    h2 {
+      font-size: var(--compact-font-size);
+      margin: 0;
+    }
+    .subtitle{
+      text-transform: unset;
+    }
+  }
+
   .round-indicator-container {
-    grid-column: 1 / span 2;
+    grid-column: 1 / -1;
   }
   .buttons {
-    grid-column: 2;
+    grid-column: 3;
+    grid-row: 1 / -1;
   }
 }
