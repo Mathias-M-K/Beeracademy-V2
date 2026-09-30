@@ -33,6 +33,9 @@
       'draw-panel'
       'players'
       'podium';
+
+    --padding-bottom-offset: 20px;
+    padding-bottom: calc(var(--mobile-bottom-bar-height) + var(--padding-bottom-offset));
   }
 
   app-card-count {

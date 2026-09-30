@@ -255,6 +255,7 @@ h2 {
     }
 
     .card-stack {
+      width: 140px;
       max-width: unset;
       min-width: unset;
 
@@ -298,18 +299,17 @@ h2 {
   :host {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, auto);
+    grid-template-rows: repeat(2, auto);
 
     padding: 10px;
-    row-gap: 10px;
+    row-gap: 20px;
   }
   :host > div:nth-child(n + 2) {
     padding-left: unset;
   }
 
   .previous-draw {
-    grid-row: 1;
-    border: unset;
+    grid-row: 2;
 
     .card-landing {
       width: 50px;
@@ -370,26 +370,14 @@ h2 {
   }
 
   .now-drawing {
-    background-color: color-mix(in oklab, var(--player-color), white 85%);
+    //background-color: color-mix(in oklab, var(--player-color), white 85%);
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
 
-    margin: 0 calc(-1 * var(--padding));
-    padding: 10px var(--padding) !important;
   }
 
   .stats {
-    grid-column: 1;
-    grid-row: 3;
-    border: unset;
-
-    h2 {
-      font-size: 21px;
-    }
-
-    #next-up > div app-dot {
-      display: none;
-    }
+    display: none;
   }
 
   .buttons {
@@ -397,9 +385,11 @@ h2 {
 
     position: fixed;
     grid-template-columns: 1fr repeat(2, var(--button-width));
+
     width: 100%;
+    height: var(--mobile-bottom-bar-height);
     padding: 3dvw !important;
-    background-color: var(--off-white);
+    background-color: var(--color-white);
     gap: 10px;
 
     bottom: 0;
