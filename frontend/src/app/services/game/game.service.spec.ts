@@ -212,6 +212,21 @@ describe('GameService', () => {
       ]);
     });
 
+    it('starts a game that is awaiting start when identity arrives before the snapshot', async () => {
+      // Arrange
+      const game = aGameDto({ gameState: GameState.AwaitingStart });
+      await connect();
+
+      // Act
+      await websocket.emit(gameEvents.identity('client-1', Role.GameClient));
+      await websocket.emit(gameEvents.snapshot(game));
+
+      // Assert
+      expect(websocket.sent).toEqual([
+        { category: 'GAME_CLIENT_ACTION', payload: { type: 'START_GAME' } },
+      ]);
+    });
+
     it('opens the pause panel when the game timer is paused', async () => {
       // Arrange
       const game = aGameDto({
@@ -468,7 +483,8 @@ describe('GameService', () => {
       await openChugOverlay(Role.GameClient);
 
       // Act
-      await overlays.handles[0].close(4200);
+      overlays.handles[0].close(4200);
+      await overlays.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -485,7 +501,8 @@ describe('GameService', () => {
       await openChugOverlay(Role.PlayerClient);
 
       // Act
-      await overlays.handles[0].close(4200);
+      overlays.handles[0].close(4200);
+      await overlays.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -636,7 +653,8 @@ describe('GameService', () => {
       await websocket.emit(gameEvents.paused(aTimerReports()));
 
       // Act
-      await drawers.handles[0].close();
+      drawers.handles[0].close();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -652,7 +670,8 @@ describe('GameService', () => {
       await websocket.emit(gameEvents.paused(aTimerReports()));
 
       // Act
-      await drawers.handles[0].close();
+      drawers.handles[0].close();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert

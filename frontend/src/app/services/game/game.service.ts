@@ -1,4 +1,5 @@
 import { computed, inject, Service, linkedSignal, signal, WritableSignal } from '@angular/core';
+import { filter, forkJoin, map, take } from 'rxjs';
 import { WebsocketEnvelope } from '../models/websocket-envelope';
 import { GameDto } from '../../../api-models/model/gameDto';
 import { Chug } from '../../../api-models/model/chug';
@@ -178,6 +179,21 @@ export class GameService implements PartyContextProvider {
           error: (err) => this.handleWebsocketConnectionDroppedWithError(err),
           complete: () => this.handleWebsocketConnectionDroppedClean(),
         });
+
+        const firstPayloadOfType = (type: string) =>
+          msgObs.pipe(
+            map((msg) => (msg as GameEventEnvelope).payload),
+            filter((payload) => payload.type === type),
+            take(1),
+          );
+
+        forkJoin([
+          firstPayloadOfType('HELLO_IDENTITY'),
+          firstPayloadOfType('HELLO_GAME_SNAPSHOT'),
+        ]).subscribe({
+          next: ([, snapshot]) =>
+            this.handleInitialState((snapshot as GameStateEvent).gameState.gameState),
+        });
       })
       .catch((error) => {
         if (isReconnect) this.handleWebsocketConnectionDroppedWithError(error);
@@ -205,7 +221,7 @@ export class GameService implements PartyContextProvider {
       return;
     }
     this.isReconnecting = true;
-    this.connectToWebsocket(true, 15000);
+    void this.connectToWebsocket(true, 15000);
   }
 
   /**
@@ -354,6 +370,15 @@ export class GameService implements PartyContextProvider {
     this.identity.set(identifyFromEvent(identityEvent));
   }
 
+  private handleInitialState(gameState?: GameState) {
+    switch (gameState) {
+      case GameState.AwaitingChug:
+        return this.openChugOverlay();
+      case GameState.AwaitingStart:
+        return this.dispatchStartGameAction();
+    }
+  }
+
   private handleGameClientConnected() {
     this.toastService.showToast('Client connected', 'Good', 'error', ToastState.success);
   }
@@ -361,14 +386,6 @@ export class GameService implements PartyContextProvider {
   private handleGameSnapshot(event: GameEventEnvelope) {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
     this.gameStateObj.set(stateEvent.gameState);
-
-    switch (this.gameState()) {
-      case GameState.AwaitingChug:
-        return this.openChugOverlay();
-      case GameState.AwaitingStart: {
-        this.dispatchStartGameAction();
-      }
-    }
 
     if (this.gameTimeReport()?.state === TimerState.Paused) {
       this.openPausePanel();
@@ -648,7 +665,7 @@ export class GameService implements PartyContextProvider {
     };
     this.gamePausedPanel = this.drawerService.showGamePausedDrawer(gamePausedData);
 
-    this.gamePausedPanel.closed.then(() => {
+    void this.gamePausedPanel.closed.then(() => {
       this.gamePausedPanel = undefined;
       if (this.isGameClient()) {
         this.dispatchResumeGameAction();
@@ -672,7 +689,7 @@ export class GameService implements PartyContextProvider {
       data: chugData,
     });
 
-    this.chugOverlay.closed.then((chugTime) => {
+    void this.chugOverlay.closed.then((chugTime) => {
       this.chugOverlay = undefined;
       if (this.isGameClient()) {
         this.dispatchChugAction(chugTime ?? 0);
@@ -706,6 +723,6 @@ export class GameService implements PartyContextProvider {
   }
 
   private navigateToWelcome() {
-    this.router.navigate(['/']);
+    void this.router.navigate(['/']);
   }
 }
