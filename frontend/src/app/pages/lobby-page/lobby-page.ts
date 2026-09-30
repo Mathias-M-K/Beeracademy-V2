@@ -40,7 +40,7 @@ export class LobbyPage {
       return;
     }
 
-    this.drawerService
+    void this.drawerService
       .showLobbyParticipantSettingsDrawer(actualParticipant)
       .closed.then((newSettings) => {
         if (!newSettings) return;
@@ -53,7 +53,7 @@ export class LobbyPage {
   }
 
   openNewParticipantOverlay(): void {
-    this.drawerService.showNewParticipantDrawer().closed.then((participantName) => {
+    void this.drawerService.showNewParticipantDrawer().closed.then((participantName) => {
       if (!participantName) return;
       this.addParticipant(participantName);
     });

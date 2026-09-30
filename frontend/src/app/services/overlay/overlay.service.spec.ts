@@ -188,7 +188,8 @@ describe('OverlayService', () => {
       const handle = service.openOverlay<string>({ component: ProbeOverlay });
 
       // Act
-      await handle.close('done');
+      handle.close('done');
+      await handle.closed;
 
       // Assert
       expect(probe()).toBeNull();
@@ -202,7 +203,8 @@ describe('OverlayService', () => {
       TestBed.tick();
 
       // Act
-      await first.close();
+      first.close();
+      await first.closed;
 
       // Assert
       const remaining = container().querySelectorAll('app-probe-overlay');

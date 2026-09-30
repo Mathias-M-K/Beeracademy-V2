@@ -221,7 +221,7 @@ export class GameService implements PartyContextProvider {
       return;
     }
     this.isReconnecting = true;
-    this.connectToWebsocket(true, 15000);
+    void this.connectToWebsocket(true, 15000);
   }
 
   /**
@@ -665,7 +665,7 @@ export class GameService implements PartyContextProvider {
     };
     this.gamePausedPanel = this.drawerService.showGamePausedDrawer(gamePausedData);
 
-    this.gamePausedPanel.closed.then(() => {
+    void this.gamePausedPanel.closed.then(() => {
       this.gamePausedPanel = undefined;
       if (this.isGameClient()) {
         this.dispatchResumeGameAction();
@@ -689,7 +689,7 @@ export class GameService implements PartyContextProvider {
       data: chugData,
     });
 
-    this.chugOverlay.closed.then((chugTime) => {
+    void this.chugOverlay.closed.then((chugTime) => {
       this.chugOverlay = undefined;
       if (this.isGameClient()) {
         this.dispatchChugAction(chugTime ?? 0);
@@ -723,6 +723,6 @@ export class GameService implements PartyContextProvider {
   }
 
   private navigateToWelcome() {
-    this.router.navigate(['/']);
+    void this.router.navigate(['/']);
   }
 }

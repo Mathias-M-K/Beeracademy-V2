@@ -483,7 +483,8 @@ describe('GameService', () => {
       await openChugOverlay(Role.GameClient);
 
       // Act
-      await overlays.handles[0].close(4200);
+      overlays.handles[0].close(4200);
+      await overlays.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -500,7 +501,8 @@ describe('GameService', () => {
       await openChugOverlay(Role.PlayerClient);
 
       // Act
-      await overlays.handles[0].close(4200);
+      overlays.handles[0].close(4200);
+      await overlays.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -651,7 +653,8 @@ describe('GameService', () => {
       await websocket.emit(gameEvents.paused(aTimerReports()));
 
       // Act
-      await drawers.handles[0].close();
+      drawers.handles[0].close();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -667,7 +670,8 @@ describe('GameService', () => {
       await websocket.emit(gameEvents.paused(aTimerReports()));
 
       // Act
-      await drawers.handles[0].close();
+      drawers.handles[0].close();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
