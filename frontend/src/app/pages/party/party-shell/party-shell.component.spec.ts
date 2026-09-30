@@ -119,6 +119,18 @@ describe('PartyShell', () => {
   }
 
   describe('in a game', () => {
+    it('is marked as being in the game phase', async () => {
+      // Arrange
+      const url = '/game';
+
+      // Act
+      const shell = await render(url);
+
+      // Assert
+      expect(shell.classList.contains('is-game')).toBe(true);
+      expect(shell.classList.contains('is-lobby')).toBe(false);
+    });
+
     it('shows the game name, round and game time', async () => {
       // Arrange
       gameService.currentRound.set(4);
@@ -217,6 +229,18 @@ describe('PartyShell', () => {
   });
 
   describe('in a lobby', () => {
+    it('is marked as being in the lobby phase', async () => {
+      // Arrange
+      const url = '/lobby';
+
+      // Act
+      const shell = await render(url);
+
+      // Assert
+      expect(shell.classList.contains('is-lobby')).toBe(true);
+      expect(shell.classList.contains('is-game')).toBe(false);
+    });
+
     it('shows the lobby name and party id without the game controls', async () => {
       // Arrange
       lobbyService.title.set('Hygge aften');

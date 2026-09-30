@@ -61,7 +61,7 @@ export class GamePage implements OnDestroy {
   protected readonly pageNames = ['Spil', 'Podie'];
   protected readonly selectedPage = signal(0);
 
-  private readonly scroller = viewChild('scroller', { read: ElementRef<HTMLElement> });
+  private readonly scroller = viewChild.required('scroller', { read: ElementRef<HTMLElement> });
   private readonly pages = viewChildren('page', { read: ElementRef<HTMLElement> });
 
   private dragActive = false;
@@ -99,18 +99,16 @@ export class GamePage implements OnDestroy {
 
   private scrollToIndex(index: number): void {
     if (this.dragActive) return;
-    const container = this.scroller()?.nativeElement;
-    const page = this.pages()[index]?.nativeElement;
-    if (!container || !page) return;
+    const container = this.scroller().nativeElement;
+    const page = this.pages()[index].nativeElement;
 
     const offset = page.getBoundingClientRect().left - container.getBoundingClientRect().left;
     container.scrollTo({ left: container.scrollLeft + offset, behavior: 'smooth' });
   }
 
   private nearestPageIndex(): number {
-    const scroller = this.scroller()?.nativeElement;
+    const scroller = this.scroller().nativeElement;
     const [first, second] = this.pages().map((page) => page.nativeElement);
-    if (!scroller || !first || !second) return 0;
 
     const pageDistance = second.offsetLeft - first.offsetLeft;
     return Math.round(scroller.scrollLeft / pageDistance);

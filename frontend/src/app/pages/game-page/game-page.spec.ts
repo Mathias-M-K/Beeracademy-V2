@@ -98,6 +98,7 @@ describe('GamePage', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     delete (Element.prototype as Partial<Element>).scrollTo;
   });
 
@@ -119,6 +120,15 @@ describe('GamePage', () => {
     return fixture.nativeElement
       .querySelector('segmented-control .segment.selected p')
       .textContent.trim();
+  }
+
+  /** Holds animation frames back so a test decides when the next frame runs. */
+  function captureAnimationFrames(): { flush(): void } {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) =>
+      frames.push(callback),
+    );
+    return { flush: () => frames.splice(0).forEach((frame) => frame(0)) };
   }
 
   /** Lays the two pages out 300px apart and scrolls the 300px wide scroller to `scrollLeft`. */
@@ -284,6 +294,45 @@ describe('GamePage', () => {
       expect(selectedPage(fixture)).toBe('Podie');
       expect(scrollTo.mock.contexts).toEqual([pageScroller(fixture)]);
       expect(scrollTo).toHaveBeenCalledWith({ left: 300, behavior: 'smooth' });
+    });
+
+    it('follows a swipe once per animation frame without scrolling back', async () => {
+      // Arrange
+      compact = true;
+      const frames = captureAnimationFrames();
+      const fixture = await render();
+      pageScroller(fixture).dispatchEvent(new Event('pointerdown'));
+      layOutPages(fixture, 280);
+      scrollTo.mockClear();
+
+      // Act
+      pageScroller(fixture).dispatchEvent(new Event('scroll'));
+      pageScroller(fixture).dispatchEvent(new Event('scroll'));
+      await fixture.whenStable();
+      const beforeFrame = selectedPage(fixture);
+      frames.flush();
+      await fixture.whenStable();
+
+      // Assert
+      expect(beforeFrame).toBe('Spil');
+      expect(selectedPage(fixture)).toBe('Podie');
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('ignores scrolling it did not start from a swipe', async () => {
+      // Arrange
+      compact = true;
+      const frames = captureAnimationFrames();
+      const fixture = await render();
+      layOutPages(fixture, 280);
+
+      // Act
+      pageScroller(fixture).dispatchEvent(new Event('scroll'));
+      frames.flush();
+      await fixture.whenStable();
+
+      // Assert
+      expect(selectedPage(fixture)).toBe('Spil');
     });
 
     it('selects the page a swipe settles on', async () => {

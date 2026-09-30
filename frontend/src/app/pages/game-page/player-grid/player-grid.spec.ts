@@ -1,32 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { of } from 'rxjs';
-import { MockInstance } from 'vitest';
 import { PlayerGrid } from './player-grid';
 import { Player } from '../../../services/game/models/player';
-import { PLAYER_1, PLAYER_2, PLAYER_3, threePlayers } from '../../../../testing/game-builders';
+import { PLAYER_1, PLAYER_2, threePlayers } from '../../../../testing/game-builders';
 
 describe('PlayerGrid', () => {
   let compact: boolean;
-  let scrollTo: MockInstance<Element['scrollTo']>;
 
   beforeEach(() => {
     compact = false;
-    Element.prototype.scrollTo = () => undefined;
-    scrollTo = vi.spyOn(Element.prototype, 'scrollTo');
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.unstubAllGlobals();
-    delete (Element.prototype as Partial<Element>).scrollTo;
   });
 
   function players(): Player[] {
     return threePlayers().map((dto) => Player.fromPlayerDto(dto));
   }
 
-  async function render(activePlayerId = PLAYER_1) {
+  async function render(activePlayerId = PLAYER_1): Promise<HTMLElement> {
     TestBed.configureTestingModule({
       providers: [
         {
@@ -39,194 +29,68 @@ describe('PlayerGrid', () => {
     fixture.componentRef.setInput('players', players());
     fixture.componentRef.setInput('activePlayerId', activePlayerId);
     await fixture.whenStable();
-    return fixture;
+    return fixture.nativeElement;
   }
 
-  function cards(fixture: ComponentFixture<PlayerGrid>): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll('app-player-card'));
+  function cards(grid: HTMLElement): HTMLElement[] {
+    return Array.from(grid.querySelectorAll('app-player-card'));
   }
 
-  function dots(fixture: ComponentFixture<PlayerGrid>): HTMLElement[] {
-    return Array.from(
-      fixture.nativeElement.querySelectorAll('app-dot-indicator .dot:not(.indicator)'),
-    );
+  function withClass(grid: HTMLElement, className: string): boolean[] {
+    return cards(grid).map((card) => card.classList.contains(className));
   }
 
-  function activeDot(fixture: ComponentFixture<PlayerGrid>): string {
-    return fixture.nativeElement
-      .querySelector('app-dot-indicator')
-      .style.getPropertyValue('--active-index');
-  }
-
-  function scroller(fixture: ComponentFixture<PlayerGrid>): HTMLElement {
-    return fixture.nativeElement.querySelector('.players');
-  }
-
-  /** Lays the cards out 100px apart and scrolls the 100px wide carousel to centre on `centredIndex`. */
-  function layOut(fixture: ComponentFixture<PlayerGrid>, centredIndex: number) {
-    cards(fixture).forEach((card, index) => {
-      Object.defineProperty(card, 'offsetLeft', { configurable: true, value: index * 100 });
-      Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 100 });
-      card.getBoundingClientRect = () => ({ left: (index - centredIndex) * 100 }) as DOMRect;
-    });
-    scroller(fixture).getBoundingClientRect = () => ({ left: 0 }) as DOMRect;
-    Object.defineProperty(scroller(fixture), 'clientWidth', { configurable: true, value: 100 });
-    scroller(fixture).scrollLeft = centredIndex * 100;
-  }
-
-  /** Holds animation frames back so a test decides when the next frame runs. */
-  function captureAnimationFrames(): { flush(): void } {
-    const frames: FrameRequestCallback[] = [];
-    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) =>
-      frames.push(callback),
-    );
-    return { flush: () => frames.splice(0).forEach((frame) => frame(0)) };
-  }
-
-  async function dispatch(fixture: ComponentFixture<PlayerGrid>, type: string) {
-    scroller(fixture).dispatchEvent(new Event(type));
-    await fixture.whenStable();
-  }
-
-  it('shows a card and a dot per player and marks who is drawing', async () => {
+  it('shows a card per player and marks who is drawing', async () => {
     // Arrange
     const activePlayerId = PLAYER_2;
 
     // Act
-    const fixture = await render(activePlayerId);
+    const grid = await render(activePlayerId);
 
     // Assert
-    expect(cards(fixture).map((card) => card.classList.contains('is-drawing'))).toEqual([
-      false,
-      true,
-      false,
+    expect(cards(grid).map((card) => card.querySelector('h2')?.textContent)).toEqual([
+      'Player 1',
+      'Player 2',
+      'Player 3',
     ]);
-    expect(dots(fixture)).toHaveLength(3);
+    expect(withClass(grid, 'is-drawing')).toEqual([false, true, false]);
   });
 
-  describe('dot navigation', () => {
-    it("scrolls to a player's card when its dot is clicked", async () => {
+  describe('on a compact screen', () => {
+    it('shows the cards in compact mode', async () => {
       // Arrange
       compact = true;
-      const fixture = await render();
-      layOut(fixture, 0);
-      scrollTo.mockClear();
 
       // Act
-      dots(fixture)[2].click();
-      await fixture.whenStable();
+      const grid = await render();
 
       // Assert
-      expect(scrollTo.mock.contexts).toEqual([scroller(fixture)]);
-      expect(scrollTo).toHaveBeenCalledWith({ left: 200, behavior: 'smooth' });
-      expect(activeDot(fixture)).toBe('2');
+      expect(withClass(grid, 'is-compact')).toEqual([true, true, true]);
+    });
+
+    it('folds every card but the first', async () => {
+      // Arrange
+      compact = true;
+
+      // Act
+      const grid = await render();
+
+      // Assert
+      expect(withClass(grid, 'is-folded')).toEqual([false, true, true]);
     });
   });
 
-  describe('following the drawing player', () => {
-    it('scrolls to the new drawing player on a compact screen', async () => {
-      // Arrange
-      compact = true;
-      const fixture = await render(PLAYER_1);
-      layOut(fixture, 0);
-      scrollTo.mockClear();
-
-      // Act
-      fixture.componentRef.setInput('activePlayerId', PLAYER_3);
-      await fixture.whenStable();
-
-      // Assert
-      expect(scrollTo.mock.contexts).toEqual([scroller(fixture)]);
-      expect(scrollTo).toHaveBeenCalledWith({ left: 200, behavior: 'smooth' });
-      expect(activeDot(fixture)).toBe('2');
-    });
-
-    it('does not scroll on a wide screen', async () => {
+  describe('on a wide screen', () => {
+    it('shows the cards in full and unfolded', async () => {
       // Arrange
       compact = false;
-      const fixture = await render(PLAYER_1);
 
       // Act
-      fixture.componentRef.setInput('activePlayerId', PLAYER_3);
-      await fixture.whenStable();
+      const grid = await render();
 
       // Assert
-      expect(scrollTo).not.toHaveBeenCalled();
-      expect(activeDot(fixture)).toBe('0');
-    });
-  });
-
-  describe('tracking the visible card', () => {
-    it('highlights the centred card once scrolling ends', async () => {
-      // Arrange
-      const fixture = await render();
-      layOut(fixture, 1);
-
-      // Act
-      await dispatch(fixture, 'scrollend');
-
-      // Assert
-      expect(activeDot(fixture)).toBe('1');
-    });
-
-    it('updates the highlight on the next frame while the user drags', async () => {
-      // Arrange
-      const frames = captureAnimationFrames();
-      const fixture = await render();
-      layOut(fixture, 2);
-      await dispatch(fixture, 'pointerdown');
-
-      // Act
-      await dispatch(fixture, 'scroll');
-      await dispatch(fixture, 'scroll');
-      frames.flush();
-      await fixture.whenStable();
-
-      // Assert
-      expect(activeDot(fixture)).toBe('2');
-    });
-
-    it('ignores the end of scrolling while the user drags', async () => {
-      // Arrange
-      const fixture = await render();
-      layOut(fixture, 2);
-      await dispatch(fixture, 'pointerdown');
-
-      // Act
-      await dispatch(fixture, 'scrollend');
-
-      // Assert
-      expect(activeDot(fixture)).toBe('0');
-    });
-
-    it('ignores plain scroll events when the user is not dragging', async () => {
-      // Arrange
-      const frames = captureAnimationFrames();
-      const fixture = await render();
-      layOut(fixture, 2);
-
-      // Act
-      await dispatch(fixture, 'scroll');
-      frames.flush();
-      await fixture.whenStable();
-
-      // Assert
-      expect(activeDot(fixture)).toBe('0');
-    });
-
-    it('stops treating scrolling as a drag once the turn passes', async () => {
-      // Arrange
-      const fixture = await render(PLAYER_1);
-      await dispatch(fixture, 'pointerdown');
-      fixture.componentRef.setInput('activePlayerId', PLAYER_2);
-      await fixture.whenStable();
-      layOut(fixture, 2);
-
-      // Act
-      await dispatch(fixture, 'scrollend');
-
-      // Assert
-      expect(activeDot(fixture)).toBe('2');
+      expect(withClass(grid, 'is-compact')).toEqual([false, false, false]);
+      expect(withClass(grid, 'is-folded')).toEqual([false, false, false]);
     });
   });
 });
