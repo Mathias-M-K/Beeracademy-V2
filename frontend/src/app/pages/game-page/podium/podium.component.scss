@@ -1,7 +1,8 @@
 :host {
   height: fit-content;
+  max-height: 100%;
   display: grid;
-  grid-template-rows: auto 200px auto;
+  grid-template-rows: auto 200px minmax(0, 1fr);
   gap: 5px;
 
   --padding: 10px;
@@ -95,6 +96,8 @@
 .chug-history {
   display: grid;
   grid-template-columns: 35px auto 1fr auto;
+  align-content: start;
+  overflow-y: auto;
   animation: fly-in-from-above 0.25s ease-in-out forwards;
 
   > p {

@@ -27,6 +27,7 @@ interface Round {
   host: {
     '[style.--progress.%]': 'roundProgress()',
     '[class.is-lobby]': 'phase() === "lobby"',
+    '[class.is-game]': 'isGamePhase()',
   },
 })
 export class PartyShellComponent {

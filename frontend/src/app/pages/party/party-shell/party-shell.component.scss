@@ -211,3 +211,10 @@ button.do-animate {
     grid-row: 1 / -1;
   }
 }
+
+@media (max-width: 500px) {
+  :host(.is-game) {
+    height: 100dvh;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+}

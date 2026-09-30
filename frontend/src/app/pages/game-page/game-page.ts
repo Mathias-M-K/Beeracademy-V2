@@ -1,4 +1,17 @@
-import { Component, computed, inject, OnDestroy } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  OnDestroy,
+  signal,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { GameService } from '../../services/game/game.service';
 import { TimerService } from '../../services/timer-service/timer.service';
 import { TimerState } from '../../../api-models/model/timerState';
@@ -7,10 +20,11 @@ import { CardCount } from './card-count/card-count';
 import { DrawPanel } from './draw-panel/draw-panel';
 import { PodiumComponent } from './podium/podium.component';
 import { PlayerGrid } from './player-grid/player-grid';
+import { SegmentedControl } from '../../common/segmented-control/segmented-control';
 
 @Component({
   selector: 'app-game-page',
-  imports: [CardCount, DrawPanel, PodiumComponent, PlayerGrid],
+  imports: [CardCount, DrawPanel, PodiumComponent, PlayerGrid, SegmentedControl],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
   host: {
@@ -37,8 +51,69 @@ export class GamePage implements OnDestroy {
   protected remainingCardsByRank = this.gameService.remainingCardsByRank;
   protected changeOfDrawingAce = this.gameService.changeOfDrawingAce;
 
+  protected readonly isCompact = toSignal(
+    inject(BreakpointObserver)
+      .observe('(max-width: 500px)')
+      .pipe(map((result) => result.matches)),
+    { initialValue: false },
+  );
+
+  protected readonly pageNames = ['Spil', 'Podie'];
+  protected readonly selectedPage = signal(0);
+
+  private readonly scroller = viewChild('scroller', { read: ElementRef<HTMLElement> });
+  private readonly pages = viewChildren('page', { read: ElementRef<HTMLElement> });
+
+  private dragActive = false;
+  private rafId = 0;
+
+  constructor() {
+    effect(() => {
+      this.scrollToIndex(this.selectedPage());
+    });
+  }
+
   ngOnDestroy() {
     this.gameService.onGamePageDestroyed();
+  }
+
+  protected onPointerDown(): void {
+    this.dragActive = true;
+  }
+
+  protected onPageSelected(): void {
+    this.dragActive = false;
+  }
+
+  protected onScroll(): void {
+    if (!this.dragActive || this.rafId) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = 0;
+      this.selectedPage.set(this.nearestPageIndex());
+    });
+  }
+
+  protected onScrollEnd(): void {
+    this.selectedPage.set(this.nearestPageIndex());
+  }
+
+  private scrollToIndex(index: number): void {
+    if (this.dragActive) return;
+    const container = this.scroller()?.nativeElement;
+    const page = this.pages()[index]?.nativeElement;
+    if (!container || !page) return;
+
+    const offset = page.getBoundingClientRect().left - container.getBoundingClientRect().left;
+    container.scrollTo({ left: container.scrollLeft + offset, behavior: 'smooth' });
+  }
+
+  private nearestPageIndex(): number {
+    const scroller = this.scroller()?.nativeElement;
+    const [first, second] = this.pages().map((page) => page.nativeElement);
+    if (!scroller || !first || !second) return 0;
+
+    const pageDistance = second.offsetLeft - first.offsetLeft;
+    return Math.round(scroller.scrollLeft / pageDistance);
   }
 
   protected drawCard() {

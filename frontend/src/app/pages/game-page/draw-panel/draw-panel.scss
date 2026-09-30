@@ -19,6 +19,7 @@
 }
 
 .previous-draw {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: auto 1fr;
