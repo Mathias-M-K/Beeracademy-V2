@@ -26,31 +26,51 @@
   <p class="subtitle">{{ displayedSipsLeft() }} tåre tilbage</p>
 </div>
 
-<div class="last-card">
-  <p class="subtitle">Sidste kort trykket</p>
-  <div>
-    <suit-icon [suit]="lastCard()?.suit!"></suit-icon>
-    <p>{{ lastCard()?.rank ?? '--' }}</p>
-  </div>
-</div>
+@if (mode() === 'compact') {
 
-<div class="horizontal_line"></div>
+  <div class="fold-toggle"
+       [attr.aria-expanded]="!isFolded()"
+       [attr.aria-controls]="detailsId()"
+       [attr.aria-label]="isFolded() ? 'Vis detaljer' : 'Skjul detaljer'" [style.rotate.deg]="isFolded() ? 180 : 0">
+    @if (isFolded()) {
+      <material-icon [size]="20" icon="add"></material-icon>
+    } @else {
+      <material-icon [size]="20" icon="remove"></material-icon>
+    }
+  </div>
 
-<div class="minor-stats">
-  <div class="stat">
-    <p class="subtitle">Tåre</p>
-    <p class="stat-value">{{ displayedTotalSips() }}</p>
-  </div>
-  <div class="stat">
-    <p class="subtitle">Tåre/gns</p>
-    <p class="stat-value">{{ displayedSipsAvg().toFixed(1) }}</p>
-  </div>
-  <div class="stat">
-    <p class="subtitle">Sidste tid</p>
-    <p class="stat-value time-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss:SS' }}</p>
-  </div>
-  <div class="stat">
-    <p class="subtitle">Tid/gns</p>
-    <p class="stat-value time-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss:SS' }}</p>
+
+}
+
+<div class="details" [id]="detailsId()" [attr.inert]="isFolded() ? '' : null">
+  <div class="details-inner">
+    <div class="last-card">
+      <p class="subtitle">Sidste kort trykket</p>
+      <div>
+        <suit-icon [suit]="lastCard()?.suit!"></suit-icon>
+        <p>{{ lastCard()?.rank ?? '--' }}</p>
+      </div>
+    </div>
+
+    <div class="horizontal_line"></div>
+
+    <div class="minor-stats">
+      <div class="stat">
+        <p class="subtitle">Tåre</p>
+        <p class="stat-value">{{ displayedTotalSips() }}</p>
+      </div>
+      <div class="stat">
+        <p class="subtitle">Tåre/gns</p>
+        <p class="stat-value">{{ displayedSipsAvg().toFixed(1) }}</p>
+      </div>
+      <div class="stat">
+        <p class="subtitle">Sidste tid</p>
+        <p class="stat-value time-value">{{ displayedLastRoundTime() | gameTimeFormat: 'mm:ss:SS' }}</p>
+      </div>
+      <div class="stat">
+        <p class="subtitle">Tid/gns</p>
+        <p class="stat-value time-value">{{ displayedRoundTimesAvg() | gameTimeFormat: 'mm:ss:SS' }}</p>
+      </div>
+    </div>
   </div>
 </div>

@@ -3,6 +3,7 @@
     [player]="player"
     [isDrawing]="player.id === activePlayerId()"
     [mode]="isCompact() ? 'compact' : 'default'"
+    [folded]="$index !== 0"
   ></app-player-card>
 }
 

@@ -17,7 +17,7 @@
   --font-title-size: 20px;
 
 
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto auto;
   gap: 5px;
 
   .header {
@@ -70,18 +70,31 @@
     }
   }
 
-  .last-card {
+  .fold-toggle {
+    grid-column: 5;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .details {
     grid-column: 1 / -1;
     grid-row: 5;
+    margin-block-start: -5px;
+  }
+
+  .details-inner {
+    padding-block-start: 5px;
+    gap: 5px;
+  }
+
+  .last-card {
     margin: 10px 0;
   }
 
   .minor-stats {
-    grid-column: 1 / -1;
-    grid-row: 6;
-
     .stat .stat-value{
       font-size: var(--font-title-size);
+      font-weight: 600;
     }
   }
 
@@ -188,6 +201,47 @@
   flex: 1 1 0;
   border-radius: 5px;
   animation: dot-enter 400ms ease-out forwards;
+}
+
+.fold-toggle {
+  min-width: 24px;
+  min-height: 24px;
+  border: none;
+  border-radius: 5px;
+  background: none;
+
+  font-size: 20px;
+  line-height: 1;
+  color: var(--primary-disabled-text);
+  cursor: pointer;
+
+  justify-content: center;
+  align-content: center;
+
+  transition: rotate 0.1s ease-in-out;
+}
+
+.details {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease-in-out;
+}
+
+.details-inner {
+  display: grid;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:host(.is-folded) .details {
+  grid-template-rows: 0fr;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .details {
+    transition: none;
+  }
 }
 
 .last-card {
