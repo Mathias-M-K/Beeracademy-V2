@@ -291,7 +291,8 @@ describe('WelcomePage', () => {
       button(fixture, 'Åbn Kamera').click();
 
       // Act
-      await drawers.handles[0].close('ABCDEFGHI');
+      drawers.handles[0].close('ABCDEFGHI');
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -305,7 +306,8 @@ describe('WelcomePage', () => {
       button(fixture, 'Åbn Kamera').click();
 
       // Act
-      await drawers.handles[0].dismiss();
+      drawers.handles[0].dismiss();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert

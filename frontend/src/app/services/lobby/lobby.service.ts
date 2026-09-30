@@ -113,7 +113,7 @@ export class LobbyService implements PartyContextProvider {
   }
 
   private onWebsocketConnectionDroppedWithError(error: unknown): void {
-    this.router.navigateByUrl(this.handleConnectionDropped(error));
+    void this.router.navigateByUrl(this.handleConnectionDropped(error));
   }
 
   private handleConnectionDropped(error: unknown): UrlTree {
@@ -445,6 +445,6 @@ export class LobbyService implements PartyContextProvider {
   }
 
   private navigateToWelcomeScreen(): void {
-    this.router.navigate(['/']);
+    void this.router.navigate(['/']);
   }
 }

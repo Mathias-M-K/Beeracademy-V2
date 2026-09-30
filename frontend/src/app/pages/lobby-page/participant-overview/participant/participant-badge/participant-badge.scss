@@ -26,9 +26,9 @@
 }
 
 :host(.local) {
-  border: 2px dashed grey;
+  border: 2px dashed var(--color-grey-500);
   background-color: white;
-  color: grey;
+  color: var(--color-grey-500);
 }
 
 :host(.with-border) {

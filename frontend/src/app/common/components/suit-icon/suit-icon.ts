@@ -37,8 +37,6 @@ const SUIT_PATHS: Record<Suit, readonly string[]> = {
   template: `
     <svg
       viewBox="0 0 24 24"
-      [attr.width]="size()"
-      [attr.height]="size()"
       [attr.aria-hidden]="label() ? null : 'true'"
       [attr.aria-label]="label() || null"
       [attr.role]="label() ? 'img' : null"
@@ -52,19 +50,20 @@ const SUIT_PATHS: Record<Suit, readonly string[]> = {
     :host {
       display: inline-flex;
       flex: none;
+      width: 1em;
+      aspect-ratio: 1;
     }
 
     svg {
       display: block;
+      width: 100%;
+      height: 100%;
     }
   `,
 })
 export class SuitIcon {
   /** Which suit to draw. One per player in the expanded deck. */
   readonly suit = input.required<Suit>();
-
-  /** Edge length in pixels of the square icon box. */
-  readonly size = input(16);
 
   /**
    * Accessible label. When set, the icon is exposed to assistive tech.

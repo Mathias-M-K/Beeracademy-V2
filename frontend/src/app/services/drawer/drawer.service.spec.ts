@@ -199,7 +199,8 @@ describe('DrawerService', () => {
         const drawerHandle = injectedHandle();
 
         // Act
-        await drawerHandle.close('result');
+        drawerHandle.close('result');
+        await drawerHandle.closed;
 
         // Assert
         expect(drawerHandle).toBe(handle);

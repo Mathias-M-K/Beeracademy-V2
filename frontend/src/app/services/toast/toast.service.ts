@@ -88,7 +88,7 @@ export class ToastService {
 
     this.isClosing = true;
 
-    void handle.close();
+    handle.close();
     void handle.closed.then(() => {
       this.isClosing = false;
       this.overlayHandle = null;

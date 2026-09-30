@@ -45,18 +45,17 @@ describe('OverlayHandle', () => {
       const closed = trackClosed();
 
       // Act
-      await handle.close('confirmed');
+      handle.close('confirmed');
+      await handle.closed;
 
       // Assert
       expect(closed).toEqual({ settled: true, result: 'confirmed' });
     });
 
     it('disposes the overlay', async () => {
-      // Arrange
-      const closing = handle.close('confirmed');
-
       // Act
-      await closing;
+      handle.close('confirmed');
+      await handle.closed;
 
       // Assert
       expect(overlayRef.dispose).toHaveBeenCalledOnce();
@@ -67,7 +66,8 @@ describe('OverlayHandle', () => {
       const closed = trackClosed();
 
       // Act
-      await handle.close();
+      handle.close();
+      await handle.closed;
 
       // Assert
       expect(closed).toEqual({ settled: true, result: undefined });
@@ -80,7 +80,8 @@ describe('OverlayHandle', () => {
       const closed = trackClosed();
 
       // Act
-      await handle.dismiss();
+      handle.dismiss();
+      await handle.closed;
 
       // Assert
       expect(closed).toEqual({ settled: true, result: undefined });
@@ -92,10 +93,12 @@ describe('OverlayHandle', () => {
     it('ignores a second close', async () => {
       // Arrange
       const closed = trackClosed();
-      await handle.close('first');
+      handle.close('first');
+      await handle.closed;
 
       // Act
-      await handle.close('second');
+      handle.close('second');
+      await handle.closed;
 
       // Assert
       expect(closed.result).toBe('first');
@@ -105,11 +108,11 @@ describe('OverlayHandle', () => {
     it('ignores a dismiss racing an in-flight close', async () => {
       // Arrange
       const closed = trackClosed();
-      const closing = handle.close('button');
+      handle.close('button');
 
       // Act
-      const dismissing = handle.dismiss();
-      await Promise.all([closing, dismissing]);
+      handle.dismiss();
+      await handle.closed;
 
       // Assert
       expect(closed.result).toBe('button');
@@ -123,7 +126,8 @@ describe('OverlayHandle', () => {
       const backdrop = overlayRef.backdropElement!;
 
       // Act
-      await handle.close();
+      handle.close();
+      await handle.closed;
 
       // Assert
       expect(content.classList).toContain('overlay-leaving');
@@ -135,7 +139,8 @@ describe('OverlayHandle', () => {
       overlayRef.backdropElement = null;
 
       // Act
-      await handle.close('done');
+      handle.close('done');
+      await handle.closed;
 
       // Assert
       expect(content.classList).toContain('overlay-leaving');
@@ -151,11 +156,11 @@ describe('OverlayHandle', () => {
       const closed = trackClosed();
 
       // Act
-      const closing = handle.close('done');
+      handle.close('done');
       await flushMicrotasks();
       const disposedBeforeFinish = overlayRef.dispose.mock.calls.length;
       animation.resolve({} as Animation);
-      await closing;
+      await handle.closed;
 
       // Assert
       expect(disposedBeforeFinish).toBe(0);
@@ -172,9 +177,9 @@ describe('OverlayHandle', () => {
       const closed = trackClosed();
 
       // Act
-      const closing = handle.close('done');
+      handle.close('done');
       animation.reject(new DOMException('cancelled', 'AbortError'));
-      await closing;
+      await handle.closed;
 
       // Assert
       expect(closed.result).toBe('done');
@@ -186,7 +191,8 @@ describe('OverlayHandle', () => {
       const getAnimations = vi.spyOn(content, 'getAnimations');
 
       // Act
-      await handle.dismiss(true);
+      handle.dismiss(true);
+      await handle.closed;
 
       // Assert
       expect(content.classList).not.toContain('overlay-leaving');
@@ -201,7 +207,8 @@ describe('OverlayHandle', () => {
       const closed = trackClosed();
 
       // Act
-      await handle.close('empty');
+      handle.close('empty');
+      await handle.closed;
 
       // Assert
       expect(closed.result).toBe('empty');

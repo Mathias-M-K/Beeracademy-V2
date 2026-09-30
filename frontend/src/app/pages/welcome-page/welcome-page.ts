@@ -123,9 +123,9 @@ export class WelcomePage {
 
     this.joiningExistingParty.set(true);
     if (partyState === PartyState.Game) {
-      this.navigateToGamePage().finally(() => this.joiningExistingParty.set(false));
+      void this.navigateToGamePage().finally(() => this.joiningExistingParty.set(false));
     } else if (partyState === PartyState.Lobby) {
-      this.navigateToLobbyPage().finally(() => this.joiningExistingParty.set(false));
+      void this.navigateToLobbyPage().finally(() => this.joiningExistingParty.set(false));
     }
   }
 
@@ -140,9 +140,9 @@ export class WelcomePage {
   }
 
   private openQrScanner() {
-    this.drawerService.showQrScanner().closed.then((partyId) => {
+    void this.drawerService.showQrScanner().closed.then((partyId) => {
       if (partyId) {
-        this.router.navigate(['/join', partyId]);
+        void this.router.navigate(['/join', partyId]);
       }
     });
   }

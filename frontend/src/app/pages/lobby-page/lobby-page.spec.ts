@@ -155,7 +155,8 @@ describe('LobbyPage', () => {
       button(fixture, 'Tilføj deltager').click();
 
       // Act
-      await drawers.handles[0].close('Frederik');
+      drawers.handles[0].close('Frederik');
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -169,7 +170,8 @@ describe('LobbyPage', () => {
       button(fixture, 'Tilføj deltager').click();
 
       // Act
-      await drawers.handles[0].dismiss();
+      drawers.handles[0].dismiss();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -222,7 +224,8 @@ describe('LobbyPage', () => {
       rowButton(fixture, 'Lasse', 'settings').click();
 
       // Act
-      await drawers.handles[0].close({ sipsInABeer: 20, canDrawAce: false });
+      drawers.handles[0].close({ sipsInABeer: 20, canDrawAce: false });
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -241,7 +244,8 @@ describe('LobbyPage', () => {
       button(fixture, 'Indstillinger').click();
 
       // Act
-      await drawers.handles[0].close({ sipsInABeer: 10, canDrawAce: true });
+      drawers.handles[0].close({ sipsInABeer: 10, canDrawAce: true });
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert
@@ -260,7 +264,8 @@ describe('LobbyPage', () => {
       button(fixture, 'Indstillinger').click();
 
       // Act
-      await drawers.handles[0].dismiss();
+      drawers.handles[0].dismiss();
+      await drawers.handles[0].closed;
       await flushMicrotasks();
 
       // Assert

@@ -1,4 +1,5 @@
 :host {
+  container-type: inline-size;
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-rows: auto 1fr auto;
@@ -30,22 +31,24 @@
 :host(.small) {
   grid-template-columns: 1fr;
   grid-template-rows: repeat(2, 1fr);
-  gap: 5px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  box-shadow: unset;
+  border: 1px solid var(--border);
+  border-radius: 5px;
 
-  padding: 3px;
+  padding: 1px;
 
   .mid-suit {
     grid-column: 1;
     grid-row: 2;
-    width: unset;
 
-    align-self: start;
+    align-self: center;
   }
 
   h1 {
-    font-size: 25px;
+    font-size: 60cqi;
+    margin: 0;
     justify-self: center;
+    align-self: center;
   }
 }
 
@@ -54,17 +57,13 @@
   grid-row: 2;
   justify-self: center;
   align-self: center;
-  width: 40%;
+  width: 55%;
 }
 
 .corner {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  suit-icon {
-    width: fit-content;
-  }
 }
 
 .corner.bottom-right {

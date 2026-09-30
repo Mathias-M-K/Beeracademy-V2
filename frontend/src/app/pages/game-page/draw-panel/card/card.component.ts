@@ -1,10 +1,11 @@
 import { Component, input } from '@angular/core';
 import { Card } from '../../../../../api-models/model/card';
 import { SuitIcon } from '../../../../common/components/suit-icon/suit-icon';
+import { CardRankPipe } from '../../../../pipes/card-rank-pipe';
 
 @Component({
   selector: 'app-card',
-  imports: [SuitIcon],
+  imports: [SuitIcon, CardRankPipe],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
   host: {

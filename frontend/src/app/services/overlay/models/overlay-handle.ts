@@ -29,12 +29,12 @@ export class OverlayHandle<R = unknown> {
     await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => {})));
   }
 
-  public async close(result?: R): Promise<void> {
-    return this.teardown(() => this.resolveClosed(result));
+  public close(result?: R): void {
+    void this.teardown(() => this.resolveClosed(result));
   }
 
-  public async dismiss(ignoreAnimation = false): Promise<void> {
-    return this.teardown(() => this.resolveClosed(undefined), ignoreAnimation);
+  public dismiss(ignoreAnimation = false): void {
+    void this.teardown(() => this.resolveClosed(undefined), ignoreAnimation);
   }
 
   private async teardown(report?: () => void, ignoreAnimation = false): Promise<void> {
