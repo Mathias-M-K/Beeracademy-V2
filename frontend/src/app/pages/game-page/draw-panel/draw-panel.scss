@@ -302,13 +302,20 @@ h2 {
     grid-template-rows: repeat(2, auto);
 
     padding: 10px;
-    row-gap: 20px;
+
+    --row-gap: 15px;
+    row-gap: var(--row-gap);
   }
   :host > div:nth-child(n + 2) {
     padding-left: unset;
   }
 
   .previous-draw {
+
+    border-right: unset;
+    padding-top: var(--row-gap);
+    border-top: 1px solid var(--border);
+
     grid-row: 2;
 
     .card-landing {
@@ -316,11 +323,11 @@ h2 {
     }
 
     .card-stack {
-      width: 50px;
-      height: 80px;
+      width: 40px;
+      height: 65px;
 
       :nth-child(n + 1) {
-        width: 50px;
+        width: 45px;
         translate: 0;
       }
 
@@ -338,23 +345,18 @@ h2 {
     .drawn-by {
       display: grid;
 
-      > :nth-child(2) {
+      .drawing-player {
         h2 {
           font-size: 18px;
         }
-
         app-dot {
-          display: none;
+          display: none !important;
         }
       }
 
       .subtitle {
         grid-column: 1;
         grid-row: 1;
-      }
-
-      > :nth-child(n + 3) {
-        justify-self: end;
       }
 
       #sips {
@@ -370,10 +372,12 @@ h2 {
   }
 
   .now-drawing {
-    //background-color: color-mix(in oklab, var(--player-color), white 85%);
     grid-column: 1;
     grid-row: 1;
 
+    #timers .current-time-average{
+      color: var(--primary-disabled-text);
+    }
   }
 
   .stats {
@@ -388,12 +392,14 @@ h2 {
 
     width: 100%;
     height: var(--mobile-bottom-bar-height);
-    padding: 3dvw !important;
+
+    padding: 5px !important;
     background-color: var(--color-white);
     gap: 10px;
 
     bottom: 0;
     left: 0;
+    align-items: center;
 
     z-index: 5;
 
