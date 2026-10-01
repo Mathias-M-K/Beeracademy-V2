@@ -5,9 +5,6 @@ import dk.mathiaskofod.common.dto.participant.ParticipantIdDto;
 import dk.mathiaskofod.common.dto.party.PartyIdDto;
 import dk.mathiaskofod.common.dto.player.PlayerDto;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.domain.game.reports.GameReport;
-import dk.mathiaskofod.domain.game.reports.PlayerReport;
-import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.auth.AuthenticationService;
 import dk.mathiaskofod.services.auth.SessionCookieFactory;
 import dk.mathiaskofod.services.game.GameService;
@@ -120,32 +117,5 @@ public class GameApi {
             @Valid @PathParam("participantId") ParticipantIdDto participantIdDto
     ) {
         gameClientSessionManager.requestParticipantRelease(partyIdDto.partyId(),participantIdDto.id());
-    }
-
-    @GET
-    @Path("/{partyId}/reports/game")
-    @Operation(
-            summary = "Get end of game report for game, players and time",
-            description = "Retrieves the end of game report for a specific game")
-    public GameReport getGameReport(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
-        return gameService.getGameReport(partyIdDto.partyId());
-    }
-
-    @GET
-    @Path("/{partyId}/reports/players")
-    @Operation(
-            summary = "Get end of game report for game, players and time",
-            description = "Retrieves the end of game report for a specific game")
-    public List<PlayerReport> getPlayerReport(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
-        return gameService.getPlayerReports(partyIdDto.partyId());
-    }
-
-    @GET
-    @Path("/{partyId}/reports/time")
-    @Operation(
-            summary = "Get end of game report for game, players and time",
-            description = "Retrieves the end of game report for a specific game")
-    public TimerReports getTimeReport(@Valid @PathParam("partyId") PartyIdDto partyIdDto) {
-        return gameService.getTimeReport(partyIdDto.partyId());
     }
 }
