@@ -34,10 +34,6 @@ export class PlayerCard {
   protected readonly progressId = computed(() => `player-progress-${this.player().id}`);
   protected readonly detailsId = computed(() => `player-details-${this.player().id}`);
 
-  protected toggleFolded(): void {
-    this.folded.update((folded) => !folded);
-  }
-
   private readonly totalSips = computed(() => {
     return this.player().stats?.turns?.reduce((sum, turn) => sum + (turn.card?.rank ?? 0), 0) ?? 0;
   });

@@ -31,7 +31,8 @@
 </div>
 
 @if (mode() === 'compact') {
-  <div
+  <button
+    type="button"
     class="fold-toggle"
     [attr.aria-expanded]="!isFolded()"
     [attr.aria-controls]="progressId() + ' ' + detailsId()"
@@ -43,7 +44,7 @@
     } @else {
       <material-icon [size]="20" icon="remove"></material-icon>
     }
-  </div>
+  </button>
 }
 
 <div class="foldable details" [id]="detailsId()" [attr.inert]="isFolded() ? '' : null">
