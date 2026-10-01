@@ -1,5 +1,8 @@
 import { computed, Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { of } from 'rxjs';
+import { MockInstance } from 'vitest';
 import { GamePage } from './game-page';
 import { GameService } from '../../services/game/game.service';
 import { TimerService } from '../../services/timer-service/timer.service';
@@ -22,6 +25,8 @@ import { TimerState } from '../../../api-models/model/timerState';
 import { PlayerTurn } from '../../services/game/models/playerTurn';
 
 describe('GamePage', () => {
+  let compact: boolean;
+  let scrollTo: MockInstance<Element['scrollTo']>;
   let drawers: DrawerServiceStub;
   let playerTime: ReturnType<typeof signal<number | undefined>>;
   let gameService: {
@@ -74,24 +79,67 @@ describe('GamePage', () => {
       [TimerType.PLAYER]: { currentDuration: playerTime },
     };
     drawers = createDrawerServiceStub();
+    compact = false;
+    Element.prototype.scrollTo = () => undefined;
+    scrollTo = vi.spyOn(Element.prototype, 'scrollTo');
 
     TestBed.configureTestingModule({
       providers: [
         { provide: GameService, useValue: gameService },
         { provide: TimerService, useValue: { getTimer: (type: TimerType) => timers[type] } },
         { provide: DrawerService, useValue: drawers },
+        {
+          provide: BreakpointObserver,
+          useValue: { observe: () => of({ matches: compact, breakpoints: {} }) },
+        },
       ],
     });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    delete (Element.prototype as Partial<Element>).scrollTo;
   });
 
   async function render() {
     const fixture = TestBed.createComponent(GamePage);
     await fixture.whenStable();
     return fixture;
+  }
+
+  function pageScroller(fixture: ComponentFixture<GamePage>): HTMLElement {
+    return fixture.nativeElement.querySelector('.pages');
+  }
+
+  function pageSegments(fixture: ComponentFixture<GamePage>): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll('segmented-control .segment p'));
+  }
+
+  function selectedPage(fixture: ComponentFixture<GamePage>): string {
+    return fixture.nativeElement
+      .querySelector('segmented-control .segment.selected p')
+      .textContent.trim();
+  }
+
+  /** Holds animation frames back so a test decides when the next frame runs. */
+  function captureAnimationFrames(): { flush(): void } {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) =>
+      frames.push(callback),
+    );
+    return { flush: () => frames.splice(0).forEach((frame) => frame(0)) };
+  }
+
+  /** Lays the two pages out 300px apart and scrolls the 300px wide scroller to `scrollLeft`. */
+  function layOutPages(fixture: ComponentFixture<GamePage>, scrollLeft: number) {
+    const pages = Array.from(pageScroller(fixture).querySelectorAll('.page')) as HTMLElement[];
+    pages.forEach((page, index) => {
+      Object.defineProperty(page, 'offsetLeft', { configurable: true, value: index * 300 });
+      page.getBoundingClientRect = () => ({ left: index * 300 - scrollLeft }) as DOMRect;
+    });
+    pageScroller(fixture).getBoundingClientRect = () => ({ left: 0 }) as DOMRect;
+    pageScroller(fixture).scrollLeft = scrollLeft;
   }
 
   function drawButton(fixture: ComponentFixture<GamePage>): HTMLButtonElement {
@@ -202,5 +250,104 @@ describe('GamePage', () => {
       fixture.nativeElement.querySelectorAll('app-player-card h2') as HTMLElement[],
     ).map((name) => name.textContent);
     expect(names).toEqual(['Player 1', 'Player 2', 'Player 3']);
+  });
+
+  describe('pages on a compact screen', () => {
+    it('has no page switch on a wide screen', async () => {
+      // Arrange
+      compact = false;
+
+      // Act
+      const fixture = await render();
+
+      // Assert
+      expect(fixture.nativeElement.querySelector('segmented-control')).toBeNull();
+    });
+
+    it('starts on the game page', async () => {
+      // Arrange
+      compact = true;
+
+      // Act
+      const fixture = await render();
+
+      // Assert
+      expect(pageSegments(fixture).map((segment) => segment.textContent?.trim())).toEqual([
+        'Spil',
+        'Podie',
+      ]);
+      expect(selectedPage(fixture)).toBe('Spil');
+    });
+
+    it('scrolls to the podium when its segment is selected', async () => {
+      // Arrange
+      compact = true;
+      const fixture = await render();
+      layOutPages(fixture, 0);
+      scrollTo.mockClear();
+
+      // Act
+      pageSegments(fixture)[1].click();
+      await fixture.whenStable();
+
+      // Assert
+      expect(selectedPage(fixture)).toBe('Podie');
+      expect(scrollTo.mock.contexts).toEqual([pageScroller(fixture)]);
+      expect(scrollTo).toHaveBeenCalledWith({ left: 300, behavior: 'smooth' });
+    });
+
+    it('follows a swipe once per animation frame without scrolling back', async () => {
+      // Arrange
+      compact = true;
+      const frames = captureAnimationFrames();
+      const fixture = await render();
+      pageScroller(fixture).dispatchEvent(new Event('pointerdown'));
+      layOutPages(fixture, 280);
+      scrollTo.mockClear();
+
+      // Act
+      pageScroller(fixture).dispatchEvent(new Event('scroll'));
+      pageScroller(fixture).dispatchEvent(new Event('scroll'));
+      await fixture.whenStable();
+      const beforeFrame = selectedPage(fixture);
+      frames.flush();
+      await fixture.whenStable();
+
+      // Assert
+      expect(beforeFrame).toBe('Spil');
+      expect(selectedPage(fixture)).toBe('Podie');
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('ignores scrolling it did not start from a swipe', async () => {
+      // Arrange
+      compact = true;
+      const frames = captureAnimationFrames();
+      const fixture = await render();
+      layOutPages(fixture, 280);
+
+      // Act
+      pageScroller(fixture).dispatchEvent(new Event('scroll'));
+      frames.flush();
+      await fixture.whenStable();
+
+      // Assert
+      expect(selectedPage(fixture)).toBe('Spil');
+    });
+
+    it('selects the page a swipe settles on', async () => {
+      // Arrange
+      compact = true;
+      const fixture = await render();
+      pageScroller(fixture).dispatchEvent(new Event('pointerdown'));
+      layOutPages(fixture, 280);
+
+      // Act
+      pageScroller(fixture).dispatchEvent(new Event('scrollend'));
+      await fixture.whenStable();
+
+      // Assert
+      expect(selectedPage(fixture)).toBe('Podie');
+    });
   });
 });

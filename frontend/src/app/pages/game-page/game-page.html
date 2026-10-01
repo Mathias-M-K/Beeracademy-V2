@@ -1,26 +1,47 @@
-<app-card-count
-  style="grid-area: card-count"
-  [cards]="remainingCardsByRank()"
-  [maxCardsPrRank]="players().length"
-></app-card-count>
+@if (isCompact()) {
+  <segmented-control
+    class="page-switch"
+    [segments]="pageNames"
+    [(currentSelectedOption)]="selectedPage"
+    (currentSelectedOptionChange)="onPageSelected()"
+  ></segmented-control>
+}
 
-<app-draw-panel
-  id="draw-panel"
-  style="grid-area: draw-panel"
-  (drawCardClick)="drawCard()"
-  [lastCard]="currentCard()"
-  [currentPlayerTime]="formattedPlayerTime() ?? 0"
-  [currentPlayer]="currentPlayer()"
-  [lastPlayer]="previousPlayer()"
-  [nextPlayer]="nextPlayer()"
-  [changeOfDrawingAce]="changeOfDrawingAce()"
-  [turns]="turns()"
-></app-draw-panel>
+<div
+  class="pages"
+  #scroller
+  (pointerdown)="onPointerDown()"
+  (scroll)="onScroll()"
+  (scrollend)="onScrollEnd()"
+>
+  <app-card-count
+    style="grid-area: card-count"
+    [cards]="remainingCardsByRank()"
+    [maxCardsPrRank]="players().length"
+  ></app-card-count>
 
-<app-podium style="grid-area: podium" [players]="players()"></app-podium>
+  <div class="page" #page>
+    <app-draw-panel
+      id="draw-panel"
+      style="grid-area: draw-panel"
+      (drawCardClick)="drawCard()"
+      [lastCard]="currentCard()"
+      [currentPlayerTime]="formattedPlayerTime() ?? 0"
+      [currentPlayer]="currentPlayer()"
+      [lastPlayer]="previousPlayer()"
+      [nextPlayer]="nextPlayer()"
+      [changeOfDrawingAce]="changeOfDrawingAce()"
+      [turns]="turns()"
+    ></app-draw-panel>
 
-<app-player-grid
-  style="grid-area: players"
-  [players]="players()"
-  [activePlayerId]="currentPlayer()?.id ?? ''"
-></app-player-grid>
+    <app-player-grid
+      style="grid-area: players"
+      [players]="players()"
+      [activePlayerId]="currentPlayer()?.id ?? ''"
+    ></app-player-grid>
+  </div>
+
+  <div class="page podium-page" #page>
+    <app-podium style="grid-area: podium" [players]="players()"></app-podium>
+  </div>
+</div>

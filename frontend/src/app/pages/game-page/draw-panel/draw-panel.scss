@@ -19,6 +19,7 @@
 }
 
 .previous-draw {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: auto 1fr;
@@ -272,6 +273,9 @@ h2 {
 }
 
 @media (max-width: 650px) {
+  .card-landing {
+    width: 110px;
+  }
   .previous-draw {
     .card-stack {
       width: 110px;
@@ -295,29 +299,34 @@ h2 {
   :host {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, auto);
+    grid-template-rows: repeat(2, auto);
 
     padding: 10px;
-    row-gap: 10px;
+
+    --row-gap: 15px;
+    row-gap: var(--row-gap);
   }
   :host > div:nth-child(n + 2) {
     padding-left: unset;
   }
 
   .previous-draw {
-    grid-row: 1;
-    border: unset;
+    border-right: unset;
+    padding-top: var(--row-gap);
+    border-top: 1px solid var(--border);
+
+    grid-row: 2;
 
     .card-landing {
       width: 50px;
     }
 
     .card-stack {
-      width: 50px;
-      height: 80px;
+      width: 40px;
+      height: 65px;
 
       :nth-child(n + 1) {
-        width: 50px;
+        width: 45px;
         translate: 0;
       }
 
@@ -335,23 +344,18 @@ h2 {
     .drawn-by {
       display: grid;
 
-      > :nth-child(2) {
+      .drawing-player {
         h2 {
           font-size: 18px;
         }
-
         app-dot {
-          display: none;
+          display: none !important;
         }
       }
 
       .subtitle {
         grid-column: 1;
         grid-row: 1;
-      }
-
-      > :nth-child(n + 3) {
-        justify-self: end;
       }
 
       #sips {
@@ -367,28 +371,43 @@ h2 {
   }
 
   .now-drawing {
-    background-color: color-mix(in oklab, var(--player-color), white 85%);
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
 
-    margin: 0 calc(-1 * var(--padding));
-    padding: 10px var(--padding) !important;
+    #timers .current-time-average {
+      color: var(--primary-disabled-text);
+    }
   }
+
   .stats {
-    grid-column: 1;
-    grid-row: 3;
-    border: unset;
-
-    h2 {
-      font-size: 21px;
-    }
-
-    #next-up > div app-dot {
-      display: none;
-    }
+    display: none;
   }
+
   .buttons {
-    grid-column: 1;
-    grid-row: 4;
+    --button-width: 55px;
+
+    position: fixed;
+    grid-template-columns: 1fr repeat(2, var(--button-width));
+
+    width: 100%;
+    height: var(--mobile-bottom-bar-height);
+
+    padding: 5px !important;
+    background-color: var(--off-white);
+    gap: 10px;
+
+    bottom: 0;
+    left: 0;
+    align-items: center;
+
+    z-index: 5;
+
+    border-top: 1px solid var(--border);
+
+    button {
+      height: var(--button-width);
+      font-weight: 900;
+      border-radius: 10px;
+    }
   }
 }

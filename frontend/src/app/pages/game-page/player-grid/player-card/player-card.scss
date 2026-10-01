@@ -10,6 +10,106 @@
   user-select: none;
 
   --dot-height: 15px;
+
+  transition: background-color 0.15s ease-in-out;
+}
+
+:host(.is-compact) {
+  --font-title-size: 20px;
+  grid-template-columns: auto auto 1fr auto auto;
+  column-gap: 5px;
+  row-gap: 0;
+
+  .header {
+    display: contents;
+
+    :first-child {
+      grid-column: 1;
+      grid-row: 1;
+      margin-right: 20px;
+      font-size: var(--font-title-size);
+    }
+
+    .status {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      height: fit-content;
+      width: fit-content;
+      align-self: center;
+    }
+
+    .subtitle {
+      grid-column: 1;
+      grid-row: 2;
+      margin-block-start: 5px;
+    }
+  }
+
+  .main-stat {
+    display: contents;
+
+    .beer-count {
+      grid-column: 4;
+      grid-row: 1 / span 2;
+      align-self: center;
+
+      p:nth-child(1) {
+        font-size: var(--font-title-size);
+      }
+    }
+
+    .beer-indicator {
+      --dot-height: 5px;
+    }
+  }
+
+  .fold-toggle {
+    grid-column: 5;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .foldable {
+    grid-column: 1 / -1;
+  }
+
+  .foldable > .foldable-inner {
+    gap: 5px;
+
+    &::before {
+      content: '';
+    }
+  }
+
+  .progress {
+    grid-row: 3;
+  }
+
+  .details {
+    grid-row: 4;
+  }
+
+  .last-card {
+    margin: 10px 0;
+  }
+
+  .minor-stats {
+    .stat .stat-value {
+      font-size: var(--font-title-size);
+      font-weight: 600;
+    }
+  }
+
+  .horizontal_line {
+    display: none;
+  }
+}
+
+:host(.is-drawing) {
+  .header > .status {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .subtitle {
@@ -20,89 +120,143 @@
   color: var(--primary-disabled-text);
 }
 
-.header > .subtitle {
-  color: var(--player-color);
-}
-
 .header {
   display: grid;
-  grid-template-areas: 'name status' 'title status';
   grid-template-columns: 1fr auto;
-
   align-items: center;
-}
 
-.header > .status {
-  padding: 5px;
-  border-radius: 15px;
-  background-color: color-mix(in oklab, var(--primary), white 80%);
+  :first-child {
+    grid-column: 1;
+  }
 
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--primary);
+  .subtitle {
+    grid-column: 1;
+    color: var(--player-color);
+  }
 
-  transform: translateX(-50%);
-  opacity: 0;
+  .status {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    padding: 5px;
+    border-radius: 15px;
+    background-color: color-mix(in oklab, var(--primary), white 80%);
+    border: 1px solid color-mix(in oklab, var(--primary), black 10%);
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary);
 
-  transition: all 0.15s ease-in-out;
-}
+    transform: translateX(-50%);
+    opacity: 0;
 
-:host(.is-drawing) .header > .status {
-  transform: translateX(0);
-  opacity: 1;
+    transition: all 0.15s ease-in-out;
+  }
 }
 
 .main-stat {
   display: grid;
   gap: 5px;
-}
 
-.main-stat > p {
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
+  p {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
 
-.beer-count p:nth-child(1) {
-  font-size: 42px;
-  font-weight: 1000;
-  font-variant-numeric: tabular-nums;
-}
+  .beer-count p:nth-child(1) {
+    font-size: 42px;
+    font-weight: 1000;
+    font-variant-numeric: tabular-nums;
+  }
 
-.beer-indicator {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  min-height: var(--dot-height);
-}
+  .beer-indicator {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    min-height: var(--dot-height);
 
-.beer-indicator > div {
-  position: absolute;
-  display: flex;
-  gap: 2px;
-  flex: 1 1 0;
-  min-height: var(--dot-height);
-  width: 100%;
-}
+    > div {
+      position: absolute;
+      display: flex;
+      gap: 2px;
+      flex: 1 1 0;
+      min-height: var(--dot-height);
+      width: 100%;
+    }
 
-.beer-indicator > .front {
-  transition: mask-size 0.35s ease-in-out;
-  mask-size: var(--beer-progression) 100%;
-  mask-image: linear-gradient(#000 0 0);
-  mask-repeat: no-repeat;
-}
+    > .front {
+      transition: mask-size 0.35s ease-in-out;
+      mask-size: var(--beer-progression) 100%;
+      mask-image: linear-gradient(#000 0 0);
+      mask-repeat: no-repeat;
+    }
 
-.backdrop > .beer-dot {
-  background-color: color-mix(in oklab, var(--player-color), white 70%);
-}
+    .backdrop > .beer-dot {
+      background-color: color-mix(in oklab, var(--player-color), white 70%);
+    }
 
-.front > .beer-dot {
-  background-color: var(--player-color);
+    .front > .beer-dot {
+      background-color: var(--player-color);
+    }
+  }
 }
 
 .beer-dot {
   flex: 1 1 0;
   border-radius: 5px;
   animation: dot-enter 400ms ease-out forwards;
+}
+
+.fold-toggle {
+  min-width: 24px;
+  min-height: 24px;
+  height: auto;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: none;
+
+  font-size: 20px;
+  line-height: 1;
+  color: var(--primary-disabled-text);
+  cursor: pointer;
+
+  justify-content: center;
+  align-content: center;
+
+  transition: rotate 0.1s ease-in-out;
+}
+
+.foldable {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease-in-out;
+}
+
+.foldable-inner {
+  display: grid;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.progress > .foldable-inner {
+  gap: 5px;
+}
+
+.details > .foldable-inner {
+  gap: 10px;
+}
+
+:host(.is-folded) .foldable {
+  grid-template-rows: 0fr;
+}
+
+:host(.is-folded.is-drawing) {
+  background-color: color-mix(in oklab, var(--player-color), white 80%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foldable {
+    transition: none;
+  }
 }
 
 .last-card {
@@ -112,15 +266,15 @@
   justify-content: space-between;
   padding: 10px;
   background-color: color-mix(in oklab, var(--player-color), white 90%);
-}
 
-.last-card div {
-  display: flex;
-  flex-direction: row;
-}
+  div {
+    display: flex;
+    flex-direction: row;
+  }
 
-.last-card p:nth-child(2) {
-  font-weight: bold;
+  p:nth-child(2) {
+    font-weight: bold;
+  }
 }
 
 .horizontal_line {
@@ -139,6 +293,7 @@
   font-size: 32px;
   font-variant-numeric: tabular-nums;
 }
+
 .time-value {
   font-size: 24px;
 }
@@ -155,10 +310,4 @@
 p,
 h2 {
   margin: 0;
-}
-
-@media (max-width: 500px) {
-  :host {
-    border: unset;
-  }
 }
