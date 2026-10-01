@@ -22,7 +22,7 @@ import { WebsocketService } from '../websocket.service';
 import { GameAction } from '../models/categories/actions/game/game-action';
 import { startGameAction } from '../models/categories/actions/game/game-client-action/start-game-action';
 import { gameClientActionEnvelope } from '../models/categories/actions/game/game-action-envelope';
-import { OverlayService } from '../overlay/overlay.service';
+import {OverlayConf, OverlayService} from '../overlay/overlay.service';
 import { ChugOverlay } from '../../overlay/chug-overlay/chug-overlay';
 import { Player } from './models/player';
 import { playerColor } from '../../common/theme/player-colors';
@@ -48,6 +48,7 @@ import { DrawerService } from '../drawer/drawer.service';
 import { WebsocketCode } from '../../../api-models/model/websocketCode';
 import { PartyContext, PartyContextProvider } from '../../pages/party/party-context-provider';
 import { PlayerTurn } from './models/playerTurn';
+import {EndOfGamePanel} from '../../overlay/end-game-panel/end-of-game-panel.component';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -145,6 +146,7 @@ export class GameService implements PartyContextProvider {
 
   private gamePausedPanel?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;
+  private endOfGamePanel?: OverlayHandle<void>;
 
   private isReconnecting: boolean = false;
   private reconnectCount: number = 0;
@@ -224,10 +226,6 @@ export class GameService implements PartyContextProvider {
     void this.connectToWebsocket(true, 15000);
   }
 
-  /**
-   * When page gains focus, e.g. after phone have been locked or user used another app or tab
-   * @private
-   */
   private onPageGainFocus() {
     const visibilityState = document.visibilityState;
     console.debug(
@@ -240,11 +238,6 @@ export class GameService implements PartyContextProvider {
     this.resumeConnectionIfDropped();
   }
 
-  /**
-   * Reconnects a game whose socket died while we were away. Safe to call repeatedly — it no-ops
-   * unless there is a game to resume and its socket is gone.
-   * @private
-   */
   private resumeConnectionIfDropped() {
     if (!this.gameStateObj()) return;
     if (this.websocketService.isConnected()) return;
@@ -387,8 +380,12 @@ export class GameService implements PartyContextProvider {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
     this.gameStateObj.set(stateEvent.gameState);
 
-    if (this.gameTimeReport()?.state === TimerState.Paused) {
+    if (this.gameTimeReport()?.state === TimerState.Paused && this.gameState() !== GameState.Finished) {
       this.openPausePanel();
+    }
+
+    if(this.gameState() === GameState.Finished) {
+      this.openEndOfGamePanel();
     }
   }
 
@@ -641,6 +638,14 @@ export class GameService implements PartyContextProvider {
     );
   }
 
+  //TODO find a better solution to manage overlays (and drawers) and how to close them on different events
+  private openEndOfGamePanel(){
+    const overlayConf: OverlayConf<void> = {
+      component: EndOfGamePanel
+    }
+    this.endOfGamePanel = this.overlayService.openOverlay<void>(overlayConf);
+  }
+
   private openPausePanel() {
     // A reconnect and a paused-event can both land on the same pause — only ever show one.
 
@@ -704,6 +709,8 @@ export class GameService implements PartyContextProvider {
     this.pauseTimer(this.gameTimeReport);
     this.pauseTimer(this.playerTimeReport);
     this.dismissAllOverlays();
+    this.openEndOfGamePanel();
+
   }
 
   public onGamePageDestroyed() {
@@ -717,7 +724,7 @@ export class GameService implements PartyContextProvider {
     this.gamePausedPanel?.dismiss(ignoreAnimation);
     this.chugOverlay?.dismiss(ignoreAnimation);
 
-    // A dismissal never resolves `closed`, so the handlers that normally clear these don't run.
+
     this.gamePausedPanel = undefined;
     this.chugOverlay = undefined;
   }
