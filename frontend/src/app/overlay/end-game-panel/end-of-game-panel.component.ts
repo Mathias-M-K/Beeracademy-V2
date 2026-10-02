@@ -5,8 +5,6 @@ import {AnimatedNumber} from '../../common/components/animated-number/animated-n
 import {
   ParticipantBadge
 } from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {tweenedNumber} from '../../common/tweened-number';
-import {DecimalPipe} from '@angular/common';
 import {AchievementService} from '../../services/achievement/achievement-service';
 import {Achievement} from '../../services/achievement/models/achievement';
 
@@ -19,8 +17,7 @@ type EndOfGamePage =
   imports: [
     AnimatedNumber,
     AnimatedText,
-    ParticipantBadge,
-    DecimalPipe
+    ParticipantBadge
   ],
   selector: 'app-end-game-panel',
   styleUrl: './end-of-game-panel.component.scss',
@@ -53,10 +50,6 @@ export class EndOfGamePanel {
     const page = this.currentPage();
     return page.kind === 'achievement' ? page.achievement : undefined;
   });
-
-  private readonly _statValue = computed(() => this.currentAchievement()?.value ?? 0);
-  protected readonly statValue = tweenedNumber(this._statValue);
-
 
   protected players = this.gameService.players;
 

@@ -13,6 +13,7 @@
 
 </div>
 <p class="page-count">{{currentPageIndex()+1}}/{{ pages().length }}</p>
+
 <div class="main-content">
   <p [style.color]="'white'"></p>
 
@@ -26,6 +27,7 @@
     }
     @case ('summary') {
       <div>
+        <p>heyo</p>
         <h1 animate.enter="page-enter">End of pages</h1>
       </div>
     }
@@ -39,11 +41,12 @@
           <app-animated-text [text]="achievement.player.name"/>
         </h1>
         <h2>
-          {{ statValue() | number: '1.2-2' }}
+          <app-animated-number [value]="achievement.value" digitsInfo="1.2-2"></app-animated-number>
+          {{' '}}
           <app-animated-text [text]="achievement.unit" [effect]="'roll'"></app-animated-text>
         </h2>
         <p>
-          <app-animated-text [text]="achievement.additionalInfo"></app-animated-text>
+          <app-animated-text [text]="achievement.additionalInfo" [effect]="'roll'"></app-animated-text>
         </p>
       </div>
     }

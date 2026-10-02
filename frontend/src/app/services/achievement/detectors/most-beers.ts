@@ -7,7 +7,7 @@ interface PlayerBeers {
 }
 
 export const mostBeers: AchievementDetector = ({turns}) => {
-  const sipsPerPlayer = new Map<string, {player: Player; sips: number}>();
+  const sipsPerPlayer = new Map<string, { player: Player; sips: number }>();
   for (const turn of turns) {
     const entry = sipsPerPlayer.get(turn.player.id) ?? {player: turn.player, sips: 0};
     entry.sips += turn.info.card?.rank ?? 0;
@@ -22,9 +22,13 @@ export const mostBeers: AchievementDetector = ({turns}) => {
 
   const [winner, ...runnerUps] = ranked.slice(0, 3);
 
+  const secondPlace = runnerUps[0];
+  const additionalInfo = secondPlace ? `${(winner.beers - secondPlace.beers)} øl mere end ${secondPlace.player.name}` : '';
+
+
   return {
     title: 'Flest øl',
-    additionalInfo: '',
+    additionalInfo: additionalInfo,
     unit: 'øl',
     player: winner.player,
     value: winner.beers,
