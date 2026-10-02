@@ -19,14 +19,14 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.GameState;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.player.models.Stats;
-import dk.mathiaskofod.domain.game.reports.GameReport;
-import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.game.exceptions.GameNotFoundException;
 import dk.mathiaskofod.services.game.exceptions.PlayerNotFoundException;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.value.ValueCommands;
+
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -281,35 +281,6 @@ class GameServiceTest {
     @Nested
     @DisplayName("Report Generator Tests")
     class Reports {
-
-        @DisplayName("getGameReport should build a valid game report")
-        @Test
-        void getGameReportSuccessfully() {
-            // Arrange
-            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
-
-            // Act
-            GameReport report = gameService.getGameReport(PARTY_ID);
-
-            // Assert
-            assertThat(report, is(notNullValue()));
-        }
-
-        @DisplayName("getPlayerReports should return list of player reports")
-        @Test
-        void getPlayerReportsSuccessfully() {
-            // Arrange
-            GameImpl game = createTestGame(PARTY_ID, GameState.IN_PROGRESS);
-            when(gameSnapshots.get(PARTY_ID)).thenReturn(GameSnapshot.of(game));
-
-            // Act
-            List<PlayerReport> reports = gameService.getPlayerReports(PARTY_ID);
-
-            // Assert
-            assertThat(reports, is(notNullValue()));
-            assertThat(reports.size(), is(2));
-        }
 
         @DisplayName("getTimeReport should return game and player timer reports")
         @Test

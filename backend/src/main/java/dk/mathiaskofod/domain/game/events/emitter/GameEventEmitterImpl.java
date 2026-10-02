@@ -5,8 +5,6 @@ import dk.mathiaskofod.domain.game.events.*;
 import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
-import dk.mathiaskofod.domain.game.reports.GameReport;
-import dk.mathiaskofod.domain.game.reports.PlayerReport;
 import dk.mathiaskofod.domain.game.timer.TimeReport;
 import dk.mathiaskofod.domain.game.timer.TimerReports;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,12 +24,10 @@ public class GameEventEmitterImpl implements GameEventEmitter {
 
     @Override
     public void onEndGame(Game game) {
-        eventBus.fire(new EndGameEvent(
-                game.getGameId(),
-                GameReport.create(game.getPlayers()),
-                PlayerReport.create(game.getPlayers()),
-                new TimerReports(
-                        TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()))));
+        eventBus.fire(
+                new EndGameEvent(
+                        game.getGameId(),
+                        new TimerReports(TimeReport.createReport(game.getGameTimer()), TimeReport.createReport(game.getPlayerTimer()))));
     }
 
     @Override
