@@ -15,16 +15,44 @@
 }
 
 .page-indicator {
-  display: flex;
+  position: relative;
+  display: grid;
   gap: 5px;
 
   grid-column: 1 / span 2;
 
-  #dot {
-    background-color: var(--color-white);
+  > div{
+    position: absolute;
+    display: flex;
+    gap: 5px;
+    height: 100%;
+    width: 100%;
+  }
+  .dot {
+
     border-radius: 100px;
     flex: 1;
   }
+  .backdrop{
+    z-index: 0;
+
+    .dot{
+      background-color: color-mix(in oklab, var(--color-white), transparent 75%);
+    }
+  }
+  .foreground{
+    z-index: 1;
+    mask-size: var(--page-progression) 100%;
+    mask-image: linear-gradient(#000 0 0);
+    mask-repeat: no-repeat;
+
+    transition: mask-size 0.25s ease-in-out;
+
+    .dot{
+      background-color: var(--color-white);
+    }
+  }
+
 }
 
 .page-count {
@@ -44,10 +72,10 @@
   display: grid;
   align-content: center;
   align-items: center;
-  grid-column: 1 / -1;
+  grid-column: 1 / span 2;
 
   > * {
-    grid-area: 1 / 1;
+    //grid-area: 1 / 1;
     display: grid;
     gap: 10px;
 

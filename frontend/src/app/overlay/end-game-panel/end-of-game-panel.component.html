@@ -1,24 +1,36 @@
-<div class="page-indicator">
-  @for (_ of achievements(); track $index) {
-    <div id="dot"></div>
-  }
+@let page = currentPage();
+<div class="page-indicator" [style.--page-progression.%]="(currentPageIndex()+1)/pages().length*100">
+  <div class="backdrop">
+    @for (_ of pages(); track $index) {
+      <div class="dot"></div>
+    }
+  </div>
+  <div class="foreground">
+    @for (_ of pages(); track $index) {
+      <div class="dot"></div>
+    }
+  </div>
+
 </div>
-<p class="page-count">1/7</p>
+<p class="page-count">{{currentPageIndex()+1}}/{{ pages().length }}</p>
 <div class="main-content">
   <p [style.color]="'white'"></p>
 
-  @if (isStartPage()) {
-    <div id="start-page" animate.leave="page-leave">
-      <p class="subtitle">Spillet er slut</p>
-      <h1>Bunken er tom.</h1>
-      <p>Lobby navn • 42:17:12</p>
-    </div>
-  } @else if (isSummaryPage()) {
-    <div>
-      <h1 animate.enter="page-enter">End of pages</h1>
-    </div>
-  } @else {
-    @if (currentAchievement(); as achievement) {
+  @switch (page.kind) {
+    @case ('start') {
+      <div id="start-page" animate.leave="page-leave">
+        <p class="subtitle">Spillet er slut</p>
+        <h1>Bunken er tom.</h1>
+        <p>Lobby navn • 42:17:12</p>
+      </div>
+    }
+    @case ('summary') {
+      <div>
+        <h1 animate.enter="page-enter">End of pages</h1>
+      </div>
+    }
+    @case ('achievement') {
+      @let achievement = page.achievement;
       <div class="achievement-page" animate.enter="page-enter" animate.leave="page-leave">
         <p>
           <app-animated-text [text]="achievement.title" [effect]="'roll'"></app-animated-text>
@@ -39,17 +51,18 @@
 </div>
 
 <div class="footer">
-  @if (isStartPage()) {
-    <div class="player-badges" animate.leave="page-leave">
-      @for (player of players(); track player.id) {
-        <app-participant-badge [initials]="player.name.substring(0,1)" [backgroundColor]="player.color"
-                               [size]="'s'"></app-participant-badge>
-      }
-    </div>
-  } @else if (isAchievementPage()) {
-    <div class="runner-ups" animate.enter="page-enter">
-
-      @if (currentAchievement(); as achievement) {
+  @switch (page.kind) {
+    @case ('start') {
+      <div class="player-badges" animate.leave="page-leave">
+        @for (player of players(); track player.id) {
+          <app-participant-badge [initials]="player.name.substring(0,1)" [backgroundColor]="player.color"
+                                 [size]="'s'"></app-participant-badge>
+        }
+      </div>
+    }
+    @case ('achievement') {
+      <div class="runner-ups" animate.enter="page-enter">
+        @let achievement = page.achievement;
         @for (runnerUp of achievement.runnerUps; track $index) {
           <div class="nth-place">
             <p class="placement">{{$index+2}}</p>
@@ -62,16 +75,16 @@
             <p class="stat-unit">{{ achievement.unit }}</p>
           </div>
         }
-      }
-    </div>
-
-  } @else if (isSummaryPage()) {
-    <p>Summary</p>
+      </div>
+    }
+    @case ('summary') {
+      <p>Summary</p>
+    }
   }
 </div>
 
 
 <div class="action-buttons">
-  <button class="btn-secondary-outlined" [disabled]="isStartPage()" (click)="previousPage()">Tilbage</button>
-  <button class="btn-secondary-outlined" [disabled]="isSummaryPage()" (click)="nextPage()">Se kåringer</button>
+  <button class="btn-secondary-outlined" [disabled]="page.kind === 'start'" (click)="previousPage()">Tilbage</button>
+  <button class="btn-secondary-outlined" [disabled]="page.kind === 'summary'" (click)="nextPage()">Se kåringer</button>
 </div>

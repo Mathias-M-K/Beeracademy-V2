@@ -10,17 +10,10 @@ import {DecimalPipe} from '@angular/common';
 import {AchievementService} from '../../services/achievement/achievement-service';
 import {Achievement} from '../../services/achievement/models/achievement';
 
-interface EndOfGamePage {
-  achievementTitle: string;
-  statValue: number;
-  statUnit: string;
-  explanation: string;
-
-  playerName: string;
-  playerColor: string;
-
-  id: number;
-}
+type EndOfGamePage =
+  | { kind: 'start' }
+  | { kind: 'achievement'; achievement: Achievement }
+  | { kind: 'summary' };
 
 @Component({
   imports: [
@@ -45,18 +38,21 @@ export class EndOfGamePanel {
     () => this.currentAchievement()?.player.color ?? 'var(--nice-black)',
   );
 
-  protected readonly achievements = this.achievementService.achievements;
+  protected readonly pages = computed<EndOfGamePage[]>(() => [
+    { kind: 'start' },
+    ...this.achievementService
+      .achievements()
+      .map((achievement) => ({ kind: 'achievement' as const, achievement })),
+    { kind: 'summary' },
+  ]);
 
   protected readonly currentPageIndex = signal(0);
-  private readonly summaryPageIndex = computed(() => this.achievements().length + 1);
+  protected readonly currentPage = computed(() => this.pages()[this.currentPageIndex()]);
 
-  protected isStartPage = computed(() => this.currentPageIndex() === 0);
-  protected isSummaryPage = computed(() => this.currentPageIndex() === this.summaryPageIndex());
-  protected isAchievementPage = computed(() => !this.isStartPage() && !this.isSummaryPage());
-
-  protected readonly currentAchievement = computed<Achievement | undefined>(
-    () => this.achievements()[this.currentPageIndex() - 1],
-  );
+  private readonly currentAchievement = computed(() => {
+    const page = this.currentPage();
+    return page.kind === 'achievement' ? page.achievement : undefined;
+  });
 
   private readonly _statValue = computed(() => this.currentAchievement()?.value ?? 0);
   protected readonly statValue = tweenedNumber(this._statValue);
@@ -75,7 +71,7 @@ export class EndOfGamePanel {
   }
 
   protected nextPage(): void {
-    this.currentPageIndex.update((index) => Math.min(this.summaryPageIndex(), index + 1));
+    this.currentPageIndex.update((index) => Math.min(this.pages().length - 1, index + 1));
   }
 
 
