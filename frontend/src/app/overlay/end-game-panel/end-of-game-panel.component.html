@@ -1,5 +1,5 @@
 <div class="page-indicator">
-  @for (page of pages; track page.id) {
+  @for (_ of achievements(); track $index) {
     <div id="dot"></div>
   }
 </div>
@@ -13,65 +13,65 @@
       <h1>Bunken er tom.</h1>
       <p>Lobby navn • 42:17:12</p>
     </div>
-  } @else if (isSummaryPage()){
+  } @else if (isSummaryPage()) {
     <div>
       <h1 animate.enter="page-enter">End of pages</h1>
     </div>
   } @else {
-    @let pageInfo = pages[currentPageIndex()];
-    <div class="achievement-page" animate.enter="page-enter" animate.leave="page-leave">
-      <p>
-        <app-animated-text [text]="pageInfo.achievementTitle" [effect]="'roll'"></app-animated-text>
-      </p>
-      <h1>
-        <app-animated-text [text]="pageInfo.playerName" [key]="pageInfo.id" />
-      </h1>
-      <h2>
-        {{ statValue() | number: '1.2-2'}} <app-animated-text [text]="pageInfo.statUnit" [key]="pageInfo.id" [effect]="'roll'"></app-animated-text>
-      </h2>
-      <p>
-        <app-animated-text [text]="pageInfo.explanation" [key]="pageInfo.id"></app-animated-text>
-      </p>
-    </div>
+    @if (currentAchievement(); as achievement) {
+      <div class="achievement-page" animate.enter="page-enter" animate.leave="page-leave">
+        <p>
+          <app-animated-text [text]="achievement.title" [effect]="'roll'"></app-animated-text>
+        </p>
+        <h1>
+          <app-animated-text [text]="achievement.player.name"/>
+        </h1>
+        <h2>
+          {{ statValue() | number: '1.2-2' }}
+          <app-animated-text [text]="achievement.unit" [effect]="'roll'"></app-animated-text>
+        </h2>
+        <p>
+          <app-animated-text [text]="achievement.additionalInfo"></app-animated-text>
+        </p>
+      </div>
+    }
   }
 </div>
 
 <div class="footer">
-  @if (isStartPage()){
+  @if (isStartPage()) {
     <div class="player-badges" animate.leave="page-leave">
       @for (player of players(); track player.id) {
         <app-participant-badge [initials]="player.name.substring(0,1)" [backgroundColor]="player.color"
                                [size]="'s'"></app-participant-badge>
       }
     </div>
-  } @else if (isAchievementPage()){
+  } @else if (isAchievementPage()) {
     <div class="runner-ups" animate.enter="page-enter">
 
-      <div class="nth-place">
-        <p class="placement">2</p>
-        <p class="player-name">Lasse Johansen</p>
-        <p class="stat-value">2.4</p>
-        <p class="stat-unit">s</p>
-      </div>
-
-      <div class="nth-place">
-        <p class="placement">3</p>
-        <p class="player-name">Jakob</p>
-        <p class="stat-value">5.3</p>
-        <p class="stat-unit">s</p>
-      </div>
-
+      @if (currentAchievement(); as achievement) {
+        @for (runnerUp of achievement.runnerUps; track $index) {
+          <div class="nth-place">
+            <p class="placement">{{$index+2}}</p>
+            <p class="player-name">
+              <app-animated-text [text]="runnerUp.player.name" [effect]="'roll'"></app-animated-text>
+            </p>
+            <p class="stat-value">
+              <app-animated-number [value]="runnerUp.value" digitsInfo="1.2-2" />
+            </p>
+            <p class="stat-unit">{{ achievement.unit }}</p>
+          </div>
+        }
+      }
     </div>
 
-
-  } @else if (isSummaryPage()){
+  } @else if (isSummaryPage()) {
     <p>Summary</p>
   }
-
 </div>
 
 
 <div class="action-buttons">
-  <button class="btn-secondary-outlined" (click)="currentPageIndex.update(current => current-1)">Tilbage</button>
-  <button class="btn-secondary-outlined" (click)="currentPageIndex.update(current => current+1)">Se kåringer</button>
+  <button class="btn-secondary-outlined" [disabled]="isStartPage()" (click)="previousPage()">Tilbage</button>
+  <button class="btn-secondary-outlined" [disabled]="isSummaryPage()" (click)="nextPage()">Se kåringer</button>
 </div>
