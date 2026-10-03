@@ -6,6 +6,7 @@ import {mostBeers} from './detectors/most-beers';
 import {fastestAverageTurn} from './detectors/fastest-average-turn';
 import {slowestChug} from './detectors/slowest-chug';
 import {noChugs} from './detectors/no-chugs';
+import {Achievement} from './models/achievement';
 
 @Service()
 export class AchievementService {
@@ -22,6 +23,15 @@ export class AchievementService {
     const gameEvents = this.gameEvents();
 
     return this.detectors.map(detector => detector(gameEvents)).filter(achievement => achievement !== undefined);
+  });
+
+  public readonly achievementsByPlayer = computed(() => {
+    const byPlayer = new Map<Achievement['player']['id'], Achievement[]>();
+    for (const achievement of this.achievements()) {
+      const playerId = achievement.player.id;
+      byPlayer.set(playerId, [...(byPlayer.get(playerId) ?? []), achievement]);
+    }
+    return byPlayer;
   });
 
 }

@@ -24,6 +24,7 @@ export const noChugs: AchievementDetector = ({turns, chugs}) => {
     title: 'Ingen bundere',
     additionalInfo: `${winner.turns} kort - men intet es`,
     unit: 'bundere',
+    digitsInfo: '1.0-2',
     player: winner.player,
     value: 0,
     runnerUps: runnerUps.map(({player}) => ({player, value: 0})),

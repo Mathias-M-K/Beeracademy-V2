@@ -23,13 +23,14 @@ export const mostBeers: AchievementDetector = ({turns}) => {
   const [winner, ...runnerUps] = ranked.slice(0, 3);
 
   const secondPlace = runnerUps[0];
-  const additionalInfo = secondPlace ? `${(winner.beers - secondPlace.beers)} øl mere end ${secondPlace.player.name}` : '';
+  const additionalInfo = secondPlace ? `${(winner.beers - secondPlace.beers).toFixed(2)} flere end ${secondPlace.player.name}` : '';
 
 
   return {
     title: 'Flest øl',
     additionalInfo: additionalInfo,
     unit: 'øl',
+    digitsInfo: '1.1-2',
     player: winner.player,
     value: winner.beers,
     runnerUps: runnerUps.map(({player, beers}) => ({player, value: beers})),

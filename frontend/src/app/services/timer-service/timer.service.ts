@@ -68,26 +68,4 @@ export class TimerService {
     };
   }
 
-  // private lastestServerTime = computed(()=>this.gameService.timeReports()?.gameTimeReport?.activeTime);
-  //
-  // private clientAnchorTime = computed(()=>{
-  //   this.lastestServerTime();
-  //   return Date.now();
-  // });
-  //
-  // private isRunning = computed(() => this.gameService.timeReports()?.gameTimeReport?.state === TimerState.Running);
-  //
-  // private gameToClientDiff = computed(() => {
-  //   return Math.abs((Date.now() - this.clientAnchorTime()) - this.gameService.timeReports()?.gameTimeReport?.activeTime!);
-  // });
-  //
-  // public currentTime = computed(() => {
-  //   this.tick();
-  //
-  //   if (!this.isRunning()) {
-  //     return this.lastestServerTime();
-  //   }
-  //
-  //   return this.gameToClientDiff() + (Date.now() - this.clientAnchorTime())
-  // });
 }

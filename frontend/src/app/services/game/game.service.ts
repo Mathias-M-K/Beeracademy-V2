@@ -750,6 +750,7 @@ export class GameService implements PartyContextProvider {
   private dismissAllOverlays(ignoreAnimation = false) {
     this.gamePausedPanel?.dismiss(ignoreAnimation);
     this.chugOverlay?.dismiss(ignoreAnimation);
+    this.endOfGamePanel?.dismiss(ignoreAnimation);
 
 
     this.gamePausedPanel = undefined;

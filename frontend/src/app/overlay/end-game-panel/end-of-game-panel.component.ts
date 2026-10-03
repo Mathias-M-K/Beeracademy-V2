@@ -2,22 +2,42 @@ import {Component, computed, effect, inject, signal} from '@angular/core';
 import {GameService} from '../../services/game/game.service';
 import {AnimatedText} from '../../common/components/animated-text/animated-text';
 import {AnimatedNumber} from '../../common/components/animated-number/animated-number';
-import {
-  ParticipantBadge
-} from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
+import {ParticipantBadge} from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
 import {AchievementService} from '../../services/achievement/achievement-service';
 import {Achievement} from '../../services/achievement/models/achievement';
+import {TimerService} from '../../services/timer-service/timer.service';
+import {TimerType} from '../../services/timer-service/models/TimerType';
+import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
+import {DecimalPipe} from '@angular/common';
+import {Dot} from '../../common/dot/dot';
+import {Player} from '../../services/game/models/player';
+import {Router} from '@angular/router';
 
 type EndOfGamePage =
   | { kind: 'start' }
   | { kind: 'achievement'; achievement: Achievement }
   | { kind: 'summary' };
 
+interface PlayerSummary {
+  player: Player;
+  sips: number;
+  beers: number;
+  totalRoundTime: number;
+  avgRoundTime: number;
+  bestChugTime?: number;
+  achievements: Achievement[];
+}
+
+const sum = (values: number[]): number => values.reduce((total, value) => total + value, 0);
+
 @Component({
   imports: [
     AnimatedNumber,
     AnimatedText,
-    ParticipantBadge
+    ParticipantBadge,
+    GameTimeFormatPipe,
+    DecimalPipe,
+    Dot
   ],
   selector: 'app-end-game-panel',
   styleUrl: './end-of-game-panel.component.scss',
@@ -28,23 +48,56 @@ type EndOfGamePage =
 })
 export class EndOfGamePanel {
 
+  private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
   private readonly achievementService = inject(AchievementService);
+  private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
 
   protected readonly background = computed(
     () => this.currentAchievement()?.player.color ?? 'var(--nice-black)',
   );
 
-  protected readonly pages = computed<EndOfGamePage[]>(() => [
-    { kind: 'start' },
-    ...this.achievementService
-      .achievements()
-      .map((achievement) => ({ kind: 'achievement' as const, achievement })),
-    { kind: 'summary' },
-  ]);
+  protected partyName = this.gameService.gameInfo()?.name ?? '';
+  protected gameTime = this.gameTimer.currentDuration() ?? 0;
+  protected pauseTime = this.gameService.gameTimeReport()?.pausedTime ?? 0;
 
+  protected readonly pages = computed<EndOfGamePage[]>(() => [
+    {kind: 'start'},
+    ...this.achievementService.achievements()
+      .map((achievement) => ({kind: 'achievement' as const, achievement})),
+    {kind: 'summary'},
+  ]);
   protected readonly currentPageIndex = signal(0);
   protected readonly currentPage = computed(() => this.pages()[this.currentPageIndex()]);
+
+  protected readonly achievements = this.achievementService.achievements;
+  private readonly achievementsByPlayer = this.achievementService.achievementsByPlayer;
+
+  protected readonly playerSummaries = computed<PlayerSummary[]>(() =>
+    this.players().map((player) => {
+      const turns = player.stats?.turns ?? [];
+      const chugTimes = (player.stats?.chugs ?? [])
+        .map((chug) => chug.chugTimeMillis)
+        .filter((time) => time !== undefined);
+
+      const sips = sum(turns.map((turn) => turn.card?.rank ?? 0));
+      const totalRoundTime = sum(turns.map((turn) => turn.durationInMillis ?? 0));
+
+      return {
+        player,
+        sips,
+        beers: sips / player.sipsInABeer,
+        totalRoundTime,
+        avgRoundTime: turns.length ? totalRoundTime / turns.length : 0,
+        bestChugTime: chugTimes.length ? Math.min(...chugTimes) : undefined,
+        achievements: this.achievementsByPlayer().get(player.id) ?? [],
+      };
+    }),
+  );
+
+  protected beersConsumedTotal =
+    computed(()=>this.playerSummaries().reduce((sum, summary) => sum + summary.beers, 0));
+  protected sipsConsumedTotal = computed(()=> this.playerSummaries().reduce((sum, summary) => sum + summary.sips, 0));
 
   private readonly currentAchievement = computed(() => {
     const page = this.currentPage();
@@ -65,6 +118,10 @@ export class EndOfGamePanel {
 
   protected nextPage(): void {
     this.currentPageIndex.update((index) => Math.min(this.pages().length - 1, index + 1));
+  }
+
+  protected leavePage(): void{
+    this.router.navigate(['/']);
   }
 
 

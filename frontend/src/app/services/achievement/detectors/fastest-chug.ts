@@ -14,12 +14,13 @@ export const fastestChug: AchievementDetector = ({chugs}) => {
   const [winner, ...runnerUps] = bestPerPlayer.slice(0, 3);
 
   const secondPlace = runnerUps[0];
-  const additionalInfo = secondPlace ? `${((secondPlace.chug.chugTimeMillis ?? 0) - (winner.chug.chugTimeMillis ?? 0))/1000} s hurtigere end ${secondPlace.player.name}` : '';
+  const additionalInfo = secondPlace ? `${(((secondPlace.chug.chugTimeMillis ?? 0) - (winner.chug.chugTimeMillis ?? 0))/1000).toFixed(2)} s hurtigere end ${secondPlace.player.name}` : '';
 
   return {
     title: 'Hurtigste bunde-tid',
     additionalInfo: additionalInfo,
     unit: 's',
+    digitsInfo: '1.1-2',
     player: winner.player,
     value: chugSeconds(winner),
     runnerUps: runnerUps.map(chug => ({player: chug.player, value: chugSeconds(chug)})),

@@ -12,6 +12,7 @@
   color: white;
 
   transition: background-color 0.3s ease-in-out;
+  animation: panel-in 0.35s ease-in-out;
 }
 
 .page-indicator {
@@ -29,7 +30,6 @@
     width: 100%;
   }
   .dot {
-
     border-radius: 100px;
     flex: 1;
   }
@@ -70,11 +70,10 @@
 
 .main-content {
   display: grid;
-  align-content: center;
-  align-items: center;
   grid-column: 1 / span 2;
 
   > * {
+    align-self: center;
     grid-area: 1 / 1;
     display: grid;
     gap: 10px;
@@ -87,12 +86,119 @@
   }
 
   p {
-    color: var(--color-white);
     margin: 0;
   }
 
-  #start-page h1 {
-    font-size: 200px;
+  #start-page  {
+
+    h1{
+      font-size: 200px;
+    }
+    p{
+      color: var(--color-white);
+    }
+  }
+
+  #summery-page{
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+
+    .header{
+      display: grid;
+      column-gap: 40px;
+      row-gap: 10px;
+      grid-template-columns: 1fr auto auto auto;
+
+      > p{
+        grid-row: 1;
+      }
+
+      > h1{
+        grid-row: 2;
+        font-size: 50px;
+      }
+
+      .game-stat{
+        grid-row: 2;
+      }
+    }
+
+    .achievement-bar{
+      display: flex;
+      gap: 15px;
+
+      >div{
+        flex: 1;
+
+        display: grid;
+        padding: 15px;
+        border-radius: 15px;
+        background-color: var(--player-color);
+
+        gap: 10px;
+        align-items: center;
+
+        > *:first-child{
+          font-weight: bold;
+          grid-column: 1 / span 2;
+        }
+
+        >*:nth-child(n+2){
+          grid-row: 2;
+        }
+        *:last-child{
+          display: flex;
+          gap: 5px;
+          align-items: baseline;
+          justify-self: end;
+        }
+
+      }
+    }
+
+    .player-overview{
+
+      display: grid;
+      grid-template-columns: auto 1fr repeat(5, auto);
+      column-gap: 20px;
+
+
+      >div:not(:first-child){
+        border-bottom: 1px solid var(--primary-disabled-text);
+      }
+      >div{
+        display: grid;
+
+        grid-template-columns: subgrid;
+        grid-column: 1 / -1;
+
+        padding: 20px 0;
+
+        >div{
+          display: flex;
+          gap: 5px;
+          align-items: center;
+        }
+      }
+
+      .achievements{
+        display: grid;
+        width: fit-content;
+        p{
+          color: var(--primary-disabled-text);
+          padding: 5px 10px;
+          border: 1px solid var(--primary-disabled-text);
+          border-radius: 100px;
+        }
+      }
+
+      .simple-stat{
+        display: flex;
+        align-items: baseline;
+      }
+    }
   }
 
   .achievement-page {
@@ -118,6 +224,10 @@
 
   > * {
     width: fit-content;
+  }
+  .action-buttons{
+    align-self: start;
+    justify-self: start;
   }
 }
 
@@ -197,7 +307,6 @@
 
 .action-buttons {
   display: flex;
-  grid-column: 2;
   gap: 15px;
 
   button {
@@ -228,4 +337,11 @@
     translate: 100% 0;
     opacity: 0;
   }
+}
+
+@keyframes panel-in {
+  from{
+    translate: 0 100%;
+  }
+
 }

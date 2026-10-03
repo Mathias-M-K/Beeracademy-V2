@@ -29,6 +29,7 @@ export const fastestAverageTurn: AchievementDetector = ({turns}) => {
       ? `${(secondPlace.seconds - winner.seconds).toFixed(2)} s hurtigere end ${secondPlace.player.name}`
       : '',
     unit: 's',
+    digitsInfo: '1.1-2',
     player: winner.player,
     value: winner.seconds,
     runnerUps: runnerUps.map(({player, seconds}) => ({player, value: seconds})),

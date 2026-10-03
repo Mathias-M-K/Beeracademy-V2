@@ -9,6 +9,7 @@ export interface Achievement {
   title: string;
   additionalInfo: string
   unit: string;
+  digitsInfo: string;
 
   player: Player;
   value: number;

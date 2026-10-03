@@ -21,6 +21,7 @@ export const slowestChug: AchievementDetector = ({chugs}) => {
       ? `${(chugSeconds(winner) - chugSeconds(secondPlace)).toFixed(2)} s langsommere end ${secondPlace.player.name}`
       : '',
     unit: 's',
+    digitsInfo: '1.1-2',
     player: winner.player,
     value: chugSeconds(winner),
     runnerUps: runnerUps.map(chug => ({player: chug.player, value: chugSeconds(chug)})),
