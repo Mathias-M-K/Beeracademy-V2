@@ -15,6 +15,7 @@ import {Router} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map} from 'rxjs';
 import {BreakpointObserver} from '@angular/cdk/layout';
+import {MaterialIcon} from '../../common/components/material-icon/material-icon';
 
 type EndOfGamePage =
   | { kind: 'start' }
@@ -40,7 +41,8 @@ const sum = (values: number[]): number => values.reduce((total, value) => total 
     ParticipantBadge,
     GameTimeFormatPipe,
     DecimalPipe,
-    Dot
+    Dot,
+    MaterialIcon
   ],
   selector: 'app-end-game-panel',
   styleUrl: './end-of-game-panel.component.scss',
@@ -126,13 +128,18 @@ export class EndOfGamePanel {
     this.currentPageIndex.update((index) => Math.min(this.pages().length - 1, index + 1));
   }
 
+  protected restart(): void {
+    this.currentPageIndex.set(1);
+  }
+
   protected leavePage(): void{
     this.router.navigate(['/']);
   }
 
   protected onClick(clickEvent: MouseEvent){
 
-    if(!this.isCompact()) {
+    const clickedButton = clickEvent.target instanceof Element && clickEvent.target.closest('button');
+    if(!this.isCompact() || this.currentPage().kind === 'summary' || clickedButton) {
       return;
     }
     const clickXPos = clickEvent.clientX;

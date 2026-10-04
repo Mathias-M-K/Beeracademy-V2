@@ -90,25 +90,28 @@
                 }
               </div>
 
-              <div class="simple-stat">
+              <div class="simple-stat beers">
                 <h3>{{ summary.beers | number : '1.0-2' }}</h3>
                 <p class="subtitle">øl</p>
               </div>
 
-              <div class="simple-stat">
+              <div class="simple-stat sips">
+                <p class="subtitle stat-label">Tår</p>
                 <h3>{{ summary.sips }}</h3>
-                <p class="subtitle">Tåre</p>
+                <p class="subtitle unit">Tåre</p>
               </div>
 
               <div class="simple-stat">
+                <p class="subtitle stat-label">Tid i snit</p>
                 <h3>{{ summary.avgRoundTime | gameTimeFormat : 'HH:mm:ss' }}</h3>
               </div>
 
-              <div class="simple-stat">
+              <div class="simple-stat total-time">
                 <h3>{{ summary.totalRoundTime | gameTimeFormat : 'HH:mm:ss' }}</h3>
               </div>
 
               <div class="simple-stat">
+                <p class="subtitle stat-label">Bedste bund</p>
                 <h3>{{ summary.bestChugTime ? (summary.bestChugTime / 1000  | number : '1.2-2') : '--' }}</h3>
                 <p class="subtitle">{{summary.bestChugTime ? ' s' : ''}}</p>
               </div>
@@ -169,9 +172,11 @@
       </div>
     }
     @case ('summary') {
-      <div class="action-buttons">
-        <button class="btn-secondary-outlined" (click)="leavePage()">Forlad spil</button>
-      </div>
+      @if (!isCompact()) {
+        <div class="action-buttons">
+          <button class="btn-secondary-outlined" (click)="leavePage()">Forlad spil</button>
+        </div>
+      }
     }
   }
 </div>
@@ -179,7 +184,14 @@
 
 <div class="action-buttons">
   @if (isCompact()) {
-    <p class="subtitle">Tryk for at fortsætte</p>
+    @if (page.kind === 'summary') {
+      <button class="btn-secondary restart" aria-label="Se kåringen igen" (click)="restart()">
+        <material-icon icon="replay" [size]="22"></material-icon>
+      </button>
+      <button class="btn-secondary-outlined leave" (click)="leavePage()">Tilbage til lobbyen</button>
+    } @else {
+      <p class="subtitle">Tryk for at fortsætte</p>
+    }
   } @else {
     <button class="btn-secondary-outlined" [disabled]="page.kind === 'start'" (click)="previousPage()">Tilbage</button>
     <button class="btn-secondary-outlined" [disabled]="page.kind === 'summary'" (click)="nextPage()">Næste</button>

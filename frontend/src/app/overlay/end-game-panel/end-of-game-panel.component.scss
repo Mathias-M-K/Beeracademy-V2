@@ -124,7 +124,7 @@
 
       > h1 {
         grid-row: 2;
-        font-size: 50px;
+        font-size: clamp(30px, 10vw, 50px);
       }
 
       .game-stat {
@@ -173,11 +173,8 @@
       column-gap: 20px;
 
 
-      > div:not(:first-child) {
-        border-bottom: 1px solid var(--primary-disabled-text);
-      }
-
       > div {
+        border-bottom: 1px solid var(--primary-disabled-text);
         display: grid;
 
         grid-template-columns: subgrid;
@@ -207,6 +204,10 @@
       .simple-stat {
         display: flex;
         align-items: baseline;
+      }
+
+      .stat-label {
+        display: none;
       }
     }
   }
@@ -361,13 +362,19 @@
 
   :host {
     --host-padding: 15px;
-    row-gap: 30px;
+    row-gap: 5px;
+    height: 100dvh;
+    grid-template-rows: 5px auto minmax(0, 1fr);
   }
 
   .main-content {
     grid-template-columns: 100%;
+    grid-template-rows: minmax(0, 1fr);
 
     #summery-page {
+      align-self: stretch;
+      min-height: 0;
+      row-gap: 15px;
 
       .header {
         grid-template-columns: 1fr 1fr;
@@ -383,7 +390,9 @@
 
       .achievement-bar {
         grid-column: 1 / span 2;
+        flex: none;
         overflow: auto;
+        scrollbar-width: none;
 
         margin: 0 calc(var(--host-padding) * -1);
         padding: 0 var(--host-padding);
@@ -391,36 +400,108 @@
 
       .player-overview {
         grid-template-columns: 1fr;
-        gap: 10px;
-        overflow: auto;
-
+        align-content: start;
+        gap: 8px;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: none;
 
         > p {
           display: none;
         }
 
         > div {
-          padding: 10px;
-          border: 1px solid var(--transparent-grey);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-areas:
+            "name name beers"
+            "sips avg best"
+            "ach ach ach";
+          gap: 12px 0;
 
-          grid-template-columns: repeat(4, 1fr);
+          padding: 14px 16px;
+          border: 1.5px solid color-mix(in oklab, var(--color-white), transparent 88%);
+          border-radius: 14px;
+          background-color: color-mix(in oklab, var(--color-white), transparent 95%);
         }
 
         .name {
-          grid-column: 1 / span 3;
+          grid-area: name;
+
+          h3 {
+            font-size: 18px;
+            font-weight: 800;
+          }
+        }
+
+        .simple-stat.beers {
+          grid-area: beers;
+          justify-self: end;
+          align-items: baseline;
+          gap: 4px;
+
+          h3 {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1;
+          }
+
+          .subtitle {
+            letter-spacing: normal;
+            text-transform: none;
+            font-size: 13px;
+          }
+        }
+
+        .simple-stat:not(.beers) {
+          flex-wrap: wrap;
+          gap: 3px 4px;
+          padding: 12px 8px 0 0;
+          border-top: 1px solid color-mix(in oklab, var(--color-white), transparent 85%);
+
+          h3 {
+            font-size: 16px;
+            font-weight: 700;
+          }
+        }
+
+        .stat-label {
+          display: block;
+          flex-basis: 100%;
+          font-size: 10.5px;
+          letter-spacing: .12em;
+        }
+
+        .sips .unit,
+        .simple-stat.total-time {
+          display: none;
         }
 
         .achievements {
-          grid-row: 3;
+          grid-area: ach;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          width: auto;
 
+          p {
+            font-size: 12px;
+          }
         }
 
+        .achievements:empty {
+          display: none;
+        }
       }
     }
   }
 
   .footer {
     grid-column: 1 / span 2;
+  }
+
+  .footer:empty {
+    display: none;
   }
 
   .runner-ups {
@@ -472,6 +553,32 @@
       color: var(--transparent-grey);
     }
 
+    &:has(.leave) {
+      gap: 10px;
+      margin: 0 calc(var(--host-padding) * -1);
+      padding: 12px var(--host-padding) 0;
+      border-top: 1px solid color-mix(in oklab, var(--color-white), transparent 88%);
+    }
 
+    .restart,
+    .leave {
+      height: 58px;
+      padding: 0;
+      border-radius: 16px;
+    }
+
+    .restart {
+      flex: none;
+      width: 58px;
+      background-color: transparent;
+      border: 1.5px solid var(--transparent-grey);
+    }
+
+    .leave {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: normal;
+    }
   }
 }
