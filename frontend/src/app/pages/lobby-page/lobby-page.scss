@@ -24,7 +24,13 @@
   height: 60px;
 }
 
+.pages,
+.chat-page {
+  display: contents;
+}
+
 .participant-list {
+  grid-area: participant-list;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -65,13 +71,54 @@
 }
 
 @media (max-width: 500px) {
+  :host {
+    grid-template-columns: 100%;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: none;
+    min-height: 0;
+
+    --page-bleed: 3dvw;
+  }
+
+  .pages {
+    display: grid;
+    grid-template-columns: repeat(2, 100%);
+    column-gap: calc(2 * var(--page-bleed));
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-bleed);
+
+    margin: 0 calc(-1 * var(--page-bleed));
+    padding: 0 var(--page-bleed);
+  }
+
+  .page {
+    grid-area: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    overflow-y: auto;
+    scrollbar-width: none;
+    scroll-snap-align: start;
+  }
+
+  app-chat {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    margin-bottom: 10px;
+  }
 
   .buttons {
-    position: fixed;
-    left: 0;
+    position: sticky;
     bottom: 0;
-    width: 100%;
-    padding: 10px;
+    margin-top: auto;
+    padding: 10px 0;
     background-color: var(--off-white);
     border-top: 1px solid var(--color-grey-500);
   }

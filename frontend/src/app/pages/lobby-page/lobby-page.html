@@ -1,32 +1,52 @@
 @if (lobbyService.title()) {
-  <div style="grid-area: participant-list" class="participant-list">
-    <app-participant-overview
-      [participants]="this.participants()"
-      [isLobbyOwner]="lobbyService.isHost()"
-      (addParticipant)="openNewParticipantOverlay()"
-      (removeParticipant)="onRemoveParticipant($event)"
-      (openParticipantSettings)="openParticipantSettingsOverlay($event)"
-      (participantsRearranged)="onParticipantsRearranged($event)"
-      (disconnect)="lobbyService.leaveLobby()"
-    ></app-participant-overview>
+  @if (isCompact()) {
+    <segmented-control
+      class="page-switch"
+      [segments]="pageNames"
+      [(currentSelectedOption)]="selectedPage"
+      (currentSelectedOptionChange)="onPageSelected()"
+    ></segmented-control>
+  }
 
-    @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
-      <div class="buttons">
-        <button
-          class="start-btn"
-          (click)="lobbyService.startGame()"
-          [disabled]="lobbyService.creatingGame()"
-          [style.view-transition-name]="'start-btn'">
-          @if (lobbyService.creatingGame()) {
-            <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
-          } @else {
-            Opret spil • {{ lobbyService.participants().length }} Spillere
-          }
-        </button>
-      </div>
-    }
-    <button (click)="addUsualSuspects()">Add testers</button>
+  <div
+    class="pages"
+    #scroller
+    (pointerdown)="onPointerDown()"
+    (scroll)="onScroll()"
+    (scrollend)="onScrollEnd()"
+  >
+    <div class="page participant-list" #page>
+      <app-participant-overview
+        [participants]="this.participants()"
+        [isLobbyOwner]="lobbyService.isHost()"
+        (addParticipant)="openNewParticipantOverlay()"
+        (removeParticipant)="onRemoveParticipant($event)"
+        (openParticipantSettings)="openParticipantSettingsOverlay($event)"
+        (participantsRearranged)="onParticipantsRearranged($event)"
+        (disconnect)="lobbyService.leaveLobby()"
+      ></app-participant-overview>
+
+      @if (lobbyService.participants().length > 0 && lobbyService.isHost()) {
+        <div class="buttons">
+          <button
+            class="start-btn"
+            (click)="lobbyService.startGame()"
+            [disabled]="lobbyService.creatingGame()"
+            [style.view-transition-name]="'start-btn'"
+          >
+            @if (lobbyService.creatingGame()) {
+              <app-dot-loader color="var(--btn-foreground)"></app-dot-loader>
+            } @else {
+              Opret spil • {{ lobbyService.participants().length }} Spillere
+            }
+          </button>
+        </div>
+      }
+      <button (click)="addUsualSuspects()">Add testers</button>
+    </div>
+
+    <div class="page chat-page" #page>
+      <app-chat [style.grid-area]="'chat'"></app-chat>
+    </div>
   </div>
-
-  <app-chat [style.grid-area]="'chat'"></app-chat>
 }
