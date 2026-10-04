@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {GameService} from '../../services/game/game.service';
 import {AnimatedText} from '../../common/components/animated-text/animated-text';
 import {AnimatedNumber} from '../../common/components/animated-number/animated-number';
@@ -12,6 +12,9 @@ import {DecimalPipe} from '@angular/common';
 import {Dot} from '../../common/dot/dot';
 import {Player} from '../../services/game/models/player';
 import {Router} from '@angular/router';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {map} from 'rxjs';
+import {BreakpointObserver} from '@angular/cdk/layout';
 
 type EndOfGamePage =
   | { kind: 'start' }
@@ -43,12 +46,14 @@ const sum = (values: number[]): number => values.reduce((total, value) => total 
   styleUrl: './end-of-game-panel.component.scss',
   templateUrl: './end-of-game-panel.component.html',
   host: {
-    '[style.--background-color]': 'background()'
+    '[style.--background-color]': 'background()',
+    '(click)': 'onClick($event)'
   }
 })
 export class EndOfGamePanel {
 
   private readonly router = inject(Router);
+  private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly gameService = inject(GameService);
   private readonly achievementService = inject(AchievementService);
   private readonly gameTimer = inject(TimerService).getTimer(TimerType.GAME);
@@ -106,11 +111,12 @@ export class EndOfGamePanel {
 
   protected players = this.gameService.players;
 
-  constructor() {
-    effect(() => {
-      console.log(this.achievementService.achievements());
-    });
-  }
+  protected readonly isCompact = toSignal(
+    this.breakpointObserver.observe('(max-width: 500px)').pipe(map((result) => result.matches)),
+    { initialValue: false },
+  );
+
+
 
   protected previousPage(): void {
     this.currentPageIndex.update((index) => Math.max(0, index - 1));
@@ -124,5 +130,19 @@ export class EndOfGamePanel {
     this.router.navigate(['/']);
   }
 
+  protected onClick(clickEvent: MouseEvent){
+
+    if(!this.isCompact()) {
+      return;
+    }
+    const clickXPos = clickEvent.clientX;
+    const screenWidth = document.documentElement.clientWidth;
+
+    if(clickXPos > screenWidth / 2 ){
+      this.nextPage();
+    }else {
+      this.previousPage();
+    }
+  }
 
 }

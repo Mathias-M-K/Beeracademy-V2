@@ -29,7 +29,7 @@
 
         <div class="header">
           <p class="subtitle">{{ partyName }}</p>
-          <h1 animate.enter="page-enter">Samlet overblik</h1>
+          <h1>Samlet overblik</h1>
 
           <div class="game-stat">
             <p class="subtitle title">Øl i alt</p>
@@ -109,7 +109,8 @@
               </div>
 
               <div class="simple-stat">
-                <h3>{{ summary.bestChugTime ? (summary.bestChugTime / 1000  | number : '1.2-2') + ' s' : '--' }}</h3>
+                <h3>{{ summary.bestChugTime ? (summary.bestChugTime / 1000  | number : '1.2-2') : '--' }}</h3>
+                <p class="subtitle">{{summary.bestChugTime ? ' s' : ''}}</p>
               </div>
             </div>
 
@@ -177,6 +178,10 @@
 
 
 <div class="action-buttons">
-  <button class="btn-secondary-outlined" [disabled]="page.kind === 'start'" (click)="previousPage()">Tilbage</button>
-  <button class="btn-secondary-outlined" [disabled]="page.kind === 'summary'" (click)="nextPage()">Næste</button>
+  @if (isCompact()) {
+    <p class="subtitle">Tryk for at fortsætte</p>
+  } @else {
+    <button class="btn-secondary-outlined" [disabled]="page.kind === 'start'" (click)="previousPage()">Tilbage</button>
+    <button class="btn-secondary-outlined" [disabled]="page.kind === 'summary'" (click)="nextPage()">Næste</button>
+  }
 </div>

@@ -7,12 +7,15 @@
   width: 100vw;
   height: 100vh;
 
-  padding: 40px;
+  --host-padding: 40px;
+  padding: var(--host-padding);
   gap: 5px;
   color: white;
 
   transition: background-color 0.3s ease-in-out;
   animation: panel-in 0.35s ease-in-out;
+
+  --transparent-grey: color-mix(in oklab, var(--color-white), transparent 40%);
 }
 
 .page-indicator {
@@ -22,25 +25,28 @@
 
   grid-column: 1 / span 2;
 
-  > div{
+  > div {
     position: absolute;
     display: flex;
     gap: 5px;
     height: 100%;
     width: 100%;
   }
+
   .dot {
     border-radius: 100px;
     flex: 1;
   }
-  .backdrop{
+
+  .backdrop {
     z-index: 0;
 
-    .dot{
+    .dot {
       background-color: color-mix(in oklab, var(--color-white), transparent 75%);
     }
   }
-  .foreground{
+
+  .foreground {
     z-index: 1;
     mask-size: var(--page-progression) 100%;
     mask-image: linear-gradient(#000 0 0);
@@ -48,7 +54,7 @@
 
     transition: mask-size 0.25s ease-in-out;
 
-    .dot{
+    .dot {
       background-color: var(--color-white);
     }
   }
@@ -89,47 +95,48 @@
     margin: 0;
   }
 
-  #start-page  {
+  #start-page {
 
-    h1{
-      font-size: 200px;
+    h1 {
+      font-size: clamp(30px, 10vw, 200px);
     }
-    p{
+
+    p {
       color: var(--color-white);
     }
   }
 
-  #summery-page{
+  #summery-page {
     align-self: start;
     display: flex;
     flex-direction: column;
     row-gap: 30px;
 
-    .header{
+    .header {
       display: grid;
       column-gap: 40px;
       row-gap: 10px;
       grid-template-columns: 1fr auto auto auto;
 
-      > p{
+      > p {
         grid-row: 1;
       }
 
-      > h1{
+      > h1 {
         grid-row: 2;
         font-size: 50px;
       }
 
-      .game-stat{
+      .game-stat {
         grid-row: 2;
       }
     }
 
-    .achievement-bar{
+    .achievement-bar {
       display: flex;
       gap: 15px;
 
-      >div{
+      > div {
         flex: 1;
 
         display: grid;
@@ -140,15 +147,16 @@
         gap: 10px;
         align-items: center;
 
-        > *:first-child{
+        > *:first-child {
           font-weight: bold;
           grid-column: 1 / span 2;
         }
 
-        >*:nth-child(n+2){
+        > *:nth-child(n+2) {
           grid-row: 2;
         }
-        *:last-child{
+
+        *:last-child {
           display: flex;
           gap: 5px;
           align-items: baseline;
@@ -158,17 +166,18 @@
       }
     }
 
-    .player-overview{
+    .player-overview {
 
       display: grid;
       grid-template-columns: auto 1fr repeat(5, auto);
       column-gap: 20px;
 
 
-      >div:not(:first-child){
+      > div:not(:first-child) {
         border-bottom: 1px solid var(--primary-disabled-text);
       }
-      >div{
+
+      > div {
         display: grid;
 
         grid-template-columns: subgrid;
@@ -176,17 +185,18 @@
 
         padding: 20px 0;
 
-        >div{
+        > div {
           display: flex;
           gap: 5px;
           align-items: center;
         }
       }
 
-      .achievements{
+      .achievements {
         display: grid;
         width: fit-content;
-        p{
+
+        p {
           color: var(--primary-disabled-text);
           padding: 5px 10px;
           border: 1px solid var(--primary-disabled-text);
@@ -194,7 +204,7 @@
         }
       }
 
-      .simple-stat{
+      .simple-stat {
         display: flex;
         align-items: baseline;
       }
@@ -203,15 +213,15 @@
 
   .achievement-page {
     h1 {
-      font-size: 150px;
+      font-size: clamp(45px, 9vw, 150px);
     }
 
     h2 {
-      font-size: 100px;
+      font-size: clamp(25px, 8.5vw, 100px);
     }
 
     p {
-      font-size: 30px;
+      font-size: clamp(16px, 2vw, 30px);
     }
   }
 }
@@ -225,7 +235,8 @@
   > * {
     width: fit-content;
   }
-  .action-buttons{
+
+  .action-buttons {
     align-self: start;
     justify-self: start;
   }
@@ -340,8 +351,127 @@
 }
 
 @keyframes panel-in {
-  from{
+  from {
     translate: 0 100%;
   }
 
+}
+
+@media (max-width: 500px) {
+
+  :host {
+    --host-padding: 15px;
+    row-gap: 30px;
+  }
+
+  .main-content {
+    grid-template-columns: 100%;
+
+    #summery-page {
+
+      .header {
+        grid-template-columns: 1fr 1fr;
+
+        > h1, p {
+          grid-column: 1 / span 2;
+        }
+
+        .game-stat {
+          grid-row: unset;
+        }
+      }
+
+      .achievement-bar {
+        grid-column: 1 / span 2;
+        overflow: auto;
+
+        margin: 0 calc(var(--host-padding) * -1);
+        padding: 0 var(--host-padding);
+      }
+
+      .player-overview {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        overflow: auto;
+
+
+        > p {
+          display: none;
+        }
+
+        > div {
+          padding: 10px;
+          border: 1px solid var(--transparent-grey);
+
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        .name {
+          grid-column: 1 / span 3;
+        }
+
+        .achievements {
+          grid-row: 3;
+
+        }
+
+      }
+    }
+  }
+
+  .footer {
+    grid-column: 1 / span 2;
+  }
+
+  .runner-ups {
+    flex-direction: column;
+    width: unset !important;
+
+    --gap: 10px;
+    gap: var(--gap);
+
+    > * {
+      grid-template-columns: auto 1fr auto auto !important;
+      border-left: unset !important;
+      padding: unset !important;
+    }
+
+    .nth-place {
+      align-items: center;
+
+      .placement {
+        height: unset !important;
+        width: unset !important;
+        border: none;
+        padding: 0 !important;
+        display: flex;
+      }
+
+      .placement:after {
+        content: '.';
+      }
+
+      > * {
+        grid-column: unset !important;
+        grid-row: 1 !important;
+      }
+    }
+
+    .nth-place:nth-child(2) {
+      padding: var(--gap) 0 !important;
+      border-top: 1px solid var(--transparent-grey);
+    }
+
+  }
+
+  .action-buttons {
+    grid-column: 1 / span 2;
+    justify-content: center;
+
+    > p {
+      color: var(--transparent-grey);
+    }
+
+
+  }
 }
