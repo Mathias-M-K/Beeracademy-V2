@@ -18,6 +18,7 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .start-btn {
   width: 100%;
   height: 60px;
@@ -59,5 +60,19 @@
   .header {
     flex-direction: column;
     align-items: normal;
+  }
+
+}
+
+@media (max-width: 500px) {
+
+  .buttons {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: var(--off-white);
+    border-top: 1px solid var(--color-grey-500);
   }
 }
