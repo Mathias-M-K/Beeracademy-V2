@@ -1,4 +1,4 @@
-:host{
+:host {
   position: relative;
   margin-bottom: 75px;
   height: 75px;
@@ -10,32 +10,31 @@
   animation: toast-container-leave 0.25s ease-in-out forwards;
 }
 
-
-app-toast{
+app-toast {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.toast-in{
+.toast-in {
   animation: toast-in 0.25s ease-in-out forwards;
 }
-.toast-out{
+.toast-out {
   animation: toast-out 0.25s ease-in-out forwards;
 }
 @keyframes toast-in {
-  from{
+  from {
     opacity: 0;
     translate: 0 -50px;
   }
 }
 @keyframes toast-container-leave {
-  to{
+  to {
     opacity: 0;
   }
 }
 @keyframes toast-out {
-  to{
+  to {
     opacity: 0;
     translate: 0 50px;
   }

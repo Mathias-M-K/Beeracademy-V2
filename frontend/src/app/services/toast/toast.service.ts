@@ -34,9 +34,8 @@ export class ToastService {
     clearTimeout(this.dismissTimer);
     this.dismissTimer = setTimeout(() => this.dismissToast(toast.id), toast.durationMs);
 
-    if(this.overlayHandle) return;
+    if (this.overlayHandle) return;
     this.openToastOverlay();
-
   }
 
   public dismissToast(toastId: string): void {
@@ -45,7 +44,6 @@ export class ToastService {
     this._toast.set(null);
     this.closeToastOverlay();
   }
-
 
   private openToastOverlay(): void {
     const position = this.posBuilder.global().centerHorizontally().bottom();

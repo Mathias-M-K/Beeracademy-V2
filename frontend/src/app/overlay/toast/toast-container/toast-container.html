@@ -4,5 +4,7 @@
     animate.leave="toast-out"
     [title]="toast.title"
     [state]="toast.toastState"
-    (dismissed)="dismiss(toast.id)">{{ toast.message }}</app-toast>
+    (dismissed)="dismiss(toast.id)"
+    >{{ toast.message }}</app-toast
+  >
 }

@@ -386,7 +386,15 @@ Solution: The draw btn becomes a "end game" btn
 
 it's very close to the top
 
-## 33. Toasts are not announced to screen readers — ⬜ OPEN 2026-10-05
+## ✅ 33. Toasts are not announced to screen readers — RESOLVED 2026-10-05 (not yet tried with a screen reader)
+
+Fixed on the same branch. The `ToastContainer` host now carries `role="status"` and
+`aria-live="polite"`. The container on `main` had a `role="log"` region, so this was a regression from
+the rewrite, which a code review caught. The region exists while the container is open, so a
+replacement toast is announced. Whether the **first** toast is announced, given that it opens the
+container, still needs a real screen reader. Test: `toast-container.spec.ts` › "announces its toast
+politely to screen readers". The original report follows.
+
 
 `frontend/src/app/overlay/toast/toast-container/toast-container.html` renders the toast in a keyed
 `@for` (at most one item), with no `aria-live` or `role="status"` region around them. A screen-reader user never hears

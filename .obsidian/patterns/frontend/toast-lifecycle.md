@@ -71,15 +71,31 @@ plays. Tracking by `toast.id` makes a new id a new view: the old one plays `toas
 one plays `toast-in`. During the swap both are absolutely positioned at the same spot, so the old
 toast slides up and fades over the new one sliding in.
 
-The container passes `title`, `state` and the message (projected content) to `Toast`.
+The container passes `title`, `state` and the message (projected content) to `Toast`. The title is a
+`<span class="title">`, not a heading: a `<button>` may only contain phrasing content, so an `<h3>`
+inside it is invalid HTML.
+
+The container is `min(90vw, 500px)` wide, matching the toast's own `max-width`, so it blocks as
+little of the page as possible (see the click-through section).
 
 ## Closing the overlay waits for its exit
 
-`closeToastOverlay` keeps the handle and sets `isClosing` while `OverlayHandle.close()` runs its exit
-animation. The global `.overlay-leaving` rule in `drawer-styling.scss` gives the toast container
-the same 0.2 s fly-out as the drawers. When `closed` resolves, the service clears `isClosing`, nulls
-the handle and reopens the overlay if a toast arrived in the meantime. A `showToast` during the
-exit sees the handle still set and does not open a second container. This is the #22 fix brought
+`closeToastOverlay` keeps the handle and sets the `isClosing` signal while `OverlayHandle.close()`
+runs its exit animation. When `closed` resolves, the service clears `isClosing`, nulls the handle
+and reopens the overlay if a toast arrived in the meantime. A `showToast` during the exit sees the
+handle still set and does not open a second container.
+
+**The public `toast` is `null` while closing.** It is
+`computed(() => isClosing() ? null : _toast())`. Without this, the leaving container would render a
+toast that arrived mid-exit, then get disposed, and the reopened container would play it a second
+time: a flicker. Now the new toast only appears in the fresh container.
+
+**The container has its own leave animation.** `:host(.overlay-leaving)` runs a 0.25 s opacity fade
+(`toast-container-leave`). It overrides the global `.overlay-leaving` rule in `drawer-styling.scss`,
+which would otherwise give the toast container the drawers' 0.2 s fly-out. `OverlayHandle` only waits
+for animations on the host itself, not its subtree. With 0.2 s it disposed the overlay before the
+toast's own 0.25 s `toast-out` finished. The fade has to last at least as long as `toast-out`. The
+deck version had a matching override; the rewrite dropped it and a code review caught it. This is the #22 fix brought
 back after the rewrite dropped it ([[known-issues]] #34).
 
 ## Click-dismiss is a native button
@@ -105,7 +121,8 @@ back by half its own width.
 Making the empty parts of the overlay pass clicks to the page underneath was implemented on
 2026-10-05 and rolled back at the user's request. It used a CDK `panelClass` with
 `pointer-events: none` on the pane and `pointer-events: auto` on `app-toast`. The container box
-(90vw × 75px plus its bottom margin) therefore still blocks clicks under it while a toast shows.
+(`min(90vw, 500px)` × 75px, plus its bottom margin) therefore still blocks clicks under it while a
+toast shows. It was narrowed from 90vw to the toast's width on 2026-10-05 to keep that area small.
 
 ## Tests
 
@@ -126,13 +143,14 @@ Making the empty parts of the overlay pass clicks to the page underneath was imp
 
 ## Open follow-ups (not done)
 
-- **No live region.** Toasts are not in an `aria-live` / `role="status"` region, so screen readers
-  do not announce them. Tracked as [[known-issues]] #33.
+- **First-toast announcement is unverified.** The container host is `role="status"` +
+  `aria-live="polite"` ([[known-issues]] #33). The first toast opens the container, so whether it gets
+  announced needs a real screen reader.
 - **No pause-on-hover.** That would need the timer to move into the `Toast` component, which is the
   only place that knows about hover. It would undo the "service owns the timer" choice above.
-- **The final dismiss is unverified.** When the last toast goes, the container's 0.2 s fly-out and
-  the toast's own `toast-out` run at the same time, and then the overlay is disposed. Whether that
-  looks right needs a browser.
+- **The final dismiss is unverified.** When the last toast goes, the container's 0.25 s fade and the
+  toast's own `toast-out` run together, and then the overlay is disposed. Whether that looks right
+  needs a browser.
 
 ## Related
 - [[toast-stack-and-overview]] — the deck-and-overview system this replaced

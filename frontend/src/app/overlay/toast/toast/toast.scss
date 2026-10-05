@@ -4,7 +4,6 @@
   max-width: 500px;
 }
 
-
 .toast {
   all: unset;
   box-sizing: border-box;
@@ -26,21 +25,21 @@
   align-content: center;
   align-items: center;
 
-  app-dot{
+  app-dot {
     grid-row: 1 / -1;
   }
 
-  .title{
+  .title {
     font-family: 'Archivo', sans-serif;
     font-size: 18px;
     font-weight: bold;
   }
 
-  p{
+  p {
     grid-row: 2;
   }
 
-  :nth-child(n+2) {
+  :nth-child(n + 2) {
     grid-column: 2;
   }
 

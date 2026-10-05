@@ -1,7 +1,7 @@
-import {Component, computed, inject,} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ToastService } from '../../../services/toast/toast.service';
-import {Toast} from '../toast/toast';
-import {ToastData} from '../models/toast-data';
+import { Toast } from '../toast/toast';
+import { ToastData } from '../models/toast-data';
 
 @Component({
   selector: 'app-toast-container',
@@ -11,9 +11,7 @@ import {ToastData} from '../models/toast-data';
     role: 'status',
     'aria-live': 'polite',
   },
-  imports: [
-    Toast
-  ]
+  imports: [Toast],
 })
 export class ToastContainer {
   private readonly toastService = inject(ToastService);
