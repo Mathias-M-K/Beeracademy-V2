@@ -137,6 +137,6 @@ export class EndOfGamePanel {
   }
 
   protected leavePage(): void {
-    this.router.navigate(['/']);
+    void this.router.navigate(['/']);
   }
 }

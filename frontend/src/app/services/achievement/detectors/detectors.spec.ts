@@ -5,6 +5,8 @@ import { aCard, aPlayerDto, PLAYER_1, PLAYER_2, PLAYER_3 } from '../../../../tes
 import { fastestAverageTurn } from './fastest-average-turn';
 import { slowestChug } from './slowest-chug';
 import { noChugs } from './no-chugs';
+import { fastestChug } from './fastest-chug';
+import { mostBeers } from './most-beers';
 
 const anna = Player.fromPlayerDto(aPlayerDto({ id: PLAYER_1, name: 'Anna' }));
 const bo = Player.fromPlayerDto(aPlayerDto({ id: PLAYER_2, name: 'Bo' }));
@@ -119,6 +121,86 @@ describe('noChugs', () => {
 
     // Act
     const achievement = noChugs({ turns, chugs });
+
+    // Assert
+    expect(achievement).toBeUndefined();
+  });
+});
+
+describe('fastestChug', () => {
+  it("ranks each player's fastest chug, fastest first", () => {
+    // Arrange
+    const chugs = [chug(anna, 3000), chug(anna, 1000), chug(bo, 2000), chug(carl, 4000)];
+
+    // Act
+    const achievement = fastestChug({ turns: [], chugs });
+
+    // Assert
+    expect(achievement?.player).toBe(anna);
+    expect(achievement?.value).toBe(1);
+    expect(achievement?.runnerUps).toEqual([
+      { player: bo, value: 2 },
+      { player: carl, value: 4 },
+    ]);
+    expect(achievement?.additionalInfo).toBe('1.00 s hurtigere end Bo');
+  });
+
+  it('leaves out chugs without a recorded time', () => {
+    // Arrange
+    const untimed: PlayerChug = { player: bo, chug: {}, placement: 2, chugNumber: 2 };
+    const chugs = [chug(anna, 3000), untimed];
+
+    // Act
+    const achievement = fastestChug({ turns: [], chugs });
+
+    // Assert
+    expect(achievement?.player).toBe(anna);
+    expect(achievement?.runnerUps).toEqual([]);
+    expect(achievement?.additionalInfo).toBe('');
+  });
+
+  it('is not awarded without any timed chugs', () => {
+    // Act
+    const achievement = fastestChug({ turns: [], chugs: [] });
+
+    // Assert
+    expect(achievement).toBeUndefined();
+  });
+});
+
+describe('mostBeers', () => {
+  it('ranks players by beers drunk, most first', () => {
+    // Arrange
+    const turns = [turn(anna, 0, 14), turn(anna, 0, 7), turn(bo, 0, 14), turn(carl, 0, 7)];
+
+    // Act
+    const achievement = mostBeers({ turns, chugs: [] });
+
+    // Assert
+    expect(achievement?.player).toBe(anna);
+    expect(achievement?.value).toBe(1.5);
+    expect(achievement?.runnerUps).toEqual([
+      { player: bo, value: 1 },
+      { player: carl, value: 0.5 },
+    ]);
+    expect(achievement?.additionalInfo).toBe('0.50 flere end Bo');
+  });
+
+  it('has no comparison when only one player has drawn', () => {
+    // Arrange
+    const turns = [turn(anna, 0, 14)];
+
+    // Act
+    const achievement = mostBeers({ turns, chugs: [] });
+
+    // Assert
+    expect(achievement?.player).toBe(anna);
+    expect(achievement?.additionalInfo).toBe('');
+  });
+
+  it('is not awarded before any card has been drawn', () => {
+    // Act
+    const achievement = mostBeers({ turns: [], chugs: [] });
 
     // Assert
     expect(achievement).toBeUndefined();
