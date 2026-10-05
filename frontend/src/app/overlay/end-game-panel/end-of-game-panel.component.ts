@@ -62,9 +62,7 @@ export class EndOfGamePanel {
 
   protected readonly partyName = computed(() => this.gameService.gameInfo()?.name ?? '');
   protected readonly gameTime = computed(() => this.gameTimer.currentDuration() ?? 0);
-  protected readonly pauseTime = computed(
-    () => this.gameService.gameTimeReport()?.pausedTime ?? 0,
-  );
+  protected readonly pauseTime = computed(() => this.gameService.gameTimeReport()?.pausedTime ?? 0);
 
   protected readonly pages = computed<EndOfGamePage[]>(() => [
     { kind: 'start' },
