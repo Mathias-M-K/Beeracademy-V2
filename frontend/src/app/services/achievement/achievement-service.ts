@@ -29,7 +29,7 @@ export class AchievementService {
 
     return this.detectors
       .map((detector) => detector(gameEvents))
-      .filter((achievement) => achievement !== undefined);
+      .filter((achievement): achievement is Achievement => achievement !== undefined);
   });
 
   public readonly achievementsByPlayer = computed(() => {
