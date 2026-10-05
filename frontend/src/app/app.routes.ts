@@ -1,52 +1,27 @@
 import { Routes } from '@angular/router';
-import { WelcomePage } from './pages/welcome-page/welcome-page';
-import { GamePage } from './pages/game-page/game-page';
-import { SerialPlayground } from './pages/serial-playground/serial-playground';
-import { LobbyPage } from './pages/lobby-page/lobby-page';
-import { JoinPage } from './pages/join-page/join-page';
-import { partyStateResolver } from './resolvers/party-state.resolver';
-import { lobbyStateResolver } from './resolvers/lobby-state.resolver';
-import { gameStateResolver } from './resolvers/game-state.resolver';
-import { PartyShellComponent } from './pages/party/party-shell/party-shell.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: WelcomePage,
+    loadComponent: () => import('./pages/welcome-page/welcome-page').then((m) => m.WelcomePage),
   },
   {
     path: 'start',
-    component: WelcomePage,
+    loadComponent: () => import('./pages/welcome-page/welcome-page').then((m) => m.WelcomePage),
   },
   {
     path: 'join/:party-id',
-    component: JoinPage,
-    resolve: { partyInfo: partyStateResolver },
+    loadChildren: () => import('./pages/join-page/join.routes').then((m) => m.joinRoutes),
   },
   {
     path: 'serial',
-    component: SerialPlayground,
+    loadComponent: () =>
+      import('./pages/serial-playground/serial-playground').then((m) => m.SerialPlayground),
   },
   {
     path: '',
-    component: PartyShellComponent,
-    children: [
-      {
-        path: 'lobby',
-        component: LobbyPage,
-        data: { phase: 'lobby' },
-        resolve: { lobbyInfo: lobbyStateResolver },
-      },
-      {
-        path: 'game',
-        component: GamePage,
-        data: { phase: 'game' },
-        resolve: { gameInfo: gameStateResolver },
-      },
-    ],
+    loadChildren: () => import('./pages/party/party.routes').then((m) => m.partyRoutes),
   },
 
   { path: '**', redirectTo: 'start' },
 ];
-
-//{ path: 'lobby', component: LobbyPage, resolve: { lobbyInfo: lobbyStateResolver } },

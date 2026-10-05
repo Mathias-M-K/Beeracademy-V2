@@ -1,0 +1,241 @@
+@let page = currentPage();
+<div
+  class="page-indicator"
+  [style.--page-progression.%]="((currentPageIndex() + 1) / pages().length) * 100"
+>
+  <div class="backdrop">
+    @for (_ of pages(); track $index) {
+      <div class="dot"></div>
+    }
+  </div>
+  <div class="foreground">
+    @for (_ of pages(); track $index) {
+      <div class="dot"></div>
+    }
+  </div>
+</div>
+<p class="page-count">{{ currentPageIndex() + 1 }}/{{ pages().length }}</p>
+
+<div class="main-content">
+  @switch (page.kind) {
+    @case ('start') {
+      <div id="start-page" animate.leave="page-leave">
+        <p class="subtitle">Spillet er slut</p>
+        <h1>Bunken er tom.</h1>
+        <p>{{ partyName() }} • {{ gameTime() | gameTimeFormat: 'HH:mm:ss' }}</p>
+      </div>
+    }
+    @case ('summary') {
+      <div id="summery-page" animate.enter="page-enter" animate.leave="page-leave">
+        <div class="header">
+          <p class="subtitle">{{ partyName() }}</p>
+          <h1>Samlet overblik</h1>
+
+          <div class="game-stat">
+            <p class="subtitle title">Øl i alt</p>
+            <h2 class="stat">{{ beersConsumedTotal() | number: '1.1-2' }}</h2>
+          </div>
+
+          <div class="game-stat">
+            <p class="subtitle title">Tåre</p>
+            <h2 class="stat">{{ sipsConsumedTotal() }}</h2>
+          </div>
+
+          <div class="game-stat">
+            <p class="subtitle title">Spilletid</p>
+            <h2 class="stat">{{ gameTime() | gameTimeFormat: 'HH:mm:ss' }}</h2>
+          </div>
+
+          <div class="game-stat">
+            <p class="subtitle title">Pause-tid</p>
+            <h2 class="stat">{{ pauseTime() | gameTimeFormat: 'HH:mm:ss' }}</h2>
+          </div>
+        </div>
+
+        <div class="achievement-bar">
+          @for (achievement of achievements(); track achievement) {
+            <div [style.--player-color]="achievement.player.color">
+              <p>{{ achievement.title }}</p>
+              <h3>{{ achievement.player.name }}</h3>
+              <div>
+                <h2>{{ achievement.value | number: achievement.digitsInfo }}</h2>
+                <h3>{{ achievement.unit }}</h3>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="player-overview">
+          <p class="subtitle">spiller</p>
+          <p class="subtitle">Præstationer</p>
+          <p class="subtitle">øl</p>
+          <p class="subtitle">tåre</p>
+          <p class="subtitle">tid/avg</p>
+          <p class="subtitle">tid/total</p>
+          <p class="subtitle">bedste <br />bunder</p>
+
+          @for (summary of playerSummaries(); track summary.player.id) {
+            <div>
+              <div class="name">
+                <app-dot [color]="summary.player.color"></app-dot>
+                <h3>{{ summary.player.name }}</h3>
+              </div>
+
+              <div class="achievements">
+                @for (achievement of summary.achievements; track achievement.title) {
+                  <p>{{ achievement.title }}</p>
+                }
+              </div>
+
+              <div class="simple-stat beers">
+                <h3>{{ summary.beers | number: '1.0-2' }}</h3>
+                <p class="subtitle">øl</p>
+              </div>
+
+              <div class="simple-stat sips">
+                <p class="subtitle stat-label">Tår</p>
+                <h3>{{ summary.sips }}</h3>
+                <p class="subtitle unit">Tåre</p>
+              </div>
+
+              <div class="simple-stat">
+                <p class="subtitle stat-label">Tid i snit</p>
+                <h3>{{ summary.avgRoundTime | gameTimeFormat: 'HH:mm:ss' }}</h3>
+              </div>
+
+              <div class="simple-stat total-time">
+                <h3>{{ summary.totalRoundTime | gameTimeFormat: 'HH:mm:ss' }}</h3>
+              </div>
+
+              <div class="simple-stat">
+                <p class="subtitle stat-label">Bedste bund</p>
+                <h3>
+                  {{
+                    summary.bestChugTime ? (summary.bestChugTime / 1000 | number: '1.2-2') : '--'
+                  }}
+                </h3>
+                <p class="subtitle">{{ summary.bestChugTime ? ' s' : '' }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @case ('achievement') {
+      @let achievement = page.achievement;
+      <div class="achievement-page" animate.enter="page-enter" animate.leave="page-leave">
+        <p>
+          <app-animated-text [text]="achievement.title" [effect]="'roll'"></app-animated-text>
+        </p>
+        <h1>
+          <app-animated-text [text]="achievement.player.name" />
+        </h1>
+        <h2>
+          <app-animated-number
+            [value]="achievement.value"
+            [digitsInfo]="achievement.digitsInfo"
+          ></app-animated-number>
+          {{ ' ' }}
+          <app-animated-text [text]="achievement.unit" [effect]="'roll'"></app-animated-text>
+        </h2>
+        <p>
+          <app-animated-text
+            [text]="achievement.additionalInfo"
+            [effect]="'roll'"
+          ></app-animated-text>
+        </p>
+      </div>
+    }
+  }
+</div>
+
+<div class="footer">
+  @switch (page.kind) {
+    @case ('start') {
+      <div class="player-badges" animate.leave="page-leave">
+        @for (player of players(); track player.id) {
+          <app-participant-badge
+            [initials]="player.name.substring(0, 1)"
+            [backgroundColor]="player.color"
+            [size]="'s'"
+          ></app-participant-badge>
+        }
+      </div>
+    }
+    @case ('achievement') {
+      <div class="runner-ups" animate.enter="page-enter">
+        @let achievement = page.achievement;
+        @for (slot of runnerUpSlots; track slot) {
+          @let runnerUp = achievement.runnerUps[slot];
+          @if (runnerUp) {
+            <div class="nth-place">
+              <p class="placement">{{ slot + 2 }}</p>
+              <p class="player-name">
+                <app-animated-text
+                  [text]="runnerUp.player.name"
+                  [effect]="'roll'"
+                ></app-animated-text>
+              </p>
+              <p class="stat-value">
+                <app-animated-number
+                  [value]="runnerUp.value"
+                  [digitsInfo]="achievement.digitsInfo"
+                />
+              </p>
+              <p class="stat-unit">{{ achievement.unit }}</p>
+            </div>
+          } @else {
+            <div class="nth-place empty" aria-hidden="true">
+              <p class="placement">{{ slot + 2 }}</p>
+              <p class="player-name">&nbsp;</p>
+              <p class="stat-value">&nbsp;</p>
+              <p class="stat-unit">{{ achievement.unit }}</p>
+            </div>
+          }
+        }
+      </div>
+    }
+    @case ('summary') {
+      @if (!isCompact()) {
+        <div class="action-buttons">
+          <button class="btn-secondary-outlined" (click)="leavePage()">Forlad spil</button>
+        </div>
+      }
+    }
+  }
+</div>
+
+<div class="action-buttons">
+  @if (isCompact()) {
+    @if (page.kind === 'summary') {
+      <button class="btn-secondary restart" aria-label="Se kåringen igen" (click)="restart()">
+        <material-icon icon="replay" [size]="22"></material-icon>
+      </button>
+      <button class="btn-secondary-outlined leave" (click)="leavePage()">Forlad spil</button>
+    } @else {
+      <p class="subtitle">Tryk for at fortsætte</p>
+    }
+  } @else {
+    <button
+      class="btn-secondary-outlined"
+      [disabled]="page.kind === 'start'"
+      (click)="previousPage()"
+    >
+      Tilbage
+    </button>
+    <button
+      class="btn-secondary-outlined"
+      [disabled]="page.kind === 'summary'"
+      (click)="nextPage()"
+    >
+      Næste
+    </button>
+  }
+</div>
+
+@if (isCompact() && page.kind !== 'summary') {
+  <div class="tap-zones">
+    <button class="tap-prev" aria-label="Forrige" (click)="previousPage()"></button>
+    <button class="tap-next" aria-label="Næste" (click)="nextPage()"></button>
+  </div>
+}

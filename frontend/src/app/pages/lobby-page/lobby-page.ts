@@ -1,10 +1,16 @@
-import { Component, inject, linkedSignal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { ParticipantOverview } from './participant-overview/participant-overview';
 import { Chat } from './chat/chat';
 import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
 import { LobbyService } from '../../services/lobby/lobby.service';
 import { DotLoader } from '../../common/components/dot-loader/dot-loader';
 import { DrawerService } from '../../services/drawer/drawer.service';
+import { SegmentedControl } from '../../common/segmented-control/segmented-control';
+import { SwipePager } from '../../common/swipe-pager/swipe-pager';
+import { SwipePage } from '../../common/swipe-pager/swipe-page';
 
 @Component({
   selector: 'app-lobby-page',
@@ -13,13 +19,23 @@ import { DrawerService } from '../../services/drawer/drawer.service';
   host: {
     tabindex: '-1',
   },
-  imports: [ParticipantOverview, Chat, DotLoader],
+  imports: [ParticipantOverview, Chat, DotLoader, SegmentedControl, SwipePager, SwipePage],
 })
 export class LobbyPage {
   protected readonly lobbyService = inject(LobbyService);
   private readonly drawerService = inject(DrawerService);
 
   readonly participants = linkedSignal(() => this.lobbyService.participants());
+
+  protected readonly isCompact = toSignal(
+    inject(BreakpointObserver)
+      .observe('(max-width: 500px)')
+      .pipe(map((result) => result.matches)),
+    { initialValue: false },
+  );
+
+  protected readonly pageNames = ['Deltagere', 'Chat'];
+  protected readonly selectedPage = signal(0);
 
   addParticipant(name: string) {
     this.lobbyService.requestParticipantCreation(name);
@@ -57,25 +73,5 @@ export class LobbyPage {
       if (!participantName) return;
       this.addParticipant(participantName);
     });
-  }
-
-  async addUsualSuspects() {
-    const delay = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
-    const delayBetweenAdd = 100;
-
-    this.lobbyService.requestParticipantCreation('Mathias');
-    await delay(delayBetweenAdd);
-
-    this.lobbyService.requestParticipantCreation('Lasse');
-    await delay(delayBetweenAdd);
-
-    this.lobbyService.requestParticipantCreation('Frederik');
-    await delay(delayBetweenAdd);
-
-    this.lobbyService.requestParticipantCreation('Andreas');
-    await delay(delayBetweenAdd);
-
-    this.lobbyService.requestParticipantCreation('Jakob');
-    await delay(delayBetweenAdd);
   }
 }

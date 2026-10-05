@@ -1,0 +1,602 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 5px auto 1fr;
+
+  background-color: var(--background-color);
+  width: 100vw;
+  height: 100vh;
+
+  --host-padding: 40px;
+  padding: var(--host-padding);
+  gap: 5px;
+  color: white;
+
+  transition: background-color 0.3s ease-in-out;
+  animation: panel-in 0.35s ease-in-out;
+
+  --transparent-grey: color-mix(in oklab, var(--color-white), transparent 40%);
+}
+
+.page-indicator {
+  position: relative;
+  display: grid;
+  gap: 5px;
+
+  grid-column: 1 / span 2;
+
+  > div {
+    position: absolute;
+    display: flex;
+    gap: 5px;
+    height: 100%;
+    width: 100%;
+  }
+
+  .dot {
+    border-radius: 100px;
+    flex: 1;
+  }
+
+  .backdrop {
+    z-index: 0;
+
+    .dot {
+      background-color: color-mix(in oklab, var(--color-white), transparent 75%);
+    }
+  }
+
+  .foreground {
+    z-index: 1;
+    mask-size: var(--page-progression) 100%;
+    mask-image: linear-gradient(#000 0 0);
+    mask-repeat: no-repeat;
+
+    transition: mask-size 0.25s ease-in-out;
+
+    .dot {
+      background-color: var(--color-white);
+    }
+  }
+}
+
+.page-count {
+  justify-self: end;
+  color: var(--color-white);
+
+  grid-column: 2;
+
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+
+  margin: 0;
+}
+
+.main-content {
+  display: grid;
+  grid-column: 1 / span 2;
+
+  > * {
+    align-self: center;
+    grid-area: 1 / 1;
+    display: grid;
+    gap: 10px;
+  }
+
+  h1,
+  h2 {
+    font-weight: 900;
+    margin: 0 calc(-1 * var(--archivo-side-bearing));
+  }
+
+  p {
+    margin: 0;
+  }
+
+  #start-page {
+    h1 {
+      font-size: clamp(30px, 10vw, 200px);
+    }
+
+    p {
+      color: var(--color-white);
+    }
+  }
+
+  #summery-page {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+
+    .header {
+      display: grid;
+      column-gap: 40px;
+      row-gap: 10px;
+      grid-template-columns: 1fr auto auto auto;
+
+      > p {
+        grid-row: 1;
+      }
+
+      > h1 {
+        grid-row: 2;
+        font-size: clamp(30px, 10vw, 50px);
+      }
+
+      .game-stat {
+        grid-row: 2;
+      }
+    }
+
+    .achievement-bar {
+      display: flex;
+      gap: 15px;
+
+      > div {
+        flex: 1;
+
+        display: grid;
+        padding: 15px;
+        border-radius: 15px;
+        background-color: var(--player-color);
+
+        gap: 10px;
+        align-items: center;
+
+        > *:first-child {
+          font-weight: bold;
+          grid-column: 1 / span 2;
+        }
+
+        > *:nth-child(n + 2) {
+          grid-row: 2;
+        }
+
+        *:last-child {
+          display: flex;
+          gap: 5px;
+          align-items: baseline;
+          justify-self: end;
+        }
+      }
+    }
+
+    .player-overview {
+      display: grid;
+      grid-template-columns: auto 1fr repeat(5, auto);
+      column-gap: 20px;
+
+      > div {
+        border-bottom: 1px solid var(--primary-disabled-text);
+        display: grid;
+
+        grid-template-columns: subgrid;
+        grid-column: 1 / -1;
+
+        padding: 20px 0;
+
+        > div {
+          display: flex;
+          gap: 5px;
+          align-items: center;
+        }
+      }
+
+      .achievements {
+        display: grid;
+        width: fit-content;
+
+        p {
+          color: var(--primary-disabled-text);
+          padding: 5px 10px;
+          border: 1px solid var(--primary-disabled-text);
+          border-radius: 100px;
+        }
+      }
+
+      .simple-stat {
+        display: flex;
+        align-items: baseline;
+      }
+
+      .stat-label {
+        display: none;
+      }
+    }
+  }
+
+  .achievement-page {
+    h1 {
+      font-size: clamp(45px, 9vw, 150px);
+    }
+
+    h2 {
+      font-size: clamp(25px, 8.5vw, 100px);
+    }
+
+    p {
+      font-size: clamp(16px, 2vw, 30px);
+    }
+  }
+}
+
+.footer {
+  display: grid;
+  grid-auto-flow: column;
+  grid-column: 1;
+  align-content: center;
+
+  > * {
+    width: fit-content;
+  }
+
+  .action-buttons {
+    align-self: start;
+    justify-self: start;
+  }
+}
+
+.player-badges {
+  display: flex;
+
+  app-participant-badge {
+    border: 3px solid var(--background-color);
+    margin: 0 -5px;
+  }
+}
+
+.runner-ups {
+  display: flex;
+  gap: 20px;
+
+  .nth-place.empty {
+    visibility: hidden;
+  }
+
+  .nth-place {
+    display: grid;
+    gap: 5px;
+
+    grid-template-columns: repeat(2, auto) 1fr;
+
+    p {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .placement {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      align-self: center;
+      justify-self: start;
+      margin-right: 10px;
+
+      display: grid;
+      place-items: center;
+      width: 2em;
+      aspect-ratio: 1;
+
+      border: 3px solid white;
+      border-radius: 50%;
+    }
+
+    .player-name {
+      grid-column: 2 / span 2;
+      grid-row: 1;
+    }
+
+    .stat-value {
+      grid-column: 2;
+      grid-row: 2;
+
+      font-weight: unset;
+    }
+
+    .stat-unit {
+      grid-column: 3;
+      grid-row: 2;
+
+      font-weight: unset;
+    }
+  }
+
+  div {
+    border-color: var(--color-white);
+    border-style: solid;
+    border-width: 0;
+  }
+
+  div:last-child:not(:only-child) {
+    border-left-width: 3px;
+    padding: 0 20px;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+
+  button {
+    padding: 25px 30px;
+    font-size: 14px;
+    letter-spacing: 1px;
+    border: unset;
+  }
+}
+
+.page-leave {
+  animation: page-leave 0.2s ease-in-out;
+}
+
+@keyframes page-leave {
+  to {
+    translate: -500px 0;
+    opacity: 0;
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.2s ease-in-out;
+}
+
+@keyframes page-enter {
+  from {
+    translate: 100% 0;
+    opacity: 0;
+  }
+}
+
+@keyframes panel-in {
+  from {
+    translate: 0 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  :host {
+    --host-padding: 15px;
+    row-gap: 5px;
+    height: 100dvh;
+    grid-template-rows: 5px auto minmax(0, 1fr);
+    position: relative;
+  }
+
+  .tap-zones {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+
+    button {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--color-white);
+      outline-offset: -6px;
+    }
+  }
+
+  .main-content {
+    grid-template-columns: 100%;
+    grid-template-rows: minmax(0, 1fr);
+
+    #summery-page {
+      align-self: stretch;
+      min-height: 0;
+      row-gap: 15px;
+
+      .header {
+        grid-template-columns: 1fr 1fr;
+
+        > h1,
+        p {
+          grid-column: 1 / span 2;
+        }
+
+        .game-stat {
+          grid-row: unset;
+        }
+      }
+
+      .achievement-bar {
+        grid-column: 1 / span 2;
+        flex: none;
+        overflow: auto;
+        scrollbar-width: none;
+
+        margin: 0 calc(var(--host-padding) * -1);
+        padding: 0 var(--host-padding);
+      }
+
+      .player-overview {
+        grid-template-columns: 1fr;
+        align-content: start;
+        gap: 8px;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: none;
+
+        > p {
+          display: none;
+        }
+
+        > div {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-areas:
+            'name name beers'
+            'sips avg best'
+            'ach ach ach';
+          gap: 12px 0;
+
+          padding: 14px 16px;
+          border: 1.5px solid color-mix(in oklab, var(--color-white), transparent 88%);
+          border-radius: 14px;
+          background-color: color-mix(in oklab, var(--color-white), transparent 95%);
+        }
+
+        .name {
+          grid-area: name;
+
+          h3 {
+            font-size: 18px;
+            font-weight: 800;
+          }
+        }
+
+        .simple-stat.beers {
+          grid-area: beers;
+          justify-self: end;
+          align-items: baseline;
+          gap: 4px;
+
+          h3 {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1;
+          }
+
+          .subtitle {
+            letter-spacing: normal;
+            text-transform: none;
+            font-size: 13px;
+          }
+        }
+
+        .simple-stat:not(.beers) {
+          flex-wrap: wrap;
+          gap: 3px 4px;
+          padding: 12px 8px 0 0;
+          border-top: 1px solid color-mix(in oklab, var(--color-white), transparent 85%);
+
+          h3 {
+            font-size: 16px;
+            font-weight: 700;
+          }
+        }
+
+        .stat-label {
+          display: block;
+          flex-basis: 100%;
+          font-size: 10.5px;
+          letter-spacing: 0.12em;
+        }
+
+        .sips .unit,
+        .simple-stat.total-time {
+          display: none;
+        }
+
+        .achievements {
+          grid-area: ach;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          width: auto;
+
+          p {
+            font-size: 12px;
+          }
+        }
+
+        .achievements:empty {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .footer {
+    grid-column: 1 / span 2;
+  }
+
+  .footer:empty {
+    display: none;
+  }
+
+  .runner-ups {
+    flex-direction: column;
+    width: unset !important;
+
+    --gap: 10px;
+    gap: var(--gap);
+
+    > * {
+      grid-template-columns: auto 1fr auto auto !important;
+      border-left: unset !important;
+      padding: unset !important;
+    }
+
+    .nth-place {
+      align-items: center;
+
+      .placement {
+        height: unset !important;
+        width: unset !important;
+        border: none;
+        padding: 0 !important;
+        display: flex;
+      }
+
+      .placement:after {
+        content: '.';
+      }
+
+      > * {
+        grid-column: unset !important;
+        grid-row: 1 !important;
+      }
+    }
+
+    .nth-place:nth-child(2) {
+      padding: var(--gap) 0 !important;
+      border-top: 1px solid var(--transparent-grey);
+    }
+  }
+
+  .action-buttons {
+    grid-column: 1 / span 2;
+    justify-content: center;
+
+    > p {
+      color: var(--transparent-grey);
+    }
+
+    &:has(.leave) {
+      gap: 10px;
+      margin: 0 calc(var(--host-padding) * -1);
+      padding: 12px var(--host-padding) 0;
+      border-top: 1px solid color-mix(in oklab, var(--color-white), transparent 88%);
+    }
+
+    .restart,
+    .leave {
+      height: 58px;
+      padding: 0;
+      border-radius: 16px;
+    }
+
+    .restart {
+      flex: none;
+      width: 58px;
+      background-color: transparent;
+      border: 1.5px solid var(--transparent-grey);
+    }
+
+    .leave {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: normal;
+    }
+  }
+}

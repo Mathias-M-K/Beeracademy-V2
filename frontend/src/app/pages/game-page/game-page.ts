@@ -1,14 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  OnDestroy,
-  signal,
-  viewChild,
-  viewChildren,
-} from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, signal, untracked } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -21,10 +11,20 @@ import { DrawPanel } from './draw-panel/draw-panel';
 import { PodiumComponent } from './podium/podium.component';
 import { PlayerGrid } from './player-grid/player-grid';
 import { SegmentedControl } from '../../common/segmented-control/segmented-control';
+import { SwipePager } from '../../common/swipe-pager/swipe-pager';
+import { SwipePage } from '../../common/swipe-pager/swipe-page';
 
 @Component({
   selector: 'app-game-page',
-  imports: [CardCount, DrawPanel, PodiumComponent, PlayerGrid, SegmentedControl],
+  imports: [
+    CardCount,
+    DrawPanel,
+    PodiumComponent,
+    PlayerGrid,
+    SegmentedControl,
+    SwipePager,
+    SwipePage,
+  ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
   host: {
@@ -42,6 +42,7 @@ export class GamePage implements OnDestroy {
   protected previousPlayer = this.gameService.previousPlayer;
   protected nextPlayer = this.gameService.nextPlayer;
   protected turns = this.gameService.turns;
+  protected chugs = this.gameService.chugs;
 
   protected currentRound = this.gameService.currentRound;
   protected timerState = computed(() => this.gameService.gameTimeReport()?.state);
@@ -60,16 +61,14 @@ export class GamePage implements OnDestroy {
 
   protected readonly pageNames = ['Spil', 'Podie'];
   protected readonly selectedPage = signal(0);
-
-  private readonly scroller = viewChild.required('scroller', { read: ElementRef<HTMLElement> });
-  private readonly pages = viewChildren('page', { read: ElementRef<HTMLElement> });
-
-  private dragActive = false;
-  private rafId = 0;
+  private readonly gamePageIndex = 0;
+  private readonly podiumPageIndex = 1;
+  private readonly pageSwitchDelayMs = 200;
 
   constructor() {
     effect(() => {
-      this.scrollToIndex(this.selectedPage());
+      if (this.currentCard()?.rank !== 14 || !untracked(this.isCompact)) return;
+      this.selectedPage.set(this.podiumPageIndex);
     });
   }
 
@@ -77,45 +76,16 @@ export class GamePage implements OnDestroy {
     this.gameService.onGamePageDestroyed();
   }
 
-  protected onPointerDown(): void {
-    this.dragActive = true;
-  }
-
-  protected onPageSelected(): void {
-    this.dragActive = false;
-  }
-
-  protected onScroll(): void {
-    if (!this.dragActive || this.rafId) return;
-    this.rafId = requestAnimationFrame(() => {
-      this.rafId = 0;
-      this.selectedPage.set(this.nearestPageIndex());
-    });
-  }
-
-  protected onScrollEnd(): void {
-    this.selectedPage.set(this.nearestPageIndex());
-  }
-
-  private scrollToIndex(index: number): void {
-    if (this.dragActive) return;
-    const container = this.scroller().nativeElement;
-    const page = this.pages()[index].nativeElement;
-
-    const offset = page.getBoundingClientRect().left - container.getBoundingClientRect().left;
-    container.scrollTo({ left: container.scrollLeft + offset, behavior: 'smooth' });
-  }
-
-  private nearestPageIndex(): number {
-    const scroller = this.scroller().nativeElement;
-    const [first, second] = this.pages().map((page) => page.nativeElement);
-
-    const pageDistance = second.offsetLeft - first.offsetLeft;
-    return Math.round(scroller.scrollLeft / pageDistance);
-  }
-
   protected drawCard() {
-    this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
+    const turnDuration = this.playerTimer.currentDuration() ?? 0;
+
+    if (!this.isCompact() || this.selectedPage() === this.gamePageIndex) {
+      this.gameService.dispatchDrawCardAction(turnDuration);
+      return;
+    }
+
+    this.selectedPage.set(this.gamePageIndex);
+    setTimeout(() => this.gameService.dispatchDrawCardAction(turnDuration), this.pageSwitchDelayMs);
   }
 
   protected readonly TimerState = TimerState;

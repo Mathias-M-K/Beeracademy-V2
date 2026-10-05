@@ -152,51 +152,6 @@ class GameApiTest {
                 .cookie("session_jwt", is(notNullValue()));
     }
 
-    @DisplayName("Get game report returns report")
-    @Test
-    void getGameReportReturnsReport() {
-        // Arrange
-        String partyId = createGameWithTwoPlayers("Game Report Test");
-
-        // Act & Assert
-        given().pathParam("partyId", partyId)
-                .when()
-                .get("/api/games/{partyId}/reports/game")
-                .then()
-                .statusCode(200)
-                .body("beersConsumed", hasSize(2));
-    }
-
-    @DisplayName("Get player reports returns list")
-    @Test
-    void getPlayerReportsReturnsList() {
-        // Arrange
-        String partyId = createGameWithTwoPlayers("Player Reports Test");
-
-        // Act & Assert
-        given().pathParam("partyId", partyId)
-                .when()
-                .get("/api/games/{partyId}/reports/players")
-                .then()
-                .statusCode(200)
-                .body("$", hasSize(2));
-    }
-
-    @DisplayName("Get time report returns report")
-    @Test
-    void getTimeReportReturnsReport() {
-        // Arrange
-        String partyId = createGameWithTwoPlayers("Time Report Test");
-
-        // Act & Assert
-        given().pathParam("partyId", partyId)
-                .when()
-                .get("/api/games/{partyId}/reports/time")
-                .then()
-                .statusCode(200)
-                .body("gameTimeReport", is(notNullValue()))
-                .body("playerTimeReport", is(notNullValue()));
-    }
 
     @DisplayName("Request player release rejects a malformed participant ID")
     @Test

@@ -29,7 +29,6 @@ import dk.mathiaskofod.domain.game.models.Chug;
 import dk.mathiaskofod.domain.game.models.Turn;
 import dk.mathiaskofod.domain.game.player.Player;
 import dk.mathiaskofod.domain.game.player.models.Stats;
-import dk.mathiaskofod.domain.game.reports.GameReport;
 import dk.mathiaskofod.domain.game.timer.TimerReports;
 import dk.mathiaskofod.services.auth.models.TokenInfo;
 import dk.mathiaskofod.services.game.GameService;
@@ -746,14 +745,11 @@ class GameClientSessionManagerTest {
         @Test
         void endGameEventObserved() {
             // Arrange
-            // EndGameEvent.fromGameEvent accesses gameReport, playerReports, timerReports
-            GameReport gameReport = mock(GameReport.class);
+
             TimerReports timerReports = mock(TimerReports.class);
 
             EndGameEvent event = mock(EndGameEvent.class);
             when(event.gameId()).thenReturn(PARTY_ID);
-            when(event.gameReport()).thenReturn(gameReport);
-            when(event.playerReports()).thenReturn(Collections.emptyList());
             when(event.timerReports()).thenReturn(timerReports);
 
             mockActiveWebsocketConnection(PARTY_ID);

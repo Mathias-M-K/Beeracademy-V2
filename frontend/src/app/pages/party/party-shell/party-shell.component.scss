@@ -212,7 +212,8 @@ button.do-animate {
 }
 
 @media (max-width: 500px) {
-  :host(.is-game) {
+  :host(.is-game),
+  :host(.is-lobby) {
     height: 100dvh;
     grid-template-rows: auto auto minmax(0, 1fr);
   }

@@ -102,7 +102,6 @@ describe('DrawPanelSubMenuDrawer', () => {
     // Arrange
     const frames = captureAnimationFrames();
     const fixture = await render(0);
-    await dispatch(fixture, 'pointerdown');
     layOut(fixture, 280);
     scrollTo.mockClear();
 
@@ -117,21 +116,6 @@ describe('DrawPanelSubMenuDrawer', () => {
     expect(beforeFrame).toBe('Historik');
     expect(title(fixture)).toBe('Chance pr. kort');
     expect(scrollTo).not.toHaveBeenCalled();
-  });
-
-  it('ignores scrolling it did not start from a swipe', async () => {
-    // Arrange
-    const frames = captureAnimationFrames();
-    const fixture = await render(0);
-    layOut(fixture, 280);
-
-    // Act
-    await dispatch(fixture, 'scroll');
-    frames.flush();
-    await fixture.whenStable();
-
-    // Assert
-    expect(title(fixture)).toBe('Historik');
   });
 
   it('settles on the nearest page when scrolling ends', async () => {

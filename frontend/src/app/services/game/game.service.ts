@@ -22,7 +22,7 @@ import { WebsocketService } from '../websocket.service';
 import { GameAction } from '../models/categories/actions/game/game-action';
 import { startGameAction } from '../models/categories/actions/game/game-client-action/start-game-action';
 import { gameClientActionEnvelope } from '../models/categories/actions/game/game-action-envelope';
-import { OverlayService } from '../overlay/overlay.service';
+import { OverlayConf, OverlayService } from '../overlay/overlay.service';
 import { ChugOverlay } from '../../overlay/chug-overlay/chug-overlay';
 import { Player } from './models/player';
 import { playerColor } from '../../common/theme/player-colors';
@@ -48,6 +48,8 @@ import { DrawerService } from '../drawer/drawer.service';
 import { WebsocketCode } from '../../../api-models/model/websocketCode';
 import { PartyContext, PartyContextProvider } from '../../pages/party/party-context-provider';
 import { PlayerTurn } from './models/playerTurn';
+import { PlayerChug } from './models/playerChug';
+import { EndOfGamePanel } from '../../overlay/end-game-panel/end-of-game-panel.component';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -58,11 +60,11 @@ export class GameService implements PartyContextProvider {
   private readonly router = inject(Router);
   private readonly drawerService = inject(DrawerService);
 
-  private readonly gameStateObj = signal<GameDto | undefined>(undefined);
-  public gameTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.gameTimeReport);
-  public playerTimeReport = linkedSignal(() => this.gameStateObj()?.timerReports?.playerTimeReport);
+  private readonly _gameDto = signal<GameDto | undefined>(undefined);
+  public gameTimeReport = linkedSignal(() => this._gameDto()?.timerReports?.gameTimeReport);
+  public playerTimeReport = linkedSignal(() => this._gameDto()?.timerReports?.playerTimeReport);
 
-  private readonly playerDTOs = computed(() => this.gameStateObj()?.players ?? []);
+  private readonly playerDTOs = computed(() => this._gameDto()?.players ?? []);
   public players = linkedSignal(() => {
     return this.playerDTOs().map((dto, index) => {
       const player = Player.fromPlayerDto(dto);
@@ -71,7 +73,7 @@ export class GameService implements PartyContextProvider {
     });
   });
   public gameInfo = linkedSignal<GameInfo | undefined>(() => {
-    const state = this.gameStateObj();
+    const state = this._gameDto();
     if (!state?.partyId || !state?.name) {
       return undefined;
     }
@@ -83,30 +85,30 @@ export class GameService implements PartyContextProvider {
 
     return gameInfo;
   });
-  public gameState = linkedSignal(() => this.gameStateObj()?.gameState);
-  private readonly _currentRound = linkedSignal(() => this.gameStateObj()?.currentRound ?? 0);
+  public gameState = linkedSignal(() => this._gameDto()?.gameState);
+  private readonly _currentRound = linkedSignal(() => this._gameDto()?.currentRound ?? 0);
   public readonly currentRound = computed(() => {
     return Math.min(13, this._currentRound());
   });
-  public currentCard = linkedSignal(() => this.gameStateObj()?.lastCard);
+  public currentCard = linkedSignal(() => this._gameDto()?.lastCard);
 
   private readonly currentPlayerId = linkedSignal(() => {
     if (this.gameState() === GameState.AwaitingChug) {
-      return this.gameStateObj()?.lastPlayerToDraw;
+      return this._gameDto()?.lastPlayerToDraw;
     }
     // return this.currentCard()?.rank === 14 ? this.gameStateObj()?.lastPlayerToDraw : this.gameStateObj()?.nextPlayerToDraw
-    return this.gameStateObj()?.nextPlayerToDraw;
+    return this._gameDto()?.nextPlayerToDraw;
   });
   public readonly currentPlayer = computed(() => this.getPlayer(this.currentPlayerId()));
 
-  private readonly previousPlayerId = linkedSignal(() => this.gameStateObj()?.lastPlayerToDraw);
+  private readonly previousPlayerId = linkedSignal(() => this._gameDto()?.lastPlayerToDraw);
   public readonly previousPlayer = computed(() => this.getPlayer(this.previousPlayerId()));
 
-  private readonly nextPlayerId = linkedSignal(() => this.gameStateObj()?.playerToDrawNextAfter);
+  private readonly nextPlayerId = linkedSignal(() => this._gameDto()?.playerToDrawNextAfter);
   public readonly nextPlayer = computed(() => this.getPlayer(this.nextPlayerId()));
 
   private readonly _remainingCardsByRank = linkedSignal(
-    () => this.gameStateObj()?.remainingCardsCount ?? [],
+    () => this._gameDto()?.remainingCardsCount ?? [],
   );
   public readonly remainingCardsByRank = this._remainingCardsByRank.asReadonly();
   private readonly remainingCardsCount = computed(() => {
@@ -143,8 +145,40 @@ export class GameService implements PartyContextProvider {
     return turns;
   });
 
+  public readonly chugs = computed<PlayerChug[]>(() => {
+    const chronological = this.players()
+      .flatMap((player, seat) =>
+        (player.stats?.turns ?? [])
+          .filter((turn) => turn.card?.rank === 14)
+          .map((turn, playerChugIndex) => ({
+            player,
+            seat,
+            round: turn.round ?? 0,
+            chug: player.stats?.chugs?.at(playerChugIndex),
+          })),
+      )
+      .filter((entry) => entry.chug !== undefined)
+      .sort((a, b) => a.round - b.round || a.seat - b.seat);
+
+    const chugTime = (chug?: Chug) => chug?.chugTimeMillis ?? Infinity;
+
+    return chronological.map(({ player, chug }, index) => {
+      const time = chug!.chugTimeMillis;
+      return {
+        player,
+        chug: chug!,
+        chugNumber: index + 1,
+        placement:
+          time === undefined
+            ? undefined
+            : 1 + chronological.filter((other) => chugTime(other.chug) < time).length,
+      };
+    });
+  });
+
   private gamePausedPanel?: OverlayHandle<void>;
   private chugOverlay?: OverlayHandle<number>;
+  private endOfGamePanel?: OverlayHandle<void>;
 
   private isReconnecting: boolean = false;
   private reconnectCount: number = 0;
@@ -224,10 +258,6 @@ export class GameService implements PartyContextProvider {
     void this.connectToWebsocket(true, 15000);
   }
 
-  /**
-   * When page gains focus, e.g. after phone have been locked or user used another app or tab
-   * @private
-   */
   private onPageGainFocus() {
     const visibilityState = document.visibilityState;
     console.debug(
@@ -240,13 +270,8 @@ export class GameService implements PartyContextProvider {
     this.resumeConnectionIfDropped();
   }
 
-  /**
-   * Reconnects a game whose socket died while we were away. Safe to call repeatedly — it no-ops
-   * unless there is a game to resume and its socket is gone.
-   * @private
-   */
   private resumeConnectionIfDropped() {
-    if (!this.gameStateObj()) return;
+    if (!this._gameDto()) return;
     if (this.websocketService.isConnected()) return;
     this.reconnectCount = 0;
     this.reconnectToWebsocket();
@@ -385,10 +410,17 @@ export class GameService implements PartyContextProvider {
 
   private handleGameSnapshot(event: GameEventEnvelope) {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
-    this.gameStateObj.set(stateEvent.gameState);
+    this._gameDto.set(stateEvent.gameState);
 
-    if (this.gameTimeReport()?.state === TimerState.Paused) {
+    if (
+      this.gameTimeReport()?.state === TimerState.Paused &&
+      this.gameState() !== GameState.Finished
+    ) {
       this.openPausePanel();
+    }
+
+    if (this.gameState() === GameState.Finished) {
+      this.openEndOfGamePanel();
     }
   }
 
@@ -641,6 +673,23 @@ export class GameService implements PartyContextProvider {
     );
   }
 
+  //TODO find a better solution to manage overlays (and drawers) and how to close them on different events
+  private openEndOfGamePanel() {
+    // A reconnect re-sends the finished snapshot — only ever show one.
+    if (this.endOfGamePanel) return;
+
+    const overlayConf: OverlayConf<void> = {
+      component: EndOfGamePanel,
+    };
+    const panel = this.overlayService.openOverlay<void>(overlayConf);
+    this.endOfGamePanel = panel;
+
+    // endGame() replaces the panel before the old one's exit animation resolves `closed`.
+    void panel.closed.then(() => {
+      if (this.endOfGamePanel === panel) this.endOfGamePanel = undefined;
+    });
+  }
+
   private openPausePanel() {
     // A reconnect and a paused-event can both land on the same pause — only ever show one.
 
@@ -704,11 +753,12 @@ export class GameService implements PartyContextProvider {
     this.pauseTimer(this.gameTimeReport);
     this.pauseTimer(this.playerTimeReport);
     this.dismissAllOverlays();
+    this.openEndOfGamePanel();
   }
 
   public onGamePageDestroyed() {
     this.websocketService.disconnect();
-    this.gameStateObj.set(undefined);
+    this._gameDto.set(undefined);
     this.dismissAllOverlays(true);
   }
 
@@ -716,10 +766,11 @@ export class GameService implements PartyContextProvider {
   private dismissAllOverlays(ignoreAnimation = false) {
     this.gamePausedPanel?.dismiss(ignoreAnimation);
     this.chugOverlay?.dismiss(ignoreAnimation);
+    this.endOfGamePanel?.dismiss(ignoreAnimation);
 
-    // A dismissal never resolves `closed`, so the handlers that normally clear these don't run.
     this.gamePausedPanel = undefined;
     this.chugOverlay = undefined;
+    this.endOfGamePanel = undefined;
   }
 
   private navigateToWelcome() {

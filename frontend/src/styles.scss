@@ -17,6 +17,7 @@ html {
   --mobile-bottom-bar-height: 80px; //The panel containing the draw and history btn
 
   --font: 'Archivo', sans-serif;
+  --archivo-side-bearing: 0.06em;
 }
 
 body {
@@ -33,6 +34,7 @@ h6,
 p,
 input,
 label {
+  margin: 0;
   font-family: 'Archivo', sans-serif;
 }
 
@@ -179,7 +181,6 @@ input::placeholder {
 }
 
 .header_subtitle {
-  margin-top: -15px;
   color: var(--color-silver);
 }
 

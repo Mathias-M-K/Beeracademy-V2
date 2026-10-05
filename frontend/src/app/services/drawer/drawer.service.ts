@@ -14,7 +14,7 @@ import { QrScannerDrawer } from '../../drawer/qr-scanner-drawer/qr-scanner-drawe
 import { NewParticipantDrawerComponent } from '../../drawer/new-participant-drawer/new-participant-drawer.component';
 import { LobbyParticipantSettingsDrawer } from '../../drawer/lobby-participant-settings-drawer/lobby-participant-settings-drawer';
 import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
-import { ParticipantSettingsResult } from '../../overlay/participant-settings-overlay/models/participant-settings-result';
+import { ParticipantSettingsResult } from '../../drawer/lobby-participant-settings-drawer/models/participant-settings-result';
 import { DrawPanelSubMenuDrawer } from '../../drawer/draw-panel-sub-menu-drawer/draw-panel-sub-menu-drawer';
 
 @Service()

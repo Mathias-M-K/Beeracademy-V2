@@ -330,6 +330,104 @@ describe('GameService', () => {
       ]);
     });
 
+    it('lists chugs in the order they happened, round by round in seat order', async () => {
+      // Arrange
+      const [first, second, third] = threePlayers();
+      first.stats = {
+        turns: [
+          { round: 1, card: aCard(2) },
+          { round: 2, card: aCard(14) },
+          { round: 2, card: aCard(14) },
+        ],
+        chugs: [{ chugTimeMillis: 3000 }, { chugTimeMillis: 4000 }],
+      };
+      second.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{ chugTimeMillis: 5000 }],
+      };
+      third.stats = { turns: [{ round: 1, card: aCard(4) }], chugs: [] };
+      const game = aGameDto({ currentRound: 2, players: [first, second, third] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(
+        service.chugs().map((chug) => [chug.chugNumber, chug.player.id, chug.chug.chugTimeMillis]),
+      ).toEqual([
+        [1, PLAYER_2, 5000],
+        [2, PLAYER_1, 3000],
+        [3, PLAYER_1, 4000],
+      ]);
+    });
+
+    it('places chugs by speed, sharing a placement on a tie', async () => {
+      // Arrange
+      const [first, second, third] = threePlayers();
+      first.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{ chugTimeMillis: 4000 }],
+      };
+      second.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{ chugTimeMillis: 2000 }],
+      };
+      third.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{ chugTimeMillis: 2000 }],
+      };
+      const game = aGameDto({ currentRound: 1, players: [first, second, third] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.chugs().map((chug) => [chug.player.id, chug.placement])).toEqual([
+        [PLAYER_1, 3],
+        [PLAYER_2, 1],
+        [PLAYER_3, 1],
+      ]);
+    });
+
+    it('gives a chug without a recorded time no placement', async () => {
+      // Arrange
+      const [first, second, third] = threePlayers();
+      first.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{ chugTimeMillis: 4000 }],
+      };
+      second.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{}],
+      };
+      third.stats = { turns: [{ round: 1, card: aCard(4) }], chugs: [] };
+      const game = aGameDto({ currentRound: 1, players: [first, second, third] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.chugs().map((chug) => [chug.player.id, chug.placement])).toEqual([
+        [PLAYER_1, 1],
+        [PLAYER_2, undefined],
+      ]);
+    });
+
+    it('leaves out an ace whose chug has not been registered yet', async () => {
+      // Arrange
+      const [first, second, third] = threePlayers();
+      first.stats = { turns: [{ round: 1, card: aCard(14) }], chugs: [] };
+      second.stats = { turns: [], chugs: [] };
+      third.stats = { turns: [], chugs: [] };
+      const game = aGameDto({ currentRound: 1, players: [first, second, third] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.chugs()).toEqual([]);
+    });
+
     it('names the players who drew last and draw after the current one', async () => {
       // Arrange
       const game = aGameDto({ lastPlayerToDraw: PLAYER_3, playerToDrawNextAfter: PLAYER_2 });
