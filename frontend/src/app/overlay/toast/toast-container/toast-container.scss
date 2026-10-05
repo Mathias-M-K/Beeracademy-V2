@@ -2,8 +2,12 @@
   position: relative;
   margin-bottom: 75px;
   height: 75px;
-  width: 90vw;
+  width: min(90vw, 500px);
   pointer-events: auto;
+}
+
+:host(.overlay-leaving) {
+  animation: toast-container-leave 0.25s ease-in-out forwards;
 }
 
 
@@ -23,6 +27,11 @@ app-toast{
   from{
     opacity: 0;
     translate: 0 -50px;
+  }
+}
+@keyframes toast-container-leave {
+  to{
+    opacity: 0;
   }
 }
 @keyframes toast-out {

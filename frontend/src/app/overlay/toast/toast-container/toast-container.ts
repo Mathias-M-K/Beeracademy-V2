@@ -7,7 +7,10 @@ import {ToastData} from '../models/toast-data';
   selector: 'app-toast-container',
   templateUrl: './toast-container.html',
   styleUrl: './toast-container.scss',
-  host: {},
+  host: {
+    role: 'status',
+    'aria-live': 'polite',
+  },
   imports: [
     Toast
   ]

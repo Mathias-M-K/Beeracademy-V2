@@ -1,4 +1,4 @@
-import { inject, Service, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import { OverlayConf, OverlayService } from '../overlay/overlay.service';
 import { OverlayPositionBuilder } from '@angular/cdk/overlay';
 import { ToastData, ToastState } from '../../overlay/toast/models/toast-data';
@@ -14,13 +14,14 @@ export class ToastService {
   private readonly posBuilder = inject(OverlayPositionBuilder);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
+  private readonly isClosing = signal(false);
   private readonly _toast = signal<ToastData | null>(null);
-  public readonly toast = this._toast.asReadonly();
+  // Hidden while the container is leaving, so it does not flash a toast that arrived mid-exit.
+  public readonly toast = computed(() => (this.isClosing() ? null : this._toast()));
 
   private dismissTimer: ReturnType<typeof setTimeout> | undefined;
 
   private overlayHandle: OverlayHandle<void> | null = null;
-  private isClosing = false;
 
   protected isCompact = toSignal(
     this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map((data) => data.matches)),
@@ -65,12 +66,12 @@ export class ToastService {
 
   private closeToastOverlay(): void {
     const handle = this.overlayHandle;
-    if (!handle || this.isClosing) return;
+    if (!handle || this.isClosing()) return;
 
-    this.isClosing = true;
+    this.isClosing.set(true);
     handle.close();
     void handle.closed.then(() => {
-      this.isClosing = false;
+      this.isClosing.set(false);
       this.overlayHandle = null;
 
       // A toast may have arrived while the exit was playing.

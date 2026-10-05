@@ -1,5 +1,5 @@
 <button type="button" class="toast" (click)="dismissed.emit()">
   <app-dot [color]="dotColor()"></app-dot>
-  <h3>{{ title() }}</h3>
+  <span class="title">{{ title() }}</span>
   <p><ng-content></ng-content></p>
 </button>

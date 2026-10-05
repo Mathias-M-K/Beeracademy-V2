@@ -199,6 +199,21 @@ describe('ToastService', () => {
       expect(panes()).toHaveLength(1);
     });
 
+    it('holds back a toast that arrives while the container is leaving', async () => {
+      // Arrange
+      service.showToast('First', 'one', 'info');
+      service.dismissToast(service.toast()!.id);
+
+      // Act
+      service.showToast('Second', 'two', 'info');
+      const toastWhileClosing = service.toast();
+      await flushMicrotasks();
+
+      // Assert
+      expect(toastWhileClosing).toBeNull();
+      expect(service.toast()?.message).toBe('two');
+    });
+
     it('never has more than one toast container open', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');

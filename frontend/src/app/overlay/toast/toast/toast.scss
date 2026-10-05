@@ -30,6 +30,12 @@
     grid-row: 1 / -1;
   }
 
+  .title{
+    font-family: 'Archivo', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
   p{
     grid-row: 2;
   }
