@@ -359,6 +359,15 @@ backend reports' rule) over throwing inside a signal every page reads.
 Test: `player.spec.ts` › "throws when sipsInABeer is %i" asserts the current throw. It is not
 an `it.fails` pin, since the correct frontend behaviour is part of the decision above.
 
+## 29. Pause time still accumulates after end of game
+
+If I reload the page 30 seconds after the end-of-game panel have been shown, it will be shown as if the game had a 30 second break. Timer needs to stop after end of game instead of pause.
+
+## 30. Toasts are really annoying
+
+After we have begun to pin buttons at the end of the screen for phones, toast have become some of a annoyance. They cover the buttons we need and doesn't fuck off when clicked. We need to rethink what we do
+
+
 ## Related
 - [[frontend-unit-testing]] — issues 16–25 are pinned by `it.fails` tests
 
