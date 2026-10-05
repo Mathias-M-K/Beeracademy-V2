@@ -1,6 +1,6 @@
 ---
 type: registry
-updated: 2026-09-22
+updated: 2026-10-05
 tags:
   - issues
   - open
@@ -246,6 +246,9 @@ arrived mid-exit opens exactly one fresh container. See [[toast-stack-and-overvi
 
 Test: `toast.service.spec.ts` › "never has more than one toast container open" (no longer `it.fails`).
 
+**Regressed and re-fixed 2026-10-05.** The `syncOverlay()` / `isClosing` fix was removed with the
+toast rewrite, then reinstated in a simpler form (an `isClosing` flag in `closeToastOverlay`). See #34.
+
 ## 23. `JoinPage` leaks its SSE connection
 `frontend/src/app/pages/join-page/join-page.ts:55-60`. The
 `getPlayerConnectionEventStream` subscription in the constructor has no
@@ -367,6 +370,56 @@ If I reload the page 30 seconds after the end-of-game panel have been shown, it 
 
 After we have begun to pin buttons at the end of the screen for phones, toast have become some of a annoyance. They cover the buttons we need and doesn't fuck off when clicked. We need to rethink what we do
 
+**In progress 2026-10-05** (branch `improvement/better-toast`): the deck and overview were replaced
+by a single toast at a time: a new toast replaces the current one, a click dismisses it, and the
+service auto-dismisses it. See [[toast-lifecycle]]. This builds and the unit tests pass, but it has
+not been verified in a browser or on a phone, so the entry stays open. The overlay box still blocks
+clicks under it; a click-through was tried and rolled back.
+
+## 31. No delay before showing end of game panel
+
+We don't get a chance to see the last drawn card before the end of game overlay takes over.
+
+Solution: The draw btn becomes a "end game" btn
+
+## 32. Something is wrong with phone welcome-screen
+
+it's very close to the top
+
+## 33. Toasts are not announced to screen readers — ⬜ OPEN 2026-10-05
+
+`frontend/src/app/overlay/toast/toast-container/toast-container.html` renders the toast in a keyed
+`@for` (at most one item), with no `aria-live` or `role="status"` region around them. A screen-reader user never hears
+a toast: not errors ("Kunne ikke forbinde"), and not the validation messages on `/start`. This misses
+WCAG 2.1 SC 4.1.3 (Status Messages, level AA), which the frontend is held to.
+
+**Fix direction:** a persistent `role="status"` (polite) region in the container, or `role="alert"`
+for `ToastState.error`. The region has to exist **before** the toast is inserted, or it will not be
+announced. With the container opened lazily on the first toast, that needs care. See
+[[toast-lifecycle]].
+
+## ✅ 34. A toast during the container's exit opens a second container — RESOLVED 2026-10-05
+
+Fixed on the same branch. `closeToastOverlay` keeps the handle and sets `isClosing` until `closed`
+resolves, then reopens if a toast arrived meanwhile, so `showToast` during the exit never opens a
+second container. Confirmed by `toast.service.spec.ts` › "never has more than one toast container
+open". That test now counts panes before microtasks flush; it fails against the old behaviour and
+passes with the fix. See [[toast-lifecycle]]. The original report follows.
+
+~~`frontend/src/app/services/toast/toast.service.ts` — `closeToastOverlay()` calls
+`overlayHandle.close()` and nulls `overlayHandle` at once. `OverlayHandle.close()` only disposes
+after `startExitAnimation()` finishes (`services/overlay/models/overlay-handle.ts`). A `showToast`
+in that window sees no handle and opens a second `ToastContainer`. Both containers read the same
+`toasts` signal, so the new toast renders twice until the old one finishes leaving.
+
+This is the [[known-issues]] #22 race coming back in a milder form. The old flag-flip that could
+cascade to a third container is gone, so it is at most two containers, briefly. The `syncOverlay()`
+/ `isClosing` guard that fixed #22 was removed in the `improvement/better-toast` rewrite.
+
+Not yet observed in a browser. `toast.service.spec.ts` › "never has more than one toast container
+open" is the test that should tell. **Fix direction:** reinstate the `isClosing` + `closed.then`
+reconcile from #22.~~
+
 
 ## Related
 - [[frontend-unit-testing]] — issues 16–25 are pinned by `it.fails` tests
@@ -377,6 +430,7 @@ After we have begun to pin buttons at the end of the screen for phones, toast ha
 - [[party-state-endpoint-review]] — the archived review issues 10–13 were promoted from
 - [[architecture-tests]] — machine-enforced checks; issues 6, 12 and 14 are what it must encode
 - [[runtime-config]] — issue 9
+- [[toast-lifecycle]] — issues 30, 33, 34
 - [[redis-state-store]] — issues 5, 7, 8, 15
 - [[party-id-lifecycle]] — issue 6's boundary rule
 - [[websocket-session-managers]] — issue 14

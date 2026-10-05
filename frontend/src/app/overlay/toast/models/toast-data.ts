@@ -5,9 +5,9 @@ export enum ToastState {
 }
 
 const DEFAULT_DURATION_MS: Record<ToastState, number> = {
-  [ToastState.message]: 4500,
-  [ToastState.success]: 4000,
-  [ToastState.error]: 6500,
+  [ToastState.message]: 3500,
+  [ToastState.success]: 3000,
+  [ToastState.error]: 4000,
 };
 
 export class ToastData {

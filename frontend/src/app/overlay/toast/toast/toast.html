@@ -1,32 +1,5 @@
-<span class="glyph" aria-hidden="true">
-  <span class="countdown" (animationend)="onCountdownEnd()"></span>
-  <span class="ripple"></span>
-  <app-dot class="dot" [color]="toastColor()" [radiusPx]="8"></app-dot>
-  <material-icon class="icon" [icon]="toastData().icon" [size]="18"></material-icon>
-</span>
-
-<span class="copy">
-  <span class="title">{{ toastData().title }}</span>
-  <span class="message">{{ toastData().message }}</span>
-</span>
-
-@if (showBadge()) {
-  <button
-    class="toast-count-badge"
-    type="button"
-    [class.rolls-down]="badgeRollsDown()"
-    [attr.aria-label]="badgeCount() + ' flere hændelser'"
-    (click)="onBadgeClick($event)"
-    animate.enter="badge-enter"
-    animate.leave="badge-leave"
-  >
-    <span class="badge-roll">
-      @for (count of [badgeCount()]; track count) {
-        <span class="badge-number" animate.enter="rolls-in" animate.leave="rolls-out">{{
-          count
-        }}</span>
-      }
-    </span>
-    mere
-  </button>
-}
+<button type="button" class="toast" (click)="dismissed.emit()">
+  <app-dot [color]="dotColor()"></app-dot>
+  <h3>{{ title() }}</h3>
+  <p><ng-content></ng-content></p>
+</button>
