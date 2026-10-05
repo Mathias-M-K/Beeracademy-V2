@@ -6,6 +6,7 @@ import {
   inject,
   OnDestroy,
   signal,
+  untracked,
   viewChild,
   viewChildren,
 } from '@angular/core';
@@ -60,6 +61,9 @@ export class GamePage implements OnDestroy {
 
   protected readonly pageNames = ['Spil', 'Podie'];
   protected readonly selectedPage = signal(0);
+  private readonly gamePageIndex = 0;
+  private readonly podiumPageIndex = 1;
+  private readonly pageSwitchDelayMs = 200;
 
   private readonly scroller = viewChild.required('scroller', { read: ElementRef<HTMLElement> });
   private readonly pages = viewChildren('page', { read: ElementRef<HTMLElement> });
@@ -70,6 +74,12 @@ export class GamePage implements OnDestroy {
   constructor() {
     effect(() => {
       this.scrollToIndex(this.selectedPage());
+    });
+
+    effect(() => {
+      if (this.currentCard()?.rank !== 14 || !untracked(this.isCompact)) return;
+      this.dragActive = false;
+      this.selectedPage.set(this.podiumPageIndex);
     });
   }
 
@@ -115,7 +125,16 @@ export class GamePage implements OnDestroy {
   }
 
   protected drawCard() {
-    this.gameService.dispatchDrawCardAction(this.playerTimer.currentDuration() ?? 0);
+    const turnDuration = this.playerTimer.currentDuration() ?? 0;
+
+    if (!this.isCompact() || this.selectedPage() === this.gamePageIndex) {
+      this.gameService.dispatchDrawCardAction(turnDuration);
+      return;
+    }
+
+    this.dragActive = false;
+    this.selectedPage.set(this.gamePageIndex);
+    setTimeout(() => this.gameService.dispatchDrawCardAction(turnDuration), this.pageSwitchDelayMs);
   }
 
   protected readonly TimerState = TimerState;
