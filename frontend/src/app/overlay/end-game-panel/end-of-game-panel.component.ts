@@ -72,6 +72,8 @@ export class EndOfGamePanel {
     { kind: 'summary' },
   ]);
   protected readonly currentPageIndex = signal(0);
+  /** Second and third place always take up room, so pages don't shift when one is missing. */
+  protected readonly runnerUpSlots = [0, 1];
   protected readonly currentPage = computed(() => this.pages()[this.currentPageIndex()]);
 
   protected readonly achievements = this.achievementService.achievements;

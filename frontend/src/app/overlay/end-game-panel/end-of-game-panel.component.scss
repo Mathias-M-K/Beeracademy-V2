@@ -251,6 +251,10 @@
   display: flex;
   gap: 20px;
 
+  .nth-place.empty {
+    visibility: hidden;
+  }
+
   .nth-place {
     display: grid;
     gap: 5px;

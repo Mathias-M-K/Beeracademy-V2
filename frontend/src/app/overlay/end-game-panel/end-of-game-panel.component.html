@@ -165,20 +165,30 @@
     @case ('achievement') {
       <div class="runner-ups" animate.enter="page-enter">
         @let achievement = page.achievement;
-        @for (runnerUp of achievement.runnerUps; track $index) {
-          <div class="nth-place">
-            <p class="placement">{{ $index + 2 }}</p>
-            <p class="player-name">
-              <app-animated-text
-                [text]="runnerUp.player.name"
-                [effect]="'roll'"
-              ></app-animated-text>
-            </p>
-            <p class="stat-value">
-              <app-animated-number [value]="runnerUp.value" [digitsInfo]="achievement.digitsInfo" />
-            </p>
-            <p class="stat-unit">{{ achievement.unit }}</p>
-          </div>
+        @for (slot of runnerUpSlots; track slot) {
+          @let runnerUp = achievement.runnerUps[slot];
+          @if (runnerUp) {
+            <div class="nth-place">
+              <p class="placement">{{ slot + 2 }}</p>
+              <p class="player-name">
+                <app-animated-text
+                  [text]="runnerUp.player.name"
+                  [effect]="'roll'"
+                ></app-animated-text>
+              </p>
+              <p class="stat-value">
+                <app-animated-number [value]="runnerUp.value" [digitsInfo]="achievement.digitsInfo" />
+              </p>
+              <p class="stat-unit">{{ achievement.unit }}</p>
+            </div>
+          } @else {
+            <div class="nth-place empty" aria-hidden="true">
+              <p class="placement">{{ slot + 2 }}</p>
+              <p class="player-name">&nbsp;</p>
+              <p class="stat-value">&nbsp;</p>
+              <p class="stat-unit">{{ achievement.unit }}</p>
+            </div>
+          }
         }
       </div>
     }
