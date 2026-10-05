@@ -43,7 +43,7 @@
           [card]="{ rank: aceRank, suit: chug.chug.suit ?? 'SPADE' }"
         ></app-card>
         <p>{{ chug.player.name }}</p>
-        @if (chug.placement <= 3 && chug.chug.chugTimeMillis !== undefined) {
+        @if (chug.placement && chug.placement <= 3) {
           <div
             class="placement-indicator"
             [style.--indicator-color]="placementColors[chug.placement]"

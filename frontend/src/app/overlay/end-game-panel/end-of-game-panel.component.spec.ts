@@ -15,6 +15,7 @@ describe('EndOfGamePanel', () => {
   let compact: boolean;
   let players: ReturnType<typeof signal<Player[]>>;
   let achievements: ReturnType<typeof signal<Achievement[]>>;
+  let gameDuration: ReturnType<typeof signal<number | undefined>>;
 
   const anna = Player.fromPlayerDto(aPlayerDto({ id: PLAYER_1, name: 'Anna' }));
   const bo = Player.fromPlayerDto(aPlayerDto({ id: PLAYER_2, name: 'Bo' }));
@@ -34,6 +35,7 @@ describe('EndOfGamePanel', () => {
 
   beforeEach(() => {
     compact = false;
+    gameDuration = signal<number | undefined>(60_000);
     players = signal<Player[]>([anna, bo]);
     achievements = signal<Achievement[]>([
       anAchievement({ runnerUps: [{ player: bo, value: 1 }] }),
@@ -60,7 +62,7 @@ describe('EndOfGamePanel', () => {
         },
         {
           provide: TimerService,
-          useValue: { getTimer: () => ({ currentDuration: signal<number | undefined>(60_000) }) },
+          useValue: { getTimer: () => ({ currentDuration: gameDuration }) },
         },
         {
           provide: BreakpointObserver,
@@ -111,6 +113,19 @@ describe('EndOfGamePanel', () => {
       expect(text(fixture, '.page-count')).toBe('4/4');
       expect(fixture.nativeElement.querySelector('#summery-page')).not.toBeNull();
       expect(button(fixture, 'Næste').disabled).toBe(true);
+    });
+
+    it('shows the game time once the timer has caught up', async () => {
+      // Arrange
+      gameDuration.set(undefined);
+      const fixture = await render();
+
+      // Act
+      gameDuration.set(61_000);
+      await fixture.whenStable();
+
+      // Assert
+      expect(text(fixture, '#start-page p:last-child')).toBe('Friday game • 00:01:01');
     });
 
     it('cannot go back from the start page', async () => {

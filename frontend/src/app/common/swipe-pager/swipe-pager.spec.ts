@@ -151,6 +151,25 @@ describe('SwipePager', () => {
     expect(fixture.componentInstance.selectedPage()).toBe(0);
   });
 
+  it('follows a swipe that starts during its own scroll, even without a scrollend', async () => {
+    // Arrange
+    const frames = captureAnimationFrames();
+    const fixture = await render();
+    layOut(fixture, 0);
+    fixture.componentInstance.selectedPage.set(1);
+    await fixture.whenStable();
+    layOut(fixture, 20);
+
+    // Act
+    await dispatch(fixture, 'pointerdown');
+    await dispatch(fixture, 'scroll');
+    frames.flush();
+    await fixture.whenStable();
+
+    // Assert
+    expect(fixture.componentInstance.selectedPage()).toBe(0);
+  });
+
   it('does not scroll, nor stop following swipes, when the pages are not laid out side by side', async () => {
     // Arrange
     const frames = captureAnimationFrames();

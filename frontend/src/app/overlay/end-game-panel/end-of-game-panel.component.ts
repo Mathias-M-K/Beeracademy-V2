@@ -60,9 +60,11 @@ export class EndOfGamePanel {
     () => this.currentAchievement()?.player.color ?? 'var(--nice-black)',
   );
 
-  protected partyName = this.gameService.gameInfo()?.name ?? '';
-  protected gameTime = this.gameTimer.currentDuration() ?? 0;
-  protected pauseTime = this.gameService.gameTimeReport()?.pausedTime ?? 0;
+  protected readonly partyName = computed(() => this.gameService.gameInfo()?.name ?? '');
+  protected readonly gameTime = computed(() => this.gameTimer.currentDuration() ?? 0);
+  protected readonly pauseTime = computed(
+    () => this.gameService.gameTimeReport()?.pausedTime ?? 0,
+  );
 
   protected readonly pages = computed<EndOfGamePage[]>(() => [
     { kind: 'start' },

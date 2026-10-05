@@ -389,6 +389,30 @@ describe('GameService', () => {
       ]);
     });
 
+    it('gives a chug without a recorded time no placement', async () => {
+      // Arrange
+      const [first, second, third] = threePlayers();
+      first.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{ chugTimeMillis: 4000 }],
+      };
+      second.stats = {
+        turns: [{ round: 1, card: aCard(14) }],
+        chugs: [{}],
+      };
+      third.stats = { turns: [{ round: 1, card: aCard(4) }], chugs: [] };
+      const game = aGameDto({ currentRound: 1, players: [first, second, third] });
+
+      // Act
+      await joinGame(game);
+
+      // Assert
+      expect(service.chugs().map((chug) => [chug.player.id, chug.placement])).toEqual([
+        [PLAYER_1, 1],
+        [PLAYER_2, undefined],
+      ]);
+    });
+
     it('leaves out an ace whose chug has not been registered yet', async () => {
       // Arrange
       const [first, second, third] = threePlayers();

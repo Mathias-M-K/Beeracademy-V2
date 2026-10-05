@@ -162,12 +162,18 @@ export class GameService implements PartyContextProvider {
 
     const chugTime = (chug?: Chug) => chug?.chugTimeMillis ?? Infinity;
 
-    return chronological.map(({ player, chug }, index) => ({
-      player,
-      chug: chug!,
-      chugNumber: index + 1,
-      placement: 1 + chronological.filter((other) => chugTime(other.chug) < chugTime(chug)).length,
-    }));
+    return chronological.map(({ player, chug }, index) => {
+      const time = chug!.chugTimeMillis;
+      return {
+        player,
+        chug: chug!,
+        chugNumber: index + 1,
+        placement:
+          time === undefined
+            ? undefined
+            : 1 + chronological.filter((other) => chugTime(other.chug) < time).length,
+      };
+    });
   });
 
   private gamePausedPanel?: OverlayHandle<void>;

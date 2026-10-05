@@ -5,6 +5,6 @@ export interface PlayerChug {
   player: Player;
   chug: Chug;
 
-  placement: number;
+  placement?: number;
   chugNumber: number;
 }

@@ -202,7 +202,7 @@ describe('PodiumComponent', () => {
     function aPlayerChug(
       name: string,
       chugNumber: number,
-      placement: number,
+      placement: number | undefined,
       suit: Suit,
       time?: number,
     ): PlayerChug {
@@ -246,7 +246,7 @@ describe('PodiumComponent', () => {
       // Arrange
       const chronological = [
         aPlayerChug('Anna', 1, 1, Suit.Heart, 1_000),
-        aPlayerChug('Bo', 2, 2, Suit.Spade),
+        aPlayerChug('Bo', 2, undefined, Suit.Spade),
       ];
 
       // Act

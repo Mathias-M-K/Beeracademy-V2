@@ -22,13 +22,13 @@
       <div id="start-page" animate.leave="page-leave">
         <p class="subtitle">Spillet er slut</p>
         <h1>Bunken er tom.</h1>
-        <p>{{ partyName }} • {{ gameTime | gameTimeFormat: 'HH:mm:ss' }}</p>
+        <p>{{ partyName() }} • {{ gameTime() | gameTimeFormat: 'HH:mm:ss' }}</p>
       </div>
     }
     @case ('summary') {
       <div id="summery-page" animate.enter="page-enter" animate.leave="page-leave">
         <div class="header">
-          <p class="subtitle">{{ partyName }}</p>
+          <p class="subtitle">{{ partyName() }}</p>
           <h1>Samlet overblik</h1>
 
           <div class="game-stat">
@@ -43,12 +43,12 @@
 
           <div class="game-stat">
             <p class="subtitle title">Spilletid</p>
-            <h2 class="stat">{{ gameTime | gameTimeFormat: 'HH:mm:ss' }}</h2>
+            <h2 class="stat">{{ gameTime() | gameTimeFormat: 'HH:mm:ss' }}</h2>
           </div>
 
           <div class="game-stat">
             <p class="subtitle title">Pause-tid</p>
-            <h2 class="stat">{{ pauseTime | gameTimeFormat: 'HH:mm:ss' }}</h2>
+            <h2 class="stat">{{ pauseTime() | gameTimeFormat: 'HH:mm:ss' }}</h2>
           </div>
         </div>
 

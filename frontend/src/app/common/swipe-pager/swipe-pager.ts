@@ -10,6 +10,7 @@ import { SwipePage } from './swipe-page';
   host: {
     '(scroll)': 'onScroll()',
     '(scrollend)': 'onScrollEnd()',
+    '(pointerdown)': 'onPointerDown()',
   },
 })
 export class SwipePager {
@@ -41,6 +42,10 @@ export class SwipePager {
   protected onScrollEnd(): void {
     this.programmaticScroll = false;
     this.selectedPage.set(this.nearestPageIndex());
+  }
+
+  protected onPointerDown(): void {
+    this.programmaticScroll = false;
   }
 
   private scrollToIndex(index: number): void {
