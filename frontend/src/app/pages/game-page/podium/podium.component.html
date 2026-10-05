@@ -36,11 +36,14 @@
 @if (chugHistory().length) {
   <section class="chug-history" tabindex="0" aria-label="Chug-historik">
     <p class="subtitle">Seneste ↑</p>
-    @for (chug of chugHistory(); track chug.suit) {
+    @for (chug of chugHistory(); track chug.chugNumber) {
       <div class="chug-time">
-        <app-card size="small" [card]="{ rank: aceRank, suit: chug.suit ?? 'SPADE' }"></app-card>
-        <p>{{ chug.name }}</p>
-        @if (chug.placement && chug.placement <= 3) {
+        <app-card
+          size="small"
+          [card]="{ rank: aceRank, suit: chug.chug.suit ?? 'SPADE' }"
+        ></app-card>
+        <p>{{ chug.player.name }}</p>
+        @if (chug.placement <= 3 && chug.chug.chugTimeMillis !== undefined) {
           <div
             class="placement-indicator"
             [style.--indicator-color]="placementColors[chug.placement]"
@@ -48,8 +51,8 @@
             <p>{{ chug.placement }}</p>
           </div>
         }
-        @if (chug.chugTimeMillis !== undefined) {
-          <p>{{ chug.chugTimeMillis / 1000 | number: '1.2-2' }}s</p>
+        @if (chug.chug.chugTimeMillis !== undefined) {
+          <p>{{ chug.chug.chugTimeMillis / 1000 | number: '1.2-2' }}s</p>
         } @else {
           <p>--</p>
         }

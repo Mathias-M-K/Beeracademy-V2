@@ -23,6 +23,7 @@ import { Card } from '../../../api-models/model/card';
 import { TimeReport } from '../../../api-models/model/timeReport';
 import { TimerState } from '../../../api-models/model/timerState';
 import { PlayerTurn } from '../../services/game/models/playerTurn';
+import { PlayerChug } from '../../services/game/models/playerChug';
 
 describe('GamePage', () => {
   let compact: boolean;
@@ -37,6 +38,7 @@ describe('GamePage', () => {
     previousPlayer: ReturnType<typeof signal<Player | undefined>>;
     nextPlayer: ReturnType<typeof signal<Player | undefined>>;
     turns: ReturnType<typeof signal<PlayerTurn[]>>;
+    chugs: ReturnType<typeof signal<PlayerChug[]>>;
     currentRound: ReturnType<typeof signal<number>>;
     gameTimeReport: ReturnType<typeof signal<TimeReport | undefined>>;
     remainingCardsByRank: ReturnType<typeof signal<ReturnType<typeof fullRankCounts>>>;
@@ -61,6 +63,7 @@ describe('GamePage', () => {
       previousPlayer: signal<Player | undefined>(players[0]),
       nextPlayer: signal<Player | undefined>(players[2]),
       turns: signal<PlayerTurn[]>([]),
+      chugs: signal<PlayerChug[]>([]),
       currentRound: signal(4),
       gameTimeReport: signal<TimeReport | undefined>(aTimeReport({ state: TimerState.Running })),
       remainingCardsByRank: signal(fullRankCounts()),
@@ -97,6 +100,7 @@ describe('GamePage', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     delete (Element.prototype as Partial<Element>).scrollTo;
@@ -301,7 +305,6 @@ describe('GamePage', () => {
       compact = true;
       const frames = captureAnimationFrames();
       const fixture = await render();
-      pageScroller(fixture).dispatchEvent(new Event('pointerdown'));
       layOutPages(fixture, 280);
       scrollTo.mockClear();
 
@@ -319,27 +322,10 @@ describe('GamePage', () => {
       expect(scrollTo).not.toHaveBeenCalled();
     });
 
-    it('ignores scrolling it did not start from a swipe', async () => {
-      // Arrange
-      compact = true;
-      const frames = captureAnimationFrames();
-      const fixture = await render();
-      layOutPages(fixture, 280);
-
-      // Act
-      pageScroller(fixture).dispatchEvent(new Event('scroll'));
-      frames.flush();
-      await fixture.whenStable();
-
-      // Assert
-      expect(selectedPage(fixture)).toBe('Spil');
-    });
-
     it('selects the page a swipe settles on', async () => {
       // Arrange
       compact = true;
       const fixture = await render();
-      pageScroller(fixture).dispatchEvent(new Event('pointerdown'));
       layOutPages(fixture, 280);
 
       // Act
@@ -348,6 +334,55 @@ describe('GamePage', () => {
 
       // Assert
       expect(selectedPage(fixture)).toBe('Podie');
+    });
+
+    it('switches to the podium when an ace is drawn', async () => {
+      // Arrange
+      compact = true;
+      const fixture = await render();
+
+      // Act
+      gameService.currentCard.set(aCard(14));
+      await fixture.whenStable();
+
+      // Assert
+      expect(selectedPage(fixture)).toBe('Podie');
+    });
+
+    it('stays on the game page when an ace is drawn on a wide screen', async () => {
+      // Arrange
+      compact = false;
+      const fixture = await render();
+
+      // Act
+      gameService.currentCard.set(aCard(14));
+      await fixture.whenStable();
+
+      // Assert
+      expect(fixture.componentInstance['selectedPage']()).toBe(0);
+    });
+
+    it('switches back to the game page before drawing from the podium', async () => {
+      // Arrange
+      compact = true;
+      const fixture = await render();
+      layOutPages(fixture, 0);
+      pageSegments(fixture)[1].click();
+      await fixture.whenStable();
+      playerTime.set(5_000);
+      vi.useFakeTimers({ toFake: ['setTimeout'] });
+
+      // Act
+      drawButton(fixture).click();
+      await fixture.whenStable();
+      const dispatchedBeforeDelay = gameService.dispatchDrawCardAction.mock.calls.length;
+      playerTime.set(9_999);
+      vi.advanceTimersByTime(200);
+
+      // Assert
+      expect(selectedPage(fixture)).toBe('Spil');
+      expect(dispatchedBeforeDelay).toBe(0);
+      expect(gameService.dispatchDrawCardAction).toHaveBeenCalledExactlyOnceWith(5_000);
     });
   });
 });

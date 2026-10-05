@@ -1,4 +1,4 @@
-import {Player} from '../../game/models/player';
+import { Player } from '../../game/models/player';
 
 export interface AchievementRunnerUp {
   player: Player;
@@ -7,7 +7,7 @@ export interface AchievementRunnerUp {
 
 export interface Achievement {
   title: string;
-  additionalInfo: string
+  additionalInfo: string;
   unit: string;
   digitsInfo: string;
 

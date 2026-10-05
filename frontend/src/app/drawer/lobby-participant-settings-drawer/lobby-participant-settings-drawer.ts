@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { DrawerDefaultHeaderComponent } from '../common/drawer-default-header/drawer-default-header.component';
 import { OVERLAY_DATA, OverlayHandle } from '../../services/overlay/models/overlay-handle';
 import { LobbyParticipantDTO } from '../../../api-models/model/lobbyParticipantDTO';
-import {ParticipantSettingsResult} from './models/participant-settings-result';
+import { ParticipantSettingsResult } from './models/participant-settings-result';
 
 @Component({
   imports: [DrawerDefaultHeaderComponent],

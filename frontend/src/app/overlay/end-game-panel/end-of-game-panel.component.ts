@@ -1,26 +1,24 @@
-import {Component, computed, inject, signal} from '@angular/core';
-import {GameService} from '../../services/game/game.service';
-import {AnimatedText} from '../../common/components/animated-text/animated-text';
-import {AnimatedNumber} from '../../common/components/animated-number/animated-number';
-import {ParticipantBadge} from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
-import {AchievementService} from '../../services/achievement/achievement-service';
-import {Achievement} from '../../services/achievement/models/achievement';
-import {TimerService} from '../../services/timer-service/timer.service';
-import {TimerType} from '../../services/timer-service/models/TimerType';
-import {GameTimeFormatPipe} from '../../pipes/game-time-format-pipe';
-import {DecimalPipe} from '@angular/common';
-import {Dot} from '../../common/dot/dot';
-import {Player} from '../../services/game/models/player';
-import {Router} from '@angular/router';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {map} from 'rxjs';
-import {BreakpointObserver} from '@angular/cdk/layout';
-import {MaterialIcon} from '../../common/components/material-icon/material-icon';
+import { Component, computed, inject, signal } from '@angular/core';
+import { GameService } from '../../services/game/game.service';
+import { AnimatedText } from '../../common/components/animated-text/animated-text';
+import { AnimatedNumber } from '../../common/components/animated-number/animated-number';
+import { ParticipantBadge } from '../../pages/lobby-page/participant-overview/participant/participant-badge/participant-badge';
+import { AchievementService } from '../../services/achievement/achievement-service';
+import { Achievement } from '../../services/achievement/models/achievement';
+import { TimerService } from '../../services/timer-service/timer.service';
+import { TimerType } from '../../services/timer-service/models/TimerType';
+import { GameTimeFormatPipe } from '../../pipes/game-time-format-pipe';
+import { DecimalPipe } from '@angular/common';
+import { Dot } from '../../common/dot/dot';
+import { Player } from '../../services/game/models/player';
+import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { MaterialIcon } from '../../common/components/material-icon/material-icon';
 
 type EndOfGamePage =
-  | { kind: 'start' }
-  | { kind: 'achievement'; achievement: Achievement }
-  | { kind: 'summary' };
+  { kind: 'start' } | { kind: 'achievement'; achievement: Achievement } | { kind: 'summary' };
 
 interface PlayerSummary {
   player: Player;
@@ -42,18 +40,16 @@ const sum = (values: number[]): number => values.reduce((total, value) => total 
     GameTimeFormatPipe,
     DecimalPipe,
     Dot,
-    MaterialIcon
+    MaterialIcon,
   ],
   selector: 'app-end-game-panel',
   styleUrl: './end-of-game-panel.component.scss',
   templateUrl: './end-of-game-panel.component.html',
   host: {
     '[style.--background-color]': 'background()',
-    '(click)': 'onClick($event)'
-  }
+  },
 })
 export class EndOfGamePanel {
-
   private readonly router = inject(Router);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly gameService = inject(GameService);
@@ -69,10 +65,11 @@ export class EndOfGamePanel {
   protected pauseTime = this.gameService.gameTimeReport()?.pausedTime ?? 0;
 
   protected readonly pages = computed<EndOfGamePage[]>(() => [
-    {kind: 'start'},
-    ...this.achievementService.achievements()
-      .map((achievement) => ({kind: 'achievement' as const, achievement})),
-    {kind: 'summary'},
+    { kind: 'start' },
+    ...this.achievementService
+      .achievements()
+      .map((achievement) => ({ kind: 'achievement' as const, achievement })),
+    { kind: 'summary' },
   ]);
   protected readonly currentPageIndex = signal(0);
   protected readonly currentPage = computed(() => this.pages()[this.currentPageIndex()]);
@@ -88,23 +85,30 @@ export class EndOfGamePanel {
         .filter((time) => time !== undefined);
 
       const sips = sum(turns.map((turn) => turn.card?.rank ?? 0));
-      const totalRoundTime = sum(turns.map((turn) => turn.durationInMillis ?? 0));
+      // The first round is untimed, so its turns are recorded as 0 ms and left out of the average.
+      const timedTurnDurations = turns
+        .map((turn) => turn.durationInMillis ?? 0)
+        .filter((millis) => millis > 0);
+      const totalRoundTime = sum(timedTurnDurations);
 
       return {
         player,
         sips,
         beers: sips / player.sipsInABeer,
         totalRoundTime,
-        avgRoundTime: turns.length ? totalRoundTime / turns.length : 0,
+        avgRoundTime: timedTurnDurations.length ? totalRoundTime / timedTurnDurations.length : 0,
         bestChugTime: chugTimes.length ? Math.min(...chugTimes) : undefined,
         achievements: this.achievementsByPlayer().get(player.id) ?? [],
       };
     }),
   );
 
-  protected beersConsumedTotal =
-    computed(()=>this.playerSummaries().reduce((sum, summary) => sum + summary.beers, 0));
-  protected sipsConsumedTotal = computed(()=> this.playerSummaries().reduce((sum, summary) => sum + summary.sips, 0));
+  protected readonly beersConsumedTotal = computed(() =>
+    sum(this.playerSummaries().map((summary) => summary.beers)),
+  );
+  protected readonly sipsConsumedTotal = computed(() =>
+    sum(this.playerSummaries().map((summary) => summary.sips)),
+  );
 
   private readonly currentAchievement = computed(() => {
     const page = this.currentPage();
@@ -118,8 +122,6 @@ export class EndOfGamePanel {
     { initialValue: false },
   );
 
-
-
   protected previousPage(): void {
     this.currentPageIndex.update((index) => Math.max(0, index - 1));
   }
@@ -132,24 +134,7 @@ export class EndOfGamePanel {
     this.currentPageIndex.set(1);
   }
 
-  protected leavePage(): void{
+  protected leavePage(): void {
     this.router.navigate(['/']);
   }
-
-  protected onClick(clickEvent: MouseEvent){
-
-    const clickedButton = clickEvent.target instanceof Element && clickEvent.target.closest('button');
-    if(!this.isCompact() || this.currentPage().kind === 'summary' || clickedButton) {
-      return;
-    }
-    const clickXPos = clickEvent.clientX;
-    const screenWidth = document.documentElement.clientWidth;
-
-    if(clickXPos > screenWidth / 2 ){
-      this.nextPage();
-    }else {
-      this.previousPage();
-    }
-  }
-
 }

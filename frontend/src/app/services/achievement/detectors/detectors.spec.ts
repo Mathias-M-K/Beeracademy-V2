@@ -100,12 +100,7 @@ describe('slowestChug', () => {
 describe('noChugs', () => {
   it('goes to the player who drew the most cards without chugging', () => {
     // Arrange
-    const turns = [
-      turn(anna, 1000, 14),
-      turn(bo, 1000),
-      turn(carl, 1000),
-      turn(carl, 1000),
-    ];
+    const turns = [turn(anna, 1000, 14), turn(bo, 1000), turn(carl, 1000), turn(carl, 1000)];
     const chugs = [chug(anna, 5000)];
 
     // Act

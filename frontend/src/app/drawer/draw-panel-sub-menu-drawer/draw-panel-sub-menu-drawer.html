@@ -5,20 +5,13 @@
 <segmented-control
   [segments]="segmentOptions"
   [(currentSelectedOption)]="selectedOption"
-  (currentSelectedOptionChange)="onSegmentSelected()"
 ></segmented-control>
-<div
-  id="view"
-  #scroller
-  (pointerdown)="onPointerDown()"
-  (scroll)="onScroll()"
-  (scrollend)="onScrollEnd()"
->
-  <div #viewElement>
+<div id="view" swipePager [(selectedPage)]="selectedOption">
+  <div swipePage>
     <app-round-history></app-round-history>
   </div>
 
-  <div #viewElement>
+  <div swipePage>
     <app-card-chance-overview></app-card-chance-overview>
   </div>
 </div>

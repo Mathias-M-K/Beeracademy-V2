@@ -1,14 +1,14 @@
-import {AchievementDetector} from '../models/achievement-detector';
-import {Player} from '../../game/models/player';
+import { AchievementDetector } from '../models/achievement-detector';
+import { Player } from '../../game/models/player';
 
-export const noChugs: AchievementDetector = ({turns, chugs}) => {
-  const chuggers = new Set(chugs.map(chug => chug.player.id));
+export const noChugs: AchievementDetector = ({ turns, chugs }) => {
+  const chuggers = new Set(chugs.map((chug) => chug.player.id));
 
-  const turnsPerPlayer = new Map<string, {player: Player; turns: number}>();
+  const turnsPerPlayer = new Map<string, { player: Player; turns: number }>();
   for (const turn of turns) {
     if (chuggers.has(turn.player.id)) continue;
 
-    const entry = turnsPerPlayer.get(turn.player.id) ?? {player: turn.player, turns: 0};
+    const entry = turnsPerPlayer.get(turn.player.id) ?? { player: turn.player, turns: 0 };
     entry.turns++;
     turnsPerPlayer.set(turn.player.id, entry);
   }
@@ -27,6 +27,6 @@ export const noChugs: AchievementDetector = ({turns, chugs}) => {
     digitsInfo: '1.0-2',
     player: winner.player,
     value: 0,
-    runnerUps: runnerUps.map(({player}) => ({player, value: 0})),
+    runnerUps: runnerUps.map(({ player }) => ({ player, value: 0 })),
   };
 };

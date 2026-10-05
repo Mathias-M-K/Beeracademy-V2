@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PodiumComponent } from './podium.component';
 import { Player } from '../../../services/game/models/player';
+import { PlayerChug } from '../../../services/game/models/playerChug';
 import { Suit } from '../../../../api-models/model/suit';
 import { aCard, aPlayerDto } from '../../../../testing/game-builders';
 
@@ -114,7 +115,6 @@ describe('PodiumComponent', () => {
 
       // Assert
       expect(podium(fixture).map((column) => column.name)).toEqual(['Ledig', 'Anna', 'Ledig']);
-      expect(history(fixture).map((row) => row.name)).toEqual(['Anna']);
     });
 
     it('places the three fastest chuggers as second, first and third', async () => {
@@ -199,24 +199,42 @@ describe('PodiumComponent', () => {
   });
 
   describe('chug history', () => {
-    it('lists chugs newest first, marking the top three times', async () => {
+    function aPlayerChug(
+      name: string,
+      chugNumber: number,
+      placement: number,
+      suit: Suit,
+      time?: number,
+    ): PlayerChug {
+      return {
+        player: aPlayer(`p${chugNumber}`, name),
+        chug: { suit, chugTimeMillis: time },
+        chugNumber,
+        placement,
+      };
+    }
+
+    async function renderHistory(chugs: PlayerChug[]) {
+      const fixture = TestBed.createComponent(PodiumComponent);
+      fixture.componentRef.setInput('chugs', chugs);
+      await fixture.whenStable();
+      return fixture;
+    }
+
+    it('lists chugs newest first, marking the top three placements', async () => {
       // Arrange
-      const players = [
-        aPlayer('p1', 'Anna', [{ suit: Suit.Heart, round: 1, time: 3_000 }]),
-        aPlayer('p2', 'Bo', [
-          { suit: Suit.Spade, round: 1, time: 1_000 },
-          { suit: Suit.Star, round: 4 },
-        ]),
-        aPlayer('p3', 'Cara', [{ suit: Suit.Club, round: 3, time: 2_000 }]),
-        aPlayer('p4', 'Dan', [{ suit: Suit.Diamond, round: 3, time: 4_000 }]),
+      const chronological = [
+        aPlayerChug('Anna', 1, 3, Suit.Heart, 3_000),
+        aPlayerChug('Bo', 2, 1, Suit.Spade, 1_000),
+        aPlayerChug('Cara', 3, 2, Suit.Club, 2_000),
+        aPlayerChug('Dan', 4, 4, Suit.Diamond, 4_000),
       ];
 
       // Act
-      const fixture = await render(players);
+      const fixture = await renderHistory(chronological);
 
       // Assert
       expect(history(fixture)).toEqual([
-        { name: 'Bo', time: '--', placement: undefined },
         { name: 'Dan', time: '4.00s', placement: undefined },
         { name: 'Cara', time: '2.00s', placement: '2' },
         { name: 'Bo', time: '1.00s', placement: '1' },
@@ -224,22 +242,21 @@ describe('PodiumComponent', () => {
       ]);
     });
 
-    it('lists a chug whose ace turn is missing as the newest', async () => {
+    it('shows an untimed chug without a time or placement', async () => {
       // Arrange
-      const anna = aPlayer('p1', 'Anna', [{ suit: Suit.Heart, round: 5, time: 1_000 }]);
-      const bo = Player.fromPlayerDto(
-        aPlayerDto({
-          id: 'p2',
-          name: 'Bo',
-          stats: { turns: [], chugs: [{ suit: Suit.Spade, chugTimeMillis: 2_000 }] },
-        }),
-      );
+      const chronological = [
+        aPlayerChug('Anna', 1, 1, Suit.Heart, 1_000),
+        aPlayerChug('Bo', 2, 2, Suit.Spade),
+      ];
 
       // Act
-      const fixture = await render([bo, anna]);
+      const fixture = await renderHistory(chronological);
 
       // Assert
-      expect(history(fixture).map((row) => row.name)).toEqual(['Bo', 'Anna']);
+      expect(history(fixture)).toEqual([
+        { name: 'Bo', time: '--', placement: undefined },
+        { name: 'Anna', time: '1.00s', placement: '1' },
+      ]);
     });
   });
 });

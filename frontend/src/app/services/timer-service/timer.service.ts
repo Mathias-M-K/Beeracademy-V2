@@ -67,5 +67,4 @@ export class TimerService {
       serverReportedActiveTime: serverReportedActiveTime,
     };
   }
-
 }

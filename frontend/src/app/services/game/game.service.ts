@@ -22,7 +22,7 @@ import { WebsocketService } from '../websocket.service';
 import { GameAction } from '../models/categories/actions/game/game-action';
 import { startGameAction } from '../models/categories/actions/game/game-client-action/start-game-action';
 import { gameClientActionEnvelope } from '../models/categories/actions/game/game-action-envelope';
-import {OverlayConf, OverlayService} from '../overlay/overlay.service';
+import { OverlayConf, OverlayService } from '../overlay/overlay.service';
 import { ChugOverlay } from '../../overlay/chug-overlay/chug-overlay';
 import { Player } from './models/player';
 import { playerColor } from '../../common/theme/player-colors';
@@ -49,7 +49,7 @@ import { WebsocketCode } from '../../../api-models/model/websocketCode';
 import { PartyContext, PartyContextProvider } from '../../pages/party/party-context-provider';
 import { PlayerTurn } from './models/playerTurn';
 import { PlayerChug } from './models/playerChug';
-import {EndOfGamePanel} from '../../overlay/end-game-panel/end-of-game-panel.component';
+import { EndOfGamePanel } from '../../overlay/end-game-panel/end-of-game-panel.component';
 
 //TODO The way the timers work and integrates is weird, or at least I don't understand it - Look at new DumbTimer, it's the way to go
 @Service()
@@ -166,8 +166,7 @@ export class GameService implements PartyContextProvider {
       player,
       chug: chug!,
       chugNumber: index + 1,
-      placement:
-        1 + chronological.filter((other) => chugTime(other.chug) < chugTime(chug)).length,
+      placement: 1 + chronological.filter((other) => chugTime(other.chug) < chugTime(chug)).length,
     }));
   });
 
@@ -407,11 +406,14 @@ export class GameService implements PartyContextProvider {
     const stateEvent: GameStateEvent = event.payload as GameStateEvent;
     this._gameDto.set(stateEvent.gameState);
 
-    if (this.gameTimeReport()?.state === TimerState.Paused && this.gameState() !== GameState.Finished) {
+    if (
+      this.gameTimeReport()?.state === TimerState.Paused &&
+      this.gameState() !== GameState.Finished
+    ) {
       this.openPausePanel();
     }
 
-    if(this.gameState() === GameState.Finished) {
+    if (this.gameState() === GameState.Finished) {
       this.openEndOfGamePanel();
     }
   }
@@ -666,11 +668,20 @@ export class GameService implements PartyContextProvider {
   }
 
   //TODO find a better solution to manage overlays (and drawers) and how to close them on different events
-  private openEndOfGamePanel(){
+  private openEndOfGamePanel() {
+    // A reconnect re-sends the finished snapshot — only ever show one.
+    if (this.endOfGamePanel) return;
+
     const overlayConf: OverlayConf<void> = {
-      component: EndOfGamePanel
-    }
-    this.endOfGamePanel = this.overlayService.openOverlay<void>(overlayConf);
+      component: EndOfGamePanel,
+    };
+    const panel = this.overlayService.openOverlay<void>(overlayConf);
+    this.endOfGamePanel = panel;
+
+    // endGame() replaces the panel before the old one's exit animation resolves `closed`.
+    void panel.closed.then(() => {
+      if (this.endOfGamePanel === panel) this.endOfGamePanel = undefined;
+    });
   }
 
   private openPausePanel() {
@@ -737,7 +748,6 @@ export class GameService implements PartyContextProvider {
     this.pauseTimer(this.playerTimeReport);
     this.dismissAllOverlays();
     this.openEndOfGamePanel();
-
   }
 
   public onGamePageDestroyed() {
@@ -752,9 +762,9 @@ export class GameService implements PartyContextProvider {
     this.chugOverlay?.dismiss(ignoreAnimation);
     this.endOfGamePanel?.dismiss(ignoreAnimation);
 
-
     this.gamePausedPanel = undefined;
     this.chugOverlay = undefined;
+    this.endOfGamePanel = undefined;
   }
 
   private navigateToWelcome() {

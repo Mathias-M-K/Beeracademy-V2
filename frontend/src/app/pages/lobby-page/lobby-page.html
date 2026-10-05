@@ -4,18 +4,11 @@
       class="page-switch"
       [segments]="pageNames"
       [(currentSelectedOption)]="selectedPage"
-      (currentSelectedOptionChange)="onPageSelected()"
     ></segmented-control>
   }
 
-  <div
-    class="pages"
-    #scroller
-    (pointerdown)="onPointerDown()"
-    (scroll)="onScroll()"
-    (scrollend)="onScrollEnd()"
-  >
-    <div class="page participant-list" #page>
+  <div class="pages" swipePager [(selectedPage)]="selectedPage">
+    <div class="page participant-list" swipePage>
       <app-participant-overview
         [participants]="this.participants()"
         [isLobbyOwner]="lobbyService.isHost()"
@@ -44,7 +37,7 @@
       }
     </div>
 
-    <div class="page chat-page" #page>
+    <div class="page chat-page" swipePage>
       <app-chat [style.grid-area]="'chat'"></app-chat>
     </div>
   </div>

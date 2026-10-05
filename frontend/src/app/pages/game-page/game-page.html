@@ -3,24 +3,17 @@
     class="page-switch"
     [segments]="pageNames"
     [(currentSelectedOption)]="selectedPage"
-    (currentSelectedOptionChange)="onPageSelected()"
   ></segmented-control>
 }
 
-<div
-  class="pages"
-  #scroller
-  (pointerdown)="onPointerDown()"
-  (scroll)="onScroll()"
-  (scrollend)="onScrollEnd()"
->
+<div class="pages" swipePager [(selectedPage)]="selectedPage">
   <app-card-count
     style="grid-area: card-count"
     [cards]="remainingCardsByRank()"
     [maxCardsPrRank]="players().length"
   ></app-card-count>
 
-  <div class="page" #page>
+  <div class="page" swipePage>
     <app-draw-panel
       id="draw-panel"
       style="grid-area: draw-panel"
@@ -41,7 +34,7 @@
     ></app-player-grid>
   </div>
 
-  <div class="page podium-page" #page>
-    <app-podium style="grid-area: podium" [players]="players()"></app-podium>
+  <div class="page podium-page" swipePage>
+    <app-podium style="grid-area: podium" [players]="players()" [chugs]="chugs()"></app-podium>
   </div>
 </div>

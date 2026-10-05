@@ -1,6 +1,6 @@
-import {Achievement} from './achievement';
-import {PlayerTurn} from '../../game/models/playerTurn';
-import {PlayerChug} from '../../game/models/playerChug';
+import { Achievement } from './achievement';
+import { PlayerTurn } from '../../game/models/playerTurn';
+import { PlayerChug } from '../../game/models/playerChug';
 
 export interface GameEvents {
   turns: PlayerTurn[];
