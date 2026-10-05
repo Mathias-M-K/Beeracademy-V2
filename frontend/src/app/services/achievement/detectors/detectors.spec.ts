@@ -108,7 +108,7 @@ describe('noChugs', () => {
 
     // Assert
     expect(achievement?.player).toBe(carl);
-    expect(achievement?.additionalInfo).toBe('2 kort uden et es');
+    expect(achievement?.additionalInfo).toBe('2 kort - men intet es');
     expect(achievement?.runnerUps).toEqual([{ player: bo, value: 0 }]);
   });
 
