@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ToastService } from './toast.service';
 import { OverlayService } from '../overlay/overlay.service';
 import { ToastState } from '../../overlay/toast/models/toast-data';
@@ -57,6 +58,21 @@ describe('ToastService', () => {
 
       // Assert
       expect(service.toast()?.toastState).toBe(ToastState.error);
+    });
+
+    it('announces the toast politely to screen readers for as long as it shows', () => {
+      // Arrange
+      const announce = vi.spyOn(TestBed.inject(LiveAnnouncer), 'announce').mockResolvedValue();
+
+      // Act
+      service.showToast('Miv :(', 'Kunne ikke forbinde', 'error', ToastState.error);
+
+      // Assert
+      expect(announce).toHaveBeenCalledExactlyOnceWith(
+        'Miv :(. Kunne ikke forbinde',
+        'polite',
+        service.toast()!.durationMs,
+      );
     });
 
     it('replaces the current toast with the new one', () => {

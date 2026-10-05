@@ -27,7 +27,7 @@ describe('ToastContainer', () => {
     return Array.from(fixture.nativeElement.querySelectorAll('app-toast'));
   }
 
-  it('announces its toast politely to screen readers', async () => {
+  it('is not a live region of its own, so a toast is announced only once', async () => {
     // Arrange
     const fixture = await render();
 
@@ -35,8 +35,8 @@ describe('ToastContainer', () => {
     const host: HTMLElement = fixture.nativeElement;
 
     // Assert
-    expect(host.getAttribute('role')).toBe('status');
-    expect(host.getAttribute('aria-live')).toBe('polite');
+    expect(host.hasAttribute('role')).toBe(false);
+    expect(host.hasAttribute('aria-live')).toBe(false);
   });
 
   it('renders nothing without a toast', async () => {
