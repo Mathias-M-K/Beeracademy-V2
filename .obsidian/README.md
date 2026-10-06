@@ -54,7 +54,8 @@ Established conventions — the *how*, where the ADRs are the *why*.
 - [[route-resolvers]] — resolvers as navigation gates, and the loading gap they cost
 - [[runtime-config]] — the API URL is runtime config, not build-time
 - [[overlay-exit-animations]] — playing an exit animation before a CDK overlay disposes
-- [[toast-stack-and-overview]] — the toast deck, the overview it fans into, and the gestures between them
+- [[toast-lifecycle]] — toasts today: service-owned list and timers, click-to-dismiss buttons
+- [[toast-stack-and-overview]] — ⚠️ superseded by [[toast-lifecycle]]; the removed deck, overview and gestures
 
 **Infra**
 - [[ci-workflows]] — the three GitHub Actions workflows and the runner constraints behind them

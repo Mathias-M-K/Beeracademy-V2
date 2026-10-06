@@ -10,14 +10,14 @@ type Stubbed<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R ? Mock<(...args: A) => R> : T[K];
 };
 
-export type ToastServiceStub = Stubbed<Pick<ToastService, 'showToast' | 'removeToast'>> &
-  Pick<ToastService, 'toasts'>;
+export type ToastServiceStub = Stubbed<Pick<ToastService, 'showToast' | 'dismissToast'>> &
+  Pick<ToastService, 'toast'>;
 
 export function createToastServiceStub(): ToastServiceStub {
   return {
-    toasts: signal([]).asReadonly(),
+    toast: signal(null).asReadonly(),
     showToast: vi.fn(),
-    removeToast: vi.fn(),
+    dismissToast: vi.fn(),
   };
 }
 

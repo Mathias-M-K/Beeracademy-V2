@@ -1,12 +1,25 @@
 ---
 type: pattern
 layer: frontend
-status: active
-updated: 2026-09-18
-tags: [pattern, frontend, angular, overlay, animation, ux]
+status: superseded
+updated: 2026-10-05
+tags:
+  - pattern
+  - frontend
+  - angular
+  - overlay
+  - animation
+  - ux
 ---
 
 # Toasts — the deck and the overview
+
+## ⚠️ Superseded
+This note no longer describes the system. On branch `improvement/better-toast` (2026-10-05) the deck,
+the overview, the gestures, the CSS-driven countdown and `syncOverlay()` were all removed. They were
+replaced by a single list of click-to-dismiss buttons with `setTimeout` auto-dismiss in
+`ToastService`. See [[toast-lifecycle]]. The note is kept for the reasoning and the touch/`touch-action`
+findings, which still apply to any future gesture work.
 
 The toast system has two states and one rule: **stacked is the default, and every toast must be
 reachable in an overview**. Everything below is how those two states are built and, more

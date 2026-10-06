@@ -1,6 +1,7 @@
-import { inject, Service, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import { OverlayConf, OverlayService } from '../overlay/overlay.service';
 import { OverlayPositionBuilder } from '@angular/cdk/overlay';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ToastData, ToastState } from '../../overlay/toast/models/toast-data';
 import { ToastContainer } from '../../overlay/toast/toast-container/toast-container';
 import { OverlayHandle } from '../overlay/models/overlay-handle';
@@ -13,17 +14,16 @@ export class ToastService {
   private readonly overlayService = inject(OverlayService);
   private readonly posBuilder = inject(OverlayPositionBuilder);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
 
-  private readonly _toasts = signal<ToastData[]>([]);
-  public readonly toasts = this._toasts.asReadonly();
+  private readonly isClosing = signal(false);
+  private readonly _toast = signal<ToastData | null>(null);
+  // Hidden while the container is leaving, so it does not flash a toast that arrived mid-exit.
+  public readonly toast = computed(() => (this.isClosing() ? null : this._toast()));
+
+  private dismissTimer: ReturnType<typeof setTimeout> | undefined;
 
   private overlayHandle: OverlayHandle<void> | null = null;
-
-  /**
-   * Set while the container plays its exit. The handle is only usable again once that
-   * resolves, so a toast arriving mid-close waits rather than opening a second container.
-   */
-  private isClosing = false;
 
   protected isCompact = toSignal(
     this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map((data) => data.matches)),
@@ -31,36 +31,22 @@ export class ToastService {
   );
 
   public showToast(title: string, text: string, icon: string, state?: ToastState): void {
-    this._toasts.update((existingToasts) => [
-      ...existingToasts,
-      new ToastData(title, text, icon, state),
-    ]);
+    const toast = new ToastData(title, text, icon, state);
+    this._toast.set(toast);
+    // The container is often created together with its toast, which a live region on it would miss.
+    void this.liveAnnouncer.announce(`${title}. ${text}`, 'polite', toast.durationMs);
+    clearTimeout(this.dismissTimer);
+    this.dismissTimer = setTimeout(() => this.dismissToast(toast.id), toast.durationMs);
 
-    this.syncOverlay();
+    if (this.overlayHandle) return;
+    this.openToastOverlay();
   }
 
-  public removeToast(toastId: string): void {
-    this._toasts.update((toasts) => toasts.filter((toast) => toast.id !== toastId));
-
-    this.syncOverlay();
-  }
-
-  /** Keeps the container's existence in step with the list, whichever way the list moved. */
-  private syncOverlay(): void {
-    if (this.isClosing) {
-      return;
-    }
-
-    const wantsContainer = this._toasts().length > 0;
-
-    if (wantsContainer && !this.overlayHandle) {
-      this.openToastOverlay();
-      return;
-    }
-
-    if (!wantsContainer && this.overlayHandle) {
-      this.closeToastOverlay();
-    }
+  public dismissToast(toastId: string): void {
+    if (this._toast()?.id !== toastId) return;
+    clearTimeout(this.dismissTimer);
+    this._toast.set(null);
+    this.closeToastOverlay();
   }
 
   private openToastOverlay(): void {
@@ -82,19 +68,16 @@ export class ToastService {
 
   private closeToastOverlay(): void {
     const handle = this.overlayHandle;
-    if (!handle) {
-      return;
-    }
+    if (!handle || this.isClosing()) return;
 
-    this.isClosing = true;
-
+    this.isClosing.set(true);
     handle.close();
     void handle.closed.then(() => {
-      this.isClosing = false;
+      this.isClosing.set(false);
       this.overlayHandle = null;
 
       // A toast may have arrived while the exit was playing.
-      this.syncOverlay();
+      if (this._toast()) this.openToastOverlay();
     });
   }
 }

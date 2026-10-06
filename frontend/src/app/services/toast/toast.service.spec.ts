@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ToastService } from './toast.service';
 import { OverlayService } from '../overlay/overlay.service';
 import { ToastState } from '../../overlay/toast/models/toast-data';
@@ -17,6 +18,7 @@ describe('ToastService', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -29,7 +31,7 @@ describe('ToastService', () => {
   }
 
   describe('showToast', () => {
-    it('adds the toast to the list', () => {
+    it('shows the given toast', () => {
       // Arrange
       const title = 'Plads optaget';
 
@@ -37,13 +39,14 @@ describe('ToastService', () => {
       service.showToast(title, 'Nogen andre er allerede logget ind med dit ID', 'close');
 
       // Assert
-      expect(service.toasts()).toEqual([
+      expect(service.toast()).toEqual(
         expect.objectContaining({
+          title,
           message: 'Nogen andre er allerede logget ind med dit ID',
           toastState: ToastState.message,
           id: expect.stringMatching(/^toast-\d+$/),
         }),
-      ]);
+      );
     });
 
     it('keeps the given toast state', () => {
@@ -54,30 +57,35 @@ describe('ToastService', () => {
       service.showToast('Miv :(', 'Kunne ikke forbinde', 'error', state);
 
       // Assert
-      expect(service.toasts()[0].toastState).toBe(ToastState.error);
+      expect(service.toast()?.toastState).toBe(ToastState.error);
     });
 
-    it('puts the newest toast last', () => {
+    it('announces the toast politely to screen readers for as long as it shows', () => {
+      // Arrange
+      const announce = vi.spyOn(TestBed.inject(LiveAnnouncer), 'announce').mockResolvedValue();
+
+      // Act
+      service.showToast('Miv :(', 'Kunne ikke forbinde', 'error', ToastState.error);
+
+      // Assert
+      expect(announce).toHaveBeenCalledExactlyOnceWith(
+        'Miv :(. Kunne ikke forbinde',
+        'polite',
+        service.toast()!.durationMs,
+      );
+    });
+
+    it('replaces the current toast with the new one', () => {
       // Arrange
       service.showToast('First', 'one', 'info');
+      const first = service.toast();
 
       // Act
       service.showToast('Second', 'two', 'info');
 
       // Assert
-      expect(service.toasts().map((toast) => toast.message)).toEqual(['one', 'two']);
-    });
-
-    it('gives every toast a unique id', () => {
-      // Arrange
-      service.showToast('First', 'one', 'info');
-
-      // Act
-      service.showToast('Second', 'two', 'info');
-
-      // Assert
-      const [first, second] = service.toasts();
-      expect(second.id).not.toBe(first.id);
+      expect(service.toast()?.message).toBe('two');
+      expect(service.toast()?.id).not.toBe(first?.id);
     });
   });
 
@@ -100,9 +108,10 @@ describe('ToastService', () => {
       expect(renderedToasts()[0].textContent).toContain('Velkommen');
     });
 
-    it('reuses the open container for further toasts', () => {
+    it('reuses the open container when a toast is replaced', () => {
       // Arrange
       service.showToast('First', 'one', 'info');
+      TestBed.tick();
 
       // Act
       service.showToast('Second', 'two', 'info');
@@ -111,69 +120,90 @@ describe('ToastService', () => {
       // Assert
       expect(openOverlay).toHaveBeenCalledOnce();
       expect(panes()).toHaveLength(1);
-      expect(renderedToasts()).toHaveLength(2);
+      expect(renderedToasts().at(-1)?.textContent).toContain('two');
     });
   });
 
-  describe('removeToast', () => {
-    it('removes only the toast with the given id', () => {
+  describe('auto-dismiss', () => {
+    it('dismisses the toast once its duration runs out', async () => {
       // Arrange
-      service.showToast('First', 'one', 'info');
-      service.showToast('Second', 'two', 'info');
-      const [, second] = service.toasts();
+      vi.useFakeTimers();
+      service.showToast('First', 'one', 'info', ToastState.success);
+      const durationMs = service.toast()!.durationMs;
 
       // Act
-      service.removeToast(second.id);
-
-      // Assert
-      expect(service.toasts().map((toast) => toast.message)).toEqual(['one']);
-    });
-
-    it('keeps the container open while toasts remain', async () => {
-      // Arrange
-      service.showToast('First', 'one', 'info');
-      service.showToast('Second', 'two', 'info');
-      const [, second] = service.toasts();
-
-      // Act
-      service.removeToast(second.id);
+      vi.advanceTimersByTime(durationMs);
       await flushMicrotasks();
 
       // Assert
-      expect(panes()).toHaveLength(1);
-    });
-
-    it('ignores an unknown id', async () => {
-      // Arrange
-      service.showToast('First', 'one', 'info');
-
-      // Act
-      service.removeToast('toast-unknown');
-      await flushMicrotasks();
-
-      // Assert
-      expect(service.toasts()).toHaveLength(1);
-      expect(panes()).toHaveLength(1);
-    });
-
-    it('closes the container once the last toast is removed', async () => {
-      // Arrange
-      service.showToast('First', 'one', 'info');
-      const [first] = service.toasts();
-
-      // Act
-      service.removeToast(first.id);
-      await flushMicrotasks();
-
-      // Assert
-      expect(service.toasts()).toEqual([]);
+      expect(service.toast()).toBeNull();
       expect(panes()).toHaveLength(0);
+    });
+
+    it('keeps the toast until its duration has run out', () => {
+      // Arrange
+      vi.useFakeTimers();
+      service.showToast('First', 'one', 'info');
+      const durationMs = service.toast()!.durationMs;
+
+      // Act
+      vi.advanceTimersByTime(durationMs - 1);
+
+      // Assert
+      expect(service.toast()?.message).toBe('one');
+    });
+
+    it('restarts the countdown when a new toast replaces the current one', () => {
+      // Arrange
+      vi.useFakeTimers();
+      service.showToast('First', 'one', 'info');
+      const firstDurationMs = service.toast()!.durationMs;
+      vi.advanceTimersByTime(firstDurationMs - 1);
+      service.showToast('Second', 'two', 'info');
+      const secondDurationMs = service.toast()!.durationMs;
+
+      // Act
+      vi.advanceTimersByTime(secondDurationMs - 1);
+
+      // Assert
+      expect(service.toast()?.message).toBe('two');
+    });
+  });
+
+  describe('dismissToast', () => {
+    it('clears the toast and closes the container', async () => {
+      // Arrange
+      service.showToast('First', 'one', 'info');
+      const toastId = service.toast()!.id;
+
+      // Act
+      service.dismissToast(toastId);
+      await flushMicrotasks();
+
+      // Assert
+      expect(service.toast()).toBeNull();
+      expect(panes()).toHaveLength(0);
+    });
+
+    it('ignores the id of a toast that was already replaced', async () => {
+      // Arrange
+      service.showToast('First', 'one', 'info');
+      const replacedId = service.toast()!.id;
+      service.showToast('Second', 'two', 'info');
+
+      // Act
+      service.dismissToast(replacedId);
+      await flushMicrotasks();
+
+      // Assert
+      expect(service.toast()?.message).toBe('two');
+      expect(panes()).toHaveLength(1);
     });
 
     it('opens a fresh container for a toast after the previous one closed', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');
-      service.removeToast(service.toasts()[0].id);
+      service.dismissToast(service.toast()!.id);
       await flushMicrotasks();
 
       // Act
@@ -185,37 +215,36 @@ describe('ToastService', () => {
       expect(panes()).toHaveLength(1);
     });
 
-    it('removes a toast when its countdown runs out', async () => {
+    it('holds back a toast that arrives while the container is leaving', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');
-      TestBed.tick();
+      service.dismissToast(service.toast()!.id);
 
       // Act
-      renderedToasts()[0]
-        .querySelector('.countdown')!
-        .dispatchEvent(new Event('animationend', { bubbles: true }));
-      TestBed.tick();
+      service.showToast('Second', 'two', 'info');
+      const toastWhileClosing = service.toast();
       await flushMicrotasks();
 
       // Assert
-      expect(service.toasts()).toEqual([]);
-      expect(panes()).toHaveLength(0);
+      expect(toastWhileClosing).toBeNull();
+      expect(service.toast()?.message).toBe('two');
     });
 
     it('never has more than one toast container open', async () => {
       // Arrange
       service.showToast('First', 'one', 'info');
-      service.removeToast(service.toasts()[0].id);
-      service.showToast('Second', 'two', 'info');
-      await flushMicrotasks();
+      service.dismissToast(service.toast()!.id);
 
       // Act
-      service.showToast('Third', 'three', 'info');
+      service.showToast('Second', 'two', 'info');
+      const panesWhileClosing = panes().length;
       await flushMicrotasks();
 
       // Assert
+      expect(panesWhileClosing).toBe(1);
       expect(panes()).toHaveLength(1);
       expect(openOverlay).toHaveBeenCalledTimes(2);
+      expect(service.toast()?.message).toBe('two');
     });
   });
 });
